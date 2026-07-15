@@ -1,0 +1,78 @@
+# ==================== AI-RAG 根仓库过滤 ====================
+# 根仓职责：readme / docs（规划文档）/ deploy（不含密钥）
+# backend、frontend 为独立 Git 仓，不由根仓跟踪
+
+# ---------- 独立子仓 / 嵌套仓库 ---------- 
+/docs/feat/
+
+# ---------- 密钥与本地环境 ----------
+.env
+.env.*
+!.env.example
+!**/env.example
+**/credentials.json
+**/secret*.yml
+**/secret*.yaml
+*.pem
+*.key
+*.p12
+*.jks
+
+# ---------- 部署运行产物 ----------
+/deploy/.env
+/deploy/logs/
+/deploy/**/*.log
+/deploy/mysql/data/
+/deploy/mongo/data/
+/deploy/**/data/
+
+# ---------- 构建与依赖 ----------
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/target/
+**/coverage/
+**/.turbo/
+**/.cache/
+*.jar
+*.war
+*.ear
+!**/maven-wrapper.jar
+
+# ---------- 日志与临时文件 ----------
+logs/
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+hs_err_pid*
+replay_pid*
+
+# ---------- IDE / 编辑器 ----------
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+.project
+.classpath
+.settings/
+out/
+bin/
+
+# ---------- 操作系统 ----------
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# ---------- Cursor / 本地工具 ----------
+.cursor/
+.claude/
+**/agent-transcripts/ 
