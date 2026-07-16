@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 A0/A1/B 与 Phase C 72/73 已收口；**下一步 74（ES 路径结项）→ 75 拆进程评估**；联调补齐 Golden/ACL。`enableAgent` 默认仍关闭。
+**下一阶段**：第 7 阶段任务 **56–75 计划项已收口**（联调补齐仍待：Golden WriteBaseline、Search ACL 环境复测、`enableAgent` 开闸）。默认 `enableAgent` 仍关闭。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,26 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 74/75：ES 结项与拆进程评估）
+
+### 【本次功能】
+
+1. 任务 74：`vector-store-es-closure.md` — 按 73 决策「无新增向量后端」结项；沿用 embed 失败→BM25 降级
+2. 任务 75：`intelligence-process-split-assessment.md` — 无压测依据**不拆**；维持三池隔离默认
+
+### 【参考文件】
+
+- docs/eval/vector-store-es-closure.md
+- docs/eval/intelligence-process-split-assessment.md
+- docs/eval/vector-store-decision.md
+
+### 【差距总结】
+
+- 负载/p95 表仍 pending；拆分提案仅文档，未改部署拓扑
+- 专用向量库对账/双写未做（决策不需要）
 
 ---
 

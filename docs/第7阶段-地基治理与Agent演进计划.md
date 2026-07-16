@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0/A1/B ✅；Phase C 72/73 ✅ 决策继续 ES；下一步 74 ES 结项 → 75；联调补齐）
+> **状态**：计划任务 56–75 已收口（A0/A1/B/C）；待联调：Golden WriteBaseline、Search ACL 复测、`enableAgent` 开闸
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -568,17 +568,17 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 74：条件适配、对账与降级
 
-- 若任务 73 决定继续 ES，本任务以“无新增向量后端”结项
-- 若选择 Milvus/Qdrant：实现 `DenseRetriever` 适配器和条件装配，只保留一个专用向量生产后端
-- 文档生命周期：文本/BM25 始终进入 ES，向量按选型进入 ES 或专用向量库
-- 增双写/重建进度、数量对账、失败重试与健康检查
-- 专用向量库异常时强制降级为 `vector=off`，保留 ES BM25 主路径
-- `deploy/docker-compose` 仅为最终选中的后端增加可选 profile
+- [x] 若任务 73 决定继续 ES，本任务以“无新增向量后端”结项（见 `docs/eval/vector-store-es-closure.md`）
+- [x] 若选择 Milvus/Qdrant：…（不适用）
+- [x] 文档生命周期：文本/BM25 始终进入 ES，向量进入 ES
+- [x] 双写/对账：不适用
+- [x] 降级：embed 失败 → BM25-only（已有）
+- [x] docker-compose：不新增 profile
 
 ### 任务 75：Intelligence 拆进程评估
 
-- 出负载报告与拆分提案；**无压测依据不拆**
-- 维持三池隔离为默认
+- [x] 出负载报告与拆分提案；**无压测依据不拆**（见 `docs/eval/intelligence-process-split-assessment.md`）
+- [x] 维持三池隔离为默认
 
 ---
 
@@ -698,8 +698,8 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - [x] 72 React Flow
 - [x] 73 向量库选型合闸
-- [ ] 74 条件适配、对账与降级
-- [ ] 75 拆进程评估
+- [x] 74 条件适配、对账与降级
+- [x] 75 拆进程评估
 
 ---
 
