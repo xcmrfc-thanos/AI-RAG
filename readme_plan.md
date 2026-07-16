@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–66 ✅；下一步 **67**（线性引擎）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–67 ✅；下一步 **68**（会话与 Run API）。Search ACL backlog 仍 OPEN。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,28 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 67：线性工作流引擎）
+
+### 【本次功能】
+
+1. `LinearGraphValidator` + `VariableResolver`：拒绝环/并行/孤立；仅 `${input.x}` / `${steps.id.output}`
+2. `LinearWorkflowEngine`：线性执行 tool/llm，短路失败，协作取消，Run 状态机，落库 `agent_run_step`
+3. 单测：成功、工具失败短路、校验拒绝、缺变量、取消、终态不重跑
+
+### 【参考文件】
+
+- backend/kb-agent/.../engine/LinearWorkflowEngine.java、LinearGraphValidator.java、VariableResolver.java
+- backend/kb-agent/.../engine/WorkflowDefinition.java、RunStatus.java、AgentRunPersistence.java
+- backend/kb-agent/src/test/.../LinearWorkflowEngineTest.java、VariableResolverTest.java
+- docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- HTTP 管理/运行 API 留给任务 68；幂等键创建入口在 68 暴露，引擎侧已终态短路
+- LLM 节点级 60s 超时依赖模型客户端侧（配置已有）；Run 90s 在引擎循环检查
 
 ---
 

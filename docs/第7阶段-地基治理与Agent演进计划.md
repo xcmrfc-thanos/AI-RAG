@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65 ✅；**B1 66 ✅**；下一步 67；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–67 ✅；下一步 68；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -461,7 +461,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] Search 结果和文档读取必须与前端用户的可见范围一致；若现有 Search 缺权限过滤，Agent 不得开放生产默认开关（`enableAgent` 仍关；ACL backlog OPEN）
 - [x] 单工具默认超时 5 秒；超时和非 2xx 统一转换为结构化 ToolError
 - [x] 审计只记录 runId、stepId、tool、耗时、状态和文档 ID，不记录 Token、完整正文和模型密钥
-- [ ] 工具输出按任务 64 的变量规则写入 `agent_run_step`（依赖任务 67 引擎落库）
+- [x] 工具输出按任务 64 的变量规则写入 `agent_run_step`（由任务 67 引擎落库）
 - [x] 检索文档内容按“不可信数据”进入 Prompt，不得覆盖系统级安全指令
 
 **验收**：单测 mock 出站；工具客户端只配置 Gateway base URL；权限、超时、非法参数、过长输出均有负向用例；用户 A 搜索/读取不到用户 B 私有文档（真实双用户隔离仍见 Search ACL backlog）。
@@ -470,14 +470,14 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 67：线性工作流引擎（非完整 DAG）
 
-- [ ] 实现任务 64 的线性图校验器；非法环、并行、孤立节点在保存/发布前拒绝
-- [ ] 节点按拓扑顺序执行；任一节点失败后短路，不继续执行后续节点
-- [ ] 变量解析只支持白名单语法；缺失变量产生明确 ValidationError
-- [ ] Run 总超时默认 90 秒，LLM 节点默认 60 秒，工具节点默认 5 秒
-- [ ] 每个节点开始/成功/失败都持久化 `agent_run_step`
-- [ ] Run 创建支持幂等键，重复请求返回同一 Run，不重复调用模型
-- [ ] 取消请求设置取消标记；当前节点结束后不再启动下一节点
-- [ ] 最终状态只允许任务 64 定义的状态转换
+- [x] 实现任务 64 的线性图校验器；非法环、并行、孤立节点在保存/发布前拒绝
+- [x] 节点按拓扑顺序执行；任一节点失败后短路，不继续执行后续节点
+- [x] 变量解析只支持白名单语法；缺失变量产生明确 ValidationError
+- [x] Run 总超时默认 90 秒，LLM 节点默认 60 秒，工具节点默认 5 秒
+- [x] 每个节点开始/成功/失败都持久化 `agent_run_step`
+- [x] Run 创建支持幂等键，重复请求返回同一 Run，不重复调用模型（终态短路；幂等键查询 API 见任务 68）
+- [x] 取消请求设置取消标记；当前节点结束后不再启动下一节点
+- [x] 最终状态只允许任务 64 定义的状态转换
 
 **验收**：固定 JSON 可执行；成功、工具失败、LLM 失败、超时、取消、重复请求均有单测或集成测试。
 
@@ -689,7 +689,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - [x] 65 kb-agent 骨架
 - [x] 66 双工具
-- [ ] 67 线性引擎
+- [x] 67 线性引擎
 - [ ] 68 Session/Run API
 
 ### Phase B2
