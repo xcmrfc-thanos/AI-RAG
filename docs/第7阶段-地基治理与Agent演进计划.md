@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；**B1 65 ✅**；下一步 66；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65 ✅；**B1 66 ✅**；下一步 67；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -452,19 +452,19 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 66：Tool Registry（仅 2 工具）
 
-- [ ] `hybrid_search`：`query` 1～1000 字符；`mode=keyword|hybrid`；`topK=1..20`，默认 5
-- [ ] `get_document`：`documentId` 必填；`maxChars=500..10000`，默认 4000
-- [ ] 两个工具均通过 Gateway 调现有 API，并透传终端用户 `Authorization`
-- [ ] Gateway 对 `/api/search/**`、`/api/document/**` 同样执行任务 56 的强制 JWT 校验
-- [ ] Agent 不得直连 Core/Intelligence 业务端口绕过 Gateway；仅运维排障可按受控流程直连
-- [ ] 禁止工具使用系统用户内部签名读取用户不可见文档
-- [ ] Search 结果和文档读取必须与前端用户的可见范围一致；若现有 Search 缺权限过滤，Agent 不得开放生产默认开关
-- [ ] 单工具默认超时 5 秒；超时和非 2xx 统一转换为结构化 ToolError
-- [ ] 审计只记录 runId、stepId、tool、耗时、状态和文档 ID，不记录 Token、完整正文和模型密钥
-- [ ] 工具输出按任务 64 的变量规则写入 `agent_run_step`
-- [ ] 检索文档内容按“不可信数据”进入 Prompt，不得覆盖系统级安全指令
+- [x] `hybrid_search`：`query` 1～1000 字符；`mode=keyword|hybrid`；`topK=1..20`，默认 5
+- [x] `get_document`：`documentId` 必填；`maxChars=500..10000`，默认 4000
+- [x] 两个工具均通过 Gateway 调现有 API，并透传终端用户 `Authorization`
+- [x] Gateway 对 `/api/search/**`、`/api/document/**` 同样执行任务 56 的强制 JWT 校验（复用 56-MVP；工具不另开白名单）
+- [x] Agent 不得直连 Core/Intelligence 业务端口绕过 Gateway；仅运维排障可按受控流程直连
+- [x] 禁止工具使用系统用户内部签名读取用户不可见文档（仅透传用户 Bearer，无 HMAC）
+- [x] Search 结果和文档读取必须与前端用户的可见范围一致；若现有 Search 缺权限过滤，Agent 不得开放生产默认开关（`enableAgent` 仍关；ACL backlog OPEN）
+- [x] 单工具默认超时 5 秒；超时和非 2xx 统一转换为结构化 ToolError
+- [x] 审计只记录 runId、stepId、tool、耗时、状态和文档 ID，不记录 Token、完整正文和模型密钥
+- [ ] 工具输出按任务 64 的变量规则写入 `agent_run_step`（依赖任务 67 引擎落库）
+- [x] 检索文档内容按“不可信数据”进入 Prompt，不得覆盖系统级安全指令
 
-**验收**：单测 mock 出站；工具客户端只配置 Gateway base URL；权限、超时、非法参数、过长输出均有负向用例；用户 A 搜索/读取不到用户 B 私有文档。
+**验收**：单测 mock 出站；工具客户端只配置 Gateway base URL；权限、超时、非法参数、过长输出均有负向用例；用户 A 搜索/读取不到用户 B 私有文档（真实双用户隔离仍见 Search ACL backlog）。
 
 ---
 
@@ -688,7 +688,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### Phase B1
 
 - [x] 65 kb-agent 骨架
-- [ ] 66 双工具
+- [x] 66 双工具
 - [ ] 67 线性引擎
 - [ ] 68 Session/Run API
 

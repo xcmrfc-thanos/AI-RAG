@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；**B1 65 ✅**；下一步 **66**（双工具）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–66 ✅；下一步 **67**（线性引擎）。Search ACL backlog 仍 OPEN。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,28 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 66：双工具 Registry）
+
+### 【本次功能】
+
+1. `AgentToolRegistry` + `hybrid_search` / `get_document`：参数校验、不可信数据包装、结构化 `ToolException`
+2. `GatewayToolHttpClient`：仅 `agent.gateway-base-url` 出站，透传用户 Bearer，默认超时 5s；审计不含 Token/正文
+3. 单测 `AgentToolRegistryTest`（mock 出站）：注册表、鉴权缺失、非法参数、截断、HTTP 错误
+
+### 【参考文件】
+
+- backend/kb-agent/.../tool/AgentTool.java、AgentToolRegistry.java、GatewayToolHttpClient.java
+- backend/kb-agent/.../tool/HybridSearchTool.java、GetDocumentTool.java、UntrustedDataWrapper.java、ToolException.java
+- backend/kb-agent/src/test/.../AgentToolRegistryTest.java
+- docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- `agent_run_step` 落库写入留给任务 67；真实双用户 Search ACL 仍 OPEN，不开放 `enableAgent`
+- 未接工作流引擎调用（67）与 Run API（68）
 
 ---
 
