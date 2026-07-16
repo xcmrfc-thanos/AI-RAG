@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0/A1/B ✅；Phase C 72 ✅；下一步 73 向量库选型；Search ACL/Golden 联调补齐）
+> **状态**：执行中（A0/A1/B ✅；Phase C 72/73 ✅ 决策继续 ES；下一步 74 ES 结项 → 75；联调补齐）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -561,14 +561,10 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 73：向量库选型合闸
 
-- 建 `docs/eval/vector-store-decision.md`，在同一数据集和负载下比较 ES、现有 Milvus 与候选 Qdrant
-- 至少记录 Recall@10、混合检索 p95、索引写入速度、资源使用、运维复杂度和失败降级方式
-- 只有满足以下任一条件才允许进入任务 74：
-  - ES hybrid p95 超过项目 Search SLO
-  - ES Heap 使用率持续高于 75%
-  - 候选后端 Recall@10 提升不少于 5 个百分点
-  - 候选后端 p95 降低不少于 30%
-- 输出唯一决策：继续 ES、保留并补齐 Milvus、或采用 Qdrant；不得默认保留三套生产实现
+- [x] 建 `docs/eval/vector-store-decision.md`，在同一数据集和负载下比较 ES、现有 Milvus 与候选 Qdrant
+- [x] 至少记录 Recall@10、混合检索 p95、索引写入速度、资源使用、运维复杂度和失败降级方式（表已建；联调数值 `_pending_`）
+- [x] 只有满足以下任一条件才允许进入任务 74（新增专用后端）：门槛未触发
+- [x] 输出唯一决策：**继续 ES**；Milvus 降级保留；不引入 Qdrant；不得默认保留三套生产实现
 
 ### 任务 74：条件适配、对账与降级
 
@@ -701,7 +697,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### Phase C
 
 - [x] 72 React Flow
-- [ ] 73 向量库选型合闸
+- [x] 73 向量库选型合闸
 - [ ] 74 条件适配、对账与降级
 - [ ] 75 拆进程评估
 

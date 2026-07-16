@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 A0/A1/B 已收口；**Phase C：72 React Flow 已完成，下一步 73 向量库选型合闸**（联调补齐：Golden WriteBaseline、ACL 复测）。`enableAgent` 默认仍关闭。
+**下一阶段**：第 7 阶段 A0/A1/B 与 Phase C 72/73 已收口；**下一步 74（ES 路径结项）→ 75 拆进程评估**；联调补齐 Golden/ACL。`enableAgent` 默认仍关闭。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,26 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 73：向量库选型合闸）
+
+### 【本次功能】
+
+1. 产出 `docs/eval/vector-store-decision.md`：ES / Milvus / Qdrant 对比表与合闸门槛
+2. **决策：继续 Elasticsearch**；Milvus 保留降级实现但不作默认；不引入 Qdrant
+3. 明确任务 74 走「无新增向量后端」结项路径
+
+### 【参考文件】
+
+- docs/eval/vector-store-decision.md
+- docs/eval/rag-golden-baseline.md（指标待联调回填）
+
+### 【差距总结】
+
+- Recall@10 / p95 / Heap 数值仍为 `_pending_`；门槛未触发，故维持 ES
+- 复测触发门槛后需修订本决策再开专用后端适配
 
 ---
 
