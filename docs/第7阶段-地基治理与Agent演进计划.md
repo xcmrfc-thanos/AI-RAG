@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59–63 ✅；Search ACL 代码/脚本已落地；下一步 Phase C / 联调补齐）
+> **状态**：执行中（A0/A1/B ✅；Phase C 72 ✅；下一步 73 向量库选型；Search ACL/Golden 联调补齐）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -556,8 +556,8 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### 任务 72：React Flow 可视化编排
 
 - 前置：任务 64 Schema v1 已冻结，且 67–71 至少稳定一个小版本  
-- 左节点库 / 中画布 / 右属性 → 导出同构 JSON  
-- 试跑页与画布互通
+- [x] 左节点库 / 中画布 / 右属性 → 导出同构 JSON  
+- [x] 试跑页与画布互通（管理页试跑走已发布版本；画布导出后保存/发布）
 
 ### 任务 73：向量库选型合闸
 
@@ -683,7 +683,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase B0
 
-- [ ] 64 Agent v1 契约冻结
+- [x] 64 Agent v1 契约冻结
 
 ### Phase B1
 
@@ -700,7 +700,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase C
 
-- [ ] 72 React Flow
+- [x] 72 React Flow
 - [ ] 73 向量库选型合闸
 - [ ] 74 条件适配、对账与降级
 - [ ] 75 拆进程评估

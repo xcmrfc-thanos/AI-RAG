@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 Phase B 已收口；A0/A1（59–63）与 Search ACL 已落地；**下一步 Phase C / 联调补齐（Golden WriteBaseline、ACL 复测）**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 A0/A1/B 已收口；**Phase C：72 React Flow 已完成，下一步 73 向量库选型合闸**（联调补齐：Golden WriteBaseline、ACL 复测）。`enableAgent` 默认仍关闭。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,28 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 72：React Flow 可视化编排）
+
+### 【本次功能】
+
+1. 引入 `@xyflow/react`；`schema-flow-mapper` 实现 Schema v1 ↔ 画布双向转换
+2. 管理页三栏：节点库 / 画布 / 属性；导出同构 JSON；保留高级 JSON 折叠
+3. 保存/校验/试跑/发布仍走原 `agentService`；vitest 覆盖往返同构
+
+### 【参考文件】
+
+- frontend/src/features/agent-workflow/**
+- frontend/src/pages/admin/AgentAdminPage.tsx
+- frontend/package.json（@xyflow/react）
+
+### 【差距总结】
+
+- 后端仍无 GET 草稿接口，列表点选不会拉取已存 JSON（沿用新建默认草稿）
+- 节点 id 画布内不可改（防破坏边）；自定义节点样式未做
+- 试跑仍依赖已发布版本（与契约一致）
 
 ---
 
