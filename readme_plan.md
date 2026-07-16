@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63/60 已完成，下一步 61 Retriever 分层**（可并行 62）。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63/60/61 已完成，下一步 62 Statistics 仓储化**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,29 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 61：Retriever 分层）
+
+### 【本次功能】
+
+1. 抽出 `KeywordRetriever` / `DenseRetriever` / `HybridRetriever`（`RrfHybridRetriever` + 既有 `HybridSearchFusion`）
+2. ES/Milvus 分别实现 Keyword/Dense；`VectorIndexService` 签名保留，检索委托 Retriever，CRUD 留门面
+3. 单测：`HybridSearchFusionTest`、`RrfHybridRetrieverTest`
+
+### 【参考文件】
+
+- backend/kb-intelligence/kb-intelligence-llm/.../rag/retriever/**
+- backend/kb-intelligence/kb-intelligence-llm/.../service/impl/ElasticsearchVectorIndexServiceImpl.java
+- backend/kb-intelligence/kb-intelligence-llm/.../service/impl/MilvusVectorIndexServiceImpl.java
+- backend/kb-intelligence/kb-intelligence-llm/src/test/.../HybridSearchFusionTest.java、RrfHybridRetrieverTest.java
+
+### 【差距总结】
+
+- SearchServiceImpl 仍负责 ACL/分页/回退（刻意保留）；RAG 直连仍无 ACL
+- Milvus keyword 仍为 like 降级；未跑联调 Golden 数值对比（题集基线仍 `_pending_`）
+- `VectorIndexService` 未进一步拆成纯 CRUD 接口（签名保留策略）
 
 ---
 

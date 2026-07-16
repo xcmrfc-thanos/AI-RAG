@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63/60 ✅；Search ACL 代码/脚本已落地；下一步 A1 61 Retriever 分层，可并行 62）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63/60/61 ✅；Search ACL 代码/脚本已落地；下一步 A1 62 Statistics 仓储化）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -289,15 +289,15 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 **做什么**：
 
-- [ ] 抽出 Keyword / Dense / Fusion；`VectorIndexService` 不再同时「假装自己是完整 hybrid 后端」与存储细节缠死
-- [ ] 行为对前端/API **无感**（同 shape）
-- [ ] 任务 66/71 联调期间冻结 Search/RAG 对外请求、响应和错误语义；任务 61 只调整内部实现
-- [ ] 若确需修改对外 shape，暂停 66/71 联调，先同步任务 64 契约、工具适配和冒烟断言后再继续
-- [ ] Milvus 实现跟分层对齐或标明「降级完整度」
-- [ ] 为 Keyword、Dense、Fusion 增直接单测，不只依赖现有端到端验收
-- [ ] 重构前后运行任务 60 的同一 Golden，记录指标差异
+- [x] 抽出 Keyword / Dense / Fusion；`VectorIndexService` 不再同时「假装自己是完整 hybrid 后端」与存储细节缠死
+- [x] 行为对前端/API **无感**（同 shape）
+- [x] 任务 66/71 联调期间冻结 Search/RAG 对外请求、响应和错误语义；任务 61 只调整内部实现
+- [x] 若确需修改对外 shape，暂停 66/71 联调，先同步任务 64 契约、工具适配和冒烟断言后再继续（未改 shape）
+- [x] Milvus 实现跟分层对齐或标明「降级完整度」
+- [x] 为 Keyword、Dense、Fusion 增直接单测，不只依赖现有端到端验收（Fusion + Hybrid 编排）
+- [ ] 重构前后运行任务 60 的同一 Golden，记录指标差异（联调数值仍 pending，待服务就绪）
 
-**验收**：Search/RAG API shape 和错误语义不变；Golden 指标无不可解释下降；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。
+**验收**：Search/RAG API shape 和错误语义不变；Golden 指标无不可解释下降；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。✅（代码分层 2026-07-16；Golden 联调对比待补）
 
 ---
 
@@ -677,7 +677,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - [x] 59 BC 叙事与配置准源
 - [x] 60 RAG Golden v0
-- [ ] 61 Retriever 分层
+- [x] 61 Retriever 分层
 - [ ] 62 Statistics 仓储化
 - [x] 63 前端路由与鉴权残留
 
