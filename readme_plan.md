@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63/60/61 已完成，下一步 62 Statistics 仓储化**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 Phase B 已收口；A0/A1（59–63）与 Search ACL 已落地；**下一步 Phase C / 联调补齐（Golden WriteBaseline、ACL 复测）**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,28 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 62：Statistics 仓储化）
+
+### 【本次功能】
+
+1. 按投影表新增 `Stat*Repository`（document/user/comment/category/role/team）封装 upsert/count/查询
+2. `CoreStatisticsProjectionListener` 仅分发事件；`StatisticsServiceImpl` 去掉 JdbcTemplate 直写
+3. 单测：Listener mock Repository；`StatDocumentRepositoryTest` 校验 SQL
+
+### 【参考文件】
+
+- backend/kb-statistics/.../repository/Stat*.java
+- backend/kb-statistics/.../mq/CoreStatisticsProjectionListener.java
+- backend/kb-statistics/.../service/impl/StatisticsServiceImpl.java
+- backend/kb-statistics/src/test/.../CoreStatisticsProjectionListenerTest.java、StatDocumentRepositoryTest.java
+
+### 【差距总结】
+
+- Ai/OperationLog/浏览点赞 Listener 与 Aggregation/Cache Task 仍含 JdbcTemplate（第二步可选，未改行为）
+- Service 行数下降有限（业务编排仍在）；SQL 已从 Listener/Service 投影路径收口到 Repository
 
 ---
 

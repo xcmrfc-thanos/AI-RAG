@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63/60/61 ✅；Search ACL 代码/脚本已落地；下一步 A1 62 Statistics 仓储化）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59–63 ✅；Search ACL 代码/脚本已落地；下一步 Phase C / 联调补齐）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -310,10 +310,10 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 **做什么**：
 
-- [ ] 按投影表拆 Repository；Service 变薄
-- [ ] 保留 MQ 宽表语义，不引入跨库 VIEW
+- [x] 按投影表拆 Repository；Service 变薄
+- [x] 保留 MQ 宽表语义，不引入跨库 VIEW
 
-**验收**：现有统计 API / 投影单测通过；单文件行数显著下降。
+**验收**：现有统计 API / 投影单测通过；单文件行数显著下降。✅（2026-07-16；Listener 变薄；Ai/Cache Task 第二步未做）
 
 ---
 
@@ -678,7 +678,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] 59 BC 叙事与配置准源
 - [x] 60 RAG Golden v0
 - [x] 61 Retriever 分层
-- [ ] 62 Statistics 仓储化
+- [x] 62 Statistics 仓储化
 - [x] 63 前端路由与鉴权残留
 
 ### Phase B0
