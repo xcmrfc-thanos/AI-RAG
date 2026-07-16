@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：计划任务 56–75 已收口（A0/A1/B/C）；待联调：Golden WriteBaseline、Search ACL 复测、`enableAgent` 开闸
+> **状态**：计划 56–75 已收口；联调：`.\deploy\scripts\verify-phase7-gates.ps1`（服务就绪后 ACL+Golden）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
