@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "name": "AI-RAG Golden v0",
+  "description": "Retriever 改动前基线题集；期望文档 ID 对齐 sql/data/init_kb_document.sql 样例。",
+  "datasetRef": "backend/sql/data/init_kb_document.sql",
+  "topK": 5,
+  "cases": [
+    {
+      "id": "kw-spring-boot",
+      "type": "exact_keyword",
+      "query": "Spring Boot 3.x 快速入门",
+      "expectedDocIds": ["1000000000000000001"],
+      "requireCitation": true,
+      "notes": "精确标题关键词"
+    },
+    {
+      "id": "kw-mysql-index",
+      "type": "exact_keyword",
+      "query": "MySQL 索引优化",
+      "expectedDocIds": ["1000000000000000003"],
+      "requireCitation": true,
+      "notes": "正文关键词"
+    },
+    {
+      "id": "kw-kubernetes",
+      "type": "exact_keyword",
+      "query": "Kubernetes Deployment",
+      "expectedDocIds": ["1000000000000000004"],
+      "requireCitation": true
+    },
+    {
+      "id": "kw-react-typescript",
+      "type": "exact_keyword",
+      "query": "React 18 TypeScript",
+      "expectedDocIds": ["1000000000000000002"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-onboarding",
+      "type": "natural_language",
+      "query": "新员工第一天入职要办哪些手续？",
+      "expectedDocIds": ["1000000000000000008"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-expense",
+      "type": "natural_language",
+      "query": "公司报销需要走哪些审批步骤？",
+      "expectedDocIds": ["1000000000000000009"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-review-flow",
+      "type": "natural_language",
+      "query": "文档发布前审核被拒绝后怎么办？",
+      "expectedDocIds": ["1000000000000000007"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-prd-scope",
+      "type": "natural_language",
+      "query": "企业知识库产品有哪些核心功能？",
+      "expectedDocIds": ["1000000000000000005"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-ui-color",
+      "type": "natural_language",
+      "query": "设计规范里主色是什么？",
+      "expectedDocIds": ["1000000000000000006"],
+      "requireCitation": true
+    },
+    {
+      "id": "nl-spring-autoconfig",
+      "type": "natural_language",
+      "query": "Spring Boot 自动配置有什么好处？",
+      "expectedDocIds": ["1000000000000000001"],
+      "requireCitation": true
+    },
+    {
+      "id": "distract-java-deploy",
+      "type": "similar_interference",
+      "query": "用 Docker 部署 Java 应用",
+      "expectedDocIds": ["1000000000000000004"],
+      "requireCitation": true,
+      "notes": "易与 Spring Boot 文档混淆，期望容器化文档优先"
+    },
+    {
+      "id": "distract-frontend-state",
+      "type": "similar_interference",
+      "query": "前端用 Zustand 做状态管理",
+      "expectedDocIds": ["1000000000000000002"],
+      "requireCitation": true
+    },
+    {
+      "id": "no-answer-quantum",
+      "type": "no_answer",
+      "query": "量子纠缠在知识库中的存储协议",
+      "expectedDocIds": [],
+      "expectEmptyTop": true,
+      "requireCitation": false,
+      "notes": "样例库不应命中；允许结果为空或与期望 ID 无交集"
+    },
+    {
+      "id": "no-answer-unrelated",
+      "type": "no_answer",
+      "query": "火星殖民地供水系统施工规范 GB-MARS-01",
+      "expectedDocIds": [],
+      "expectEmptyTop": true,
+      "requireCitation": false
+    },
+    {
+      "id": "acl-private-marker",
+      "type": "acl_invisible",
+      "query": "acl-private-should-not-exist-in-seed",
+      "expectedDocIds": [],
+      "expectEmptyTop": true,
+      "requireCitation": false,
+      "notes": "种子数据无此私有标记；用于确认不会误命中。真实跨用户 ACL 见 verify-auth-ai.ps1"
+    }
+  ]
+}

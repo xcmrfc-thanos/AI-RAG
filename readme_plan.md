@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63 已完成，下一步 60 Golden v0**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63/60 已完成，下一步 61 Retriever 分层**（可并行 62）。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,26 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 60：RAG Golden v0）
+
+### 【本次功能】
+
+1. 题集 `rag-golden-set.json`：15 条（精确/NL/干扰/无答案/ACL 占位），期望 ID 对齐 `init_kb_document.sql`
+2. 基线文档 `rag-golden-baseline.md`：配置快照 + Hit@5/MRR/citation 定义；联调结果表待 `-WriteBaseline`
+3. `verify-rag-golden.ps1`：`-OfflineOnly` 校验 JSON；联调跑 Search 并可选回写 baseline
+
+### 【参考文件】
+
+- docs/eval/rag-golden-set.json、rag-golden-baseline.md
+- deploy/scripts/verify-rag-golden.ps1
+
+### 【差距总结】
+
+- 离线校验 PASS；keyword/hybrid 数值基线需服务就绪后 `-WriteBaseline` 回填（当前表为 `_pending_`）
+- ACL 不可见题为占位（依赖私有文档联调造数），不阻塞任务 61 开工
 
 ---
 

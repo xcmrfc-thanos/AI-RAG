@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63 ✅；Search ACL 代码/脚本已落地；下一步 A1 60→61 或 62）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63/60 ✅；Search ACL 代码/脚本已落地；下一步 A1 61 Retriever 分层，可并行 62）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -258,13 +258,13 @@ Agent 工具调用
 
 **做什么**：
 
-- [ ] 建立 10～30 条「问题 → 期望文档 ID/关键词/引用要求」
-- [ ] 覆盖精确关键词、自然语言问句、无答案、权限不可见文档和相似文档干扰
-- [ ] 记录当前 ES hybrid 的 Hit@5、MRR、citation 非空率、失败样本和运行时间
-- [ ] 固定测试数据版本、模型/Embedding 配置和检索参数
-- [ ] 不引入 RAGAS 全家桶；先形成可重复的仓内基线
+- [x] 建立 10～30 条「问题 → 期望文档 ID/关键词/引用要求」
+- [x] 覆盖精确关键词、自然语言问句、无答案、权限不可见文档和相似文档干扰
+- [x] 记录当前 ES hybrid 的 Hit@5、MRR、citation 非空率、失败样本和运行时间（脚本已实现；联调数值表 `_pending_` 待 `-WriteBaseline`）
+- [x] 固定测试数据版本、模型/Embedding 配置和检索参数
+- [x] 不引入 RAGAS 全家桶；先形成可重复的仓内基线
 
-**验收**：任务 61 开始前必须存在一份带日期和配置快照的 baseline；后续检索改动使用同一题集对比。
+**验收**：任务 61 开始前必须存在一份带日期和配置快照的 baseline；后续检索改动使用同一题集对比。✅（2026-07-16；联调指标待补）
 
 ---
 
@@ -676,7 +676,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### Phase A1
 
 - [x] 59 BC 叙事与配置准源
-- [ ] 60 RAG Golden v0
+- [x] 60 RAG Golden v0
 - [ ] 61 Retriever 分层
 - [ ] 62 Statistics 仓储化
 - [x] 63 前端路由与鉴权残留
