@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59 ✅；Search ACL 代码/脚本已落地；下一步 A1 63/60 或 Phase C 按需）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59/63 ✅；Search ACL 代码/脚本已落地；下一步 A1 60→61 或 62）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -326,10 +326,10 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 **做什么**：
 
-- [ ] 去除重复路由注册（如重复的 `documents/:id/edit`）
-- [ ] 确认 AI 页在未登录时跳转登录（与任务 56 一致）
-- [ ] 为受保护路由、AI 开关关闭态增加轻量路由/组件测试
-- [ ] 不恢复 Playwright
+- [x] 去除重复路由注册（如重复的 `documents/:id/edit`）
+- [x] 确认 AI 页在未登录时跳转登录（与任务 56 一致）
+- [x] 为受保护路由、AI 开关关闭态增加轻量路由/组件测试
+- [x] 不恢复 Playwright
 
 **验收**：路由表无重复；未登录访问行为符合预期。
 
@@ -679,7 +679,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [ ] 60 RAG Golden v0
 - [ ] 61 Retriever 分层
 - [ ] 62 Statistics 仓储化
-- [ ] 63 前端路由与鉴权残留
+- [x] 63 前端路由与鉴权残留
 
 ### Phase B0
 

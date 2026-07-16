@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 Phase B 已收口；A0（含 56-Ops）与 Search ACL 已落地；**A1 任务 59 已完成，继续 63/60…**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 Phase B 已收口；A0 与 Search ACL 已落地；**A1 59/63 已完成，下一步 60 Golden v0**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,26 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 63：前端路由与鉴权残留）
+
+### 【本次功能】
+
+1. 删除重复 `documents/:id/edit` 路由
+2. `decideProtectedAccess` 统一未登录 → `/login`；AI 助手/写作受 `enableAI` / `enableAIWriting` 关闭态门禁
+3. vitest：`route-guards.test.ts`（登录跳转、AI 关闭态、路由无重复）
+
+### 【参考文件】
+
+- frontend/src/router/index.tsx
+- frontend/src/utils/route-guards.ts、route-guards.test.ts
+- frontend/src/components/common/FeatureDisabledPanel.tsx
+
+### 【差距总结】
+
+- AI 页本身仍在 MainLayout 的 ProtectedRoute 下，未登录不会渲染页面内容；与网关 401 互补
 
 ---
 
