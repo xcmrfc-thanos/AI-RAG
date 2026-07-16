@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；Search ACL 代码与脚本已落地；下一步 **56-Ops（密钥轮换）** 或按需 Phase C（72–75）。`enableAgent` 默认仍关闭。
+**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；Search ACL 与 **56-Ops** 已落地；下一步按需 **Phase A1（59–63）** 或 **Phase C（72–75）**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,28 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 56-Ops：密钥轮换 / 路径矩阵 / 暴露检查）
+
+### 【本次功能】
+
+1. Core 支持 `previous-secret` 轮换窗口；HMAC 单测覆盖旧密钥并行校验
+2. 文档：内部路径矩阵、密钥轮换手册；`p3-3-operations` 补齐 56-Ops 入口
+3. `check-service-exposure.ps1`：生产可断言仅 Gateway 对公网可达
+
+### 【参考文件】
+
+- backend/kb-common/.../InternalServiceHmacUtil.java
+- backend/kb-core/.../CoreInternalServiceProperties.java、InternalServiceAuthFilter.java
+- docs/after/internal-hmac-path-matrix.md、hmac-key-rotation.md、p3-3-operations.md
+- deploy/scripts/check-service-exposure.ps1、deploy/env.example
+
+### 【差距总结】
+
+- 生产环境需用真实公网 VIP 跑 `-ExpectGatewayOnly` 并归档输出；本地 127.0.0.1 全开属预期
+- `enableAgent` 仍默认关闭，待 Search ACL 在目标环境连续 PASS
 
 ---
 

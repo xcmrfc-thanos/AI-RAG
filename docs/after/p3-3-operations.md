@@ -171,9 +171,9 @@ deploy/setup.ps1 或 docker compose up -d
 
 ---
 
-## 七、鉴权默认值（任务 56）
+## 七、鉴权默认值与 56-Ops（任务 56）
 
-> 完整密钥轮换与生产暴露检查见任务 **56-Ops**；本节为开发/联调默认约定。
+> 路径矩阵与轮换步骤见专文；本节为运维入口摘要。
 
 | 项 | 默认 / 约定 |
 |----|-------------|
@@ -182,15 +182,37 @@ deploy/setup.ps1 或 docker compose up -d
 | 外部伪造头 | 网关删除 `X-User-Id`、`X-Internal-Service`、`X-Internal-Timestamp`、`X-Internal-Signature` |
 | 内部签名串 | `METHOD + "\n" + PATH + "\n" + TIMESTAMP + "\n" + SERVICE`（Unix 秒） |
 | HMAC | SHA-256，时钟偏差 ≤ 60s，密钥 UTF-8 ≥ 32 字节 |
-| 密钥注入 | 环境变量 `KB_INTERNAL_HMAC_SECRET`；Nacos `kb-core.internal.secret` |
+| 密钥注入 | `KB_INTERNAL_HMAC_SECRET`；轮换窗口 `KB_INTERNAL_HMAC_SECRET_PREVIOUS` |
 | 本地开发默认密钥 | `ai-rag-local-dev-hmac-secret-key!!`（**生产必须更换**） |
-| Core 内部路径白名单 | `GET /documents/page`、`GET /documents/*`（单段，不含子孙写接口） |
+| Core 内部路径白名单 | 见 [internal-hmac-path-matrix.md](./internal-hmac-path-matrix.md) |
+| 生产暴露 | **仅 Gateway（8080）**对公网；Core/Intelligence/File/Statistics/Agent 仅内网 |
+
+### 7.1 密钥轮换（摘要）
+
+完整步骤：[hmac-key-rotation.md](./hmac-key-rotation.md)
+
+1. Core 设置 `secret=新` + `previous-secret=旧` 并重启  
+2. Intelligence 切到新密钥并重启  
+3. `verify-auth-ai.ps1` 通过后清空 `previous-secret` 再重启 Core  
+
+### 7.2 生产端口暴露检查
+
+```powershell
+cd deploy\scripts
+# 开发机仅罗列
+.\check-service-exposure.ps1
+# 生产：对公网 VIP 断言「仅 Gateway 可达」
+.\check-service-exposure.ps1 -PublicHost <公网入口> -ExpectGatewayOnly
+```
+
+将输出粘贴到发版记录；未通过前不得开启 `system.enableAgent`。
 
 故障排查：
 
 1. 外部 AI/文档接口无 Token 仍放行 → 检查网关是否加载最新 `kb-gateway-dev` 且进程已重启。
-2. Intelligence 拉文档 401 → 核对 Core 与 Intelligence 的 `secret` 是否一致、机器时钟偏差、PATH 是否含 query。
+2. Intelligence 拉文档 401 → 核对 Core/Intelligence `secret`、轮换窗口 `previous-secret`、时钟偏差、PATH 是否含 query。
 3. 合法 JWT 但下游无用户 → 确认网关注入了 `X-User-Id`，且客户端未依赖自行伪造该头。
+4. 团队 ACL 相关内部 401 → 确认白名单含 `/internal/users/*/team-ids`（见路径矩阵）。
 
 ---
 
@@ -199,5 +221,7 @@ deploy/setup.ps1 或 docker compose up -d
 - [p3-2-deployment.md](./p3-2-deployment.md)
 - [deploy/README.md](../../deploy/README.md)
 - [rh-cha-roadmap.md](./rh-cha-roadmap.md)
+- [internal-hmac-path-matrix.md](./internal-hmac-path-matrix.md)
+- [hmac-key-rotation.md](./hmac-key-rotation.md)
 - [backend/nacos/README.md](../../backend/nacos/README.md)
 - [backend/sql/README.md](../../backend/sql/README.md)

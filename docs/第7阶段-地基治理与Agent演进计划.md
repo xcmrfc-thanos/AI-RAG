@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–71 ✅；Search ACL 代码/脚本已落地；下一步 56-Ops 或 Phase C 按需）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；Search ACL 代码/脚本已落地；下一步 A1 59–63 或 Phase C 按需）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -150,10 +150,10 @@ Agent 工具调用
 
 **56-Ops 紧随任务 58 完成**：
 
-- [ ] 将所有内部调用路径整理为可审阅矩阵，新增路径必须同步代码配置、测试和文档
-- [ ] 运行手册记录新旧密钥短暂并行、切换、验证和旧密钥撤销步骤
-- [ ] 检查生产部署只暴露 Gateway，对 Core/Intelligence 业务端口的访问限制形成记录
-- [ ] 在 `docs/after/p3-3-operations.md` 补齐鉴权默认值、密钥注入和故障排查
+- [x] 将所有内部调用路径整理为可审阅矩阵，新增路径必须同步代码配置、测试和文档
+- [x] 运行手册记录新旧密钥短暂并行、切换、验证和旧密钥撤销步骤（含 `previous-secret` 并行校验）
+- [x] 检查生产部署只暴露 Gateway，对 Core/Intelligence 业务端口的访问限制形成记录（`check-service-exposure.ps1`）
+- [x] 在 `docs/after/p3-3-operations.md` 补齐鉴权默认值、密钥注入和故障排查
 
 **56-MVP 验收**：
 
@@ -671,7 +671,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [ ] 56-MVP 网关认证闭环与内部调用签名
 - [ ] 57 Document 索引模式与事件可靠性
 - [ ] 58 安全与 API 冒烟
-- [ ] 56-Ops 密钥轮换、路径矩阵与生产暴露检查
+- [x] 56-Ops 密钥轮换、路径矩阵与生产暴露检查
 
 ### Phase A1
 
