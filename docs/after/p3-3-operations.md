@@ -171,7 +171,30 @@ deploy/setup.ps1 或 docker compose up -d
 
 ---
 
-## 七、相关文档
+## 七、鉴权默认值（任务 56）
+
+> 完整密钥轮换与生产暴露检查见任务 **56-Ops**；本节为开发/联调默认约定。
+
+| 项 | 默认 / 约定 |
+|----|-------------|
+| 网关白名单准源 | Nacos `gateway.white-list`（仅登录/注册/刷新、公开分享、健康检查） |
+| 缺/非法/过期 JWT | 网关 HTTP **401**，不再转发 |
+| 外部伪造头 | 网关删除 `X-User-Id`、`X-Internal-Service`、`X-Internal-Timestamp`、`X-Internal-Signature` |
+| 内部签名串 | `METHOD + "\n" + PATH + "\n" + TIMESTAMP + "\n" + SERVICE`（Unix 秒） |
+| HMAC | SHA-256，时钟偏差 ≤ 60s，密钥 UTF-8 ≥ 32 字节 |
+| 密钥注入 | 环境变量 `KB_INTERNAL_HMAC_SECRET`；Nacos `kb-core.internal.secret` |
+| 本地开发默认密钥 | `ai-rag-local-dev-hmac-secret-key!!`（**生产必须更换**） |
+| Core 内部路径白名单 | `GET /documents/page`、`GET /documents/*`（单段，不含子孙写接口） |
+
+故障排查：
+
+1. 外部 AI/文档接口无 Token 仍放行 → 检查网关是否加载最新 `kb-gateway-dev` 且进程已重启。
+2. Intelligence 拉文档 401 → 核对 Core 与 Intelligence 的 `secret` 是否一致、机器时钟偏差、PATH 是否含 query。
+3. 合法 JWT 但下游无用户 → 确认网关注入了 `X-User-Id`，且客户端未依赖自行伪造该头。
+
+---
+
+## 八、相关文档
 
 - [p3-2-deployment.md](./p3-2-deployment.md)
 - [deploy/README.md](../../deploy/README.md)

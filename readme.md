@@ -42,7 +42,9 @@ cd deploy\scripts
 .\verify-all.ps1
 ```
 
-包含：中间件探活 → API 冒烟 → LLM 配置 → Admin UI 静态检查 → 前端 build。
+包含：中间件探活 → API 冒烟 → **鉴权/AI 安全**（`verify-auth-ai.ps1`）→ LLM 配置 → Admin UI 静态检查 → 定向单测 → 前端 build。
+
+> **注意**：`deploy/` 可能不在 Git 跟踪中，改脚本后请本地保留同步；冒烟脚本以 `deploy/scripts/` 为准源。
 
 ## 环境变量（deploy/.env）
 

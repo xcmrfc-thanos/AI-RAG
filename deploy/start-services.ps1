@@ -3,10 +3,10 @@
 .SYNOPSIS
   Start 4 BC services + gateway. Intelligence default JVM 512m/1g, others 256m/512m.
 .PARAMETER Only
-  Start one service only: file|core|intelligence|statistics|gateway|all
+  Start one service only: file|core|intelligence|statistics|agent|gateway|all
 #>
 param(
-    [ValidateSet("file", "core", "intelligence", "statistics", "gateway", "all")]
+    [ValidateSet("file", "core", "intelligence", "statistics", "agent", "gateway", "all")]
     [string]$Only = "all",
     [string]$JvmXms = "",
     [string]$JvmXmx = "",
@@ -52,6 +52,7 @@ $services = @(
     @{ Id = "core";         Name = "kb-core";         Module = "kb-core/kb-core-app";              Pom = "kb-core/kb-core-app/pom.xml";              Port = 8090; Xms = $JvmXms; Xmx = $JvmXmx }
     @{ Id = "intelligence"; Name = "kb-intelligence"; Module = "kb-intelligence/kb-intelligence-app"; Pom = "kb-intelligence/kb-intelligence-app/pom.xml"; Port = 8091; Xms = $IntelligenceJvmXms; Xmx = $IntelligenceJvmXmx }
     @{ Id = "statistics";   Name = "kb-statistics";   Module = "kb-statistics";                    Pom = "kb-statistics/pom.xml";                    Port = 8085; Xms = $JvmXms; Xmx = $JvmXmx }
+    @{ Id = "agent";        Name = "kb-agent";        Module = "kb-agent";                         Pom = "kb-agent/pom.xml";                         Port = 8092; Xms = $JvmXms; Xmx = $JvmXmx }
     @{ Id = "gateway";      Name = "kb-gateway";      Module = "kb-gateway";                       Pom = "kb-gateway/pom.xml";                       Port = 8080; Xms = $JvmXms; Xmx = $JvmXmx }
 )
 
@@ -132,7 +133,7 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "`nBUILD mvn compile + install parent..." -ForegroundColor Yellow
 Set-Location $BackendDir
 & mvn install -N -DskipTests -q
-& mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-app,kb-file,kb-statistics -am -q
+& mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-app,kb-file,kb-statistics,kb-agent -am -q
 if ($LASTEXITCODE -ne 0) { throw "mvn compile failed" }
 
 foreach ($svc in $services) {

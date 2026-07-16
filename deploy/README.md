@@ -72,11 +72,12 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 
 ```powershell
 .\scripts\verify-integration.ps1
-.\scripts\verify-all.ps1          # 串联 integration / api / llm / admin-ui / build
+.\scripts\verify-all.ps1          # 串联 integration / api / auth-ai / llm / admin-ui / 定向单测 / build
+.\scripts\verify-auth-ai.ps1      # 鉴权与内部 HMAC 冒烟（任务 58）
 ```
 
 ## 说明
 
 - 微服务 `application.yml` 与 `backend/nacos/*.template` 已同步上述端口
-- 业务服务端口不变：gateway 8080、core 8090、intelligence 8091、file 8084、statistics 8085
+- 业务服务端口不变：gateway 8080、core 8090、intelligence 8091、file 8084、statistics 8085、agent 8092
 - Nacos 控制台：http://127.0.0.1:20848/nacos

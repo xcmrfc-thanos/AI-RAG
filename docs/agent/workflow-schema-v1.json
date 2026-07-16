@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ai-rag.local/schemas/agent-workflow-v1.json",
+  "title": "AgentWorkflowV1",
+  "description": "Agent 工作流定义 schemaVersion=1（任务 64 冻结）",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name", "nodes", "edges"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/toolNode" },
+          { "$ref": "#/$defs/llmNode" }
+        ]
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "to": { "type": "string", "minLength": 1, "maxLength": 64 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "nodeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
+    },
+    "toolNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "tool", "input"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "tool" },
+        "tool": {
+          "type": "string",
+          "enum": ["hybrid_search", "get_document"]
+        },
+        "input": {
+          "type": "object"
+        }
+      }
+    },
+    "llmNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "input"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "llm" },
+        "input": {
+          "type": "object",
+          "required": ["prompt"],
+          "additionalProperties": true,
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

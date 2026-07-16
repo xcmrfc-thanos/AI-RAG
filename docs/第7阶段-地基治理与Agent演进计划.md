@@ -2,10 +2,10 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：待执行（修订版）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；**B1 65 ✅**；下一步 66；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
-> **任务号准源**：任务 56–75 以本修订版为准；正式开工时在 `readme_plan.md` 首条记录中声明编号切换。
+> **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
 
 **目标**：先建立真实可验证的认证、内部调用与事件可靠性地基，再交付独立 `kb-agent` 的线性工作流 MVP。React Flow、Qdrant/Milvus 调整和 Intelligence 拆进程均采用指标触发，不阻断 Agent MVP。
 
@@ -50,7 +50,7 @@
 
 | 阶段 | 主题 | 任务号 | 依赖 | 单人建议周期 |
 |------|------|--------|------|--------------|
-| **Phase A0** | 安全与可靠性合闸 | 56–58 | 无 | 3～5 天 |
+| **Phase A0** | 安全与可靠性合闸 | 56-MVP、57、58；56-Ops 跟进 | 无 | 3～5 天完成硬合闸 |
 | **Phase A1** | 非阻塞地基治理 | 59–63 | 60 → 61；其余可独立 | 4～7 天，可与 B 部分重叠 |
 | **Phase B0** | Agent v1 契约冻结 | 64 | A0 合闸 | 1～2 天 |
 | **Phase B1** | Agent 后端 MVP | 65–68 | 64 完成 | 7～10 天 |
@@ -139,14 +139,14 @@ Agent 工具调用
 
 **56-MVP 必须完成**：
 
-- [ ] 白名单唯一准源固定为 Nacos/属性配置；删除 `AuthGlobalFilter.shouldSkip` 的硬编码列表，或让其只调用同一个属性匹配器
-- [ ] `gateway.white-list` 只保留登录、刷新、明确公开分享和健康检查路径
-- [ ] 非白名单请求缺 Token、非法 Token、过期 Token统一返回 HTTP 401，不再继续转发
-- [ ] 网关先删除外部传入的 `X-User-Id`、`X-Internal-Service`、`X-Internal-Timestamp`、`X-Internal-Signature`
-- [ ] 内部签名串固定为 `METHOD + "\n" + PATH + "\n" + TIMESTAMP + "\n" + SERVICE`
-- [ ] HMAC 使用 SHA-256；允许时间偏差不超过 60 秒；密钥必须由环境/Nacos 注入且长度不少于 32 字节
-- [ ] Core 首批只允许 Intelligence 当前实际使用的文档读取路径获得系统身份，不允许内部签名绕过任意 Core API
-- [ ] 网关过滤器、内部签名、过期签名、非白名单路径均有定向单测
+- [x] 白名单唯一准源固定为 Nacos/属性配置；删除 `AuthGlobalFilter.shouldSkip` 的硬编码列表，或让其只调用同一个属性匹配器
+- [x] `gateway.white-list` 只保留登录、刷新、明确公开分享和健康检查路径
+- [x] 非白名单请求缺 Token、非法 Token、过期 Token统一返回 HTTP 401，不再继续转发
+- [x] 网关先删除外部传入的 `X-User-Id`、`X-Internal-Service`、`X-Internal-Timestamp`、`X-Internal-Signature`
+- [x] 内部签名串固定为 `METHOD + "\n" + PATH + "\n" + TIMESTAMP + "\n" + SERVICE`
+- [x] HMAC 使用 SHA-256；允许时间偏差不超过 60 秒；密钥必须由环境/Nacos 注入且长度不少于 32 字节
+- [x] Core 首批只允许 Intelligence 当前实际使用的文档读取路径获得系统身份，不允许内部签名绕过任意 Core API
+- [x] 网关过滤器、内部签名、过期签名、非白名单路径均有定向单测
 
 **56-Ops 紧随任务 58 完成**：
 
@@ -182,14 +182,14 @@ Agent 工具调用
 
 **做什么**：
 
-- [ ] 用 `document.indexing.mode=event|legacy-feign|disabled` 替换两个布尔配置
-- [ ] 默认和生产推荐值固定为 `event`；`legacy-feign` 仅用于明确的应急回退
-- [ ] Feign 兜底移入 `legacy` 包并标记 `@Deprecated`，启动时输出醒目 WARN
-- [ ] RabbitTemplate 开启 Publisher Confirm/Return；发布失败记录 metric、结构化日志和告警线索
-- [ ] 为短暂故障配置有限次数重试；重试耗尽后保留 documentId/eventId 供补偿
-- [ ] `rebuild-es-indices` 或新增轻量脚本支持按文档/全量重建，作为本阶段补偿路径
-- [ ] Document→File Feign **保留**（合理跨 BC）；清理的是「索引编排型」Feign
-- [ ] 本阶段不引入 Outbox；若未来要求业务事务与消息零丢失，再单独立项
+- [x] 用 `document.indexing.mode=event|legacy-feign|disabled` 替换两个布尔配置
+- [x] 默认和生产推荐值固定为 `event`；`legacy-feign` 仅用于明确的应急回退
+- [x] Feign 兜底移入 `legacy` 包并标记 `@Deprecated`，启动时输出醒目 WARN
+- [x] RabbitTemplate 开启 Publisher Confirm/Return；发布失败记录 metric、结构化日志和告警线索
+- [x] 为短暂故障配置有限次数重试；重试耗尽后保留 documentId/eventId 供补偿
+- [x] `rebuild-es-indices` 或新增轻量脚本支持按文档/全量重建，作为本阶段补偿路径
+- [x] Document→File Feign **保留**（合理跨 BC）；清理的是「索引编排型」Feign
+- [x] 本阶段不引入 Outbox；若未来要求业务事务与消息零丢失，再单独立项
 
 **验收**：
 
@@ -213,17 +213,18 @@ Agent 工具调用
 
 **做什么**：
 
-- [ ] 脚本覆盖：登录 → 受保护 API 200；无 Token AI 401；非法 Token 401；核心 search/document 健康
-- [ ] 增加伪造 `X-User-Id`、`X-Internal-Service`、错误内部签名的负向用例
-- [ ] 创建用户 A、用户 B 和仅 B 可见的私有文档；验证 A 的 Search 结果与文档读取均不出现该文档
-- [ ] Search ACL 探测结果必须记录为 PASS/FAIL，不允许只写“接口可达”
-- [ ] 若 Search ACL 为 FAIL：B0/B1 可继续开发，但任务 66 真实联调采用管理员身份，普通用户 view/run 权限不得发放，直至补齐 Search ACL 并重跑通过
-- [ ] 对每个用例校验 HTTP 状态码，不以响应体中的业务码代替 HTTP 状态
-- [ ] `verify-all.ps1` 串入新步骤
-- [ ] `verify-all.ps1` 增定向后端测试：gateway、core security、document indexing
-- [ ] 在 `readme.md` / `docs/README.md` 强调本地保留 `deploy/` 的同步纪律
+- [x] 脚本覆盖：登录 → 受保护 API 200；无 Token AI 401；非法 Token 401；核心 search/document 健康
+- [x] 增加伪造 `X-User-Id`、`X-Internal-Service`、错误内部签名的负向用例
+- [ ] 创建用户 A、用户 B 和仅 B 可见的私有文档；验证 A 的 Search 结果与文档读取均不出现该文档（已记 Search ACL backlog，待造数关闭）
+- [x] Search ACL 探测结果必须记录为 PASS/FAIL，不允许只写“接口可达”
+- [x] 若 Search ACL 为 FAIL：B0/B1 可继续开发，但任务 66 真实联调采用管理员身份，普通用户 view/run 权限不得发放，直至补齐 Search ACL 并重跑通过
+- [x] 若 Search ACL 为 FAIL，在 `readme_plan.md` 单列“Search ACL 修复”backlog，记录受影响接口、责任人、修复方案和“A 搜不到 B 私有文档”的关闭标准
+- [x] 对每个用例校验 HTTP 状态码，不以响应体中的业务码代替 HTTP 状态
+- [x] `verify-all.ps1` 串入新步骤
+- [x] `verify-all.ps1` 增定向后端测试：gateway、core security、document indexing
+- [x] 在 `readme.md` / `docs/README.md` 强调本地保留 `deploy/` 的同步纪律
 
-**验收**：同一环境连续运行两次结果一致；异常状态导致脚本非零退出；Search ACL 结果及对应开放策略已记录；不依赖浏览器。
+**验收**：同一环境连续运行两次结果一致；异常状态导致脚本非零退出；Search ACL 结果及对应开放策略已记录；ACL FAIL 时管理员限定模式只作为临时降级，修复 backlog 保持开启直至复测 PASS；不依赖浏览器。
 
 ---
 
@@ -290,11 +291,13 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 - [ ] 抽出 Keyword / Dense / Fusion；`VectorIndexService` 不再同时「假装自己是完整 hybrid 后端」与存储细节缠死
 - [ ] 行为对前端/API **无感**（同 shape）
+- [ ] 任务 66/71 联调期间冻结 Search/RAG 对外请求、响应和错误语义；任务 61 只调整内部实现
+- [ ] 若确需修改对外 shape，暂停 66/71 联调，先同步任务 64 契约、工具适配和冒烟断言后再继续
 - [ ] Milvus 实现跟分层对齐或标明「降级完整度」
 - [ ] 为 Keyword、Dense、Fusion 增直接单测，不只依赖现有端到端验收
 - [ ] 重构前后运行任务 60 的同一 Golden，记录指标差异
 
-**验收**：API shape 不变；Golden 指标无不可解释下降；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。
+**验收**：Search/RAG API shape 和错误语义不变；Golden 指标无不可解释下降；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。
 
 ---
 
@@ -382,13 +385,13 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 **锁定规则**：
 
-- [ ] v1 只允许 `tool`、`llm` 两类节点，节点数上限 10
-- [ ] 图必须只有一个起点和一个终点；每个节点入度/出度不超过 1；禁止环、孤立节点和并行分支
-- [ ] 变量只允许 `${input.*}`、`${steps.<nodeId>.output}`，禁止脚本和任意表达式执行
-- [ ] 工作流发布后版本不可变；Run 必须绑定明确的 `workflowVersionId`
-- [ ] Run 状态固定为 `CREATED | RUNNING | SUCCEEDED | FAILED | TIMED_OUT | CANCELLED`
-- [ ] 取消定义为节点之间的协作式取消，不承诺强制中断正在进行的模型 HTTP 请求
-- [ ] MVP 会话只做 Run 分组，不做自动多轮记忆
+- [x] v1 只允许 `tool`、`llm` 两类节点，节点数上限 10
+- [x] 图必须只有一个起点和一个终点；每个节点入度/出度不超过 1；禁止环、孤立节点和并行分支
+- [x] 变量只允许 `${input.*}`、`${steps.<nodeId>.output}`，禁止脚本和任意表达式执行
+- [x] 工作流发布后版本不可变；Run 必须绑定明确的 `workflowVersionId`
+- [x] Run 状态固定为 `CREATED | RUNNING | SUCCEEDED | FAILED | TIMED_OUT | CANCELLED`
+- [x] 取消定义为节点之间的协作式取消，不承诺强制中断正在进行的模型 HTTP 请求
+- [x] MVP 会话只做 Run 分组，不做自动多轮记忆
 
 **持久化模型**：
 
@@ -402,9 +405,9 @@ RrfFusion / HybridSearchFusion（已有可上提）
 
 **模型边界**：
 
-- [ ] `kb-agent` 定义独立 `AgentModelClient` Port，不依赖 `kb-intelligence-llm` 实现模块
-- [ ] 默认模型为千问；DeepSeek 仅通过配置选择
-- [ ] `AI_DEV_STUB=true` 时 LLM 节点使用确定性 Stub
+- [x] `kb-agent` 定义独立 `AgentModelClient` Port，不依赖 `kb-intelligence-llm` 实现模块
+- [x] 默认模型为千问；DeepSeek 仅通过配置选择
+- [x] `AI_DEV_STUB=true` 时 LLM 节点使用确定性 Stub
 
 **验收**：契约文档不存在模糊状态、可变发布版本或未定义变量语义；64 未完成不得创建任务 65 的业务代码。
 
@@ -435,13 +438,13 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 **做什么**：
 
-- [ ] Spring Boot 3 + JDK21；默认端口 8092；健康检查；Nacos 注册
-- [ ] 创建 `kb_agent` 数据库和任务 64 定义的五张表
-- [ ] `/api/agent/**` 从路由创建之初就要求合法 JWT，禁止加入白名单
-- [ ] Agent 接收终端用户身份，不接受外部伪造 `X-User-Id`
-- [ ] 建立 `AgentModelClient` + 千问/DeepSeek OpenAI-compatible 实现 + Stub 实现
-- [ ] Nacos 与模块兜底配置统一 `agent.default-model=qwen`
-- [ ] **不**把 Agent 拼进 `kb-intelligence-app`
+- [x] Spring Boot 3 + JDK21；默认端口 8092；健康检查；Nacos 注册
+- [x] 创建 `kb_agent` 数据库和任务 64 定义的五张表
+- [x] `/api/agent/**` 从路由创建之初就要求合法 JWT，禁止加入白名单
+- [x] Agent 接收终端用户身份，不接受外部伪造 `X-User-Id`
+- [x] 建立 `AgentModelClient` + 千问/DeepSeek OpenAI-compatible 实现 + Stub 实现
+- [x] Nacos 与模块兜底配置统一 `agent.default-model=qwen`
+- [x] **不**把 Agent 拼进 `kb-intelligence-app`
 
 **验收**：单独进程启动；网关可路由健康接口；无 Token 访问 Agent 业务接口为 401；数据库脚本可重复安装。
 
@@ -501,12 +504,13 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [ ] `/agent` 不提供 JSON 编辑、草稿保存或发布入口
 - [ ] `/admin/agents`：管理员使用 JSON 文本编辑器进行创建、校验、试跑和发布
 - [ ] 两个入口均受 `system.enableAgent` 开关控制；默认生产配置为关闭，完成任务 71 后再开启
+- [ ] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 未通过时普通用户不显示入口且访问返回 403
 - [ ] 前端 store、类型、service、导航常量与任务 64 文档一致
 - [ ] 用户发起取消后提示“取消请求已提交，将在当前节点结束后生效”，Run 在后端转为 `CANCELLED` 前仍展示运行中
 - [ ] 增路由/组件测试：功能关闭态、普通用户不可见管理入口、Run 成功/失败展示
 - [ ] **不做** React Flow（任务 72）
 
-**验收**：普通用户只能运行；管理员可编排和发布；关闭开关后导航隐藏且直接访问显示关闭态。
+**验收**：Search ACL 通过时普通用户只能运行、管理员可编排和发布；ACL 未通过时普通用户无 Agent 入口且运行返回 403；关闭开关后导航隐藏且直接访问显示关闭态。
 
 ---
 
@@ -535,8 +539,10 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 71：Agent 冒烟接入 verify-all
 
-- [ ] `deploy/scripts/verify-agent-smoke.ps1`：管理员登录 → 保存草稿 → 校验 → 发布 → 普通用户 Run → 断言工具调用、Step 和终态
-- [ ] 负向断言：无 Token 401；普通用户编辑 403；非法工作流 400；不可见文档不出现在工具结果
+- [ ] `deploy/scripts/verify-agent-smoke.ps1`：管理员登录 → 保存草稿 → 校验 → 发布 → 发起 Run → 断言工具调用、Step 和终态
+- [ ] Search ACL 为 PASS：使用普通用户 Run，并断言用户 B 私有文档不出现在用户 A 的工具结果
+- [ ] Search ACL 为 FAIL：断言普通用户 Run 为 403，仅执行管理员 Run；报告中明确标记“管理员限定模式”
+- [ ] 通用负向断言：无 Token 401；普通用户编辑 403；非法工作流 400
 - [ ] 记入 `verify-all.ps1`
 - [ ] `AI_DEV_STUB=true` 时 LLM 节点返回确定性文本；无 Key 环境仍可完整冒烟
 - [ ] 最终验证包含 Agent 定向后端测试、前端组件/构建和 API 冒烟
@@ -649,6 +655,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - 56 与 57 都可能修改 `kb-core-dev.yaml.template`，由同一集成任务串行收口。
 - 60 与 61 必须串行；没有 baseline 不开始 Retriever 重构。
+- 61 与 B1/B2 并行时冻结 Search/RAG 对外契约；61 仅拥有检索内部实现，66/71 拥有工具适配和 Agent 冒烟。
 - 62 可独立推进，不修改 Agent、Gateway、父 POM 或共享权限 SQL。
 - 64 完成前不并行创建 Agent 后端/前端契约。
 - 65 涉及父 POM、Gateway、Nacos、SQL 安装和启动脚本，必须由单一所有者统一修改。
@@ -662,9 +669,9 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### Phase A0
 
 - [ ] 56-MVP 网关认证闭环与内部调用签名
-- [ ] 56-Ops 密钥轮换、路径矩阵与生产暴露检查
 - [ ] 57 Document 索引模式与事件可靠性
 - [ ] 58 安全与 API 冒烟
+- [ ] 56-Ops 密钥轮换、路径矩阵与生产暴露检查
 
 ### Phase A1
 
@@ -680,7 +687,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase B1
 
-- [ ] 65 kb-agent 骨架
+- [x] 65 kb-agent 骨架
 - [ ] 66 双工具
 - [ ] 67 线性引擎
 - [ ] 68 Session/Run API

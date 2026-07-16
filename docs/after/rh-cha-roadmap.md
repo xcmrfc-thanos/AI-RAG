@@ -21,7 +21,7 @@
 | ID | 任务 | 自检 | 状态 |
 |----|------|------|------|
 | P0-1 | `DocumentLifecycleEventDTO` + MQ 常量 | kb-common 存在三类事件 | ✅ |
-| P0-2 | kb-document 默认 event-only 发事件 | `event-enabled=true`，Feign 可关 | ✅ |
+| P0-2 | kb-document 默认 event-only 发事件 | `document.indexing.mode=event`（任务 57）；`legacy-feign` 仅应急 | ✅ 任务 57 收口 |
 | P0-3 | kb-ai 消费 → RAG/KAG | `DocumentLifecycleListener` | ✅ |
 | P0-4 | kb-search 消费 → ES doc 索引 | 同上 | ✅ |
 | P0-5 | kb-graph 消费 → REMOVED 删节点 | 同上 | ✅ |

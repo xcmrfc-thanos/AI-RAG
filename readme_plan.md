@@ -5,7 +5,105 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段（地基治理 + Agent 演进）计划已制定，见 [docs/第7阶段-地基治理与Agent演进计划.md](docs/第7阶段-地基治理与Agent演进计划.md)（任务 **56–75**，待执行）。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；**B1 65 ✅**；下一步 **66**（双工具）。Search ACL backlog 仍 OPEN。
+
+### Backlog：Search ACL 修复（任务 58）
+
+| 项 | 内容 |
+|----|------|
+| 状态 | **OPEN**（`verify-auth-ai.ps1` 记录 Search ACL=FAIL） |
+| 受影响接口 | `GET /api/search/**`（关键词/混合）；文档读取经 ACL 过滤的路径 |
+| 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
+| 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
+| 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 65：kb-agent 服务骨架）
+
+### 【本次功能】
+
+1. 新增独立模块 `backend/kb-agent`（端口 8092）：JWT 鉴权、健康探活、`AgentModelClient`（千问/DeepSeek/Stub）
+2. 五表 DDL `sql/schema/kb_agent.sql`；网关 `/api/agent/**`；Nacos/启动停服脚本接入
+3. 定向单测：`OpenAiCompatibleAgentModelClientTest`；并回归 56/57 定向单测全绿
+
+### 【参考文件】
+
+- backend/kb-agent/**、backend/pom.xml、backend/sql/schema/kb_agent.sql
+- backend/nacos/kb-agent-dev.yaml.template、kb-gateway-dev.yaml.template
+- deploy/start-services.ps1、stop-services.ps1、scripts/import-nacos.ps1
+
+### 【差距总结】
+
+- 未实现工作流 CRUD/Run/工具（66–68）；`enableAgent` 仍保持关闭
+- 本地需执行 `install_all` 建 `kb_agent` 库并导入 Nacos 后才能联调启动
+
+---
+
+## 2026-07-15（任务 64：Agent v1 契约冻结）
+
+### 【本次功能】
+
+1. 扩展 AI 入口边界为搜索/助手/写作/Agent/Agent 管理，同步 `frontend/src/constants/ai-entry.ts`（路由、开关、权限码、文案）
+2. 冻结 `docs/agent/agent-contract-v1.md`、`workflow-schema-v1.json`、`agent-security-boundary.md`（图/变量/状态机/表/工具/HTTP/模型）
+
+### 【参考文件】
+
+- docs/ai-entry-boundaries.md
+- docs/agent/agent-contract-v1.md、workflow-schema-v1.json、agent-security-boundary.md
+- frontend/src/constants/ai-entry.ts
+- docs/README.md、docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- 本次仅契约与常量，**未写 kb-agent 业务代码**（任务 65 起）
+- 前端路由/页面仍未落地（任务 69）；`enableAgent` 默认关闭约定已写入文档
+
+---
+
+## 2026-07-15（任务 57/58：索引模式 + 鉴权冒烟脚本）
+
+### 【本次功能】
+
+1. **任务 57**：`document.indexing.mode=event|legacy-feign|disabled` 单选；legacy Feign 包 + 启动 WARN；MQ Confirm/Return + 有限重试；`rebuild-es-indices.ps1 -DocumentId` 补偿
+2. **任务 58**：新增 `deploy/scripts/verify-auth-ai.ps1`；串入 `verify-all.ps1`；定向单测步骤；Search ACL backlog 已单列
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../DocumentIndexingProperties.java、DocumentIndexingTriggerServiceImpl.java、DocumentLifecycleEventPublisher.java、legacy/LegacyDocumentIndexFeignTrigger.java
+- deploy/scripts/verify-auth-ai.ps1、verify-all.ps1、rebuild-es-indices.ps1
+- docs/after/rh-cha-roadmap.md、docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- Search ACL 双用户私有文档隔离尚未造数证明（auth 门禁已测），backlog OPEN
+- 需同步 Nacos `document.indexing.mode` 与 RabbitMQ publisher-confirm 配置后重启 kb-core
+- 未在本机实际跑 `verify-auth-ai.ps1`（依赖服务在线）
+
+---
+
+## 2026-07-15（任务 56-MVP：网关认证闭环 + 内部 HMAC）
+
+### 【本次功能】
+
+1. **编号切换声明**：第 7 阶段正式任务号 **56–75**（以修订版计划为准）
+2. **56-MVP**：网关清理信任头、白名单唯一准源、缺/非法 Token 统一 HTTP 401；Intelligence→Core HMAC-SHA256（时间窗 60s、密钥 ≥32 字节、文档读取路径白名单）
+3. 定向单测：`AuthGlobalFilterTest`、`InternalServiceAuthFilterTest`、`InternalServiceHmacUtilTest` 全绿
+
+### 【参考文件】
+
+- backend/kb-gateway/.../AuthGlobalFilter.java、GatewayAuthProperties.java
+- backend/kb-common/.../InternalServiceHmacUtil.java
+- backend/kb-core/kb-core-app/.../InternalServiceAuthFilter.java、CoreInternalServiceProperties.java
+- backend/kb-intelligence/.../InternalFeignConfig.java、KbCoreInternalProperties.java、SearchServiceImpl.java
+- backend/nacos/kb-gateway-dev.yaml.template、kb-core-dev.yaml.template、kb-intelligence-dev.yaml.template
+- deploy/env.example、docs/after/p3-3-operations.md
+
+### 【差距总结】
+
+- **56-Ops**（密钥轮换手册、完整路径矩阵、生产端口暴露检查）未做，不阻塞 B0，阻塞 `enableAgent`
+- 需将 Nacos 中 `kb-gateway-dev` / `kb-core-dev` / `kb-intelligence-dev` 按模板同步后重启服务，并确保 `KB_INTERNAL_HMAC_SECRET` 一致
+- 未改前端；任务 57/58 未启动
 
 ---
 

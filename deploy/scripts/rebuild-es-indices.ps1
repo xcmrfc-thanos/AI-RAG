@@ -18,18 +18,25 @@
 .PARAMETER Token
   可选 JWT，用于触发 rebuild / reindex API
 
+.PARAMETER DocumentId
+  可选：仅补偿单个文档（调用 POST /api/rag/reindex/{id}），不删建全量 ES 索引
+
 .EXAMPLE
   .\rebuild-es-indices.ps1
 
 .EXAMPLE
   .\rebuild-es-indices.ps1 -Token "eyJhbGciOi..."
+
+.EXAMPLE
+  .\rebuild-es-indices.ps1 -Token "eyJ..." -DocumentId 123456789
 #>
 param(
     [string]$EsHost = $(if ($env:ES_URL) { $env:ES_URL } else { "http://127.0.0.1:20920" }),
     [string]$EsUser = "elastic",
     [string]$EsPass = $(if ($env:ELASTIC_PASSWORD) { $env:ELASTIC_PASSWORD } else { "susan123" }),
     [string]$GatewayUrl = "http://localhost:8080",
-    [string]$Token = ""
+    [string]$Token = "",
+    [long]$DocumentId = 0
 )
 
 $ErrorActionPreference = "Stop"
@@ -75,6 +82,24 @@ function Invoke-GatewayPost {
 }
 
 Write-Host "=== 步骤 1/3：等待 Elasticsearch ===" -ForegroundColor Cyan
+
+# 单文档补偿：不删建索引，仅触发 RAG 重建
+if ($DocumentId -gt 0) {
+    if (-not $Token) {
+        Write-Host "单文档补偿需要 -Token" -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "=== 单文档补偿：documentId=$DocumentId ===" -ForegroundColor Cyan
+    try {
+        $result = Invoke-GatewayPost -Path "/api/rag/reindex/$DocumentId"
+        Write-Host "  单文档 reindex 已触发：$($result.data)" -ForegroundColor Green
+        exit 0
+    } catch {
+        Write-Host "  单文档补偿失败：$($_.Exception.Message)" -ForegroundColor Red
+        exit 1
+    }
+}
+
 for ($i = 0; $i -lt 30; $i++) {
     try {
         Invoke-RestMethod -Uri "$EsHost/_cluster/health" -Headers $esHeaders -TimeoutSec 5 | Out-Null

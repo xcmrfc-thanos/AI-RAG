@@ -101,6 +101,7 @@ $map = [ordered]@{
     "kb-intelligence-dev.yaml"  = "kb-intelligence-dev.yaml.template"
     "kb-file-dev.yaml"          = "kb-file-dev.yaml.template"
     "kb-statistics-dev.yaml"    = "kb-statistics-dev.yaml.template"
+    "kb-agent-dev.yaml"         = "kb-agent-dev.yaml.template"
 }
 
 Write-Host "导入配置 (group=$Group, ns=$Namespace)..." -ForegroundColor Cyan
