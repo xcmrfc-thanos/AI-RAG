@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；下一步 **69**（Agent UI）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69 ✅；下一步 **70**（权限矩阵）。Search ACL backlog 仍 OPEN。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,29 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 69：Agent 用户页与管理页）
+
+### 【本次功能】
+
+1. `/agent` 运行页、`/admin/agents` JSON 编排页；门禁受 `enableAgent` + 权限码控制
+2. `agent.service`、导航/路由接入；系统设置增加 Agent 开关（默认关）
+3. vitest：`agent-access` 关闭态/普通用户/管理员门禁单测；type-check + build 通过
+
+### 【参考文件】
+
+- frontend/src/pages/AgentPage.tsx、pages/admin/AgentAdminPage.tsx
+- frontend/src/services/agent.service.ts、utils/agent-access.ts、utils/agent-access.test.ts
+- frontend/src/router/index.tsx、components/layout/MainLayout.tsx、constants/admin-nav.ts
+- frontend/src/stores/app.store.ts、pages/admin/SettingsPage.tsx
+- backend/.../SettingsServiceImpl.java（enableAgent 默认 false）
+
+### 【差距总结】
+
+- 权限码 SQL/方法级授权留给任务 70；端到端冒烟留给 71
+- `enableAgent` 仍默认关闭
 
 ---
 

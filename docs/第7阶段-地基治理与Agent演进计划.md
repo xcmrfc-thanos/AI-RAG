@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；下一步 69；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；**B2 69 ✅**；下一步 70；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -500,15 +500,15 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 69：用户运行页与管理员编排页（无画布）
 
-- [ ] `/agent`：授权用户选择已发布工作流、输入问题、发起 Run、查看答案和工具轨迹
-- [ ] `/agent` 不提供 JSON 编辑、草稿保存或发布入口
-- [ ] `/admin/agents`：管理员使用 JSON 文本编辑器进行创建、校验、试跑和发布
-- [ ] 两个入口均受 `system.enableAgent` 开关控制；默认生产配置为关闭，完成任务 71 后再开启
-- [ ] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 未通过时普通用户不显示入口且访问返回 403
-- [ ] 前端 store、类型、service、导航常量与任务 64 文档一致
-- [ ] 用户发起取消后提示“取消请求已提交，将在当前节点结束后生效”，Run 在后端转为 `CANCELLED` 前仍展示运行中
-- [ ] 增路由/组件测试：功能关闭态、普通用户不可见管理入口、Run 成功/失败展示
-- [ ] **不做** React Flow（任务 72）
+- [x] `/agent`：授权用户选择已发布工作流、输入问题、发起 Run、查看答案和工具轨迹
+- [x] `/agent` 不提供 JSON 编辑、草稿保存或发布入口
+- [x] `/admin/agents`：管理员使用 JSON 文本编辑器进行创建、校验、试跑和发布
+- [x] 两个入口均受 `system.enableAgent` 开关控制；默认生产配置为关闭，完成任务 71 后再开启
+- [x] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 未通过时普通用户不显示入口且访问返回 403
+- [x] 前端 store、类型、service、导航常量与任务 64 文档一致
+- [x] 用户发起取消后提示“取消请求已提交，将在当前节点结束后生效”，Run 在后端转为 `CANCELLED` 前仍展示运行中
+- [x] 增路由/组件测试：功能关闭态、普通用户不可见管理入口、Run 成功/失败展示（`agent-access` 门禁单测）
+- [x] **不做** React Flow（任务 72）
 
 **验收**：Search ACL 通过时普通用户只能运行、管理员可编排和发布；ACL 未通过时普通用户无 Agent 入口且运行返回 403；关闭开关后导航隐藏且直接访问显示关闭态。
 
@@ -694,7 +694,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase B2
 
-- [ ] 69 用户运行页与管理员编排页
+- [x] 69 用户运行页与管理员编排页
 - [ ] 70 权限矩阵与审计
 - [ ] 71 Agent 冒烟
 
