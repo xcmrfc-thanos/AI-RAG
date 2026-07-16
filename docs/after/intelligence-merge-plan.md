@@ -1,9 +1,13 @@
 # kb-intelligence 合并实施计划（Phase 1）
 
-> **目标**：kb-ai + kb-search + kb-graph → **kb-intelligence**（8091）  
-> **原则**：复制不移动，旧服务并行；网关试点用独立前缀，稳定后再切 `/api/ai|search|graph/**`  
-> **父计划**：[service-merge-plan.md](./service-merge-plan.md)  
-> **环境说明**：**项目开发中，还未部署数据库中间件**（MySQL / ES / Neo4j / Redis / RabbitMQ 尚未在目标环境安装；下文 SQL 与连接配置供首次部署时使用）。
+> **状态（2026-07-16 / 任务 59）**：**合并已完成并上线为 4 BC 运行时**。  
+> **运行时只有** `kb-intelligence:8091` 一个进程；**不要**再部署 `kb-ai` / `kb-search` / `kb-graph`。  
+> 旧源码在 `backend/_archive/`；包名 `com.knowledge.base.ai|search|graph` 为历史遗留，≠ 三进程。  
+> 模块说明准源：[backend/kb-intelligence/README.md](../../backend/kb-intelligence/README.md)。  
+> ---  
+> **历史目标**：kb-ai + kb-search + kb-graph → **kb-intelligence**（8091）  
+> **历史原则**：复制不移动，旧服务并行；网关试点用独立前缀，稳定后再切 `/api/ai|search|graph/**`  
+> **父计划**：[service-merge-plan.md](./service-merge-plan.md)
 
 ---
 
@@ -31,7 +35,7 @@ backend/kb-intelligence/
 | P1-DB | MySQL 单库 `kb_intelligence` + SQL 脚本 | ✅ 规划/脚本就绪，待环境部署后执行 |
 | P1-5 | 统一 ES（kb_document + kb_chunk）Indexing Pipeline | 🟡 P1-5a/b ✅ |
 | P1-6 | 网关切主路由 + Nacos `kb-intelligence-dev.yaml` | 🟡 主路由已加(order=1)；Nacos 模板就绪 |
-| P1-7 | 下线 kb-ai / kb-search / kb-graph | ⬜ |
+| P1-7 | 下线 kb-ai / kb-search / kb-graph | ✅ 已归档 `_archive/`，运行时仅 Intelligence |
 
 ---
 

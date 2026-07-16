@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；Search ACL 与 **56-Ops** 已落地；下一步按需 **Phase A1（59–63）** 或 **Phase C（72–75）**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
+**下一阶段**：第 7 阶段 Phase B 已收口；A0（含 56-Ops）与 Search ACL 已落地；**A1 任务 59 已完成，继续 63/60…**。`enableAgent` 默认仍关闭（待目标环境 ACL 复测 PASS）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,27 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（任务 59：BC 叙事与配置准源）
+
+### 【本次功能】
+
+1. 文档收口：运行时 4 BC、包名历史遗留、Nacos 为准源
+2. 统一 `ai.default-model=qwen`（Nacos / 模块 yml / ModelProvider 兜底）
+3. Intelligence 模块 README + Listener/MQ 注释改为 BC 用语；`verify-llm-config` 增加 default-model 断言
+
+### 【参考文件】
+
+- backend/README.md、backend/kb-intelligence/README.md、backend/nacos/README.md
+- docs/after/intelligence-merge-plan.md
+- backend/nacos/kb-intelligence-dev.yaml.template、ModelProvider.java
+- deploy/scripts/verify-llm-config.ps1
+
+### 【差距总结】
+
+- 未做大挪包（按计划）；导入 Nacos 后需 `import-nacos.ps1` 才会覆盖线上仍为 deepseek 的旧配置
 
 ---
 

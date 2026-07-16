@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；Search ACL 代码/脚本已落地；下一步 A1 59–63 或 Phase C 按需）
+> **状态**：执行中（A0 ✅含 56-Ops；B0–B2 ✅；A1 59 ✅；Search ACL 代码/脚本已落地；下一步 A1 63/60 或 Phase C 按需）
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -238,11 +238,11 @@ Agent 工具调用
 
 **做什么**：
 
-- [ ] **不做**一次性大挪包（风险高）；做：模块 README、类 Javadoc、Listener 注释改为 Intelligence BC 用语
-- [ ] `backend/README.md` / `docs/after/intelligence-merge-plan.md` 顶部加「运行时 4 BC，包名历史遗留」说明
-- [ ] 可选后续：新代码一律 `com.knowledge.base.intelligence.*`，旧包冻结
-- [ ] 明确 Nacos 模板为运行时配置准源；模块 `application.yml` 仅作同值兜底
-- [ ] 统一 `ai.default-model=qwen`，消除 Nacos `deepseek` 与模块兜底 `qwen` 的漂移
+- [x] **不做**一次性大挪包（风险高）；做：模块 README、类 Javadoc、Listener 注释改为 Intelligence BC 用语
+- [x] `backend/README.md` / `docs/after/intelligence-merge-plan.md` 顶部加「运行时 4 BC，包名历史遗留」说明
+- [x] 可选后续：新代码一律 `com.knowledge.base.intelligence.*`，旧包冻结（已写入模块 README）
+- [x] 明确 Nacos 模板为运行时配置准源；模块 `application.yml` 仅作同值兜底
+- [x] 统一 `ai.default-model=qwen`，消除 Nacos `deepseek` 与模块兜底 `qwen` 的漂移
 
 **验收**：新人读 README 不会以为仍部署 kb-ai/kb-search/kb-graph 三进程；模型默认值在 Nacos、模块兜底和文档中一致。
 
@@ -675,7 +675,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase A1
 
-- [ ] 59 BC 叙事与配置准源
+- [x] 59 BC 叙事与配置准源
 - [ ] 60 RAG Golden v0
 - [ ] 61 Retriever 分层
 - [ ] 62 Statistics 仓储化

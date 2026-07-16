@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Check LLM configuration for kb-intelligence (task 52).
+  Check LLM configuration for kb-intelligence (task 52 / 59).
 
 .EXAMPLE
   .\verify-llm-config.ps1
@@ -25,14 +25,43 @@ Get-Content (Join-Path $deployDir ".env") -Encoding UTF8 -ErrorAction SilentlyCo
 }
 
 Write-Host ""
-Write-Host "=== LLM config check (task 52) ===" -ForegroundColor Cyan
+Write-Host "=== LLM config check (task 52 / 59) ===" -ForegroundColor Cyan
+
+# Task 59: Nacos template and module fallback must use default-model qwen
+$repoRoot = Split-Path -Parent $deployDir
+$nacosTpl = Join-Path $repoRoot "backend\nacos\kb-intelligence-dev.yaml.template"
+$modYml = Join-Path $repoRoot "backend\kb-intelligence\kb-intelligence-llm\src\main\resources\application.yml"
+$script:FailCount = 0
+
+function Assert-DefaultModelQwen {
+    param(
+        [string]$Path,
+        [string]$Label
+    )
+    if (-not (Test-Path $Path)) {
+        Write-Host ("[FAIL] missing {0}: {1}" -f $Label, $Path) -ForegroundColor Red
+        $script:FailCount++
+        return
+    }
+    $content = Get-Content -Path $Path -Raw -Encoding UTF8
+    if ($content -match 'default-model:\s*qwen') {
+        Write-Host ("[PASS] {0} ai.default-model=qwen" -f $Label) -ForegroundColor Green
+    }
+    else {
+        Write-Host ("[FAIL] {0} ai.default-model is not qwen" -f $Label) -ForegroundColor Red
+        $script:FailCount++
+    }
+}
+
+Assert-DefaultModelQwen -Path $nacosTpl -Label "nacos template"
+Assert-DefaultModelQwen -Path $modYml -Label "module application.yml"
 
 $hasQwen = [bool]$env:QWEN_API_KEY
 $hasDeepseek = [bool]$env:DEEPSEEK_API_KEY
 $devStub = ($env:AI_DEV_STUB -eq "true") -or ($env:AI_DEV_STUB -eq "1")
 
 if ($hasQwen) {
-    Write-Host "[PASS] QWEN_API_KEY configured (len=$($env:QWEN_API_KEY.Length))" -ForegroundColor Green
+    Write-Host ("[PASS] QWEN_API_KEY configured (len={0})" -f $env:QWEN_API_KEY.Length) -ForegroundColor Green
 }
 elseif ($devStub) {
     Write-Host "[PASS] AI_DEV_STUB=true (local stub mode, no QWEN_API_KEY)" -ForegroundColor Green
@@ -57,27 +86,32 @@ try {
     $count = 0
     if ($models.data) { $count = @($models.data).Count }
     if ($count -gt 0) {
-        Write-Host "[PASS] Gateway /api/ai/models available count=$count" -ForegroundColor Green
+        Write-Host ("[PASS] Gateway /api/ai/models available count={0}" -f $count) -ForegroundColor Green
     }
     else {
         Write-Host "[WARN] /api/ai/models returned empty" -ForegroundColor Yellow
     }
 }
 catch {
-    Write-Host "[WARN] Gateway models API: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-Host ("[WARN] Gateway models API: {0}" -f $_.Exception.Message) -ForegroundColor Yellow
 }
 
 if (Test-Path $IntelligenceLog) {
-    $stubLine = Select-String -Path $IntelligenceLog -Pattern "本地开发 Stub|本地 Stub 模式" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -Last 1
-    $keyLine = Select-String -Path $IntelligenceLog -Pattern "API Key 已配置" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -Last 1
+    $stubLine = Select-String -Path $IntelligenceLog -Pattern "Stub" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -Last 1
+    $keyLine = Select-String -Path $IntelligenceLog -Pattern "API Key" -SimpleMatch -ErrorAction SilentlyContinue | Select-Object -Last 1
     if ($stubLine) {
-        Write-Host "[INFO] Intelligence log: dev stub active" -ForegroundColor DarkGray
+        Write-Host "[INFO] Intelligence log: possible stub/key line found" -ForegroundColor DarkGray
     }
     elseif ($keyLine) {
-        Write-Host "[INFO] Intelligence log: real API key registered" -ForegroundColor DarkGray
+        Write-Host "[INFO] Intelligence log: API Key mention found" -ForegroundColor DarkGray
     }
 }
 
 Write-Host ""
 Write-Host "Tip: set QWEN_API_KEY in deploy/.env for production; local use AI_DEV_STUB=true" -ForegroundColor DarkGray
+if ($script:FailCount -gt 0) {
+    Write-Host "Result: FAILED (default-model drift)" -ForegroundColor Red
+    exit 1
+}
+Write-Host "Result: LLM CONFIG CHECK PASS" -ForegroundColor Green
 exit 0
