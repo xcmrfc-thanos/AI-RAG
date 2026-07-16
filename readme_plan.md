@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69 ✅；下一步 **70**（权限矩阵）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–70 ✅；下一步 **71**（Agent 冒烟）。Search ACL backlog 仍 OPEN。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,29 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 70：Agent 权限矩阵与审计）
+
+### 【本次功能】
+
+1. `init_agent_permission.sql`：四项权限码；仅授予 SUPER_ADMIN/ADMIN（ACL FAIL 策略）
+2. Agent JWT 过滤器跨库加载 `kb_user` 角色/权限；Controller `@PreAuthorize`
+3. Run 保留期定时清理 + `cleanup-agent-runs.ps1`；`agent.run-retention-days=30`
+
+### 【参考文件】
+
+- backend/sql/data/init_agent_permission.sql
+- backend/kb-agent/.../AgentPermissionConstants.java、AgentJwtAuthenticationFilter.java
+- backend/kb-agent/.../AgentWorkflowController.java、AgentRunController.java
+- backend/kb-agent/.../AgentRunRetentionCleaner.java、AgentApplication.java
+- deploy/scripts/cleanup-agent-runs.ps1、import-dev-data.ps1
+
+### 【差距总结】
+
+- 普通用户 view/run 待 Search ACL PASS 后另补授权脚本
+- 端到端冒烟留给任务 71
 
 ---
 

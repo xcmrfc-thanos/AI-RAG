@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；**B2 69 ✅**；下一步 70；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–70 ✅；下一步 71；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -525,13 +525,13 @@ Frontend → Gateway:/api/agent/** → kb-agent
 | `agent:workflow:edit` | 创建和编辑草稿 | 管理员 |
 | `agent:workflow:publish` | 发布不可变版本 | 管理员 |
 
-- [ ] 增权限常量、方法级授权和初始化 SQL；管理员获得全部四项，普通用户只获得 view/run
-- [ ] 若任务 58 的 Search ACL 为 FAIL，初始化/授权阶段只给管理员 view/run；ACL 修复并复测通过后再向普通用户发放
-- [ ] MVP 不做角色/团队级工作流绑定；所有已发布工作流对拥有 view/run 的用户可见
-- [ ] Run、Step 和工具审计记录用户 ID、工作流版本、状态和耗时
-- [ ] Run 输入/输出保留期配置化，默认 30 天；日志不得记录 Token、密钥和完整正文
-- [ ] 增定时清理任务或等价运维脚本，确保超过保留期的数据实际删除
-- [ ] 实施 shared permission/schema 变更时由单一任务串行修改，避免并行冲突
+- [x] 增权限常量、方法级授权和初始化 SQL；管理员获得全部四项，普通用户只获得 view/run
+- [x] 若任务 58 的 Search ACL 为 FAIL，初始化/授权阶段只给管理员 view/run；ACL 修复并复测通过后再向普通用户发放
+- [x] MVP 不做角色/团队级工作流绑定；所有已发布工作流对拥有 view/run 的用户可见
+- [x] Run、Step 和工具审计记录用户 ID、工作流版本、状态和耗时
+- [x] Run 输入/输出保留期配置化，默认 30 天；日志不得记录 Token、密钥和完整正文
+- [x] 增定时清理任务或等价运维脚本，确保超过保留期的数据实际删除
+- [x] 实施 shared permission/schema 变更时由单一任务串行修改，避免并行冲突
 
 **验收**：未登录 401；普通用户编辑/发布 403；管理员可编辑/发布；普通用户可运行已发布版本但不可运行草稿。
 
@@ -695,7 +695,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### Phase B2
 
 - [x] 69 用户运行页与管理员编排页
-- [ ] 70 权限矩阵与审计
+- [x] 70 权限矩阵与审计
 - [ ] 71 Agent 冒烟
 
 ### Phase C
