@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–67 ✅；下一步 **68**（会话与 Run API）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；下一步 **69**（Agent UI）。Search ACL backlog 仍 OPEN。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,29 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 68：会话与 Run API）
+
+### 【本次功能】
+
+1. 管理 API：`/workflows` 草稿 CRUD、校验、发布、版本列表
+2. 运行 API：`/sessions`、`/runs`（同步执行）、查询 Step、协作取消；幂等键短路
+3. Run 仅绑定 `workflowVersionId` 不可变定义；单测覆盖幂等与版本绑定
+
+### 【参考文件】
+
+- backend/kb-agent/.../controller/AgentWorkflowController.java、AgentRunController.java
+- backend/kb-agent/.../workflow/service/AgentWorkflowService.java
+- backend/kb-agent/.../run/service/AgentRunService.java
+- backend/kb-agent/src/test/.../AgentRunServiceTest.java
+- docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- 端到端冒烟脚本留给任务 71；权限码矩阵留给任务 70（MVP 按登录+所有者约束）
+- `enableAgent` 仍关闭
 
 ---
 

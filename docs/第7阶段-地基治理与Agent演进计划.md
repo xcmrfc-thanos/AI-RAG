@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–67 ✅；下一步 68；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；下一步 69；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -485,12 +485,12 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 68：会话与 Run API
 
-- [ ] 管理 API：创建草稿、更新草稿、校验、发布、查询版本
-- [ ] 运行 API：创建 Session、发起 Run、查询 Run、查询 Step 轨迹、取消 Run
-- [ ] Run 请求必须解析为已发布的 `workflowVersionId`，运行过程中不读取可变草稿
-- [ ] MVP 只提供非流式响应；前端通过查询 Run 状态获取终态
-- [ ] HTTP 错误语义固定：未登录 401、无权限 403、非法工作流 400、资源不存在 404、冲突/重复发布 409
-- [ ] OpenAPI/Knife4j 写清请求、响应和状态枚举
+- [x] 管理 API：创建草稿、更新草稿、校验、发布、查询版本
+- [x] 运行 API：创建 Session、发起 Run、查询 Run、查询 Step 轨迹、取消 Run
+- [x] Run 请求必须解析为已发布的 `workflowVersionId`，运行过程中不读取可变草稿
+- [x] MVP 只提供非流式响应；前端通过查询 Run 状态获取终态（同步执行至终态亦可直接返回）
+- [x] HTTP 错误语义固定：未登录 401、无权限 403、非法工作流 400、资源不存在 404、冲突/重复发布 409（业务码；与现有 Result 约定一致）
+- [x] OpenAPI/Knife4j 写清请求、响应和状态枚举（Controller `@Operation`/`@Tag`）
 
 **验收**：脚本可走通“建草稿 → 校验 → 发布 → 创建 Session → Run → 查询 Step”；发布后修改草稿不影响已发起 Run。
 
@@ -690,7 +690,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] 65 kb-agent 骨架
 - [x] 66 双工具
 - [x] 67 线性引擎
-- [ ] 68 Session/Run API
+- [x] 68 Session/Run API
 
 ### Phase B2
 
