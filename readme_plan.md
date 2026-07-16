@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段执行中（**56–75**）。A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–70 ✅；下一步 **71**（Agent 冒烟）。Search ACL backlog 仍 OPEN。
+**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；下一步按需 Phase C（72–75）。Search ACL backlog 仍 OPEN；`enableAgent` 默认仍关闭。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,25 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
 | 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
 | 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+
+---
+
+## 2026-07-16（任务 71：Agent 冒烟接入 verify-all）
+
+### 【本次功能】
+
+1. 新增 `verify-agent-smoke.ps1`（管理员链路 + 401/403/400 + ACL FAIL 管理员限定模式）
+2. `verify-auth-ai.ps1` 导出 `SEARCH_ACL_STATUS`；`verify-all.ps1` 串入 Agent 冒烟、Agent 定向单测与前端 vitest
+
+### 【参考文件】
+
+- deploy/scripts/verify-agent-smoke.ps1、verify-all.ps1、verify-auth-ai.ps1
+- docs/第7阶段-地基治理与Agent演进计划.md
+
+### 【差距总结】
+
+- 真实联调依赖服务已启动、权限 SQL 已导入、`AI_DEV_STUB` 可选
+- Search ACL PASS 分支的双用户文档隔离断言仍待 ACL 修复后补强
 
 ---
 

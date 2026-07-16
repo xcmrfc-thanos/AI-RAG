@@ -257,6 +257,7 @@ Write-Host ""
 Write-Host "--- Summary ---" -ForegroundColor Cyan
 Write-Host ("PASS: " + $PassCount + "  FAIL: " + $FailCount)
 Write-Host ("Search ACL: " + $script:SearchAclStatus)
+$env:SEARCH_ACL_STATUS = $script:SearchAclStatus
 Write-Host "Policy: ACL FAIL => B0/B1 may continue; Agent view/run for normal users blocked until ACL PASS."
 if ($FailCount -gt 0) {
     Write-Host "Result: FAILED" -ForegroundColor Red

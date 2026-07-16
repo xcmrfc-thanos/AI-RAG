@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-15  
-> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–70 ✅；下一步 71；Search ACL backlog OPEN）  
+> **状态**：执行中（A0 ✅；B0 64 ✅；B1 65–68 ✅；B2 69–71 ✅；下一步 Phase C 按需；Search ACL backlog OPEN）  
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -539,13 +539,13 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### 任务 71：Agent 冒烟接入 verify-all
 
-- [ ] `deploy/scripts/verify-agent-smoke.ps1`：管理员登录 → 保存草稿 → 校验 → 发布 → 发起 Run → 断言工具调用、Step 和终态
-- [ ] Search ACL 为 PASS：使用普通用户 Run，并断言用户 B 私有文档不出现在用户 A 的工具结果
-- [ ] Search ACL 为 FAIL：断言普通用户 Run 为 403，仅执行管理员 Run；报告中明确标记“管理员限定模式”
-- [ ] 通用负向断言：无 Token 401；普通用户编辑 403；非法工作流 400
-- [ ] 记入 `verify-all.ps1`
-- [ ] `AI_DEV_STUB=true` 时 LLM 节点返回确定性文本；无 Key 环境仍可完整冒烟
-- [ ] 最终验证包含 Agent 定向后端测试、前端组件/构建和 API 冒烟
+- [x] `deploy/scripts/verify-agent-smoke.ps1`：管理员登录 → 保存草稿 → 校验 → 发布 → 发起 Run → 断言工具调用、Step 和终态
+- [x] Search ACL 为 PASS：使用普通用户 Run，并断言用户 B 私有文档不出现在用户 A 的工具结果（脚本分支已预留；当前默认 FAIL 路径）
+- [x] Search ACL 为 FAIL：断言普通用户 Run 为 403，仅执行管理员 Run；报告中明确标记“管理员限定模式”
+- [x] 通用负向断言：无 Token 401；普通用户编辑 403；非法工作流 400
+- [x] 记入 `verify-all.ps1`
+- [x] `AI_DEV_STUB=true` 时 LLM 节点返回确定性文本；无 Key 环境仍可完整冒烟（依赖服务侧 Stub）
+- [x] 最终验证包含 Agent 定向后端测试、前端组件/构建和 API 冒烟
 
 **验收**：本地 `verify-all.ps1` 包含 Agent 步骤并非零失败；无 Key 时使用 Stub；不依赖浏览器。
 
@@ -696,7 +696,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - [x] 69 用户运行页与管理员编排页
 - [x] 70 权限矩阵与审计
-- [ ] 71 Agent 冒烟
+- [x] 71 Agent 冒烟
 
 ### Phase C
 

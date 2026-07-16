@@ -45,19 +45,23 @@ Set-Location $scriptDir
 Invoke-VerifyStep "verify-integration.ps1" { .\verify-integration.ps1 }
 Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 }
 Invoke-VerifyStep "verify-auth-ai.ps1" { .\verify-auth-ai.ps1 }
+Invoke-VerifyStep "verify-agent-smoke.ps1" {
+    $acl = if ($env:SEARCH_ACL_STATUS) { $env:SEARCH_ACL_STATUS } else { "FAIL" }
+    .\verify-agent-smoke.ps1 -SearchAclStatus $acl
+}
 Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 }
 Invoke-VerifyStep "verify-admin-ui.ps1" { .\verify-admin-ui.ps1 }
 
-# 定向后端单测（网关鉴权 / Core 内部签名 / 文档索引模式）
-Invoke-VerifyStep "backend targeted unit tests (56/57)" {
+# 定向后端单测（网关鉴权 / Core 内部签名 / 文档索引模式 / Agent）
+Invoke-VerifyStep "backend targeted unit tests (56/57/66-70)" {
     $env:JAVA_HOME = if (Test-Path "D:\Users\environments\Java21") { "D:\Users\environments\Java21" } else { $env:JAVA_HOME }
     if ($env:JAVA_HOME) {
         $env:PATH = "$env:JAVA_HOME\bin;" + $env:PATH
     }
     Push-Location $backendDir
     try {
-        mvn -pl kb-gateway,kb-core/kb-core-app,kb-core/kb-core-document -am test `
-            "-Dtest=AuthGlobalFilterTest,InternalServiceAuthFilterTest,InternalServiceHmacUtilTest,DocumentIndexingTriggerServiceImplTest" `
+        mvn -pl kb-gateway,kb-core/kb-core-app,kb-core/kb-core-document,kb-agent -am test `
+            "-Dtest=AuthGlobalFilterTest,InternalServiceAuthFilterTest,InternalServiceHmacUtilTest,DocumentIndexingTriggerServiceImplTest,AgentToolRegistryTest,LinearWorkflowEngineTest,AgentRunServiceTest,AgentPermissionConstantsTest,AgentRunRetentionCleanerTest,OpenAiCompatibleAgentModelClientTest" `
             "-Dsurefire.failIfNoSpecifiedTests=false"
     }
     finally {
@@ -66,6 +70,11 @@ Invoke-VerifyStep "backend targeted unit tests (56/57)" {
 }
 
 if (-not $SkipBuild) {
+    Invoke-VerifyStep "frontend unit tests (agent-access)" {
+        Set-Location $frontendDir
+        npm run test
+        Set-Location $scriptDir
+    }
     Invoke-VerifyStep "frontend npm run build" {
         Set-Location $frontendDir
         npm run build
@@ -74,7 +83,7 @@ if (-not $SkipBuild) {
 }
 else {
     Write-Host ""
-    Write-Host "[SKIP] frontend build (-SkipBuild)" -ForegroundColor DarkYellow
+    Write-Host "[SKIP] frontend test/build (-SkipBuild)" -ForegroundColor DarkYellow
 }
 
 Write-Host ""
