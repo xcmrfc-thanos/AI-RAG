@@ -5,7 +5,7 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段任务 **56–75 计划项已收口**（联调补齐仍待：Golden WriteBaseline、Search ACL 环境复测、`enableAgent` 开闸）。默认 `enableAgent` 仍关闭。
+**下一阶段**：第 7 阶段任务 **56–75 计划项已收口**；联调补齐进行中（72 草稿加载 ✅；待 Golden WriteBaseline、Search ACL 复测、`enableAgent` 开闸）。
 
 ### Backlog：Search ACL 修复（任务 58）
 
@@ -16,6 +16,24 @@ JDK21 D:\Users\environments\Java21
 | 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
 | 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
 | 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（联调补齐：Agent 列表点选加载草稿）
+
+### 【本次功能】
+
+1. `GET /agent/workflows/{id}` 对所有者返回 `draftJson`；列表仍仅 `hasDraft`
+2. 前端 `getWorkflow` + 管理页点选加载草稿到画布
+
+### 【参考文件】
+
+- backend/kb-agent/.../AgentWorkflowService.java、AgentWorkflowController.java
+- frontend/src/services/agent.service.ts、pages/admin/AgentAdminPage.tsx
+
+### 【差距总结】
+
+- 无（闭合任务 72 差距项）
 
 ---
 
