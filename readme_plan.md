@@ -5,17 +5,41 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；下一步按需 Phase C（72–75）。Search ACL backlog 仍 OPEN；`enableAgent` 默认仍关闭。
+**下一阶段**：第 7 阶段 **Phase B（56–71）已收口**；Search ACL 代码与脚本已落地；下一步 **56-Ops（密钥轮换）** 或按需 Phase C（72–75）。`enableAgent` 默认仍关闭。
 
 ### Backlog：Search ACL 修复（任务 58）
 
 | 项 | 内容 |
 |----|------|
-| 状态 | **OPEN**（`verify-auth-ai.ps1` 记录 Search ACL=FAIL） |
-| 受影响接口 | `GET /api/search/**`（关键词/混合）；文档读取经 ACL 过滤的路径 |
-| 关闭标准 | 用户 A 的 Search 结果与文档读取均不出现仅用户 B 可见的私有文档；脚本连续两次 PASS |
-| 临时策略 | B0/B1 可开发；任务 66 真实联调仅管理员；普通用户 Agent view/run 不得发放 |
-| 修复方案 | 造数：用户 A/B + 仅 B 可见私有文档 → 扩 `verify-auth-ai.ps1` 断言 → 若检索侧缺过滤则补 Search ACL |
+| 状态 | **CLOSED（代码+脚本）**；本地需服务联调连续两次 `verify-auth-ai.ps1` 记 Search ACL=PASS |
+| 受影响接口 | `GET/POST /api/search/**`；`GET /api/document/documents/{id}` |
+| 关闭标准 | tester 搜不到/读不到 editor 私有文档；editor 可见；鉴权门 401/200 |
+| 临时策略 | ACL 未在目标环境复测 PASS 前，普通用户 Agent view/run 仍不发放 |
+| 修复方案 | 文档读取 `DocumentAccessGuard`；检索 ES filter + 结果后置过滤；`teamId`/`is_public` 入索引；脚本双用户造数断言 |
+
+---
+
+## 2026-07-16（Search ACL：检索/文档可见性）
+
+### 【本次功能】
+
+1. 统一可见性规则：公开 / 作者 / 团队成员；内部 HMAC 旁路索引重建
+2. Search：文档级 ES ACL filter + chunk/hybrid 后置过滤；索引写入 `teamId`/`is_public`
+3. `verify-auth-ai.ps1`：tester vs editor 私有文档隔离断言（Search + 文档读取）
+
+### 【参考文件】
+
+- backend/kb-common/.../DocumentVisibility.java、UserContextUtil.java
+- backend/kb-core/.../DocumentAccessGuard.java、DocumentServiceImpl.java、DocumentSearchIndexPayloadBuilder.java
+- backend/kb-core/.../DocumentUserLocalClient.java、InternalUserTeamController.java、InternalServiceAuthFilter.java
+- backend/kb-intelligence/.../SearchServiceImpl.java、SearchController.java、SearchAclQuerySupport.java
+- backend/kb-common/src/main/resources/elasticsearch/kb_chunk_index.json
+- deploy/scripts/verify-auth-ai.ps1、backend/nacos/kb-core-dev.yaml.template
+
+### 【差距总结】
+
+- 单测 `DocumentVisibilityTest` 已通过；完整 Search ACL=PASS 依赖网关/Core/Intelligence/ES 已启动且种子用户 tester/editor 可用
+- 存量索引需重建后 chunk 侧 `is_public` 才完整（后置过滤已覆盖文档级元数据）
 
 ---
 
