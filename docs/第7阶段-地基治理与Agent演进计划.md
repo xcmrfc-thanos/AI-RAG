@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-17
-> **状态**：任务 56–75 的代码与定向验收已完成；backend 全量测试、frontend 全量 test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 均通过。当前机器的默认 `verify-all.ps1` 仍受外部项目占用 8080 影响，完整证据见本文末尾收口记录。
+> **状态**：任务 56–75 的代码与定向验收已完成；backend 全量测试、frontend 全量 test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 与 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080 -SkipBuild` 均通过。前端全仓 lint 存量问题正在独立收口，完整证据见本文末尾记录。
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -548,7 +548,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] `AI_DEV_STUB=true` 时 LLM 节点返回确定性文本；无 Key 环境仍可完整冒烟（依赖服务侧 Stub）
 - [x] 最终验证包含 Agent 定向后端测试、前端组件/构建和 API 冒烟
 
-**验收**：`verify-all.ps1` 已包含 Agent 步骤；在 AI-RAG Gateway 可用的端口上 Agent gates 非零失败（本轮为 18080 全通过）；默认 8080 验收需确保没有其他项目占用该端口；无 Key 时使用 Stub；不依赖浏览器。
+**验收**：`verify-all.ps1` 已包含 Agent 步骤并支持通过 `-GatewayUrl` 指定 AI-RAG Gateway；本轮使用 18080 全通过，避免与本机占用 8080 的其他项目冲突；无 Key 时使用 Stub；不依赖浏览器。
 
 ---
 
@@ -711,7 +711,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - frontend 全仓 lint：仍有既有 `326 errors / 356 warnings`，集中在非 Agent 的历史组件、store、service 与 `vite.config.ts`，未混入本轮画布提交。
 - 真实服务：AI-RAG file/core/intelligence/statistics/agent 分别监听 8084/8090/8091/8085/8092；因其他项目占用 8080，AI-RAG Gateway 使用 18080 完成验收。
 - `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：`GATES PASS`；管理员 Draft Run `SUCCEEDED` 且 2 Steps，普通用户 Draft Run 403，Search ACL PASS。
-- 默认 `verify-all.ps1`：integration、LLM、Admin UI、后端定向测试、frontend test/build 均通过；固定访问 8080 的 API 与 Phase 7 两步命中其他项目，因此最终为 `FAILED (2 steps)`。改用 18080 单独执行 `verify-api.ps1` 和 Phase 7 gates 均通过。
+- `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080 -SkipBuild`：2026-07-17 复测退出码 0，integration、API、Phase 7、LLM、Admin UI 与后端定向测试全部通过；脚本已不再硬编码 8080，当前机器的端口冲突不再阻塞全链路验收。
 - 知识图谱、热门/最新文档节点继续延期，直到对应接口具备终端用户 ACL 过滤，避免把统计或公共接口误开放为 Agent Tool。
 
 ---
