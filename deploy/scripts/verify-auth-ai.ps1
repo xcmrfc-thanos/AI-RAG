@@ -15,6 +15,11 @@ param(
     [string]$CoreUrl = "http://127.0.0.1:8090",
     [string]$Username = "admin",
     [string]$Password = "admin123",
+    [string]$AclReaderUser = "tester",
+    [string]$AclReaderPassword = "admin123",
+    [string]$AclOwnerUser = "editor",
+    [string]$AclOwnerPassword = "admin123",
+    [int]$AclIndexWaitSec = 15,
     [string]$HmacSecret = $(if ($env:KB_INTERNAL_HMAC_SECRET) { $env:KB_INTERNAL_HMAC_SECRET } else { "ai-rag-local-dev-hmac-secret-key!!" })
 )
 
@@ -233,8 +238,7 @@ catch {
     Write-AuthResult -Name "core good-hmac GET /documents/page" -Status "FAIL" -Detail $_.Exception.Message
 }
 
-# 8) Search ACL：无 Token→401；双用户（tester=A / editor=B）私有文档隔离
-# 结果单独记录为 PASS/FAIL，不计入鉴权 FailCount
+# 8) Search ACL：无 Token→401；双用户（reader=A / owner=B）私有文档隔离
 function Get-LoginToken {
     param([string]$User, [string]$Pass)
     $body = @{ username = $User; password = $Pass } | ConvertTo-Json -Compress
@@ -285,6 +289,19 @@ function Invoke-JsonApi {
     }
 }
 
+function Test-SearchResultHit {
+    param(
+        $SearchJson,
+        [string]$DocumentId,
+        [string]$Marker
+    )
+    if (-not $SearchJson -or -not $SearchJson.data -or -not $SearchJson.data.records) { return $false }
+    foreach ($record in $SearchJson.data.records) {
+        if (("" + $record.id) -eq $DocumentId -or (("" + $record.title) -like "*$Marker*")) { return $true }
+    }
+    return $false
+}
+
 try {
     $marker = "acl-private-" + [guid]::NewGuid().ToString("N").Substring(0, 12)
     $noAuth = Get-HttpStatus -Uri "$base/api/search/search?keyword=$marker&current=1&size=5" -Method "GET"
@@ -293,14 +310,15 @@ try {
 
     if ($noAuth -ne 401 -or $withAuth -ne 200) {
         $script:SearchAclStatus = "FAIL"
-        Write-Host "[FAIL] Search ACL probe - noAuth=$noAuth withAuth=$withAuth" -ForegroundColor Yellow
+        Write-AuthResult -Name "Search ACL probe" -Status "FAIL" -Detail "noAuth=$noAuth withAuth=$withAuth"
     }
     else {
-        $tokenA = Get-LoginToken -User "tester" -Pass $Password
-        $tokenB = Get-LoginToken -User "editor" -Pass $Password
+        $tokenA = Get-LoginToken -User $AclReaderUser -Pass $AclReaderPassword
+        $tokenB = Get-LoginToken -User $AclOwnerUser -Pass $AclOwnerPassword
         if (-not $tokenA -or -not $tokenB) {
             $script:SearchAclStatus = "FAIL"
-            Write-Host "[FAIL] Search ACL - cannot login tester/editor (check seed users)" -ForegroundColor Yellow
+            Write-AuthResult -Name "Search ACL users" -Status "FAIL" `
+                -Detail "cannot login reader=$AclReaderUser owner=$AclOwnerUser"
         }
         else {
             $createBody = @{
@@ -321,45 +339,44 @@ try {
 
             if (-not $docId) {
                 $script:SearchAclStatus = "FAIL"
-                Write-Host "[FAIL] Search ACL - create private doc as editor failed: $($create.Content)" -ForegroundColor Yellow
+                Write-AuthResult -Name "Search ACL create private doc" -Status "FAIL" `
+                    -Detail "owner=$AclOwnerUser response=$($create.Content)"
             }
             else {
-                Start-Sleep -Seconds 3
+                $searchB = $null
+                $searchBJson = $null
+                $bHit = $false
+                for ($waited = 0; $waited -lt $AclIndexWaitSec; $waited++) {
+                    $searchB = Invoke-JsonApi -Uri "$base/api/search/search?keyword=$marker&current=1&size=10" `
+                        -Method "GET" -Bearer $tokenB
+                    try { $searchBJson = $searchB.Content | ConvertFrom-Json } catch { $searchBJson = $null }
+                    $bHit = Test-SearchResultHit -SearchJson $searchBJson -DocumentId ("" + $docId) -Marker $marker
+                    if ($bHit) { break }
+                    Start-Sleep -Seconds 1
+                }
                 $searchA = Invoke-JsonApi -Uri "$base/api/search/search?keyword=$marker&current=1&size=10" `
                     -Method "GET" -Bearer $tokenA
-                $searchB = Invoke-JsonApi -Uri "$base/api/search/search?keyword=$marker&current=1&size=10" `
-                    -Method "GET" -Bearer $tokenB
                 $readA = Invoke-JsonApi -Uri "$base/api/document/documents/$docId" -Method "GET" -Bearer $tokenA
                 $readB = Invoke-JsonApi -Uri "$base/api/document/documents/$docId" -Method "GET" -Bearer $tokenB
 
-                $searchAJson = $null; $searchBJson = $null; $readAJson = $null; $readBJson = $null
+                $searchAJson = $null; $readAJson = $null; $readBJson = $null
                 try { $searchAJson = $searchA.Content | ConvertFrom-Json } catch { }
-                try { $searchBJson = $searchB.Content | ConvertFrom-Json } catch { }
                 try { $readAJson = $readA.Content | ConvertFrom-Json } catch { }
                 try { $readBJson = $readB.Content | ConvertFrom-Json } catch { }
 
-                $aHit = $false
-                if ($searchAJson -and $searchAJson.data -and $searchAJson.data.records) {
-                    foreach ($r in $searchAJson.data.records) {
-                        if (("" + $r.id) -eq ("" + $docId) -or (("" + $r.title) -like "*$marker*")) { $aHit = $true }
-                    }
-                }
-                $bHit = $false
-                if ($searchBJson -and $searchBJson.data -and $searchBJson.data.records) {
-                    foreach ($r in $searchBJson.data.records) {
-                        if (("" + $r.id) -eq ("" + $docId) -or (("" + $r.title) -like "*$marker*")) { $bHit = $true }
-                    }
-                }
+                $aHit = Test-SearchResultHit -SearchJson $searchAJson -DocumentId ("" + $docId) -Marker $marker
                 $aForbidden = ($readAJson -and [int]$readAJson.code -eq 403)
                 $bOk = ($readBJson -and [int]$readBJson.code -eq 200)
 
                 if (-not $aHit -and $bHit -and $aForbidden -and $bOk) {
                     $script:SearchAclStatus = "PASS"
-                    Write-Host "[PASS] Search ACL - A(tester) cannot see B(editor) private doc $docId" -ForegroundColor Green
+                    Write-AuthResult -Name "Search ACL" -Status "PASS" `
+                        -Detail "reader=$AclReaderUser cannot see owner=$AclOwnerUser private doc $docId"
                 }
                 else {
                     $script:SearchAclStatus = "FAIL"
-                    Write-Host "[FAIL] Search ACL - aHit=$aHit bHit=$bHit aForbidden=$aForbidden bOk=$bOk docId=$docId" -ForegroundColor Yellow
+                    Write-AuthResult -Name "Search ACL" -Status "FAIL" `
+                        -Detail "aHit=$aHit bHit=$bHit aForbidden=$aForbidden bOk=$bOk docId=$docId waited=${AclIndexWaitSec}s"
                 }
             }
         }
@@ -367,7 +384,7 @@ try {
 }
 catch {
     $script:SearchAclStatus = "FAIL"
-    Write-Host "[FAIL] Search ACL probe - $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-AuthResult -Name "Search ACL probe" -Status "FAIL" -Detail $_.Exception.Message
 }
 
 Write-Host ""
@@ -375,7 +392,7 @@ Write-Host "--- Summary ---" -ForegroundColor Cyan
 Write-Host ("PASS: " + $PassCount + "  FAIL: " + $FailCount)
 Write-Host ("Search ACL: " + $script:SearchAclStatus)
 $env:SEARCH_ACL_STATUS = $script:SearchAclStatus
-Write-Host "Policy: ACL FAIL => B0/B1 may continue; Agent view/run for normal users blocked until ACL PASS."
+Write-Host "Policy: Phase 7 closure requires Search ACL PASS."
 if ($FailCount -gt 0) {
     Write-Host "Result: FAILED" -ForegroundColor Red
     exit 1

@@ -11,8 +11,8 @@ param(
     [string]$GatewayUrl = "http://127.0.0.1:8080",
     [string]$AdminUser = "admin",
     [string]$AdminPassword = "admin123",
-    [string]$NormalUser = "user",
-    [string]$NormalPassword = "user123",
+    [string]$NormalUser = "tester",
+    [string]$NormalPassword = "admin123",
     [ValidateSet("PASS", "FAIL", "UNKNOWN")]
     [string]$SearchAclStatus = $(if ($env:SEARCH_ACL_STATUS) { $env:SEARCH_ACL_STATUS } else { "FAIL" })
 )
@@ -207,7 +207,7 @@ if ($run.StatusCode -eq 200 -and $run.Json.data) {
 # 7) 普通用户
 $normalToken = Get-LoginToken -Username $NormalUser -Password $NormalPassword
 if (-not $normalToken) {
-    Write-AgentResult -Name "普通用户登录" -Status "SKIP" -Detail "账号不存在，跳过 403 断言"
+    Write-AgentResult -Name "普通用户登录" -Status "FAIL" -Detail "无法获取 Token user=$NormalUser"
 } else {
     if ($SearchAclStatus -eq "FAIL") {
         $edit = Invoke-Json -Uri "$base/api/agent/workflows" -Method POST -Token $normalToken -Body @{
