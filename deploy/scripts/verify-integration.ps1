@@ -15,6 +15,9 @@ param(
     [string]$MysqlContainer = "kb-mysql"
 )
 
+$gatewayUri = [Uri]$GatewayUrl
+$gatewayPort = $gatewayUri.Port
+
 $ErrorActionPreference = "Continue"
 $script:PassCount = 0
 $script:WarnCount = 0
@@ -139,11 +142,11 @@ catch {
     Write-CheckResult -Name "MySQL stat_role/stat_team" -Status "FAIL" -Detail $_.Exception.Message
 }
 
-if (Test-TcpPortOpen -Port 8080) {
-    Write-CheckResult -Name "Gateway port 8080" -Status "PASS" -Detail $GatewayUrl
+if (Test-TcpPortOpen -Port $gatewayPort) {
+    Write-CheckResult -Name ("Gateway port " + $gatewayPort) -Status "PASS" -Detail $GatewayUrl
 }
 else {
-    Write-CheckResult -Name "Gateway port 8080" -Status "WARN" -Detail "services down, run start-services.ps1"
+    Write-CheckResult -Name ("Gateway port " + $gatewayPort) -Status "WARN" -Detail "services down, run start-services.ps1"
 }
 
 if (Test-HttpReachable -Url $RustFsUrl -AcceptStatusCodes @(401, 403, 404)) {

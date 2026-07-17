@@ -8,7 +8,8 @@
   .\verify-all.ps1 -SkipBuild
 #>
 param(
-    [switch]$SkipBuild
+    [switch]$SkipBuild,
+    [string]$GatewayUrl = "http://127.0.0.1:8080"
 )
 
 $ErrorActionPreference = "Stop"
@@ -42,10 +43,10 @@ Write-Host "========================================" -ForegroundColor Cyan
 
 Set-Location $scriptDir
 
-Invoke-VerifyStep "verify-integration.ps1" { .\verify-integration.ps1 }
-Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 }
-Invoke-VerifyStep "verify-phase7-gates.ps1" { .\verify-phase7-gates.ps1 }
-Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 }
+Invoke-VerifyStep "verify-integration.ps1" { .\verify-integration.ps1 -GatewayUrl $GatewayUrl }
+Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 -GatewayUrl $GatewayUrl }
+Invoke-VerifyStep "verify-phase7-gates.ps1" { .\verify-phase7-gates.ps1 -GatewayUrl $GatewayUrl }
+Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-admin-ui.ps1" { .\verify-admin-ui.ps1 }
 
 # 定向后端单测（网关鉴权 / Core 内部签名 / 文档索引模式 / Agent）
