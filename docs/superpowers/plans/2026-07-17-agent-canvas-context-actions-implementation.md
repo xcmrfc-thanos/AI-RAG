@@ -16,7 +16,7 @@
 - Modify: `frontend/src/features/agent-workflow/workflow-editor-operations.ts`
 - Modify: `frontend/src/features/agent-workflow/workflow-editor-operations.test.ts`
 
-- [ ] **Step 1: 写失败测试**
+- [x] **Step 1: 写失败测试**
 
 新增用例并直接断言真实图结果：
 
@@ -38,7 +38,7 @@ it('pastes a real node with a new id and requested position', () => {
 });
 ```
 
-- [ ] **Step 2: 验证 RED**
+- [x] **Step 2: 验证 RED**
 
 Run：
 
@@ -48,7 +48,7 @@ npm run test -- --run src/features/agent-workflow/workflow-editor-operations.tes
 
 Expected：FAIL，提示 `disconnectEdge`、`copyFlowNode` 或 `pasteFlowNode` 未导出。
 
-- [ ] **Step 3: 最小实现**
+- [x] **Step 3: 最小实现**
 
 实现：
 
@@ -61,7 +61,7 @@ positionBetweenConnectedNodes(nodes, edge): XYPosition
 
 虚拟节点复制返回 `null`；输入对象必须深复制一层现有 JSON 数据结构；断开不存在的边时返回原边数组。
 
-- [ ] **Step 4: 验证 GREEN 并提交**
+- [x] **Step 4: 验证 GREEN 并提交**
 
 Run 同 Step 2，Expected：全部 PASS。
 
@@ -79,15 +79,15 @@ feat(agent): 补齐画布复制与断开操作
 - Modify: `frontend/src/features/agent-workflow/WorkflowEdge.tsx`
 - Modify: `frontend/src/features/agent-workflow/WorkflowCanvasEditor.css`
 
-- [ ] **Step 1: 实现菜单展示模型**
+- [x] **Step 1: 实现菜单展示模型**
 
 `WorkflowContextMenu` 接收 `kind: 'node' | 'edge' | 'pane'`、屏幕坐标、动作能力和回调。节点菜单渲染配置/复制/创建副本/删除；边菜单渲染插入/断开；画布菜单渲染粘贴/自动布局/适应画布。危险动作使用红色并带图标，所有菜单项使用原生 button、`role=menuitem` 和 44px 命中区域。
 
-- [ ] **Step 2: 实现边内节点选择器**
+- [x] **Step 2: 实现边内节点选择器**
 
 `EdgeActionPopover` 使用 `AGENT_NODE_CATALOG`，排除 `start/end`，支持中文名、工具名和说明搜索。选择节点调用 `onInsert(kind)`，底部“断开此连接”调用 `onDisconnect()`。
 
-- [ ] **Step 3: 改造边触发器**
+- [x] **Step 3: 改造边触发器**
 
 `WorkflowEdge` 的加号改为切换当前边弹层；边数据回调改为：
 
@@ -100,7 +100,7 @@ actionsOpen
 
 点击、右键和弹层内部操作必须阻止冒泡，避免意外平移或取消选择。
 
-- [ ] **Step 4: 定向验证**
+- [x] **Step 4: 定向验证**
 
 Run：
 
@@ -118,27 +118,27 @@ Expected：0 error / 0 warning，TypeScript exit 0。
 - Modify: `frontend/src/features/agent-workflow/AgentWorkbench.tsx`
 - Modify: `frontend/src/features/agent-workflow/WorkflowCanvasEditor.css`
 
-- [ ] **Step 1: 集成右键目标**
+- [x] **Step 1: 集成右键目标**
 
 在 React Flow 接入 `onNodeContextMenu`、`onEdgeContextMenu`、`onPaneContextMenu`。保存相对画布坐标，右键目标同步选择，点击画布、移动视口、Escape 或执行动作后关闭。
 
-- [ ] **Step 2: 集成边插入与断开**
+- [x] **Step 2: 集成边插入与断开**
 
 插入时使用 `positionBetweenConnectedNodes` 创建新节点，再调用现有 `insertNodeOnEdge`，通过 `commit()` 一次写入节点和两条新边。断开使用 `disconnectEdge` 并通过 `commit()` 写入历史。
 
-- [ ] **Step 3: 集成内部剪贴板**
+- [x] **Step 3: 集成内部剪贴板**
 
 复制保存 `CopiedFlowNode`；粘贴生成新 ID，位置优先使用最近鼠标位置，回退到画布中心；创建副本使用原节点右下偏移。所有新节点自动选中。
 
-- [ ] **Step 4: 实现安全快捷键**
+- [x] **Step 4: 实现安全快捷键**
 
 `useWorkflowCanvasShortcuts` 监听 Ctrl/Cmd+C/V/D、Delete/Backspace 和 Escape。若事件目标是 `input`、`textarea`、`select` 或 `contenteditable` 则直接返回。快捷键只调用传入动作，不读取全局工作流状态。
 
-- [ ] **Step 5: 控制文件边界**
+- [x] **Step 5: 控制文件边界**
 
 将菜单和快捷键逻辑留在新文件中，确保 `AgentWorkbench.tsx` 不继续膨胀；若集成后仍超过 300 行，将 ReactFlow 主体 JSX 提取为 `WorkflowCanvasSurface.tsx`，保持行为不变。
 
-- [ ] **Step 6: 定向验证并提交**
+- [x] **Step 6: 定向验证并提交**
 
 Run：
 
@@ -162,7 +162,7 @@ feat(agent): 增加画布右键与快捷操作
 - Modify: `docs/plans/2026-07-17-agent画布体验优化进度.md`
 - Modify: `readme_plan.md`
 
-- [ ] **Step 1: 完整前端门禁**
+- [x] **Step 1: 完整前端门禁**
 
 ```powershell
 npm run lint
@@ -175,13 +175,15 @@ Expected：lint 0/0、type-check exit 0、全部 Vitest 通过、build exit 0。
 
 - [ ] **Step 2: 运行态检查**
 
+自动化部分已完成：`/admin/agents` 返回 HTTP 200，Vite 客户端正常加载。当前会话未提供浏览器自动化插件，节点右键、连线加号和快捷键的视觉交互由用户在已启动页面完成最终确认。
+
 保持 `AI_RAG_GATEWAY_URL=http://127.0.0.1:18080` 的 Vite 服务运行，检查 `/admin/agents` HTTP 200。浏览器验证：节点右键菜单、连线加号就地插入、连线断开、复制粘贴、创建副本、Delete、撤销/重做和输入框快捷键保护。
 
-- [ ] **Step 3: 更新进度文档**
+- [x] **Step 3: 更新进度文档**
 
 记录 Dify 参考、实际交互、测试数量、构建结果和提交哈希；不宣称条件分支、循环或多选能力。
 
-- [ ] **Step 4: 提交与根仓引用**
+- [x] **Step 4: 提交与根仓引用**
 
 Frontend：
 

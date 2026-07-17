@@ -24,11 +24,14 @@ D:\Users\environments\Java25
 4. 前端全仓 lint 收口为 0 error / 0 warning；代码高亮包约 `622 KB → 18.88 KB`
 5. ECharts 按知识图谱/管理统计分别注册和按路由拆包，统一包由 `672.99 KB` 降为 `71.48 KB` 与 `151.84 KB`，最终最大 chunk `497.31 KB`
 6. 构建插件由 `@vitejs/plugin-react-swc` 切换为 `@vitejs/plugin-react`，消除未使用 SWC 插件能力的构建提示
+7. Agent 节点、连线和空白画布新增右键菜单；连线中点“+”可就地搜索并插入节点，也可直接断开连接
+8. 新增画布内部复制粘贴、创建副本及 `Ctrl/Cmd+C/V/D`、`Delete/Backspace`、`Escape` 快捷键，全部变更接入撤销/重做历史
 
 ### 【参考文件】
 
 - frontend/src/features/agent-workflow/WorkflowCanvasEditor.tsx/.css
 - frontend/src/features/agent-workflow/WorkflowNode.tsx、node-catalog.ts、schema-flow-mapper.ts
+- frontend/src/features/agent-workflow/WorkflowContextMenu.tsx、EdgeActionPopover.tsx、useWorkflowCanvasInteractions.ts
 - frontend/src/pages/admin/AgentAdminPage.tsx
 - frontend/src/utils/graph-echarts.ts、admin-echarts.ts、components/common/LazyECharts.tsx
 - frontend/vite.config.ts、package.json、package-lock.json
@@ -38,7 +41,8 @@ D:\Users\environments\Java25
 ### 【验证结果】
 
 - Java 21 下 backend `mvn -q test`：退出码 0
-- frontend `lint`、`type-check`、`36/36` tests、production build：全部退出码 0
+- frontend `lint`、`type-check`、`40/40` tests、production build：全部退出码 0
+- `http://127.0.0.1:3002/admin/agents`：HTTP 200，Vite 开发客户端正常加载；浏览器交互视觉验收待用户在已启动页面确认
 - `verify-llm-config.ps1 -GatewayUrl http://127.0.0.1:18080`：模型数 2，PASS
 - `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：Search ACL PASS、Golden Hit@5 75%、Agent 9/9、`GATES PASS`
 - 完整 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080`：`ALL PASS`
