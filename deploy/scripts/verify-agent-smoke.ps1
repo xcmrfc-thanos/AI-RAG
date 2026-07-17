@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-  Agent 冒烟（任务 71）：管理员草稿→校验→发布→Run；负向 401/403；ACL FAIL 时管理员限定模式。
+  Agent 冒烟（任务 71）：管理员草稿→Draft Run→校验→发布→Run；负向 401/403；ACL FAIL 时管理员限定模式。
 
 .EXAMPLE
   .\verify-agent-smoke.ps1
@@ -166,8 +166,29 @@ if ($badCode -eq 400 -or $bizBad -eq 400) {
     Write-AgentResult -Name "非法工作流更新" -Status "FAIL" -Detail ("HTTP/biz " + $badCode + "/" + $bizBad)
 }
 
-# 5) 保存合法草稿 + 校验 + 发布
+# 5) 保存合法草稿 + Draft Run
 $save = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/draft" -Method PUT -Token $adminToken -Body @{ draftJson = $draftJson }
+$draftRun = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/draft-runs" -Method POST -Token $adminToken -Body @{
+    definitionJson = $draftJson
+    input = @{ query = "Agent draft smoke test" }
+    idempotencyKey = ("draft-smoke-" + [guid]::NewGuid().ToString("N"))
+}
+if ($save.StatusCode -eq 200 -and $draftRun.StatusCode -eq 200 -and $draftRun.Json.data) {
+    $draftRunId = $draftRun.Json.data.id
+    $draftStatus = [string]$draftRun.Json.data.status
+    $draftSource = [string]$draftRun.Json.data.runSource
+    $draftSteps = Invoke-Json -Uri "$base/api/agent/runs/$draftRunId/steps" -Method GET -Token $adminToken
+    $draftStepCount = if ($draftSteps.Json.data) { @($draftSteps.Json.data).Count } else { 0 }
+    if ($draftSource -eq "DRAFT" -and $draftStatus -in @("SUCCEEDED", "FAILED", "TIMED_OUT", "CANCELLED") -and $draftStepCount -ge 1) {
+        Write-AgentResult -Name "管理员 Draft Run + Step" -Status "PASS" -Detail ("status=$draftStatus steps=$draftStepCount")
+    } else {
+        Write-AgentResult -Name "管理员 Draft Run + Step" -Status "FAIL" -Detail ("source=$draftSource status=$draftStatus steps=$draftStepCount")
+    }
+} else {
+    Write-AgentResult -Name "管理员 Draft Run + Step" -Status "FAIL" -Detail ("save/run=" + $save.StatusCode + "/" + $draftRun.StatusCode)
+}
+
+# 6) 校验 + 发布
 $val = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/validate" -Method POST -Token $adminToken
 $pub = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/publish" -Method POST -Token $adminToken
 if ($save.StatusCode -eq 200 -and $val.StatusCode -eq 200 -and $pub.StatusCode -eq 200 -and $pub.Json.data.workflowVersionId) {
@@ -179,7 +200,7 @@ if ($save.StatusCode -eq 200 -and $val.StatusCode -eq 200 -and $pub.StatusCode -
     exit 1
 }
 
-# 6) 管理员 Run
+# 7) 管理员 Run
 $session = Invoke-Json -Uri "$base/api/agent/sessions" -Method POST -Token $adminToken -Body @{ title = "smoke" }
 $run = Invoke-Json -Uri "$base/api/agent/runs" -Method POST -Token $adminToken -Body @{
     workflowVersionId = $verId
@@ -204,11 +225,23 @@ if ($run.StatusCode -eq 200 -and $run.Json.data) {
     Write-AgentResult -Name "管理员 Run + Step" -Status "FAIL" -Detail ("HTTP " + $run.StatusCode + " " + $run.Error)
 }
 
-# 7) 普通用户
+# 8) 普通用户
 $normalToken = Get-LoginToken -Username $NormalUser -Password $NormalPassword
 if (-not $normalToken) {
     Write-AgentResult -Name "普通用户登录" -Status "FAIL" -Detail "无法获取 Token user=$NormalUser"
 } else {
+    $normalDraftRun = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/draft-runs" -Method POST -Token $normalToken -Body @{
+        definitionJson = $draftJson
+        input = @{ query = "forbidden draft run" }
+    }
+    $normalDraftCode = $normalDraftRun.StatusCode
+    $normalDraftBiz = if ($normalDraftRun.Json) { [int]$normalDraftRun.Json.code } else { 0 }
+    if ($normalDraftCode -eq 403 -or $normalDraftBiz -eq 403) {
+        Write-AgentResult -Name "普通用户 Draft Run" -Status "PASS" -Detail "403"
+    } else {
+        Write-AgentResult -Name "普通用户 Draft Run" -Status "FAIL" -Detail ("HTTP/biz " + $normalDraftCode + "/" + $normalDraftBiz)
+    }
+
     if ($SearchAclStatus -eq "FAIL") {
         $edit = Invoke-Json -Uri "$base/api/agent/workflows" -Method POST -Token $normalToken -Body @{
             name = "should-forbid"; draftJson = $draftJson
