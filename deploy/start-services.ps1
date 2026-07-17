@@ -12,7 +12,8 @@ param(
     [string]$JvmXmx = "",
     [string]$IntelligenceJvmXms = "",
     [string]$IntelligenceJvmXmx = "",
-    [int]$WaitPortSec = 120
+    [int]$WaitPortSec = 120,
+    [switch]$ValidateJavaOnly
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,11 +38,43 @@ if (-not $IntelligenceJvmXmx) {
     $IntelligenceJvmXmx = if ($env:JVM_INTELLIGENCE_XMX) { $env:JVM_INTELLIGENCE_XMX } else { "1g" }
 }
 
-if (-not $env:JAVA_HOME) {
-    $env:JAVA_HOME = "D:\Users\environments\Java21"
+function Get-JavaMajorVersion {
+    param([string]$JavaHome)
+
+    if (-not $JavaHome) { return 0 }
+    $javaExe = Join-Path $JavaHome "bin\java.exe"
+    if (-not (Test-Path $javaExe)) { return 0 }
+    $previousErrorAction = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $versionLine = (& $javaExe -version 2>&1 | Select-Object -First 1) -as [string]
+    }
+    finally {
+        $ErrorActionPreference = $previousErrorAction
+    }
+    if ($versionLine -notmatch 'version\s+"(\d+)(?:\.(\d+))?') { return 0 }
+    $major = [int]$matches[1]
+    if ($major -eq 1 -and $matches[2]) { return [int]$matches[2] }
+    return $major
 }
-if (-not (Test-Path $env:JAVA_HOME)) {
-    throw ("JAVA_HOME not found: " + $env:JAVA_HOME)
+
+$javaMajor = Get-JavaMajorVersion -JavaHome $env:JAVA_HOME
+if ($javaMajor -ne 21) {
+    $java21Home = "D:\Users\environments\Java21"
+    $fallbackMajor = Get-JavaMajorVersion -JavaHome $java21Home
+    if ($fallbackMajor -ne 21) {
+        throw ("Java 21 required; current JAVA_HOME=" + $env:JAVA_HOME + " major=" + $javaMajor)
+    }
+    $env:JAVA_HOME = $java21Home
+    $javaMajor = $fallbackMajor
+}
+$env:PATH = (Join-Path $env:JAVA_HOME "bin") + ";" + $env:PATH
+Write-Host ("JAVA_HOME: " + $env:JAVA_HOME) -ForegroundColor DarkGray
+Write-Host ("Java major: " + $javaMajor) -ForegroundColor DarkGray
+
+if ($ValidateJavaOnly) {
+    Write-Host "Result: JAVA 21 READY" -ForegroundColor Green
+    exit 0
 }
 
 $env:MAVEN_OPTS = "-Xms$JvmXms -Xmx$JvmXmx"

@@ -52,10 +52,15 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 | 其余 4 服务 | 256m / 512m | file / core / statistics / gateway |
 
 ```powershell
+# 启动前仅校验 Java 运行时；若当前 JAVA_HOME 是 Java 8/17，脚本会优先切换到本机 Java21 目录
+.\start-services.ps1 -ValidateJavaOnly
+
 .\start-services.ps1
 # 或仅启动 intelligence: .\start-services.ps1 -Only intelligence
 # 覆盖 Intelligence 堆: .\start-services.ps1 -IntelligenceJvmXms 512m -IntelligenceJvmXmx 1536m
 ```
+
+项目要求 Java 21。启动脚本会输出最终 `JAVA_HOME` 与 Java 主版本，并在无法找到 Java 21 时于 Maven 构建前终止。
 
 日志目录：`deploy/logs/`。Intelligence OOM 时会在该目录生成 heap dump。
 
