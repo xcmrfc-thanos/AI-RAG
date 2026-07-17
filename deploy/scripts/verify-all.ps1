@@ -44,11 +44,7 @@ Set-Location $scriptDir
 
 Invoke-VerifyStep "verify-integration.ps1" { .\verify-integration.ps1 }
 Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 }
-Invoke-VerifyStep "verify-auth-ai.ps1" { .\verify-auth-ai.ps1 }
-Invoke-VerifyStep "verify-agent-smoke.ps1" {
-    $acl = if ($env:SEARCH_ACL_STATUS) { $env:SEARCH_ACL_STATUS } else { "FAIL" }
-    .\verify-agent-smoke.ps1 -SearchAclStatus $acl
-}
+Invoke-VerifyStep "verify-phase7-gates.ps1" { .\verify-phase7-gates.ps1 }
 Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 }
 Invoke-VerifyStep "verify-admin-ui.ps1" { .\verify-admin-ui.ps1 }
 
