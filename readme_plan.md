@@ -1,6 +1,9 @@
 # 开发计划与变更记录
-JDK21 D:\Users\environments\Java21
-
+JDK:
+D:\Users\environments\Java
+D:\Users\environments\Java17
+D:\Users\environments\Java21
+D:\Users\environments\Java25
 > **环境约束（已确认）**：**无历史数据**，全新部署；`stat_*` 投影表随新业务经 MQ 增量写入，**不需要**也**不做**历史数据迁移脚本。  
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
@@ -9,6 +12,131 @@ JDK21 D:\Users\environments\Java21
 
 > 2026-07-17 收口说明：下方较早日期中的 `OPEN`、`SKIP`、`_pending_`、默认关闭等描述是当时快照，均由本次严格验收结果取代；重构前在线 Golden 数值确实缺失，不补造前后对比。
 
+---
+
+## 2026-07-17（系统整改与 Agent 画布最终收口）
+
+### 【本次功能】
+
+1. Agent 管理页完成 Dify 式三栏工作台、拖拽加节点、线性连线约束、自动布局、撤销/重做、即时属性保存、模板和草稿试跑调试闭环
+2. 新增安全只读 Tool 节点与草稿 Run 审计；普通用户只能运行已发布工作流，管理员可编辑、试跑和发布
+3. 修复 Stub 模型环境映射与 LLM 验收路径，`/api/ai/chat/models` 返回 `qwen/deepseek` 两个模型，空模型或接口异常成为硬失败
+4. 前端全仓 lint 收口为 0 error / 0 warning；代码高亮包约 `622 KB → 18.88 KB`
+5. ECharts 按知识图谱/管理统计分别注册和按路由拆包，统一包由 `672.99 KB` 降为 `71.48 KB` 与 `151.84 KB`，最终最大 chunk `497.31 KB`
+6. 构建插件由 `@vitejs/plugin-react-swc` 切换为 `@vitejs/plugin-react`，消除未使用 SWC 插件能力的构建提示
+
+### 【参考文件】
+
+- frontend/src/features/agent-workflow/WorkflowCanvasEditor.tsx/.css
+- frontend/src/features/agent-workflow/WorkflowNode.tsx、node-catalog.ts、schema-flow-mapper.ts
+- frontend/src/pages/admin/AgentAdminPage.tsx
+- frontend/src/utils/graph-echarts.ts、admin-echarts.ts、components/common/LazyECharts.tsx
+- frontend/vite.config.ts、package.json、package-lock.json
+- backend/kb-intelligence/kb-intelligence-llm/src/main/resources/application.yml
+- deploy/scripts/verify-llm-config.ps1
+
+### 【验证结果】
+
+- Java 21 下 backend `mvn -q test`：退出码 0
+- frontend `lint`、`type-check`、`36/36` tests、production build：全部退出码 0
+- `verify-llm-config.ps1 -GatewayUrl http://127.0.0.1:18080`：模型数 2，PASS
+- `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：Search ACL PASS、Golden Hit@5 75%、Agent 9/9、`GATES PASS`
+- 完整 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080`：`ALL PASS`
+
+### 【差距总结】
+
+- Schema v1 仍保持线性工作流；条件分支、循环、并行 DAG、人工审批和多 Agent 协作不在本阶段范围
+- 知识图谱、热门/最新文档 Tool 节点继续等待终端用户 ACL 接口成熟后再开放
+
+---
+
+
+
+### 【本次功能】
+
+1. Cookie 读取只按首个 `=` 分割，避免 JWT/Base64 被截断成坏 Token
+2. Access/Refresh Token 优先读 LocalStorage，Cookie 仅兜底
+3. 并发 401 进入刷新队列，不再在刷新中反复 `handleUnauthorized`；登录页不再整页死刷
+
+### 【参考文件】
+
+- frontend/src/utils/cookie.ts、token-storage.ts、services/request.ts
+
+### 【差距总结】
+
+- 若浏览器仍有坏 Cookie，请清站点数据或无痕后再登录一次
+
+---
+
+
+
+### 【本次功能】
+
+1. 前后端默认值改为 `true`：`app.store` / `SettingsServiceImpl`
+2. 系统设置文案改为「默认开启」；活库写入 `system.enableAgent=true`
+3. `verify-phase7-gates.ps1` 建议语改为：默认 ON，ACL/Golden 仅作健康提示
+
+### 【参考文件】
+
+- frontend/src/stores/app.store.ts、pages/admin/SettingsPage.tsx
+- backend/.../SettingsServiceImpl.java
+- deploy/scripts/verify-phase7-gates.ps1
+
+### 【差距总结】
+
+- 无；开关仍可在系统设置中手动关闭
+
+---
+
+
+
+## 2026-07-16（最小对齐：pages 清理 + 菜单 SQL + enableAgent 侧栏）
+
+### 【本次功能】
+
+1. 删除孤儿备份 `EditDocumentPage.tsx.backup`
+2. SQL：`dashboard.menu_url` `/dashboard`→`/`；`document:tag` 去掉死路径 `/admin/tags` 降为按钮权限；补 `document:version` / `system:team|statistics|review|settings|agents`
+3. `install_dev_data.sh/.bat` 纳入 `init_agent_permission.sql`；Agent 一级菜单 sort `80`→`11`
+4. `AdminLayout` Agent 侧栏项受 `enableAgent` + `canShowAgentAdminNav` 过滤（与 MainLayout 一致）
+
+### 【参考文件】
+
+- frontend/src/pages/EditDocumentPage.tsx.backup（已删）
+- frontend/src/components/layout/AdminLayout.tsx
+- backend/sql/data/init_kb_user.sql、init_permission_resource.sql、init_agent_permission.sql
+- backend/sql/install_dev_data.sh、install_dev_data.bat
+- backend/sql/master-sql/02_init_data.sql、init_data.sql、12_init_permission_resource_data.sql
+
+### 【差距总结】
+
+- 未做 pages 目录大重组；未改 `/files` 路由权限码（`document:list` vs `file:list`）与审核双码统一（可选后续）
+- 侧栏仍以前端常量为准，SQL 主要服务权限树
+
+---
+
+
+
+### 【本次功能】
+
+1. Docker 基础设施 8 容器 healthy（mysql/redis/rabbitmq/mongodb/elasticsearch/neo4j/rustfs/nacos），**未启 Milvus**
+2. JVM 六服务已监听：gateway 8080、file 8084、statistics 8085、core 8090、intelligence 8091、**agent 8092**
+3. 样例数据 `import-dev-data.ps1` 重跑（重复行 skip）；登录 `admin/admin123` 经 `POST /api/auth/auth/login` 可用
+4. 修复 kb-agent 启动：`GatewayToolHttpClient` 构造器 `@Autowired`；`@MapperScan` 收窄至 `*.mapper` 包（避免 `AgentTool` 被 MyBatis 误注册）
+5. `stop-services.ps1` 已注明：`docker compose down` 仅停容器，**保留 volumes 与 images**（勿用 `-v`/`rmi`/`prune`）
+
+### 【参考文件】
+
+- `deploy/setup.ps1`、`deploy/start-services.ps1`、`deploy/stop-services.ps1`
+- `deploy/scripts/import-dev-data.ps1`、`mysql-import-utils.ps1`、`import-nacos.ps1`
+- `backend/kb-agent/.../AgentApplication.java`、`GatewayToolHttpClient.java`
+- `deploy/mysql/init-schema.sh`（含 `kb_agent`）
+
+### 【差距总结】
+
+- ES 索引卷内已有数据；若检索为空可跑 `rebuild-es-indices.ps1`
+- `enableAgent` 仍默认关闭，待 `verify-auth-ai.ps1` Search ACL 连续 PASS
+
+---
 
 ### Backlog：Search ACL 修复（任务 58）
 

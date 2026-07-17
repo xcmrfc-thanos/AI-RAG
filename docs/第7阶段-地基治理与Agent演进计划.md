@@ -709,9 +709,12 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - backend：Java 21 下执行 `mvn -q test`，退出码 0。
 - frontend：全量 Vitest `36 passed`；生产构建通过；Agent 相关定向 ESLint 通过。
 - frontend 全仓 lint：历史基线 `326 errors / 356 warnings` 已收口为 0 / 0，`npm run lint` 在 `--max-warnings 0` 下通过；同时通过 type-check、36/36 测试与生产构建。
+- frontend 构建体积：Prism 由约 `622 KB` 降为 `18.88 KB`；ECharts 原统一 `672.99 KB` 包拆为知识图谱 `71.48 KB` 与管理日志页面 `151.84 KB`，最终最大 chunk `497.31 KB`，无 500 KB 大包告警。
+- frontend 构建工具：切换为 `@vitejs/plugin-react`，完整构建不再输出未使用 SWC 插件能力的推荐提示。
 - 真实服务：AI-RAG file/core/intelligence/statistics/agent 分别监听 8084/8090/8091/8085/8092；因其他项目占用 8080，AI-RAG Gateway 使用 18080 完成验收。
 - `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：`GATES PASS`；管理员 Draft Run `SUCCEEDED` 且 2 Steps，普通用户 Draft Run 403，Search ACL PASS。
 - `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080`：2026-07-17 最终复测退出码 0，integration、API、Phase 7、LLM、Admin UI、后端定向测试及 frontend test/build 全部通过；脚本已不再硬编码 8080，当前机器的端口冲突不再阻塞全链路验收。
+- LLM 配置：Nacos 与模块兜底均映射 `AI_DEV_STUB`，`/api/ai/chat/models` 实测返回 `qwen`、`deepseek`；严格验收脚本对空列表或接口异常返回非零。
 - Lint 规则适配：保留 `rules-of-hooks` 与 `exhaustive-deps` 正确性检查；React Compiler 迁移规则不作为旧项目硬门禁，`no-explicit-any` 留待 API DTO 类型专项治理。
 - 知识图谱、热门/最新文档节点继续延期，直到对应接口具备终端用户 ACL 过滤，避免把统计或公共接口误开放为 Agent Tool。
 
