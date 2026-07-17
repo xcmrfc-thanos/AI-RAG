@@ -21,14 +21,14 @@ function New-EsIndex {
         Write-Host "  -> $Name" -ForegroundColor Green
     } catch {
         if ($_.Exception.Message -match "resource_already_exists") {
-            Write-Host "  -> $Name (已存在)" -ForegroundColor DarkGray
+            Write-Host "  -> $Name (exists)" -ForegroundColor DarkGray
         } else {
             Write-Host "  WARN $Name : $($_.Exception.Message)" -ForegroundColor Yellow
         }
     }
 }
 
-Write-Host "等待 Elasticsearch..."
+Write-Host "Waiting Elasticsearch..."
 for ($i = 0; $i -lt 30; $i++) {
     try {
         Invoke-RestMethod -Uri "$EsHost/_cluster/health" -Headers $headers -TimeoutSec 5 | Out-Null
@@ -38,4 +38,4 @@ for ($i = 0; $i -lt 30; $i++) {
 
 New-EsIndex -Name "kb_document" -JsonPath (Join-Path $EsDir "kb_document_index.json")
 New-EsIndex -Name "kb_chunk" -JsonPath (Join-Path $EsDir "kb_chunk_index.json")
-Write-Host "ES 索引初始化完成（dev 使用 standard 分词）" -ForegroundColor Green
+Write-Host "ES indices ready (dev uses standard analyzer)" -ForegroundColor Green

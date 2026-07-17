@@ -26,7 +26,14 @@ function Invoke-MysqlFile {
         if ($LASTEXITCODE -ne 0) {
             throw "docker cp failed: $Path"
         }
-        docker exec $Container mysql -uroot "-p$Password" --default-character-set=utf8mb4 -e "source $containerPath" 2>&1
+        $output = docker exec $Container mysql -uroot "-p$Password" --default-character-set=utf8mb4 -e "source $containerPath" 2>&1
+        $text = ($output | Out-String)
+        if ($LASTEXITCODE -ne 0 -and $text -notmatch 'ERROR 1062') {
+            throw "mysql import failed: $Path`n$text"
+        }
+        if ($text -match 'ERROR 1062') {
+            Write-Host "  (skip duplicate rows)" -ForegroundColor DarkYellow
+        }
     } finally {
         docker exec $Container rm -f $containerPath 2>&1 | Out-Null
         $ErrorActionPreference = $prev

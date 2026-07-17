@@ -7,7 +7,8 @@
   Also stop Vite dev server on port 3002.
 
 .PARAMETER IncludeDocker
-  Also run docker compose down (keeps volumes).
+  Also run docker compose down (stops containers only; keeps volumes AND images).
+  Never use: docker compose down -v / docker rmi / docker system prune (unless you intend to wipe data/images).
 
 .EXAMPLE
   .\stop-services.ps1
@@ -55,7 +56,7 @@ if ($IncludeDocker) {
     Set-Location $DeployDir
     docker compose --env-file .env down
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "Docker Compose stopped (volumes kept)." -ForegroundColor Green
+        Write-Host "Docker Compose stopped (containers removed; volumes + images kept)." -ForegroundColor Green
     }
     else {
         Write-Host "Docker Compose down failed." -ForegroundColor Red

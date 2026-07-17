@@ -1,5 +1,5 @@
 #Requires -Version 5.1
-# 清理并重新导入 backend/nacos/*.template → Nacos（namespace: knowledge）
+# Import backend/nacos/*.template into Nacos (namespace: knowledge)
 $ErrorActionPreference = "Stop"
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $NacosDir = Join-Path (Split-Path -Parent $DeployDir) "backend\nacos"
@@ -9,7 +9,6 @@ $Pass = if ($env:NACOS_PASSWORD) { $env:NACOS_PASSWORD } else { "nacos" }
 $Namespace = if ($env:NACOS_NAMESPACE) { $env:NACOS_NAMESPACE } else { "knowledge" }
 $Group = if ($env:NACOS_GROUP) { $env:NACOS_GROUP } else { "KNOWLEDGE_BASE" }
 
-# 已废弃 DataId（清理旧六服务配置，避免误用）
 $ObsoleteDataIds = @(
     "kb-auth-api-dev.yaml",
     "kb-document-dev.yaml",
@@ -25,7 +24,8 @@ function Get-NacosToken {
         $body = "username=$User&password=$Pass"
         $resp = Invoke-RestMethod -Uri "$BaseUrl/nacos/v1/auth/login" -Method POST -Body $body -ContentType "application/x-www-form-urlencoded" -ErrorAction Stop
         return $resp.accessToken
-    } catch {
+    }
+    catch {
         return $null
     }
 }
@@ -43,14 +43,15 @@ function Ensure-Namespace {
         if ($list.data | Where-Object { $_.namespace -eq $Namespace -or $_.namespaceShowName -eq $Namespace }) {
             return
         }
-    } catch { }
+    }
+    catch { }
     $body = @{
         customNamespaceId = $Namespace
         namespaceName     = $Namespace
         namespaceDesc       = "AI-RAG local docker"
     }
     Invoke-RestMethod -Uri "$BaseUrl/nacos/v1/console/namespaces" -Method POST -Headers (Get-NacosHeaders -Token $Token) -Body $body | Out-Null
-    Write-Host "  创建 namespace: $Namespace" -ForegroundColor Green
+    Write-Host "  created namespace: $Namespace" -ForegroundColor Green
 }
 
 function Remove-Config {
@@ -61,9 +62,10 @@ function Remove-Config {
     $query = "dataId=$DataId&group=$Group&tenant=$Namespace"
     try {
         Invoke-RestMethod -Uri "$BaseUrl/nacos/v1/cs/configs?$query" -Method DELETE -Headers (Get-NacosHeaders -Token $Token) | Out-Null
-        Write-Host "  删除 $DataId" -ForegroundColor DarkYellow
-    } catch {
-        Write-Host "  跳过删除 $DataId（可能不存在）" -ForegroundColor DarkGray
+        Write-Host "  removed $DataId" -ForegroundColor DarkYellow
+    }
+    catch {
+        Write-Host "  skip remove $DataId" -ForegroundColor DarkGray
     }
 }
 
@@ -85,30 +87,30 @@ function Publish-Config {
     Write-Host "  -> $DataId" -ForegroundColor Green
 }
 
-Write-Host "登录 Nacos..." -ForegroundColor Cyan
+Write-Host "Login Nacos..." -ForegroundColor Cyan
 $token = Get-NacosToken
 Ensure-Namespace -Token $token
 
-Write-Host "清理废弃配置..." -ForegroundColor Cyan
+Write-Host "Remove obsolete configs..." -ForegroundColor Cyan
 foreach ($id in $ObsoleteDataIds) {
     Remove-Config -Token $token -DataId $id
 }
 
 $map = [ordered]@{
-    "application-dev.yaml"        = "application-dev.yaml.template"
-    "kb-gateway-dev.yaml"       = "kb-gateway-dev.yaml.template"
-    "kb-core-dev.yaml"          = "kb-core-dev.yaml.template"
-    "kb-intelligence-dev.yaml"  = "kb-intelligence-dev.yaml.template"
-    "kb-file-dev.yaml"          = "kb-file-dev.yaml.template"
-    "kb-statistics-dev.yaml"    = "kb-statistics-dev.yaml.template"
-    "kb-agent-dev.yaml"         = "kb-agent-dev.yaml.template"
+    "application-dev.yaml"       = "application-dev.yaml.template"
+    "kb-gateway-dev.yaml"        = "kb-gateway-dev.yaml.template"
+    "kb-core-dev.yaml"           = "kb-core-dev.yaml.template"
+    "kb-intelligence-dev.yaml"   = "kb-intelligence-dev.yaml.template"
+    "kb-file-dev.yaml"           = "kb-file-dev.yaml.template"
+    "kb-statistics-dev.yaml"     = "kb-statistics-dev.yaml.template"
+    "kb-agent-dev.yaml"          = "kb-agent-dev.yaml.template"
 }
 
-Write-Host "导入配置 (group=$Group, ns=$Namespace)..." -ForegroundColor Cyan
+Write-Host "Import configs group=$Group ns=$Namespace ..." -ForegroundColor Cyan
 foreach ($dataId in $map.Keys) {
     $file = Join-Path $NacosDir $map[$dataId]
-    if (-not (Test-Path $file)) { throw "找不到 $file" }
+    if (-not (Test-Path $file)) { throw "missing $file" }
     Publish-Config -Token $token -DataId $dataId -FilePath $file
 }
 
-Write-Host "Nacos 配置导入完成（共 $($map.Count) 项）" -ForegroundColor Green
+Write-Host ("Nacos import done: " + $map.Count + " configs") -ForegroundColor Green
