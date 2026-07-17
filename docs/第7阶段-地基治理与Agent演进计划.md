@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-17
-> **状态**：任务 56–75 已完成并通过严格验收；`verify-phase7-gates.ps1`、`verify-all.ps1`、backend 全量测试、frontend test/build 均为 PASS。
+> **状态**：任务 56–75 的代码与定向验收已完成；backend 全量测试、frontend 全量 test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 均通过。当前机器的默认 `verify-all.ps1` 仍受外部项目占用 8080 影响，完整证据见本文末尾收口记录。
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -502,7 +502,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - [x] `/agent`：授权用户选择已发布工作流、输入问题、发起 Run、查看答案和工具轨迹
 - [x] `/agent` 不提供 JSON 编辑、草稿保存或发布入口
-- [x] `/admin/agents`：管理员使用 JSON 文本编辑器进行创建、校验、试跑和发布
+- [x] `/admin/agents`：管理员使用 Dify 式画布、模板和即时属性面板进行创建、校验、试跑和发布
 - [x] 两个入口均受 `system.enableAgent` 开关控制；严格门禁通过后当前默认值为开启，管理员仍可手动关闭
 - [x] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 已通过，普通用户获得 view/run，编辑/发布仍仅管理员
 - [x] 前端 store、类型、service、导航常量与任务 64 文档一致
@@ -543,11 +543,12 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] Search ACL 为 PASS：普通用户 Run 成功，tester 无法获取 editor 私有文档
 - [x] Search ACL 为 FAIL：断言普通用户 Run 为 403，仅执行管理员 Run；报告中明确标记“管理员限定模式”
 - [x] 通用负向断言：无 Token 401；普通用户编辑 403；非法工作流 400
+- [x] Draft Run 断言：管理员草稿试跑成功且 `runSource=DRAFT`；普通用户草稿试跑 403
 - [x] 记入 `verify-all.ps1`
 - [x] `AI_DEV_STUB=true` 时 LLM 节点返回确定性文本；无 Key 环境仍可完整冒烟（依赖服务侧 Stub）
 - [x] 最终验证包含 Agent 定向后端测试、前端组件/构建和 API 冒烟
 
-**验收**：本地 `verify-all.ps1` 包含 Agent 步骤并非零失败；无 Key 时使用 Stub；不依赖浏览器。
+**验收**：`verify-all.ps1` 已包含 Agent 步骤；在 AI-RAG Gateway 可用的端口上 Agent gates 非零失败（本轮为 18080 全通过）；默认 8080 验收需确保没有其他项目占用该端口；无 Key 时使用 Stub；不依赖浏览器。
 
 ---
 
@@ -556,8 +557,10 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### 任务 72：React Flow 可视化编排
 
 - 前置：任务 64 Schema v1 已冻结，且 67–71 至少稳定一个小版本  
-- [x] 左节点库 / 中画布 / 右属性 → 导出同构 JSON  
-- [x] 试跑页与画布互通（管理页试跑走已发布版本；画布导出后保存/发布）
+- [x] 左节点库 / 中画布 / 右属性 → 导出同构 JSON
+- [x] 开始/结束虚拟节点、线性连接保护、节点插入、自动布局、复制删除、撤销重做
+- [x] 草稿自动保存、输入对话框、Draft Run 调试抽屉和 Step → 节点状态映射
+- [x] 三个可运行模板、空白画布引导、渐进式帮助和折叠高级 JSON
 
 ### 任务 73：向量库选型合闸
 
@@ -700,6 +703,16 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] 73 向量库选型合闸
 - [x] 74 条件适配、对账与降级
 - [x] 75 拆进程评估
+
+### 2026-07-17 Agent 画布整改收口记录
+
+- backend：Java 21 下执行 `mvn -q test`，退出码 0。
+- frontend：全量 Vitest `36 passed`；生产构建通过；Agent 相关定向 ESLint 通过。
+- frontend 全仓 lint：仍有既有 `326 errors / 356 warnings`，集中在非 Agent 的历史组件、store、service 与 `vite.config.ts`，未混入本轮画布提交。
+- 真实服务：AI-RAG file/core/intelligence/statistics/agent 分别监听 8084/8090/8091/8085/8092；因其他项目占用 8080，AI-RAG Gateway 使用 18080 完成验收。
+- `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：`GATES PASS`；管理员 Draft Run `SUCCEEDED` 且 2 Steps，普通用户 Draft Run 403，Search ACL PASS。
+- 默认 `verify-all.ps1`：integration、LLM、Admin UI、后端定向测试、frontend test/build 均通过；固定访问 8080 的 API 与 Phase 7 两步命中其他项目，因此最终为 `FAILED (2 steps)`。改用 18080 单独执行 `verify-api.ps1` 和 Phase 7 gates 均通过。
+- 知识图谱、热门/最新文档节点继续延期，直到对应接口具备终端用户 ACL 过滤，避免把统计或公共接口误开放为 Agent Tool。
 
 ---
 
