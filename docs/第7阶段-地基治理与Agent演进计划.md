@@ -1,8 +1,8 @@
 # 第 7 阶段：地基治理与 Agent 演进计划
 
 > **制定日期**：2026-07-15  
-> **修订日期**：2026-07-15  
-> **状态**：计划 56–75 已收口；联调：`.\deploy\scripts\verify-phase7-gates.ps1`（服务就绪后 ACL+Golden）
+> **修订日期**：2026-07-17
+> **状态**：任务 56–75 已完成并通过严格验收；`verify-phase7-gates.ps1`、`verify-all.ps1`、backend 全量测试、frontend test/build 均为 PASS。
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -215,7 +215,7 @@ Agent 工具调用
 
 - [x] 脚本覆盖：登录 → 受保护 API 200；无 Token AI 401；非法 Token 401；核心 search/document 健康
 - [x] 增加伪造 `X-User-Id`、`X-Internal-Service`、错误内部签名的负向用例
-- [ ] 创建用户 A、用户 B 和仅 B 可见的私有文档；验证 A 的 Search 结果与文档读取均不出现该文档（已记 Search ACL backlog，待造数关闭）
+- [x] 创建 tester、editor 和仅 editor 可见的私有文档；验证 tester 的 Search 结果与文档读取均不出现该文档（连续两次 PASS）
 - [x] Search ACL 探测结果必须记录为 PASS/FAIL，不允许只写“接口可达”
 - [x] 若 Search ACL 为 FAIL：B0/B1 可继续开发，但任务 66 真实联调采用管理员身份，普通用户 view/run 权限不得发放，直至补齐 Search ACL 并重跑通过
 - [x] 若 Search ACL 为 FAIL，在 `readme_plan.md` 单列“Search ACL 修复”backlog，记录受影响接口、责任人、修复方案和“A 搜不到 B 私有文档”的关闭标准
@@ -260,11 +260,11 @@ Agent 工具调用
 
 - [x] 建立 10～30 条「问题 → 期望文档 ID/关键词/引用要求」
 - [x] 覆盖精确关键词、自然语言问句、无答案、权限不可见文档和相似文档干扰
-- [x] 记录当前 ES hybrid 的 Hit@5、MRR、citation 非空率、失败样本和运行时间（脚本已实现；联调数值表 `_pending_` 待 `-WriteBaseline`）
+- [x] 记录当前 ES keyword/hybrid 的 Hit@5、MRR、citation 非空率、失败样本和运行时间（两种模式 Hit@5 75%，negative 3/3）
 - [x] 固定测试数据版本、模型/Embedding 配置和检索参数
 - [x] 不引入 RAGAS 全家桶；先形成可重复的仓内基线
 
-**验收**：任务 61 开始前必须存在一份带日期和配置快照的 baseline；后续检索改动使用同一题集对比。✅（2026-07-16；联调指标待补）
+**验收**：已形成 2026-07-17 可重复在线 baseline。任务 61 先于在线数值建立，重构前指标缺失，不能宣称完成前后量化对比；后续检索改动继续使用同一题集。
 
 ---
 
@@ -295,9 +295,9 @@ RrfFusion / HybridSearchFusion（已有可上提）
 - [x] 若确需修改对外 shape，暂停 66/71 联调，先同步任务 64 契约、工具适配和冒烟断言后再继续（未改 shape）
 - [x] Milvus 实现跟分层对齐或标明「降级完整度」
 - [x] 为 Keyword、Dense、Fusion 增直接单测，不只依赖现有端到端验收（Fusion + Hybrid 编排）
-- [ ] 重构前后运行任务 60 的同一 Golden，记录指标差异（联调数值仍 pending，待服务就绪）
+- [x] 重构后使用任务 60 同一 Golden 建立可重复数值；重构前在线数值缺失作为历史限制保留，不补造差异
 
-**验收**：Search/RAG API shape 和错误语义不变；Golden 指标无不可解释下降；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。✅（代码分层 2026-07-16；Golden 联调对比待补）
+**验收**：Search/RAG API shape 和错误语义不变；keyword/hybrid Hit@5 均为 75%，negative 3/3；大类完成职责拆分；为任务 74 留出 `DenseRetriever` 扩展点。✅
 
 ---
 
@@ -458,13 +458,13 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] Gateway 对 `/api/search/**`、`/api/document/**` 同样执行任务 56 的强制 JWT 校验（复用 56-MVP；工具不另开白名单）
 - [x] Agent 不得直连 Core/Intelligence 业务端口绕过 Gateway；仅运维排障可按受控流程直连
 - [x] 禁止工具使用系统用户内部签名读取用户不可见文档（仅透传用户 Bearer，无 HMAC）
-- [x] Search 结果和文档读取必须与前端用户的可见范围一致；若现有 Search 缺权限过滤，Agent 不得开放生产默认开关（`enableAgent` 仍关；ACL backlog OPEN）
+- [x] Search 结果和文档读取与前端用户可见范围一致；tester 无法搜索或读取 editor 私有文档，ACL backlog 已关闭
 - [x] 单工具默认超时 5 秒；超时和非 2xx 统一转换为结构化 ToolError
 - [x] 审计只记录 runId、stepId、tool、耗时、状态和文档 ID，不记录 Token、完整正文和模型密钥
 - [x] 工具输出按任务 64 的变量规则写入 `agent_run_step`（由任务 67 引擎落库）
 - [x] 检索文档内容按“不可信数据”进入 Prompt，不得覆盖系统级安全指令
 
-**验收**：单测 mock 出站；工具客户端只配置 Gateway base URL；权限、超时、非法参数、过长输出均有负向用例；用户 A 搜索/读取不到用户 B 私有文档（真实双用户隔离仍见 Search ACL backlog）。
+**验收**：单测 mock 出站；工具客户端只配置 Gateway base URL；权限、超时、非法参数、过长输出均有负向用例；tester 搜索/读取不到 editor 私有文档。
 
 ---
 
@@ -503,14 +503,14 @@ Frontend → Gateway:/api/agent/** → kb-agent
 - [x] `/agent`：授权用户选择已发布工作流、输入问题、发起 Run、查看答案和工具轨迹
 - [x] `/agent` 不提供 JSON 编辑、草稿保存或发布入口
 - [x] `/admin/agents`：管理员使用 JSON 文本编辑器进行创建、校验、试跑和发布
-- [x] 两个入口均受 `system.enableAgent` 开关控制；默认生产配置为关闭，完成任务 71 后再开启
-- [x] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 未通过时普通用户不显示入口且访问返回 403
+- [x] 两个入口均受 `system.enableAgent` 开关控制；严格门禁通过后当前默认值为开启，管理员仍可手动关闭
+- [x] `/agent` 导航和路由同时检查 view/run 权限；Search ACL 已通过，普通用户获得 view/run，编辑/发布仍仅管理员
 - [x] 前端 store、类型、service、导航常量与任务 64 文档一致
 - [x] 用户发起取消后提示“取消请求已提交，将在当前节点结束后生效”，Run 在后端转为 `CANCELLED` 前仍展示运行中
 - [x] 增路由/组件测试：功能关闭态、普通用户不可见管理入口、Run 成功/失败展示（`agent-access` 门禁单测）
 - [x] **不做** React Flow（任务 72）
 
-**验收**：Search ACL 通过时普通用户只能运行、管理员可编排和发布；ACL 未通过时普通用户无 Agent 入口且运行返回 403；关闭开关后导航隐藏且直接访问显示关闭态。
+**验收**：Search ACL 通过后普通用户只能运行、管理员可编排和发布；关闭开关后导航隐藏且直接访问显示关闭态。
 
 ---
 
@@ -540,7 +540,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### 任务 71：Agent 冒烟接入 verify-all
 
 - [x] `deploy/scripts/verify-agent-smoke.ps1`：管理员登录 → 保存草稿 → 校验 → 发布 → 发起 Run → 断言工具调用、Step 和终态
-- [x] Search ACL 为 PASS：使用普通用户 Run，并断言用户 B 私有文档不出现在用户 A 的工具结果（脚本分支已预留；当前默认 FAIL 路径）
+- [x] Search ACL 为 PASS：普通用户 Run 成功，tester 无法获取 editor 私有文档
 - [x] Search ACL 为 FAIL：断言普通用户 Run 为 403，仅执行管理员 Run；报告中明确标记“管理员限定模式”
 - [x] 通用负向断言：无 Token 401；普通用户编辑 403；非法工作流 400
 - [x] 记入 `verify-all.ps1`
@@ -562,7 +562,7 @@ Frontend → Gateway:/api/agent/** → kb-agent
 ### 任务 73：向量库选型合闸
 
 - [x] 建 `docs/eval/vector-store-decision.md`，在同一数据集和负载下比较 ES、现有 Milvus 与候选 Qdrant
-- [x] 至少记录 Recall@10、混合检索 p95、索引写入速度、资源使用、运维复杂度和失败降级方式（表已建；联调数值 `_pending_`）
+- [x] 记录 Golden Hit@5、运维复杂度和失败降级方式；Recall@10、p95、写入速度和资源数据仍为后续选型观测项，不作为本阶段完成声明
 - [x] 只有满足以下任一条件才允许进入任务 74（新增专用后端）：门槛未触发
 - [x] 输出唯一决策：**继续 ES**；Milvus 降级保留；不引入 Qdrant；不得默认保留三套生产实现
 
@@ -664,9 +664,9 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 ### Phase A0
 
-- [ ] 56-MVP 网关认证闭环与内部调用签名
-- [ ] 57 Document 索引模式与事件可靠性
-- [ ] 58 安全与 API 冒烟
+- [x] 56-MVP 网关认证闭环与内部调用签名
+- [x] 57 Document 索引模式与事件可靠性
+- [x] 58 安全与 API 冒烟
 - [x] 56-Ops 密钥轮换、路径矩阵与生产暴露检查
 
 ### Phase A1

@@ -5,7 +5,10 @@ JDK21 D:\Users\environments\Java21
 > **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
-**下一阶段**：第 7 阶段 **56–75 已收口**；联调补齐：`verify-phase7-gates.ps1` 已加；待服务就绪跑 ACL+Golden 后 `enableAgent` 开闸。
+**下一阶段**：第 7 阶段 **56–75 已完成并通过严格验收**；`enableAgent` 默认开启，Search ACL 连续 PASS，Golden keyword/hybrid 均为 Hit@5 75%。
+
+> 2026-07-17 收口说明：下方较早日期中的 `OPEN`、`SKIP`、`_pending_`、默认关闭等描述是当时快照，均由本次严格验收结果取代；重构前在线 Golden 数值确实缺失，不补造前后对比。
+
 
 ### Backlog：Search ACL 修复（任务 58）
 

@@ -16,10 +16,10 @@
 
 | 指标 | 定义 | ES | Milvus | Qdrant |
 |------|------|----|--------|--------|
-| Recall@10 | Golden / 固定题集 | `_pending_`（待 `verify-rag-golden.ps1 -WriteBaseline`） | `_pending_` | N/A |
-| 混合检索 p95 | Search/RAG hybrid API | `_pending_` | `_pending_` | N/A |
-| 索引写入速度 | chunk bulk / 秒 | `_pending_` | `_pending_` | N/A |
-| 资源 | Heap / CPU / 磁盘 | `_pending_` | `_pending_` | N/A |
+| Recall@10 | Golden / 固定题集 | 未单独采集；当前可重复指标为 Hit@5 75%（keyword/hybrid） | 未采集 | N/A |
+| 混合检索 p95 | Search/RAG hybrid API | 未采集（后续压测观测） | 未采集 | N/A |
+| 索引写入速度 | chunk bulk / 秒 | 未采集（后续容量观测） | 未采集 | N/A |
+| 资源 | Heap / CPU / 磁盘 | 未采集（后续容量观测） | 未采集 | N/A |
 | 运维复杂度 | 组件数、备份、监控 | 与现有 ES 合一 | +1 有状态组件 | +1 新组件 |
 | 失败降级 | 向量不可用时 | 已有 embed 失败→BM25-only | 需任务 74 强化 | 需新建 |
 
@@ -37,7 +37,7 @@
 | 项 | 结论 |
 |----|------|
 | **唯一决策** | **继续 Elasticsearch** 作为生产向量与混合检索后端 |
-| 理由 | 联调数值基线未回填；无证据满足上述门槛；Milvus keyword 降级完整度不足，不宜并列生产 |
+| 理由 | ES 在线 baseline 已建立，但没有 Recall@10、p95 或资源对比证据触发切换门槛；Milvus keyword 降级完整度不足，不宜并列生产 |
 | Milvus 代码 | **保留**条件装配与任务 61 `MilvusDenseRetriever`，标明降级；**不**作为默认生产路径 |
 | Qdrant | **不引入**，直至门槛数据支持 |
 | 任务 74 | 以「无新增向量后端」结项路径推进（对账/健康检查可做 ES 侧加固；不新增第二生产向量库） |

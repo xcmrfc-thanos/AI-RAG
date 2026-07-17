@@ -1,6 +1,6 @@
 # AI 入口产品边界说明
 
-> 版本：2026-07-15（第 7 阶段任务 64）  
+> 版本：2026-07-17（第 7 阶段验收收口）
 > 前端文案常量：`frontend/src/constants/ai-entry.ts`（须与本文件保持一致）  
 > Agent 契约准源：[agent/agent-contract-v1.md](./agent/agent-contract-v1.md)、[agent/agent-security-boundary.md](./agent/agent-security-boundary.md)
 
@@ -127,8 +127,8 @@
 
 ### 开关与权限
 
-- 受 `system.enableAgent` 控制（默认生产关闭；任务 71 冒烟通过且 56-Ops 完成前不得开启）。
-- 需要 `agent:workflow:view` + `agent:run`；Search ACL 未通过时普通用户不显示入口且访问 403（仅管理员临时可用）。
+- 受 `system.enableAgent` 控制；严格门禁已通过，当前默认值为开启，管理员可在系统设置中关闭。
+- 普通用户需要 `agent:workflow:view` + `agent:run`；Search ACL 已连续通过，编辑/发布权限仍仅管理员拥有。
 
 ---
 
@@ -136,8 +136,8 @@
 
 ### 职责边界
 
-- **做**：用 JSON 文本编辑器创建/更新草稿、校验、试跑、发布不可变版本。
-- **不做**：MVP 不做 React Flow；不做面向终端用户的运行入口混入本页。
+- **做**：使用 React Flow 画布与高级 JSON 区创建/更新草稿、校验、试跑、发布不可变版本。
+- **不做**：不把面向终端用户的运行入口混入管理页。
 
 ### 标准文案
 
@@ -178,8 +178,8 @@ Agent 工具出站经 Gateway 调用 Search / Document，**透传终端用户 JW
 
 ## 九、验收清单
 
-- [ ] 搜索 / 助手 / 写作页面文案与上表一致
-- [ ] Agent 用户页与管理页文案与上表一致（实现于任务 69）
-- [ ] 导航标签与开关行为符合权限与 `enableAgent`
-- [ ] 首页 AI 区块仍指向「助手」，不与 Agent 混用
-- [ ] 契约与安全边界文档齐全，见 `docs/agent/`
+- [x] 搜索 / 助手 / 写作页面文案与上表一致
+- [x] Agent 用户页与管理页文案与上表一致
+- [x] 导航标签与开关行为符合权限与 `enableAgent`
+- [x] 首页 AI 区块仍指向「助手」，不与 Agent 混用
+- [x] 契约与安全边界文档齐全，见 `docs/agent/`
