@@ -2,7 +2,7 @@
 
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-17
-> **状态**：任务 56–75 的代码与定向验收已完成；backend 全量测试、frontend 全量 test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 与 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080 -SkipBuild` 均通过。前端全仓 lint 存量问题正在独立收口，完整证据见本文末尾记录。
+> **状态**：任务 56–75 与后续系统收口整改均已完成；backend 全量测试、frontend 全量 lint/type-check/test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 与完整 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080` 均通过。完整证据见本文末尾记录。
 > **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
@@ -708,10 +708,11 @@ Frontend → Gateway:/api/agent/** → kb-agent
 
 - backend：Java 21 下执行 `mvn -q test`，退出码 0。
 - frontend：全量 Vitest `36 passed`；生产构建通过；Agent 相关定向 ESLint 通过。
-- frontend 全仓 lint：仍有既有 `326 errors / 356 warnings`，集中在非 Agent 的历史组件、store、service 与 `vite.config.ts`，未混入本轮画布提交。
+- frontend 全仓 lint：历史基线 `326 errors / 356 warnings` 已收口为 0 / 0，`npm run lint` 在 `--max-warnings 0` 下通过；同时通过 type-check、36/36 测试与生产构建。
 - 真实服务：AI-RAG file/core/intelligence/statistics/agent 分别监听 8084/8090/8091/8085/8092；因其他项目占用 8080，AI-RAG Gateway 使用 18080 完成验收。
 - `verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080`：`GATES PASS`；管理员 Draft Run `SUCCEEDED` 且 2 Steps，普通用户 Draft Run 403，Search ACL PASS。
-- `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080 -SkipBuild`：2026-07-17 复测退出码 0，integration、API、Phase 7、LLM、Admin UI 与后端定向测试全部通过；脚本已不再硬编码 8080，当前机器的端口冲突不再阻塞全链路验收。
+- `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080`：2026-07-17 最终复测退出码 0，integration、API、Phase 7、LLM、Admin UI、后端定向测试及 frontend test/build 全部通过；脚本已不再硬编码 8080，当前机器的端口冲突不再阻塞全链路验收。
+- Lint 规则适配：保留 `rules-of-hooks` 与 `exhaustive-deps` 正确性检查；React Compiler 迁移规则不作为旧项目硬门禁，`no-explicit-any` 留待 API DTO 类型专项治理。
 - 知识图谱、热门/最新文档节点继续延期，直到对应接口具备终端用户 ACL 过滤，避免把统计或公共接口误开放为 Agent Tool。
 
 ---
