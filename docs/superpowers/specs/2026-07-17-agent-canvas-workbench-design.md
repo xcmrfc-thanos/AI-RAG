@@ -177,9 +177,9 @@ Run Step 通过 `nodeId` 映射到画布节点，节点展示等待、运行中�
 #### 文本模板 `text_template`
 
 - 执行位置：`kb-agent` 内部安全工具，不调用外部 HTTP。
-- 输入：`template` 和变量展开后的 `variables`。
+- 输入：包含工作流变量引用的 `template`；变量由统一的 `VariableResolver` 在 Tool 执行前展开。
 - 输出：`text`。
-- 只执行变量替换，不执行脚本、表达式、条件和循环。
+- Tool 只输出已经展开的文本，不维护第二套模板表达式，也不执行脚本、条件和循环。
 
 #### 大模型处理 `llm`
 
