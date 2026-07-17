@@ -12,6 +12,7 @@ $files = @(
     "data\init_menu_permission.sql",
     "data\init_permission_resource.sql",
     "data\init_agent_permission.sql",
+    "data\init_phase7_permission_closure.sql",
     "data\init_kb_document.sql",
     "data\init_kb_foundation.sql",
     "data\init_notification_template.sql",
