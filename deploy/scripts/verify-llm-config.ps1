@@ -53,8 +53,24 @@ function Assert-DefaultModelQwen {
     }
 }
 
+function Assert-DevStubMapping {
+    param(
+        [string]$Path,
+        [string]$Label
+    )
+    $content = Get-Content -Path $Path -Raw -Encoding UTF8
+    if ($content -match 'dev-stub-enabled:\s*\$\{AI_DEV_STUB:false\}') {
+        Write-Host ("[PASS] {0} maps AI_DEV_STUB" -f $Label) -ForegroundColor Green
+        return
+    }
+    Write-Host ("[FAIL] {0} missing AI_DEV_STUB mapping" -f $Label) -ForegroundColor Red
+    $script:FailCount++
+}
+
 Assert-DefaultModelQwen -Path $nacosTpl -Label "nacos template"
 Assert-DefaultModelQwen -Path $modYml -Label "module application.yml"
+Assert-DevStubMapping -Path $nacosTpl -Label "nacos template"
+Assert-DevStubMapping -Path $modYml -Label "module application.yml"
 
 $hasQwen = [bool]$env:QWEN_API_KEY
 $hasDeepseek = [bool]$env:DEEPSEEK_API_KEY
@@ -81,19 +97,21 @@ try {
     $token = $loginResp.data.accessToken
     if (-not $token) { $token = $loginResp.data.token }
     $headers = @{ Authorization = "Bearer $token" }
-    $models = Invoke-RestMethod -Uri ($GatewayUrl.TrimEnd("/") + "/api/ai/models") `
+    $models = Invoke-RestMethod -Uri ($GatewayUrl.TrimEnd("/") + "/api/ai/chat/models") `
         -Headers $headers -TimeoutSec 15
     $count = 0
     if ($models.data) { $count = @($models.data).Count }
     if ($count -gt 0) {
-        Write-Host ("[PASS] Gateway /api/ai/models available count={0}" -f $count) -ForegroundColor Green
+        Write-Host ("[PASS] Gateway /api/ai/chat/models available count={0}" -f $count) -ForegroundColor Green
     }
     else {
-        Write-Host "[WARN] /api/ai/models returned empty" -ForegroundColor Yellow
+        Write-Host "[FAIL] /api/ai/chat/models returned empty" -ForegroundColor Red
+        $script:FailCount++
     }
 }
 catch {
-    Write-Host ("[WARN] Gateway models API: {0}" -f $_.Exception.Message) -ForegroundColor Yellow
+    Write-Host ("[FAIL] Gateway models API: {0}" -f $_.Exception.Message) -ForegroundColor Red
+    $script:FailCount++
 }
 
 if (Test-Path $IntelligenceLog) {
@@ -110,7 +128,7 @@ if (Test-Path $IntelligenceLog) {
 Write-Host ""
 Write-Host "Tip: set QWEN_API_KEY in deploy/.env for production; local use AI_DEV_STUB=true" -ForegroundColor DarkGray
 if ($script:FailCount -gt 0) {
-    Write-Host "Result: FAILED (default-model drift)" -ForegroundColor Red
+    Write-Host "Result: FAILED (LLM config/models)" -ForegroundColor Red
     exit 1
 }
 Write-Host "Result: LLM CONFIG CHECK PASS" -ForegroundColor Green
