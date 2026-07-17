@@ -139,6 +139,14 @@ JDK21 D:\Users\environments\Java21
 
 ---
 
+## 2026-07-17（Phase 7 Golden 验收收口）
+
+- ES `kb_document` / `kb_chunk` 已按固定题集重建，9 个 Golden 文档均具备 chunk。
+- keyword / hybrid 严格门禁均为 Hit@5 75%（9/12）、negative 3/3、citation 100%。
+- 重构前在线数值缺失，不能宣称完成前后量化对比；当前记录为重构后可重复 baseline。
+
+---
+
 ## 2026-07-16（任务 61：Retriever 分层）
 
 ### 【本次功能】

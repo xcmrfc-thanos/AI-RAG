@@ -14,7 +14,9 @@ param(
     [ValidateSet("keyword", "hybrid")]
     [string]$SearchMode = "keyword",
     [switch]$OfflineOnly,
-    [switch]$WriteBaseline
+    [switch]$WriteBaseline,
+    [double]$MinimumHitRate = 40,
+    [switch]$Advisory
 )
 
 $ErrorActionPreference = "Stop"
@@ -144,13 +146,8 @@ foreach ($c in $set.cases) {
 
         if ($isNeg) {
             $negTotal++
-            # 负向题：Top5 为空，或标题/摘要均不含 query 中超长噪声词时记通过（避免误伤 BM25 偶然命中）
+            # 负向题必须真正返回空 Top5，禁止用查询长度掩盖无关命中。
             $pass = ($records.Count -eq 0)
-            if (-not $pass -and $records.Count -gt 0) {
-                $q = [string]$c.query
-                $noise = $q.Length -gt 16
-                $pass = $noise
-            }
             if ($pass) { $negPass++ } else {
                 $got = ($records | ForEach-Object { $_.id }) -join ","
                 $failSamples.Add(("id={0} neg query={1} got=[{2}]" -f $c.id, $c.query, $got)) | Out-Null
@@ -192,7 +189,16 @@ if ($failSamples.Count -gt 0) {
     $failSamples | Select-Object -First 10 | ForEach-Object { Write-Host ("  " + $_) -ForegroundColor Yellow }
 }
 
-if ($WriteBaseline -and (Test-Path $baselinePath)) {
+$qualityFailures = @()
+if ($posTotal -gt 0 -and $hitRate -lt $MinimumHitRate) {
+    $qualityFailures += "Hit@5 $hitRate% below minimum $MinimumHitRate%"
+}
+if ($negPass -lt $negTotal) {
+    $qualityFailures += "negative cases $negPass/$negTotal"
+}
+$qualityPassed = $qualityFailures.Count -eq 0
+
+if ($WriteBaseline -and $qualityPassed -and (Test-Path $baselinePath)) {
     $failText = if ($failSamples.Count -eq 0) { "none" } else { ($failSamples | Select-Object -First 5) -join "; " }
     $line = "| {0} | {1}% ({2}/{3}) | {4} | {5}% | {6} | {7} |" -f `
         $SearchMode, $hitRate, $hit, $posTotal, $mrr, $citeRate, $elapsed, $failText
@@ -209,10 +215,17 @@ if ($WriteBaseline -and (Test-Path $baselinePath)) {
     }
 }
 
-# 软门槛：联调环境索引未就绪时不强制失败；题集离线已 PASS
-if ($posTotal -gt 0 -and $hit -lt [math]::Ceiling($posTotal * 0.4)) {
-    Write-Host "[WARN] Hit@5 below 40%; check ES index / seed data (not failing script)" -ForegroundColor Yellow
+if (-not $qualityPassed) {
+    foreach ($failure in $qualityFailures) {
+        Write-Host ("[FAIL] " + $failure) -ForegroundColor Red
+    }
+    if ($Advisory) {
+        Write-Host "Result: GOLDEN ADVISORY COMPLETE" -ForegroundColor Yellow
+        exit 0
+    }
+    Write-Host "Result: GOLDEN QUALITY FAILED" -ForegroundColor Red
+    exit 1
 }
 
-Write-Host "Result: GOLDEN RUN COMPLETE" -ForegroundColor Green
+Write-Host "Result: GOLDEN PASS" -ForegroundColor Green
 exit 0

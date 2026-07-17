@@ -40,6 +40,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$script:FailCount = 0
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 $EsDir = Join-Path (Split-Path -Parent $DeployDir) "backend\sql\es"
 
@@ -81,6 +82,49 @@ function Invoke-GatewayPost {
     return Invoke-RestMethod -Uri "$GatewayUrl$Path" -Method POST -Headers $headers -Body "{}"
 }
 
+function Invoke-GatewayGet {
+    param([string]$Path)
+    $headers = @{}
+    if ($Token) {
+        $headers["Authorization"] = "Bearer $Token"
+    }
+    return Invoke-RestMethod -Uri "$GatewayUrl$Path" -Method GET -Headers $headers
+}
+
+function Get-ResultPayload {
+    param($Result)
+    if ($Result.data) { return [string]$Result.data }
+    if ($Result.message) { return [string]$Result.message }
+    return ""
+}
+
+function Wait-ReindexTask {
+    param(
+        [string]$TaskId,
+        [int]$TimeoutSec = 180
+    )
+    for ($waited = 0; $waited -lt $TimeoutSec; $waited += 2) {
+        $result = Invoke-GatewayGet -Path "/api/rag/reindex/progress/$TaskId"
+        if ([int]$result.code -ne 200 -or -not $result.data) {
+            throw "reindex progress unavailable taskId=$TaskId"
+        }
+        $progress = $result.data
+        $status = [string]$progress.status
+        if ($status -eq "COMPLETED") {
+            if ([int]$progress.failedDocuments -gt 0) {
+                throw "reindex completed with failures taskId=$TaskId failed=$($progress.failedDocuments)"
+            }
+            Write-Host ("  Chunk 回填完成：{0}/{1}" -f $progress.completedDocuments, $progress.totalDocuments) -ForegroundColor Green
+            return
+        }
+        if ($status -in @("ERROR", "FAILED")) {
+            throw "reindex task failed taskId=$TaskId status=$status"
+        }
+        Start-Sleep -Seconds 2
+    }
+    throw "reindex task timeout taskId=$TaskId timeout=${TimeoutSec}s"
+}
+
 Write-Host "=== 步骤 1/3：等待 Elasticsearch ===" -ForegroundColor Cyan
 
 # 单文档补偿：不删建索引，仅触发 RAG 重建
@@ -92,7 +136,9 @@ if ($DocumentId -gt 0) {
     Write-Host "=== 单文档补偿：documentId=$DocumentId ===" -ForegroundColor Cyan
     try {
         $result = Invoke-GatewayPost -Path "/api/rag/reindex/$DocumentId"
-        Write-Host "  单文档 reindex 已触发：$($result.data)" -ForegroundColor Green
+        $taskId = Get-ResultPayload -Result $result
+        if ([int]$result.code -ne 200 -or -not $taskId) { throw "single document reindex rejected" }
+        Wait-ReindexTask -TaskId $taskId
         exit 0
     } catch {
         Write-Host "  单文档补偿失败：$($_.Exception.Message)" -ForegroundColor Red
@@ -126,16 +172,28 @@ if (-not $Token) {
 
 try {
     $docResult = Invoke-GatewayPost -Path "/api/search/index/rebuild"
+    if ([int]$docResult.code -ne 200) { throw "document rebuild business code=$($docResult.code)" }
     Write-Host "  文档索引重建：$($docResult.message)" -ForegroundColor Green
 } catch {
     Write-Host "  文档索引重建失败：$($_.Exception.Message)" -ForegroundColor Red
+    $script:FailCount++
 }
 
 try {
     $chunkResult = Invoke-GatewayPost -Path "/api/rag/reindex/all"
-    Write-Host "  Chunk 索引重建：$($chunkResult.data)" -ForegroundColor Green
+    $chunkTaskId = Get-ResultPayload -Result $chunkResult
+    if ([int]$chunkResult.code -ne 200 -or -not $chunkTaskId) { throw "chunk rebuild rejected" }
+    Write-Host "  Chunk 索引任务：$chunkTaskId" -ForegroundColor Green
+    Wait-ReindexTask -TaskId $chunkTaskId
 } catch {
     Write-Host "  Chunk 索引重建失败：$($_.Exception.Message)" -ForegroundColor Red
+    $script:FailCount++
 }
 
-Write-Host "完成。请在搜索页用「startTransition」验证关键词深搜。" -ForegroundColor Green
+if ($script:FailCount -gt 0) {
+    Write-Host "Result: REBUILD FAILED ($script:FailCount step(s))" -ForegroundColor Red
+    exit 1
+}
+
+Write-Host "Result: REBUILD PASS" -ForegroundColor Green
+exit 0

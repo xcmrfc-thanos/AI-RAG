@@ -26,15 +26,15 @@
 | citation 非空率 | 命中题中，结果含 summary/chunks/highlights 任一非空的比例 |
 | 耗时 | 全量题集墙钟时间（秒） |
 
-## 首次基线结果
+## 首次可重复在线基线结果
 
-> 由 `deploy/scripts/verify-rag-golden.ps1 -WriteBaseline` 在服务就绪后回写。  
-> **当前状态**：题集与脚本已入库；下表待联调环境首次跑通后填写。
+> 由 `deploy/scripts/verify-rag-golden.ps1 -WriteBaseline` 在双索引重建后回写。
+> **历史限制**：任务 61 先于在线 baseline 完成，重构前在线数值缺失，不能宣称完成前后量化对比；本次建立的是重构后可重复 baseline。
 
 | 模式 | Hit@5 | MRR | citation非空率 | 耗时(s) | 失败样本 |
 |------|-------|-----|----------------|---------|----------|
-| keyword | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
-| hybrid | _pending_ | _pending_ | _pending_ | _pending_ | _pending_ |
+| keyword | 75% (9/12) | 0.7083 | 100% | 2.41 | id=nl-onboarding query=新员工第一天入职要办哪些手续？ got=[] expected=[1000000000000000008]; id=nl-review-flow query=文档发布前审核被拒绝后怎么办？ got=[] expected=[1000000000000000007]; id=nl-spring-autoconfig query=Spring Boot 自动配置有什么好处？ got=[] expected=[1000000000000000001] |
+| hybrid | 75% (9/12) | 0.625 | 100% | 2.79 | id=nl-onboarding query=新员工第一天入职要办哪些手续？ got=[] expected=[1000000000000000008]; id=nl-review-flow query=文档发布前审核被拒绝后怎么办？ got=[] expected=[1000000000000000007]; id=nl-spring-autoconfig query=Spring Boot 自动配置有什么好处？ got=[] expected=[1000000000000000001] |
 
 ### 失败样本模板
 
