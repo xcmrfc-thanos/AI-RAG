@@ -14,6 +14,28 @@ D:\Users\environments\Java25
 
 ---
 
+## 2026-07-18（上传真进度与分片续传收口）
+
+### 【本次功能】
+
+真进度；秒传预检；分片 API；文件管理接入；导入大文件 from-file；Nacos/冒烟收口。
+
+### 【参考文件】
+
+- backend/kb-file/.../FileController.java、FileServiceImpl.java、FileStorageProperties.java、S3FileStorage.java
+- backend/kb-core/.../FileManagementServiceImpl.java、DocumentController.java（from-file / register-stored）
+- backend/nacos/kb-file-dev.yaml.template
+- frontend/src/services/resumable-upload.ts、file-management.service.ts、request.ts
+- frontend/src/pages/FileManagementPage.tsx、ImportDocumentPage.tsx
+- deploy/scripts/verify-upload-resume.ps1
+- docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md
+
+### 【差距总结】
+
+- 会话内存；无多实例续传；解析仍整文件入内存（有 resumable-max 护栏）；并发 register 无唯一约束。
+
+---
+
 ## 2026-07-18（正式全开：Qdrant + 关 Stub）
 
 ### 【本次功能】
