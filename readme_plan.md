@@ -5,7 +5,7 @@ D:\Users\environments\Java17
 D:\Users\environments\Java21
 D:\Users\environments\Java25
 > **环境约束（已确认）**：**无历史数据**，全新部署；`stat_*` 投影表随新业务经 MQ 增量写入，**不需要**也**不做**历史数据迁移脚本。  
-> **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。详见 [遗留治理计划.md](遗留治理计划.md)、[backend/docs/优化路线图.md](backend/docs/优化路线图.md)。
+> **遗留治理**：任务 1–28 及 **遗留治理 29–44 已全部完成**（2026-07-11）。历史条目仍可在下文检索；独立「遗留治理计划 / 优化路线图」文档已清理，以本文件为准。
 
 **阶段状态**：遗留治理 **29–55 全部完成**；联调冒烟保留 `verify-all.ps1`（已移除 E2E/浏览器验收）。  
 **下一阶段**：第 7 阶段 **56–75 已完成并通过严格验收**；`enableAgent` 默认开启，Search ACL 连续 PASS，Golden keyword/hybrid 均为 Hit@5 75%。
@@ -3279,5 +3279,28 @@ D:\Users\environments\Java25
 - 抽验脚本结构 PASS ≠ 人肉通过；需在 `AI_DEV_STUB=false` + 真实 Key 下跑并勾选判定表
 - CriteriaQuery BM25 降级路径未注查询期 filter（依赖后置过滤）；Milvus 路径仍仅后置
 - pages 重组 / 侧栏 SQL 化仍明确不做，直到有强回归需求
+
+---
+
+## 2026-07-18（文档与进度垃圾清理）
+
+### 【本次功能】
+
+1. 删除已完成/重复计划与进度板：`docs/plans/`、`docs/superpowers` 画布实施/设计、Qdrant 短计划、`docs/after` 历史合并/下线/feat 稿、`遗留治理计划.md`
+2. 删除前端过时归档笔记 `frontend/docs/archive/`
+3. 修正 `.gitignore` 误 ignore `readme_plan.md`；忽略 `docs/eval/*judgement*.csv`
+4. 精简 `readme.md` / `docs/README.md` 索引；本地未入库的 `backend/docs/*` 进度稿一并清掉
+5. **保留**：`readme_plan.md`、第 7 阶段验收证据、运维 HMAC/部署手册、eval 基线、Qdrant 设计、`backend/_archive` 对照仓
+
+### 【参考文件】
+
+- .gitignore、readme.md、readme_plan.md、docs/README.md
+- docs/after/rh-cha-roadmap.md、docs/第7阶段-地基治理与Agent演进计划.md
+- frontend/docs/README.md
+
+### 【差距总结】
+
+- `readme_plan` 历史条目中仍可能出现已删路径，以 Git 历史为准，不回溯改写
+- 未做业务代码大清扫 / 未删 `_archive`
 
 ---

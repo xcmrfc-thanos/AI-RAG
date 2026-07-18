@@ -1,6 +1,6 @@
 # rh-cha 架构改造执行路线图
 
-> 依据：[rh-cha.md](./rh-cha.md) · [service-merge-plan.md](./service-merge-plan.md)  
+> 历史准源（Phase 0–3 已完成）。详细变更见根目录 [readme_plan.md](../../readme_plan.md)。  
 > **环境说明（2026-07-10）**：本地 Docker 中间件（`deploy/`）+ 微服务 + 前端已可启动；**无历史数据**，`stat_*` 由 MQ 增量投影。
 
 ---

@@ -28,9 +28,10 @@ npm run dev
 
 | 文档 | 说明 |
 |------|------|
-| [readme_plan.md](readme_plan.md) | 开发计划与变更记录（任务 1–55） |
-| [遗留治理计划.md](遗留治理计划.md) | 遗留治理阶段总览 |
-| [docs/eval/rag-llm-spotcheck.md](docs/eval/rag-llm-spotcheck.md) | 真实 LLM 质量抽验清单（citations/幻觉/拒答） |
+| [readme_plan.md](readme_plan.md) | 开发计划与变更记录（准源） |
+| [docs/README.md](docs/README.md) | 架构 / 运维 / 评测文档索引 |
+| [docs/第7阶段-地基治理与Agent演进计划.md](docs/第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段（56–75）计划与验收证据 |
+| [docs/eval/rag-llm-spotcheck.md](docs/eval/rag-llm-spotcheck.md) | 真实 LLM 质量抽验清单 |
 | [deploy/README.md](deploy/README.md) | Docker 端口、启动脚本、联调冒烟 |
 | [backend/README.md](backend/README.md) | 后端模块、编译、数据库初始化 |
 | [frontend/README.md](frontend/README.md) | 前端技术栈与开发说明 |

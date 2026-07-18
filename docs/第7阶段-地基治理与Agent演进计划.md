@@ -3,7 +3,7 @@
 > **制定日期**：2026-07-15  
 > **修订日期**：2026-07-17
 > **状态**：任务 56–75 与后续系统收口整改均已完成；backend 全量测试、frontend 全量 lint/type-check/test/build、`verify-phase7-gates.ps1 -GatewayUrl http://127.0.0.1:18080` 与完整 `verify-all.ps1 -GatewayUrl http://127.0.0.1:18080` 均通过。完整证据见本文末尾记录。
-> **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)、[遗留治理计划.md](../遗留治理计划.md)）  
+> **前置**：遗留治理任务 1–55 已完成（见 [readme_plan.md](../readme_plan.md)）  
 > **关联**：[ai-entry-boundaries.md](./ai-entry-boundaries.md)、[after/rh-cha-roadmap.md](./after/rh-cha-roadmap.md)
 > **任务号准源**：任务 56–75 以本修订版为准；已在 `readme_plan.md`（2026-07-15 56-MVP）声明编号切换。
 

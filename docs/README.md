@@ -1,18 +1,16 @@
 # 项目文档索引
 
-## 架构与改造
+## 架构与契约
 
 | 文档 | 说明 |
 |------|------|
-| [after/rh-cha-roadmap.md](after/rh-cha-roadmap.md) | rh-cha 架构改造路线图（Phase 0–3） |
-| [after/rh-cha.md](after/rh-cha.md) | 架构改造背景与目标 |
-| [after/service-merge-plan.md](after/service-merge-plan.md) | 服务合并计划 |
-| [after/intelligence-merge-plan.md](after/intelligence-merge-plan.md) | Intelligence BC 合并 |
+| [after/rh-cha-roadmap.md](after/rh-cha-roadmap.md) | rh-cha 架构改造路线图（Phase 0–3，历史准源） |
 | [ai-entry-boundaries.md](ai-entry-boundaries.md) | AI 入口产品边界（搜索/助手/写作/Agent） |
-| [agent/agent-contract-v1.md](agent/agent-contract-v1.md) | Agent 工作流契约 v1（任务 64 冻结） |
+| [agent/agent-contract-v1.md](agent/agent-contract-v1.md) | Agent 工作流契约 v1 |
 | [agent/agent-security-boundary.md](agent/agent-security-boundary.md) | Agent 安全边界 |
 | [agent/workflow-schema-v1.json](agent/workflow-schema-v1.json) | 工作流 JSON Schema v1 |
-| [第7阶段-地基治理与Agent演进计划.md](第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段计划 |
+| [第7阶段-地基治理与Agent演进计划.md](第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段计划与验收证据（56–75，已完成） |
+| [superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md](superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md) | Qdrant 旁路双写设计 |
 
 ## 部署与运维
 
@@ -20,10 +18,20 @@
 |------|------|
 | [after/p3-2-deployment.md](after/p3-2-deployment.md) | Phase 3 部署收敛 |
 | [after/p3-3-operations.md](after/p3-3-operations.md) | 运行手册与监控 |
-| [after/p1-7-legacy-offline.md](after/p1-7-legacy-offline.md) | Intelligence 旧服务下线 |
-| [after/p2-7-legacy-offline.md](after/p2-7-legacy-offline.md) | Core 旧服务下线 |
+| [after/hmac-key-rotation.md](after/hmac-key-rotation.md) | 内部 HMAC 密钥轮换 |
+| [after/internal-hmac-path-matrix.md](after/internal-hmac-path-matrix.md) | 内部签名路径矩阵 |
 
-> **同步纪律**：`deploy/` 可能不入 Git；本地改脚本后请保留副本。联调冒烟准源为 `deploy/scripts/verify-all.ps1`（含 `verify-auth-ai.ps1`）。
+> **同步纪律**：`deploy/` 联调冒烟准源为 `deploy/scripts/verify-all.ps1`（含 `verify-auth-ai.ps1`）。
+
+## 评测
+
+| 文档 | 说明 |
+|------|------|
+| [eval/rag-golden-baseline.md](eval/rag-golden-baseline.md) | Search Golden Hit@5 基线 |
+| [eval/rag-llm-spotcheck.md](eval/rag-llm-spotcheck.md) | 真实 LLM 质量抽验清单 |
+| [eval/vector-store-decision.md](eval/vector-store-decision.md) | 向量库选型决策 |
+| [eval/vector-store-es-closure.md](eval/vector-store-es-closure.md) | ES 路径合闸说明 |
+| [eval/intelligence-process-split-assessment.md](eval/intelligence-process-split-assessment.md) | Intelligence 拆进程评估 |
 
 ## 后端专项
 
@@ -41,14 +49,7 @@
 |------|------|
 | [../frontend/README.md](../frontend/README.md) | 前端开发说明 |
 | [../frontend/docs/API路径映射说明.md](../frontend/docs/API路径映射说明.md) | API 路径映射 |
-| [../frontend/docs/archive/README.md](../frontend/docs/archive/README.md) | 历史开发笔记（归档） |
 
 ## 变更记录
 
-任务级变更见根目录 [readme_plan.md](../readme_plan.md)。
-
-## 第 7 阶段（已完成，2026-07-17 严格验收通过）
-
-| 文档 | 说明 |
-|------|------|
-| [第7阶段-地基治理与Agent演进计划.md](./第7阶段-地基治理与Agent演进计划.md) | 地基短板治理（56–63）→ Agent MVP（64–71）→ 向量库合闸与画布（72–75）；Phase 7 gates / 全量测试已通过 |
+任务级变更见根目录 [readme_plan.md](../readme_plan.md)（含第 6 阶段遗留治理 29–44 与后续收口）。

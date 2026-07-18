@@ -38,7 +38,7 @@
 *.war
 *.ear
 !**/maven-wrapper.jar
-readme_plan.md
+
 # ---------- 日志与临时文件 ----------
 logs/
 *.log
@@ -49,6 +49,10 @@ logs/
 *~
 hs_err_pid*
 replay_pid*
+
+# ---------- 评测人工产物（勿入库） ----------
+docs/eval/*judgement*.csv
+docs/eval/*-judgement.csv
 
 # ---------- IDE / 编辑器 ----------
 .idea/
