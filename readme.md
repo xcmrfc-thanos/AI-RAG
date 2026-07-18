@@ -30,7 +30,7 @@ npm run dev
 |------|------|
 | [readme_plan.md](readme_plan.md) | 开发计划与变更记录（任务 1–55） |
 | [遗留治理计划.md](遗留治理计划.md) | 遗留治理阶段总览 |
-| [docs/README.md](docs/README.md) | 架构 / 部署 / 运维文档索引 |
+| [docs/eval/rag-llm-spotcheck.md](docs/eval/rag-llm-spotcheck.md) | 真实 LLM 质量抽验清单（citations/幻觉/拒答） |
 | [deploy/README.md](deploy/README.md) | Docker 端口、启动脚本、联调冒烟 |
 | [backend/README.md](backend/README.md) | 后端模块、编译、数据库初始化 |
 | [frontend/README.md](frontend/README.md) | 前端技术栈与开发说明 |
@@ -43,6 +43,13 @@ cd deploy\scripts
 ```
 
 包含：中间件探活 → API 冒烟 → **鉴权/AI 安全**（`verify-auth-ai.ps1`）→ LLM 配置 → Admin UI 静态检查 → 定向单测 → 前端 build。
+
+真实 LLM 抽验（Stub 关闭后）：
+
+```powershell
+cd deploy\scripts
+.\verify-rag-llm-spotcheck.ps1 -WriteJudgementSheet
+```
 
 > **注意**：`deploy/` 可能不在 Git 跟踪中，改脚本后请本地保留同步；冒烟脚本以 `deploy/scripts/` 为准源。
 

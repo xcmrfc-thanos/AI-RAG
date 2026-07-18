@@ -3086,10 +3086,10 @@ D:\Users\environments\Java25
 | Agent：知识图谱 Tool | 等终端用户 ACL | **已落地 graph_search（超采+文档 ACL）** |
 | Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | **已落地 hot/latest_documents** |
 | 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | **最小条件分支已落地**；循环/并行/审批/多 Agent 仍延期 |
-| 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组仍延期** |
-| RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | **已收口（见同日 RAG ACL 条目）** |
+| 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组 / 侧栏 SQL 化明确延期（不增加能力，易搅乱回归）** |
+| RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | **已收口（后置 + 查询期 ES/Qdrant filter）** |
 | Statistics/Graph 服务端 ACL | 热门/最新/图谱全局投影可能泄露元数据 | **已收口（见同日投影 ACL 条目）** |
-| 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
+| 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | **清单+半自动脚本已落地；人肉判定待跑** |
 
 ### P3 — 质量与运维深化
 
@@ -3220,6 +3220,8 @@ D:\Users\environments\Java25
 - 未在 ES/Qdrant 查询期注入 ACL filter（仍为超采后置过滤）；无 ACL 元数据且 ES 补全失败时 fail-closed
 - Neo4j 文档节点仍未持久化 isPublic/teamId，KAG 依赖 kb_document 补全
 
+> **后续**：同日「查询期 ES/Qdrant ACL」条目已补查询期 filter；后置过滤保留。
+
 ---
 
 ## 2026-07-18（Statistics/Graph 服务端投影 ACL）
@@ -3245,3 +3247,37 @@ D:\Users\environments\Java25
 - 存量投影需执行 patch SQL；历史行默认公开，真实私有状态依赖后续文档 upsert 回填
 - 图谱无 documentId 的实体节点仍直接返回（不泄露正文，仅实体名）；边/路径/社区未逐条过滤
 - Agent Tool 侧探针可保留作双保险，后续可简化
+
+---
+
+## 2026-07-18（下一步三项：LLM 抽验 / 查询期 ACL / pages 延期备案）
+
+### 【优先级裁决】
+
+| 项 | 裁决 | 理由 |
+|----|------|------|
+| 真实 LLM 质量抽验 | **先做** | Stub 已关；citations/幻觉/拒答是「能不能当真用」的业务门，成本低收益高 |
+| 查询期 ES/Qdrant ACL filter | **可做（加固）** | 后置过滤已挡泄露；查询期省带宽、少超采、降重排前误触私有 chunk；有私有压测/大 topK 时更值 |
+| pages 大重组、侧栏 SQL 化 | **不值得先做** | 权限互认已解断点；大重组是工程卫生，不增加能力，易搅乱回归 |
+
+### 【本次功能】
+
+1. **LLM 抽验**：`docs/eval/rag-llm-spotcheck-set.json` + 人肉清单 `rag-llm-spotcheck.md`；`verify-rag-llm-spotcheck.ps1` 打 `POST /api/rag/chat` 做 citations / fromKnowledgeBase / 拒答结构半自动检查，可导出判定 CSV
+2. **查询期 ACL**：`RagAclQuerySupport` 在 ES BM25/dense 与 Qdrant dense 注入可见性 filter；`RagAclContextResolver` 复用团队解析；**后置 `RagAclFilter` 保留双保险**
+3. **pages/侧栏**：仅更新缺口表为延期，不改前端目录与侧栏数据源
+
+### 【参考文件】
+
+- docs/eval/rag-llm-spotcheck-set.json、rag-llm-spotcheck.md
+- deploy/scripts/verify-rag-llm-spotcheck.ps1
+- backend/kb-intelligence-llm/.../RagAclQuerySupport.java、RagAclContext.java、RagAclContextResolver.java
+- backend/kb-intelligence-llm/.../ElasticsearchKeywordRetriever.java、ElasticsearchDenseRetriever.java、QdrantDenseRetriever.java、RagAclFilter.java
+- backend/kb-intelligence-llm/.../RagAclQuerySupportTest.java、RagAclFilterTest.java
+
+### 【差距总结】
+
+- 抽验脚本结构 PASS ≠ 人肉通过；需在 `AI_DEV_STUB=false` + 真实 Key 下跑并勾选判定表
+- CriteriaQuery BM25 降级路径未注查询期 filter（依赖后置过滤）；Milvus 路径仍仅后置
+- pages 重组 / 侧栏 SQL 化仍明确不做，直到有强回归需求
+
+---

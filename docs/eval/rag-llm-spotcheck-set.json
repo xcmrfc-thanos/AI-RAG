@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "name": "AI-RAG LLM Spotcheck v0",
+  "description": "真实 LLM 质量抽验：citations / 幻觉拒答 / fromKnowledgeBase。依赖 Stub 关闭与可用 QWEN_API_KEY。",
+  "datasetRef": "backend/sql/data/init_kb_document.sql",
+  "endpoint": "POST /api/rag/chat",
+  "cases": [
+    {
+      "id": "cite-spring-boot",
+      "type": "exact_keyword",
+      "query": "Spring Boot 3.x 快速入门有哪些要点？",
+      "expectedDocIds": ["1000000000000000001"],
+      "expectFromKb": true,
+      "requireCitation": true,
+      "notes": "应引用样例 Spring Boot 文档，回答需贴合知识库"
+    },
+    {
+      "id": "cite-mysql-index",
+      "type": "exact_keyword",
+      "query": "MySQL 索引优化常用手段有哪些？",
+      "expectedDocIds": ["1000000000000000003"],
+      "expectFromKb": true,
+      "requireCitation": true
+    },
+    {
+      "id": "cite-k8s-deploy",
+      "type": "natural_language",
+      "query": "用 Docker 部署 Java 应用一般怎么做？",
+      "expectedDocIds": ["1000000000000000004"],
+      "expectFromKb": true,
+      "requireCitation": true,
+      "notes": "易与 Spring Boot 混淆，引用应对上容器化文档"
+    },
+    {
+      "id": "refuse-quantum",
+      "type": "no_answer",
+      "query": "量子纠缠在知识库中的存储协议是什么？",
+      "expectedDocIds": [],
+      "expectFromKb": false,
+      "requireCitation": false,
+      "expectRefuse": true,
+      "notes": "库外问题：应拒答或明确知识库无依据，且不应编造引用"
+    },
+    {
+      "id": "refuse-mars",
+      "type": "no_answer",
+      "query": "火星殖民地供水系统施工规范 GB-MARS-01 第几条？",
+      "expectedDocIds": [],
+      "expectFromKb": false,
+      "requireCitation": false,
+      "expectRefuse": true
+    },
+    {
+      "id": "hallucination-probe",
+      "type": "similar_interference",
+      "query": "前端用 Zustand 做状态管理时要注意什么？",
+      "expectedDocIds": ["1000000000000000002"],
+      "expectFromKb": true,
+      "requireCitation": true,
+      "forbidPhrases": ["Redux Toolkit 是我们知识库官方唯一方案"],
+      "notes": "人工重点看：是否捏造库外断言；半自动仅检查禁语与引用"
+    }
+  ]
+}
