@@ -1,0 +1,54 @@
+# kb-agent 本地兜底：数据源/模型见 Nacos kb-agent-dev
+server:
+  port: 8092
+
+spring:
+  application:
+    name: kb-agent
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        namespace: knowledge
+        server-addr: 127.0.0.1:20848
+        file-extension: yaml
+        group: KNOWLEDGE_BASE
+        enabled: true
+      discovery:
+        server-addr: 127.0.0.1:20848
+        namespace: knowledge
+        group: ${COMPUTER_ID:${USER:default}}
+        ip: 127.0.0.1
+  config:
+    import:
+      - optional:nacos:application-dev.yaml
+      - optional:nacos:kb-agent-dev.yaml
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.knowledge.base.agent
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+  global-config:
+    db-config:
+      id-type: input
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Nacos 未刷新时的同值兜底（与模板一致）
+agent:
+  default-model: qwen
+  gateway-base-url: http://127.0.0.1:8080
+  run-retention-days: 30
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized

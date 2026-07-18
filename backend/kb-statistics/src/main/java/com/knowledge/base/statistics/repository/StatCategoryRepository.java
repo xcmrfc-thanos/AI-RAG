@@ -1,0 +1,78 @@
+package com.knowledge.base.statistics.repository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * stat_category 投影表仓储
+ */
+@Slf4j
+@Repository
+@RequiredArgsConstructor
+public class StatCategoryRepository {
+
+    private final JdbcTemplate jdbcTemplate;
+
+    /**
+     * Upsert 分类投影行
+     */
+    public void upsert(Long id, String categoryName, Integer deleted) {
+        jdbcTemplate.update(
+                "INSERT INTO stat_category (id, category_name, deleted) VALUES (?, ?, ?) "
+                        + "ON DUPLICATE KEY UPDATE category_name=VALUES(category_name), deleted=VALUES(deleted)",
+                id, categoryName, deleted != null ? deleted : 0);
+    }
+
+    /**
+     * 统计未删除分类数
+     */
+    public long countActive() {
+        try {
+            Long count = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM stat_category WHERE deleted = 0", Long.class);
+            return count != null ? count : 0L;
+        } catch (Exception e) {
+            log.warn("统计分类数量失败：{}", e.getMessage());
+            return 0L;
+        }
+    }
+
+    /**
+     * 查询有效分类 id→name 映射
+     */
+    public Map<Long, String> findActiveNameMap() {
+        Map<Long, String> nameMap = new HashMap<>();
+        try {
+            List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+                    "SELECT id, category_name FROM stat_category WHERE deleted = 0");
+            if (rows != null) {
+                for (Map<String, Object> row : rows) {
+                    Long id = toLong(row.get("id"));
+                    String name = (String) row.get("category_name");
+                    if (id != null) {
+                        nameMap.put(id, name != null ? name : "未命名");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.warn("构建分类名称映射失败：{}", e.getMessage());
+        }
+        return nameMap;
+    }
+
+    private Long toLong(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        return Long.parseLong(value.toString());
+    }
+}

@@ -1,0 +1,55 @@
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "refresh_interval": "5s",
+    "analysis": {
+      "analyzer": {
+        "ik_max_word_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_max_word"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "keyword": { "type": "keyword" },
+          "standard": { "type": "text", "analyzer": "standard" }
+        }
+      },
+      "summary": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "standard": { "type": "text", "analyzer": "standard" }
+        }
+      },
+      "categoryId": { "type": "long" },
+      "categoryName": { "type": "keyword" },
+      "tagIds": { "type": "long" },
+      "tagNames": {
+        "type": "keyword",
+        "fields": {
+          "text": { "type": "text", "analyzer": "standard" }
+        }
+      },
+      "creatorId": { "type": "long" },
+      "creatorName": { "type": "keyword" },
+      "teamId": { "type": "long" },
+      "teamName": { "type": "keyword" },
+      "docStatus": { "type": "integer" },
+      "viewCount": { "type": "integer" },
+      "likeCount": { "type": "integer" },
+      "commentCount": { "type": "integer" },
+      "isPublic": { "type": "boolean" },
+      "publishAt": { "type": "keyword" },
+      "createdAt": { "type": "keyword" },
+      "updatedAt": { "type": "keyword" }
+    }
+  }
+}

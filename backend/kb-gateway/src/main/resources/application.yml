@@ -1,0 +1,40 @@
+# kb-gateway 本地兜底：路由/中间件见 Nacos kb-gateway-dev
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  application:
+    name: kb-gateway
+  main:
+    web-application-type: reactive
+  cloud:
+    nacos:
+      config:
+        namespace: knowledge
+        server-addr: 127.0.0.1:20848
+        file-extension: yaml
+        group: KNOWLEDGE_BASE
+        enabled: true
+      discovery:
+        server-addr: 127.0.0.1:20848
+        namespace: knowledge
+        group: ${COMPUTER_ID:${USER:default}}
+        ip: 127.0.0.1
+        metadata:
+          developer: ${COMPUTER_ID:${USER:unknown}}
+  config:
+    import:
+      - optional:nacos:application-dev.yaml
+      - optional:nacos:kb-gateway-dev.yaml
+
+# Nacos 不可用时的白名单兜底（与 nacos 模板同值）
+gateway:
+  white-list:
+    - /api/auth/auth/login
+    - /api/auth/auth/register
+    - /api/auth/auth/refresh
+    - /api/document/share/**
+    - /actuator/health
+    - /actuator/health/**

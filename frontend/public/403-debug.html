@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden 诊断工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #1976d2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #f0f0f0;
+        }
+        .status-200 { color: green; }
+        .status-403 { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🔍 403 Forbidden 错误诊断工具</h1>
+
+    <div class="container">
+        <h2>环境信息</h2>
+        <div id="envInfo" class="result info"></div>
+    </div>
+
+    <div class="container">
+        <h2>📋 常见403错误原因及解决方案</h2>
+        <table>
+            <tr>
+                <th>原因</th>
+                <th>症状</th>
+                <th>解决方案</th>
+            </tr>
+            <tr>
+                <td>CSRF Token缺失</td>
+                <td>Postman正常，浏览器403</td>
+                <td>后端禁用CSRF或前端添加CSRF Token</td>
+            </tr>
+            <tr>
+                <td>Referer检查</td>
+                <td>特定请求403</td>
+                <td>后端允许localhost:3002的Referer</td>
+            </tr>
+            <tr>
+                <td>Authorization Header</td>
+                <td>需要认证的接口403</td>
+                <td>确保Token正确传递</td>
+            </tr>
+            <tr>
+                <td>请求方法限制</td>
+                <td>POST请求403，GET正常</td>
+                <td>后端允许该HTTP方法</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="container">
+        <h2>🧪 测试用例</h2>
+
+        <div class="test-section">
+            <h3>测试1：简单GET请求</h3>
+            <button onclick="testSimpleGet()">测试GET请求</button>
+            <div id="getTestResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>测试2：登录请求（各种Header组合）</h3>
+            <button onclick="testLoginBasic()">1. 基本登录</button>
+            <button onclick="testLoginWithHeaders()">2. 带完整Header</button>
+            <button onclick="testLoginWithCSRF()">3. 带CSRF Token</button>
+            <button onclick="testLoginNoAuth()">4. 无Authorization</button>
+            <div id="loginTestResult" class="result"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>测试3：OPTIONS预检请求</h3>
+            <button onclick="testOptions()">测试OPTIONS请求</button>
+            <div id="optionsTestResult" class="result"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>🔧 配置检查</h2>
+        <button onclick="checkConfiguration()">检查配置</button>
+        <div id="configCheck" class="result"></div>
+    </div>
+
+    <div class="container">
+        <h2>📝 修复建议</h2>
+        <div class="result warning">
+根据测试结果，可能需要以下修复：
+
+1. <strong>后端配置：</strong>
+   - 检查CSRF配置，临时禁用CSRF防护
+   - 允许localhost:3002的跨域请求
+   - 检查Referer Header验证
+
+2. <strong>前端配置：</strong>
+   - 确保代理配置正确
+   - 检查请求头是否完整
+   - 验证Token存储和传递
+
+3. <strong>调试步骤：</strong>
+   - 查看后端日志，找到拒绝原因
+   - 对比Postman和浏览器的请求差异
+   - 使用浏览器开发者工具查看详细请求
+        </div>
+    </div>
+
+    <script>
+        // 显示环境信息
+        function showEnvInfo() {
+            const info = `
+当前URL: ${window.location.href}
+协议: ${window.location.protocol}
+主机: ${window.location.host}
+端口: ${window.location.port}
+User Agent: ${navigator.userAgent}
+Cookie: ${document.cookie || '无'}
+localStorage: ${Object.keys(localStorage).length} 项
+sessionStorage: ${Object.keys(sessionStorage).length} 项
+            `;
+            document.getElementById('envInfo').textContent = info;
+        }
+
+        // 测试1：简单GET请求
+        async function testSimpleGet() {
+            const result = document.getElementById('getTestResult');
+            result.textContent = '正在测试...';
+            result.className = 'result info';
+
+            try {
+                const response = await fetch('/api/auth/me', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                });
+
+                result.textContent = `状态码: ${response.status} ${response.statusText}
+状态类: ${response.status === 200 ? '✅ 成功' : response.status === 403 ? '❌ 禁止访问' : '⚠️ 其他'}
+Headers: ${JSON.stringify([...response.headers.entries()], null, 2)}`;
+                result.className = response.status === 200 ? 'result success' : 'result error';
+            } catch (error) {
+                result.textContent = `❌ 错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // 测试2：登录请求
+        async function testLoginBasic() {
+            await testLogin('基本登录', {});
+        }
+
+        async function testLoginWithHeaders() {
+            await testLogin('完整Header', {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            });
+        }
+
+        async function testLoginWithCSRF() {
+            await testLogin('带CSRF Token', {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': 'test-csrf-token',
+            });
+        }
+
+        async function testLoginNoAuth() {
+            const result = document.getElementById('loginTestResult');
+            result.textContent = '正在测试无Authorization登录...';
+            result.className = 'result info';
+
+            try {
+                const response = await fetch('/api/auth/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    }),
+                    credentials: 'include'
+                });
+
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+
+                result.textContent = `状态码: ${response.status} ${response.statusText}
+测试: 无Authorization Header
+Headers: ${JSON.stringify(headers, null, 2)}`;
+                result.className = response.status === 200 ? 'result success' : 'result error';
+            } catch (error) {
+                result.textContent = `❌ 错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testLogin(testName, extraHeaders) {
+            const result = document.getElementById('loginTestResult');
+            result.textContent = `正在测试${testName}...`;
+            result.className = 'result info';
+
+            try {
+                const token = localStorage.getItem('token');
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    ...extraHeaders
+                };
+
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/auth/auth/login', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({
+                        username: 'admin',
+                        password: 'admin123'
+                    }),
+                    credentials: 'include'
+                });
+
+                const responseBody = await response.text().catch(() => '无法读取响应体');
+                const headersObj = {};
+                response.headers.forEach((value, key) => {
+                    headersObj[key] = value;
+                });
+
+                result.textContent = `测试: ${testName}
+状态码: <span class="status-${response.status}">${response.status} ${response.statusText}</span>
+请求Headers: ${JSON.stringify(headers, null, 2)}
+响应Headers: ${JSON.stringify(headersObj, null, 2)}
+响应体: ${responseBody.substring(0, 200)}`;
+
+                result.className = response.status === 200 ? 'result success' : 'result error';
+            } catch (error) {
+                result.textContent = `❌ ${testName}错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // 测试3：OPTIONS请求
+        async function testOptions() {
+            const result = document.getElementById('optionsTestResult');
+            result.textContent = '正在测试OPTIONS请求...';
+            result.className = 'result info';
+
+            try {
+                const response = await fetch('/api/auth/auth/login', {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include'
+                });
+
+                const headers = {};
+                response.headers.forEach((value, key) => {
+                    headers[key] = value;
+                });
+
+                result.textContent = `OPTIONS请求状态: ${response.status}
+CORS相关Headers:
+- Access-Control-Allow-Origin: ${headers['access-control-allow-origin'] || '未设置'}
+- Access-Control-Allow-Methods: ${headers['access-control-allow-methods'] || '未设置'}
+- Access-Control-Allow-Headers: ${headers['access-control-allow-headers'] || '未设置'}
+- Access-Control-Allow-Credentials: ${headers['access-control-allow-credentials'] || '未设置'}
+
+完整Headers: ${JSON.stringify(headers, null, 2)}`;
+                result.className = 'result info';
+            } catch (error) {
+                result.textContent = `❌ OPTIONS请求错误: ${error.message}`;
+                result.className = 'result error';
+            }
+        }
+
+        // 配置检查
+        function checkConfiguration() {
+            const result = document.getElementById('configCheck');
+
+            const checks = [
+                {
+                    name: 'Cookie支持',
+                    check: navigator.cookieEnabled,
+                    important: true
+                },
+                {
+                    name: 'localStorage',
+                    check: typeof localStorage !== 'undefined',
+                    important: true
+                },
+                {
+                    name: 'Token存储',
+                    check: !!localStorage.getItem('token'),
+                    important: false
+                },
+                {
+                    name: 'Fetch API',
+                    check: typeof fetch !== 'undefined',
+                    important: true
+                },
+                {
+                    name: '开发环境',
+                    check: localStorage.getItem('VITE_APP_ENV') === 'development' || true,
+                    important: false
+                }
+            ];
+
+            let output = '配置检查结果:\n\n';
+            checks.forEach(({ name, check, important }) => {
+                const status = check ? '✅' : '❌';
+                const important = important ? ' (重要)' : '';
+                output += `${status} ${name}${important}\n`;
+            });
+
+            output += '\n建议配置:\n';
+            output += '1. 确保后端运行在 http://localhost:8080\n';
+            output += '2. 检查后端CSRF配置\n';
+            output += '3. 验证后端CORS设置\n';
+            output += '4. 对比Postman请求头和浏览器请求头';
+
+            result.textContent = output;
+            result.className = 'result info';
+        }
+
+        // 页面加载时显示环境信息
+        showEnvInfo();
+    </script>
+</body>
+</html>

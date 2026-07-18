@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户菜单调试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .user-menu-demo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 180px;
+            max-width: 220px;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+        .user-menu-demo:hover {
+            background-color: #f1f5f9;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .user-info-container {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+        .user-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0f172a;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .user-role {
+            font-size: 12px;
+            color: #94a3b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        .test-results {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .issue {
+            background: #fee;
+            padding: 10px;
+            border-left: 3px solid #c33;
+            margin: 10px 0;
+        }
+        .success {
+            background: #efe;
+            padding: 10px;
+            border-left: 3px solid #3c3;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 用户菜单调试工具</h1>
+
+    <div class="debug-section">
+        <h2>预期显示效果</h2>
+        <div class="user-menu-demo">
+            <div class="user-avatar">JD</div>
+            <div class="user-info-container">
+                <div class="user-name">John Doe</div>
+                <div class="user-role">知识管理员</div>
+            </div>
+        </div>
+        <p style="margin-top: 10px; color: #666;">↑ 这应该是用户菜单的正确显示效果</p>
+    </div>
+
+    <div class="debug-section">
+        <h2>检查当前应用状态</h2>
+        <button onclick="checkApplicationState()">检查应用状态</button>
+        <div id="checkResults" class="test-results" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>常见问题诊断</h2>
+
+        <div class="issue">
+            <strong>问题1：用户菜单完全不显示</strong>
+            <p>可能原因：</p>
+            <ul>
+                <li>CSS文件没有正确加载</li>
+                <li>用户数据为null或undefined</li>
+                <li>组件没有正确渲染</li>
+            </ul>
+            <p><strong>解决方案：</strong></p>
+            <ol>
+                <li>检查浏览器控制台是否有错误</li>
+                <li>检查localStorage中是否有用户数据</li>
+                <li>清除浏览器缓存后重试</li>
+            </ol>
+        </div>
+
+        <div class="issue">
+            <strong>问题2：用户头像显示但文字不显示</strong>
+            <p>可能原因：</p>
+            <ul>
+                <li>.user-info-container样式缺失</li>
+                <li>文字颜色与背景色相同</li>
+                <li>CSS选择器被覆盖</li>
+            </ul>
+            <p><strong>解决方案：</strong></p>
+            <ol>
+                <li>检查layout.css是否正确加载</li>
+                <li>检查CSS加载顺序</li>
+                <li>使用浏览器开发者工具检查元素</li>
+            </ol>
+        </div>
+
+        <div class="success">
+            <strong>已确认修复的问题</strong>
+            <ul>
+                <li>✅ user-info-container样式已添加</li>
+                <li>✅ 文本溢出处理已优化</li>
+                <li>✅ 用户菜单宽度已调整</li>
+                <li>✅ 响应式设计已优化</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="debug-section">
+        <h2>手动测试步骤</h2>
+        <ol>
+            <li>打开浏览器开发者工具（F12）</li>
+            <li>切换到Elements标签</li>
+            <li>查找 .user-menu 元素</li>
+            <li>检查是否存在 .user-info-container 子元素</li>
+            <li>检查computed样式是否正确应用</li>
+        </ol>
+    </div>
+
+    <div class="debug-section">
+        <h2>CSS检查清单</h2>
+        <div class="test-results">
+# 应该存在的CSS类：
+.user-menu { display: flex; align-items: center; ... }
+.user-avatar { width: 40px; height: 40px; ... }
+.user-info-container { flex: 1; min-width: 0; ... }
+.user-name { font-size: 14px; ... }
+.user-role { font-size: 12px; ... }
+
+# 检查方法：
+1. 打开浏览器开发者工具
+2. 检查Sources或Network标签
+3. 确认layout.css已加载
+4. 搜索上述CSS类是否存在
+        </div>
+    </div>
+
+    <script>
+        function checkApplicationState() {
+            const results = document.getElementById('checkResults');
+            let output = '';
+
+            // 检查localStorage
+            const token = localStorage.getItem('token');
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+
+            output += '=== 应用状态检查 ===\n\n';
+            output += `Token存在: ${token ? '✅ 是' : '❌ 否'}\n`;
+            output += `用户数据存在: ${user ? '✅ 是' : '❌ 否'}\n`;
+
+            if (user) {
+                output += `用户名: ${user.username || '未设置'}\n`;
+                output += `用户角色: ${user.role || '未设置'}\n`;
+            } else {
+                output += '⚠️ 用户数据为空，需要先登录\n';
+            }
+
+            output += '\n=== CSS加载检查 ===\n';
+            const stylesheets = document.styleSheets;
+            let hasLayoutCss = false;
+            for (let i = 0; i < stylesheets.length; i++) {
+                if (stylesheets[i].href && stylesheets[i].href.includes('layout.css')) {
+                    hasLayoutCss = true;
+                    output += '✅ layout.css已加载\n';
+                    break;
+                }
+            }
+            if (!hasLayoutCss) {
+                output += '❌ layout.css未加载\n';
+            }
+
+            output += '\n=== 建议 ===\n';
+            if (!token || !user) {
+                output += '1. 请先登录系统\n';
+                output += '2. 检查登录功能是否正常\n';
+            }
+            if (!hasLayoutCss) {
+                output += '1. 检查layout.css文件是否存在\n';
+                output += '2. 确认main.tsx中正确引入了layout.css\n';
+            }
+
+            results.textContent = output;
+        }
+
+        // 页面加载时自动检查
+        window.onload = function() {
+            checkApplicationState();
+        };
+    </script>
+</body>
+</html>

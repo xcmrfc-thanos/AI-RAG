@@ -1,0 +1,21 @@
+CREATE TABLE `kb_document_access` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '访问记录ID',
+  `user_id` BIGINT NOT NULL COMMENT '用户ID',
+  `document_id` BIGINT NOT NULL COMMENT '文档ID',
+  `document_title` VARCHAR(200) NOT NULL COMMENT '文档标题',
+  `category_id` BIGINT DEFAULT NULL COMMENT '分类ID',
+  `category_name` VARCHAR(100) DEFAULT NULL COMMENT '分类名称',
+  `access_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '访问时间',
+  `ip_address` VARCHAR(50) DEFAULT NULL COMMENT '访问IP地址',
+  `user_agent` VARCHAR(500) DEFAULT NULL COMMENT '用户代理',
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `created_by` BIGINT DEFAULT NULL COMMENT '创建人ID',
+  `updated_by` BIGINT DEFAULT NULL COMMENT '更新人ID',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '删除标识',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_user_document` (`user_id`, `document_id`),
+  KEY `idx_user_id` (`user_id`),
+  KEY `idx_access_time` (`access_time`),
+  KEY `idx_document_id` (`document_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='文档访问记录表';

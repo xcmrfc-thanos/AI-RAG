@@ -1,0 +1,40 @@
+# kb-statistics 本地兜底：数据源/MQ 见 Nacos kb-statistics-dev
+server:
+  port: 8085
+
+spring:
+  application:
+    name: kb-statistics
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        namespace: knowledge
+        server-addr: 127.0.0.1:20848
+        file-extension: yaml
+        group: KNOWLEDGE_BASE
+        enabled: true
+      discovery:
+        server-addr: 127.0.0.1:20848
+        namespace: knowledge
+        group: ${COMPUTER_ID:${USER:default}}
+        ip: 127.0.0.1
+  config:
+    import:
+      - optional:nacos:application-dev.yaml
+      - optional:nacos:kb-statistics-dev.yaml
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.knowledge.base.statistics.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: input
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

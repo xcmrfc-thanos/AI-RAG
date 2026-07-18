@@ -1,0 +1,126 @@
+.wf-debug-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  height: 100%;
+  min-height: 280px;
+}
+
+.wf-debug-steps {
+  overflow-y: auto;
+  border-right: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.wf-debug-run-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wf-debug-step {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  border: 0;
+  border-bottom: 1px solid #eef2f7;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+
+.wf-debug-step:hover,
+.wf-debug-step.is-selected {
+  background: #eff6ff;
+}
+
+.wf-debug-step__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #94a3b8;
+}
+
+.wf-debug-step__dot.is-running,
+.wf-debug-step__dot.is-created {
+  background: #3b82f6;
+}
+
+.wf-debug-step__dot.is-succeeded {
+  background: #22c55e;
+}
+
+.wf-debug-step__dot.is-failed,
+.wf-debug-step__dot.is-timed_out {
+  background: #ef4444;
+}
+
+.wf-debug-step__main,
+.wf-debug-step__name,
+.wf-debug-step__tool {
+  display: block;
+  min-width: 0;
+}
+
+.wf-debug-step__name {
+  overflow: hidden;
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wf-debug-step__tool,
+.wf-debug-step__time {
+  color: #64748b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 9px;
+}
+
+.wf-debug-detail {
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.wf-debug-error {
+  margin: 10px 0;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: #fef2f2;
+}
+
+.wf-debug-snapshot {
+  margin-top: 16px;
+}
+
+.wf-debug-snapshot pre {
+  max-height: 180px;
+  margin: 7px 0 0;
+  padding: 11px;
+  overflow: auto;
+  border: 1px solid #1e293b;
+  border-radius: 8px;
+  color: #dbeafe;
+  background: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 760px) {
+  .wf-debug-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wf-debug-steps {
+    max-height: 180px;
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+}

@@ -49,11 +49,11 @@ logs/
 *~
 hs_err_pid*
 replay_pid*
-
+readme_plan.md
 # ---------- 评测人工产物（勿入库） ----------
 docs/eval/*judgement*.csv
 docs/eval/*-judgement.csv
-
+readme_plan.md
 # ---------- IDE / 编辑器 ----------
 .idea/
 .vscode/
@@ -80,3 +80,7 @@ ehthumbs.db
 .cursor/
 .claude/
 **/agent-transcripts/ 
+
+# ---------- 本地嵌套仓备份（不入库） ----------
+/.git-nested-backup/
+

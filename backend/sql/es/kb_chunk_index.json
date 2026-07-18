@@ -1,0 +1,52 @@
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 1,
+    "refresh_interval": "5s",
+    "analysis": {
+      "analyzer": {
+        "ik_smart_analyzer": {
+          "type": "custom",
+          "tokenizer": "ik_smart"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "chunk_id": { "type": "keyword" },
+      "document_id": { "type": "long" },
+      "document_title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "keyword": { "type": "keyword" },
+          "standard": { "type": "text", "analyzer": "standard" }
+        }
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "standard": { "type": "text", "analyzer": "standard" },
+          "keyword": { "type": "keyword" }
+        }
+      },
+      "heading": { "type": "keyword" },
+      "chunk_index": { "type": "integer" },
+      "total_chunks": { "type": "integer" },
+      "category_id": { "type": "long" },
+      "author_id": { "type": "long" },
+      "team_id": { "type": "long" },
+      "doc_status": { "type": "integer" },
+      "publish_time": { "type": "date" },
+      "indexed_at": { "type": "date" },
+      "embedding": {
+        "type": "dense_vector",
+        "dims": 1024,
+        "index": true,
+        "similarity": "cosine"
+      }
+    }
+  }
+}

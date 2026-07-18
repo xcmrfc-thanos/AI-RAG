@@ -1,0 +1,112 @@
+# kb-file Nacos 配置（本地 Docker + RustFS）
+# 导入：KNOWLEDGE_BASE → kb-file-dev.yaml
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:20006/kb_file?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 30
+      max-wait: 60000
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+      validation-query: SELECT 1
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      filters: stat,wall
+
+  rabbitmq:
+    listener:
+      simple:
+        concurrency: 1
+        max-concurrency: 2
+        acknowledge-mode: auto
+        prefetch: 1
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 20MB
+      max-request-size: 20MB
+      file-size-threshold: 2MB
+      location: ${java.io.tmpdir}/kb-file-multipart
+
+file:
+  storage:
+    type: s3
+    s3:
+      endpoint: 127.0.0.1
+      port: 20090
+      accessKey: rustfsadmin
+      secretKey: rustfsadmin
+      secure: false
+      bucketName: kb-files
+      connectTimeout: 30000
+      readTimeout: 60000
+      writeTimeout: 60000
+      maxConnections: 50
+      enabled: true
+    ffmpeg:
+      path: /usr/bin/ffmpeg
+      ffprobe-path: /usr/bin/ffprobe
+      hls-segment-time: 10
+      thumbnail-time: 5
+    upload:
+      max-size: 20971520
+      allowed-types:
+        - pdf
+        - doc
+        - docx
+        - xls
+        - xlsx
+        - ppt
+        - pptx
+        - txt
+        - md
+        - png
+        - jpg
+        - jpeg
+        - gif
+        - bmp
+        - svg
+        - mp4
+        - avi
+        - mov
+        - wmv
+        - mkv
+        - webm
+        - flv
+        - mp3
+        - wav
+        - flac
+        - aac
+        - ogg
+      enable-fast-upload: true
+      calculate-hash: true
+      enable-resumable-upload: true
+      # 分片门槛 / 分片大小 / 分片路径上限（绑定 FileStorageProperties.Upload）
+      chunk-threshold: 20971520
+      chunk-size: 5242880
+      resumable-max-size: 524288000
+    url:
+      prefix: /api/file
+      preview-prefix: /api/file/files/preview
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+  production: false
+
+logging:
+  level:
+    com.knowledge.base: debug
+    org.springframework: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"

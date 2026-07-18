@@ -1,0 +1,56 @@
+# kb-core 本地兜底：仅启动必需项，环境配置见 Nacos application-dev + kb-core-dev
+server:
+  port: 8090
+
+spring:
+  application:
+    name: kb-core
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        namespace: knowledge
+        server-addr: 127.0.0.1:20848
+        file-extension: yaml
+        group: KNOWLEDGE_BASE
+        enabled: true
+      discovery:
+        server-addr: 127.0.0.1:20848
+        namespace: knowledge
+        group: ${COMPUTER_ID:${USER:default}}
+        ip: 127.0.0.1
+  config:
+    import:
+      - optional:nacos:application-dev.yaml
+      - optional:nacos:kb-core-dev.yaml
+
+# Nacos 未刷新前的内部 HMAC 兜底（与模板同值；生产用环境变量覆盖）
+kb-core:
+  internal:
+    enabled: true
+    header-name: X-Internal-Service
+    header-value: kb-intelligence
+    timestamp-header: X-Internal-Timestamp
+    signature-header: X-Internal-Signature
+    secret: ${KB_INTERNAL_HMAC_SECRET:ai-rag-local-dev-hmac-secret-key!!}
+    previous-secret: ${KB_INTERNAL_HMAC_SECRET_PREVIOUS:}
+    max-clock-skew-seconds: 60
+    system-user-id: 1000000000000000001
+    allowed-paths:
+      - /documents/page
+      - /documents/*
+      - /internal/users/*/team-ids
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: input
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0

@@ -1,0 +1,26 @@
+.empty-card {
+  text-align: center;
+  padding: 48px 24px;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.access-list-container {
+  padding-top: 8px;
+}
+
+.access-count-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  color: #475569;
+}

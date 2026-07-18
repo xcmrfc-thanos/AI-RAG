@@ -1,0 +1,513 @@
+.file-management-page {
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.file-management-page .page-header {
+  background: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.file-management-page .page-header h1 {
+  color: #1e293b;
+  margin: 0;
+}
+
+.file-management-page .page-header p {
+  color: #64748b;
+  margin: 8px 0 0 0;
+}
+
+.file-management-page .ant-card {
+  border-radius: 8px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-bottom: 16px;
+}
+
+.file-management-page .ant-card-head {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.file-management-page .ant-table {
+  background: white;
+  border-radius: 8px;
+}
+
+.file-management-page .ant-table-thead > tr > th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.file-management-page .ant-table-tbody > tr:hover {
+  background-color: #f9fafb;
+}
+
+.file-management-page .ant-btn-text {
+  transition: all 0.2s;
+}
+
+.file-management-page .ant-btn-text:hover {
+  background-color: #f3f4f6;
+  transform: scale(1.05);
+}
+
+.file-management-page .file-name {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.file-management-page .file-name:hover {
+  color: #2563eb;
+}
+
+.file-management-page .cursor-pointer {
+  cursor: pointer;
+}
+
+.file-management-page .hover\:text-blue-500:hover {
+  color: #3b82f6;
+}
+
+.file-management-page .ant-statistic-title {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.file-management-page .ant-statistic-content {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.file-management-page .ant-upload-drag {
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background: #f9fafb;
+  padding: 40px 20px;
+  transition: all 0.3s;
+}
+
+.file-management-page .ant-upload-drag:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.file-management-page .ant-upload-drag-icon {
+  color: #9ca3af;
+  transition: color 0.3s;
+}
+
+.file-management-page .ant-upload-drag:hover .ant-upload-drag-icon {
+  color: #3b82f6;
+}
+
+.file-management-page .ant-modal {
+  border-radius: 12px;
+}
+
+.file-management-page .ant-modal-content {
+  border-radius: 12px;
+}
+
+.file-management-page .ant-modal-header {
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 12px 12px 0 0;
+}
+
+.file-management-page .ant-modal-footer {
+  border-top: 1px solid #e5e7eb;
+  border-radius: 0 0 12px 12px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .file-management-page {
+    padding: 16px;
+  }
+
+  .file-management-page .page-header {
+    padding: 16px;
+  }
+
+  .file-management-page .page-header h1 {
+    font-size: 20px;
+  }
+
+  .file-management-page .ant-col {
+    margin-bottom: 16px;
+  }
+
+  .file-management-page .ant-table {
+    font-size: 12px;
+  }
+
+  .file-management-page .ant-btn {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+}
+
+/* ========== 文档预览样式 ========== */
+
+/* Markdown 预览 */
+.markdown-preview {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #1f2937;
+}
+.markdown-preview h1 { font-size: 28px; font-weight: 700; margin-bottom: 16px; margin-top: 24px; }
+.markdown-preview h2 { font-size: 22px; font-weight: 600; margin-bottom: 12px; margin-top: 20px; }
+.markdown-preview h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; margin-top: 16px; }
+.markdown-preview h4 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.markdown-preview p { margin-bottom: 12px; }
+.markdown-preview ul, .markdown-preview ol { margin-bottom: 12px; padding-left: 24px; }
+.markdown-preview li { margin-bottom: 4px; }
+.markdown-preview blockquote {
+  border-left: 4px solid #d1d5db;
+  padding: 8px 16px;
+  color: #6b7280;
+  margin-bottom: 12px;
+  background: #f9fafb;
+}
+.markdown-preview code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+.markdown-preview pre {
+  background-color: #f3f4f6;
+  padding: 12px 16px;
+  border-radius: 8px;
+  overflow: auto;
+  margin-bottom: 12px;
+}
+.markdown-preview pre code {
+  background: none;
+  padding: 0;
+}
+.markdown-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.markdown-preview th, .markdown-preview td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  text-align: left;
+}
+.markdown-preview th {
+  background-color: #f9fafb;
+  font-weight: 600;
+}
+.markdown-preview img { max-width: 100%; }
+.markdown-preview hr { border: none; border-top: 1px solid #e5e7eb; margin: 16px 0; }
+.markdown-preview a { color: #2563eb; text-decoration: underline; }
+
+/* DOCX 预览 — mammoth 转 HTML 后的样式保留 */
+.docx-preview {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #1f2937;
+}
+.docx-preview h1 { font-size: 28px; font-weight: 700; margin-bottom: 16px; margin-top: 20px; color: #0f172a; }
+.docx-preview h2 { font-size: 22px; font-weight: 600; margin-bottom: 12px; margin-top: 16px; color: #1e293b; }
+.docx-preview h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; margin-top: 14px; color: #334155; }
+.docx-preview h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.docx-preview p { margin-bottom: 10px; line-height: 1.8; text-indent: 0; }
+.docx-preview table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 12px;
+  margin-top: 8px;
+}
+.docx-preview th, .docx-preview td {
+  border: 1px solid #d1d5db;
+  padding: 8px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+.docx-preview th {
+  background-color: #f1f5f9;
+  font-weight: 600;
+  color: #1e293b;
+}
+.docx-preview tr:nth-child(even) td { background-color: #fafbfc; }
+.docx-preview img { max-width: 100%; height: auto; margin: 8px 0; border-radius: 4px; }
+.docx-preview ul, .docx-preview ol { margin-bottom: 12px; padding-left: 24px; }
+.docx-preview li { margin-bottom: 4px; }
+.docx-preview blockquote {
+  border-left: 4px solid #d1d5db;
+  padding: 8px 16px;
+  color: #6b7280;
+  margin: 12px 0;
+  background: #f9fafb;
+}
+.docx-preview strong { font-weight: 700; color: #0f172a; }
+.docx-preview em { font-style: italic; }
+.docx-preview a { color: #2563eb; text-decoration: underline; }
+
+/* XLSX 预览 — 自定义样式表，不影响 JS 内联样式 */
+.xlsx-preview {
+  font-size: 13px;
+  background: #fff;
+  border-radius: 8px;
+}
+.xlsx-preview table {
+  width: max-content;
+  min-width: 100%;
+}
+.xlsx-preview tr:first-child td {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+  color: #1e293b;
+}
+.xlsx-preview tr:hover td {
+  filter: brightness(0.97);
+}
+.xlsx-preview tr:nth-child(even) td {
+  /* 默认斑马纹由 JS 内联样式控制，这里做降级 */
+}
+
+/* 纯文本预览 */
+.txt-preview {
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 70vh;
+  overflow: auto;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #1f2937;
+}
+
+/* ========== PDF 预览 (react-pdf / PDF.js) ========== */
+.pdf-preview-container .react-pdf__Document {
+  display: inline-block;
+}
+
+.pdf-preview-container .react-pdf__Page {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.pdf-preview-container .react-pdf__Page__canvas {
+  display: block;
+}
+
+/* 文本层：默认透明，选中时高亮 */
+.pdf-preview-container .react-pdf__Page__textContent {
+  opacity: 0.2;
+}
+
+.pdf-preview-container .react-pdf__Page__textContent span {
+  color: transparent !important;
+}
+
+.pdf-preview-container .react-pdf__Page__textContent ::selection {
+  background: rgba(0, 0, 255, 0.3);
+}
+
+/* 注释层 */
+.pdf-preview-container .react-pdf__Page__annotations {
+  pointer-events: none;
+}
+
+.pdf-preview-container .react-pdf__Page__annotations .annotationLayer a {
+  pointer-events: auto;
+}
+
+/* PDF 页面加载进度条动画 */
+@keyframes pdf-loading-bar {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ========== PPT 幻灯片查看器 ========== */
+
+/* 整体容器：不设固定高度，由内部 body 控制，避免大屏下过高 */
+.ppt-viewer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* 顶部工具栏 */
+.ppt-viewer-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px 8px 0 0;
+  flex-shrink: 0;
+}
+.ppt-viewer-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ppt-viewer-slide-count {
+  font-size: 13px;
+  color: #334155;
+  font-weight: 500;
+}
+.ppt-viewer-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 主体：缩略图 + 主视图，使用 CSS Grid 避免 flexbox min-width:auto 导致图片撑开容器 */
+.ppt-viewer-body {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  grid-template-rows: 1fr;
+  flex: 0 0 auto;
+  min-height: 300px;
+  max-height: 70vh;
+  min-width: 0;
+  overflow: hidden;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+}
+
+/* 左侧缩略图列表 */
+.ppt-viewer-thumbnails {
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+.ppt-viewer-thumb {
+  position: relative;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background: #fff;
+  flex-shrink: 0;
+}
+.ppt-viewer-thumb:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.ppt-viewer-thumb.active {
+  border-color: #d24726;
+  box-shadow: 0 0 0 2px rgba(210, 71, 38, 0.2);
+}
+.ppt-viewer-thumb img {
+  width: 100%;
+  display: block;
+}
+.ppt-viewer-thumb-num {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 10px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.4;
+}
+
+/* 右侧主视图——Grid 列内容区，⚠ 不能使用 display:flex 否则 img 作为 flex 子元素又会出现 min-width:auto=1280px 问题 */
+.ppt-viewer-main {
+  min-width: 0;
+  min-height: 0;
+  background: #e2e8f0;
+  padding: 16px;
+  overflow: hidden;
+}
+
+/* 主视图内的图片：block 元素，width:100% 在 Grid 列中 100% 可靠 */
+.ppt-viewer-main img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+/* 底部进度条 */
+.ppt-viewer-progress {
+  height: 4px;
+  background: #e2e8f0;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ppt-viewer-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #d24726, #f97316);
+  border-radius: 0 2px 2px 0;
+  transition: width 0.3s ease;
+}
+
+/* ========== PPT 加载骨架屏 ========== */
+.ppt-loading-skeleton {
+  display: flex;
+  flex-direction: column;
+}
+.ppt-skeleton-toolbar {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px 8px 0 0;
+}
+.ppt-skeleton-body {
+  display: flex;
+  min-height: 300px;
+  border-left: 1px solid #e2e8f0;
+  border-right: 1px solid #e2e8f0;
+}
+.ppt-skeleton-thumbnails {
+  width: 120px;
+  padding: 8px;
+  background: #f1f5f9;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ppt-skeleton-thumb {
+  height: 70px;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4px;
+  animation: pdf-loading-bar 1.4s ease-in-out infinite;
+}
+.ppt-loading-spinner-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}

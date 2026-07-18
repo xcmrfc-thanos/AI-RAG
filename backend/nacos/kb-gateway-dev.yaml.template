@@ -1,0 +1,113 @@
+# kb-gateway Nacos 配置（本地 Docker）
+# 导入：KNOWLEDGE_BASE → kb-gateway-dev.yaml
+
+spring:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      httpclient:
+        connect-timeout: 3000
+        response-timeout: 120s
+        pool:
+          max-connections: 500
+          max-idle-time: 30s
+          max-life-time: 60s
+          acquire-timeout: 120000
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allowCredentials: true
+            maxAge: 3600
+      routes:
+        - id: kb-core-auth
+          uri: lb://kb-core
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=2
+        - id: kb-core-document
+          uri: lb://kb-core
+          predicates:
+            - Path=/api/document/**
+          filters:
+            - StripPrefix=2
+        - id: kb-core-foundation
+          uri: lb://kb-core
+          predicates:
+            - Path=/api/notifications/**, /api/config/**, /api/logs/**, /api/dicts/**
+          filters:
+            - StripPrefix=1
+        - id: kb-core-ws
+          uri: lb:ws://kb-core
+          predicates:
+            - Path=/ws/**
+        - id: kb-file
+          uri: lb://kb-file
+          predicates:
+            - Path=/api/file/**
+          filters:
+            - StripPrefix=2
+        - id: kb-intelligence-ai
+          uri: lb://kb-intelligence
+          predicates:
+            - Path=/api/ai/**
+          filters:
+            - StripPrefix=2
+        - id: kb-intelligence-rag
+          uri: lb://kb-intelligence
+          predicates:
+            - Path=/api/rag/**
+          filters:
+            - StripPrefix=1
+        - id: kb-intelligence-search
+          uri: lb://kb-intelligence
+          predicates:
+            - Path=/api/search/**
+          filters:
+            - StripPrefix=2
+        - id: kb-intelligence-graph
+          uri: lb://kb-intelligence
+          predicates:
+            - Path=/api/graph/**
+          filters:
+            - StripPrefix=1
+        - id: kb-intelligence-kag
+          uri: lb://kb-intelligence
+          predicates:
+            - Path=/api/kag/**
+          filters:
+            - StripPrefix=1
+        - id: kb-statistics
+          uri: lb://kb-statistics
+          predicates:
+            - Path=/api/statistics/**
+          filters:
+            - StripPrefix=2
+        - id: kb-agent
+          uri: lb://kb-agent
+          predicates:
+            - Path=/api/agent/**
+          filters:
+            - StripPrefix=2
+
+logging:
+  level:
+    com.knowledge.base: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+
+gateway:
+  white-list:
+    - /api/auth/auth/login
+    - /api/auth/auth/register
+    - /api/auth/auth/refresh
+    - /api/document/share/**
+    - /actuator/health
+    - /actuator/health/**

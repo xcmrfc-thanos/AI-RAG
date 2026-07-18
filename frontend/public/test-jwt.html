@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT调试测试</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h3 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #f44336; font-weight: bold; }
+        .warning { color: #ff9800; font-weight: bold; }
+        .info { color: #2196F3; font-weight: bold; }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 400px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 JWT Token调试测试</h1>
+    <p>用于测试JWT Token的生成和解析功能</p>
+
+    <!-- 测试1：生成Token -->
+    <div class="section">
+        <h3>测试1：生成Token</h3>
+        <div class="row">
+            <label>用户ID：</label>
+            <input type="number" id="userId" value="1" placeholder="输入用户ID">
+            <button onclick="testGenerate()">生成Token</button>
+        </div>
+        <pre id="generateResult">等待操作...</pre>
+    </div>
+
+    <!-- 测试2：解析Token -->
+    <div class="section">
+        <h3>测试2：解析Token</h3>
+        <div class="row">
+            <label>Token：</label>
+            <input type="text" id="tokenInput" placeholder="粘贴JWT Token" style="width: 600px;">
+            <button onclick="testParse()">解析</button>
+        </div>
+        <pre id="parseResult">等待操作...</pre>
+    </div>
+
+    <!-- 测试3：完整流程测试 -->
+    <div class="section">
+        <h3>测试3：完整流程测试</h3>
+        <div class="row">
+            <label>用户ID：</label>
+            <input type="number" id="testUserId" value="1" placeholder="输入用户ID">
+            <button onclick="testCompleteFlow()">完整测试</button>
+        </div>
+        <pre id="flowResult">等待操作...</pre>
+    </div>
+
+    <!-- 测试4：验证用户提供的Token -->
+    <div class="section">
+        <h3>测试4：验证用户提供的Token</h3>
+        <button onclick="testUserToken()">验证用户Token</button>
+        <pre id="userTokenResult">等待操作...</pre>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // 用户提供的token
+        const USER_TOKEN = 'eyJhbGciOiJIUzI1NiJ9.eyJ0eXBlIjoiYWNjZXNzIiwidXNlcklkIjoxMDAwMDAwMDAwMDAwMDAwMDAxLCJzdWIiOiIxMDAwMDAwMDAwMDAwMDAwMDAxIiwiaXNzIjoia25vd2xlZGdlLWJhc2UiLCJpYXQiOjE3NzkwNzA0MTQsImV4cCI6MTc4NjI3MDQxNH0.GyUfhRY9Y_B9JICqJ0OvEB3Esv5XY07oah0XYYWukQk';
+
+        // 测试1：生成Token
+        async function testGenerate() {
+            const userId = document.getElementById('userId').value;
+            const resultEl = document.getElementById('generateResult');
+
+            try {
+                resultEl.innerHTML = '<span class="info">⏳ 正在生成Token...</span>';
+
+                const response = await fetch(`${API_BASE}/auth/debug/generate?userId=${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                resultEl.innerHTML = `<span class="info">📤 生成响应：</span>
+${JSON.stringify(data, null, 2)}`;
+
+                if (data.accessToken) {
+                    resultEl.innerHTML += `
+
+<span class="success">✅ Token生成成功！</span>
+<span class="info">accessToken长度:</span> ${data.accessToken.length}
+<span class="info">refreshToken长度:</span> ${data.refreshToken.length}
+
+<span class="info">📝 自动填充到解析测试...</span>`;
+                    document.getElementById('tokenInput').value = data.accessToken;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 测试2：解析Token
+        async function testParse() {
+            const token = document.getElementById('tokenInput').value;
+            const resultEl = document.getElementById('parseResult');
+
+            if (!token) {
+                resultEl.innerHTML = '<span class="error">❌ 请输入Token</span>';
+                return;
+            }
+
+            try {
+                resultEl.innerHTML = '<span class="info">⏳ 正在解析Token...</span>';
+
+                const response = await fetch(`${API_BASE}/auth/debug/parse`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `token=${encodeURIComponent(token)}`,
+                });
+
+                const data = await response.json();
+
+                resultEl.innerHTML = `<span class="info">📤 解析响应：</span>
+${JSON.stringify(data, null, 2)}`;
+
+                if (data.valid || data.claims) {
+                    resultEl.innerHTML += `
+
+<span class="success">✅ Token解析成功！</span>
+<span class="info">用户ID:</span> ${data.userId || data.claims?.subject}`;
+                } else {
+                    resultEl.innerHTML += `
+
+<span class="error">❌ Token解析失败</span>
+<span class="error">错误:</span> ${data.error || '未知错误'}`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 测试3：完整流程测试
+        async function testCompleteFlow() {
+            const userId = document.getElementById('testUserId').value;
+            const resultEl = document.getElementById('flowResult');
+
+            try {
+                resultEl.innerHTML = '<span class="info">⏳ 正在测试完整流程...</span>';
+
+                const response = await fetch(`${API_BASE}/auth/debug/test?userId=${userId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+
+                resultEl.innerHTML = `<span class="info">📤 测试结果：</span>
+${JSON.stringify(data, null, 2)}`;
+
+                if (data.step1_generate && result.step2_validate && result.step3_parse) {
+                    resultEl.innerHTML += `
+
+<span class="success">✅ 完整流程测试成功！</span>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 测试4：验证用户提供的Token
+        async function testUserToken() {
+            const resultEl = document.getElementById('userTokenResult');
+
+            try {
+                resultEl.innerHTML = '<span class="info">⏳ 正在验证用户Token...</span>';
+
+                // 先解析Token内容
+                const parts = USER_TOKEN.split('.');
+                if (parts.length !== 3) {
+                    resultEl.innerHTML = '<span class="error">❌ Token格式错误</span>';
+                    return;
+                }
+
+                const header = JSON.parse(atob(parts[0]));
+                const payload = JSON.parse(atob(parts[1]));
+
+                resultEl.innerHTML = `<span class="info">📋 Token内容：</span>
+<span class="info">Header:</span> ${JSON.stringify(header, null, 2)}
+<span class="info">Payload:</span> ${JSON.stringify(payload, null, 2)}
+
+<span class="info">⏳ 正在验证Token...</span>`;
+
+                const response = await fetch(`${API_BASE}/auth/debug/validate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `token=${encodeURIComponent(USER_TOKEN)}`,
+                });
+
+                const data = await response.json();
+
+                resultEl.innerHTML += `
+
+<span class="info">📤 验证响应：</span>
+${JSON.stringify(data, null, 2)}`;
+
+                if (data.valid) {
+                    resultEl.innerHTML += `
+
+<span class="success">✅ Token验证成功！</span>`;
+                } else {
+                    resultEl.innerHTML += `
+
+<span class="error">❌ Token验证失败</span>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 页面加载时自动验证用户Token
+        window.onload = function() {
+            console.log('页面加载完成，准备测试JWT Token');
+            document.getElementById('tokenInput').value = USER_TOKEN;
+        };
+    </script>
+</body>
+</html>

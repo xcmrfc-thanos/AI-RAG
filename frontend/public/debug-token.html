@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token调试页面</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h3 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+        .success { color: #4CAF50; font-weight: bold; }
+        .error { color: #f44336; font-weight: bold; }
+        .warning { color: #ff9800; font-weight: bold; }
+        .info { color: #2196F3; font-weight: bold; }
+        .step {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .step-num {
+            background: #2196F3;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Token调试页面</h1>
+    <p>完整的Token管理调试工具</p>
+
+    <!-- 步骤1：测试登录 -->
+    <div class="section">
+        <h3>步骤1：测试登录</h3>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div>
+                <input type="text" id="username" placeholder="用户名" value="admin">
+                <input type="password" id="password" placeholder="密码" value="123456">
+                <button onclick="testLogin()">登录</button>
+            </div>
+        </div>
+        <pre id="loginResult">等待操作...</pre>
+    </div>
+
+    <!-- 步骤2：检查Cookie -->
+    <div class="section">
+        <h3>步骤2：检查Cookie</h3>
+        <div class="step">
+            <div class="step-num">2</div>
+            <button onclick="checkCookie()">检查Cookie</button>
+        </div>
+        <pre id="cookieResult">等待检查...</pre>
+    </div>
+
+    <!-- 步骤3：手动设置Token -->
+    <div class="section">
+        <h3>步骤3：手动设置Token到Cookie</h3>
+        <div class="step">
+            <div class="step-num">3</div>
+            <input type="text" id="tokenInput" placeholder="粘贴Token" style="width: 500px;">
+            <button onclick="setToken()">设置Token</button>
+        </div>
+        <pre id="setTokenResult">等待操作...</pre>
+    </div>
+
+    <!-- 步骤4：测试Token获取 -->
+    <div class="section">
+        <h3>步骤4：测试Token获取逻辑</h3>
+        <div class="step">
+            <div class="step-num">4</div>
+            <button onclick="testTokenRetrieval()">测试Token获取</button>
+        </div>
+        <pre id="tokenRetrievalResult">等待测试...</pre>
+    </div>
+
+    <!-- 步骤5：测试/me接口 -->
+    <div class="section">
+        <h3>步骤5：测试/me接口</h3>
+        <div class="step">
+            <div class="step-num">5</div>
+            <button onclick="testMeApi()">调用/me接口</button>
+        </div>
+        <pre id="meApiResult">等待调用...</pre>
+    </div>
+
+    <!-- 步骤6：清除所有 -->
+    <div class="section">
+        <h3>步骤6：清除所有数据</h3>
+        <div class="step">
+            <div class="step-num">6</div>
+            <button onclick="clearAll()" class="danger">清除所有数据</button>
+        </div>
+        <pre id="clearResult">等待清除...</pre>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // 测试登录
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultEl = document.getElementById('loginResult');
+
+            try {
+                resultEl.innerHTML = '<span class="info">⏳ 正在登录...</span>';
+
+                const response = await fetch(`${API_BASE}/auth/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit', // 不自动携带Cookie
+                });
+
+                const data = await response.json();
+
+                resultEl.innerHTML = `<span class="info">📤 登录响应：</span>
+${JSON.stringify(data, null, 2)}`;
+
+                if (data.code === 200 && data.data) {
+                    resultEl.innerHTML += `\n\n<span class="success">✅ 登录成功！</span>
+<span class="info">📝 accessToken长度:</span> ${data.data.accessToken.length}
+<span class="info">📝 refreshToken长度:</span> ${data.data.refreshToken.length}`;
+
+                    // 自动保存Token到Cookie
+                    const expiresIn = data.data.expiresIn || 7200;
+                    setCookie('access_token', data.data.accessToken, expiresIn);
+                    setCookie('refresh_token', data.data.refreshToken, expiresIn);
+
+                    resultEl.innerHTML += `\n\n<span class="success">✅ Token已自动保存到Cookie</span>`;
+                } else {
+                    resultEl.innerHTML += `\n\n<span class="error">❌ 登录失败: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 检查Cookie
+        function checkCookie() {
+            const resultEl = document.getElementById('cookieResult');
+            const cookies = document.cookie.split(';').map(c => c.trim());
+
+            resultEl.innerHTML = `<span class="info">🍪 当前Cookie (${cookies.length}个)：</span>
+${cookies.map(c => `  - ${c.substring(0, 100)}${c.length > 100 ? '...' : ''}`).join('\n')}
+
+<span class="info">🔍 access_token存在:</span> ${cookies.some(c => c.startsWith('access_token=')) ? '✅ 是' : '❌ 否'}
+<span class="info">🔍 refresh_token存在:</span> ${cookies.some(c => c.startsWith('refresh_token=')) ? '✅ 是' : '❌ 否'}
+<span class="info">🔍 session存在:</span> ${cookies.some(c => c.startsWith('session=')) ? '✅ 是' : '❌ 否'}`;
+        }
+
+        // 手动设置Token
+        function setToken() {
+            const token = document.getElementById('tokenInput').value;
+            const resultEl = document.getElementById('setTokenResult');
+
+            if (!token) {
+                resultEl.innerHTML = '<span class="error">❌ 请输入Token</span>';
+                return;
+            }
+
+            setCookie('access_token', token, 7200);
+            resultEl.innerHTML = `<span class="success">✅ Token已保存到Cookie</span>
+<span class="info">长度:</span> ${token.length}
+<span class="info">前50字符:</span> ${token.substring(0, 50)}...`;
+        }
+
+        // 测试Token获取
+        function testTokenRetrieval() {
+            const resultEl = document.getElementById('tokenRetrievalResult');
+            const tokenFromCookie = getCookie('access_token');
+
+            resultEl.innerHTML = `<span class="info">🔍 Token获取测试：</span>
+
+            if (tokenFromCookie) {
+                resultEl.innerHTML += `
+<span class="success">✅ 从Cookie获取到Token</span>
+<span class="info">长度:</span> ${tokenFromCookie.length}
+<span class="info">前50字符:</span> ${tokenFromCookie.substring(0, 50)}...
+<span class="info">完整Token:</span> ${tokenFromCookie}`;
+            } else {
+                resultEl.innerHTML += `<span class="error">❌ Cookie中未找到access_token</span>
+
+<span class="warning">⚠️ 当前Cookie:</span> ${document.cookie || '(空)'}`;
+            }
+        }
+
+        // 测试/me接口
+        async function testMeApi() {
+            const resultEl = document.getElementById('meApiResult');
+            const token = getCookie('access_token');
+
+            if (!token) {
+                resultEl.innerHTML = `<span class="error">❌ Cookie中没有Token，请先登录</span>`;
+                return;
+            }
+
+            try {
+                resultEl.innerHTML = `<span class="info">⏳ 正在调用 /api/auth/auth/me...</span>
+<span class="info">Authorization:</span> Bearer ${token.substring(0, 30)}...
+`;
+
+                const response = await fetch(`${API_BASE}/auth/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit', // 不自动携带Cookie
+                });
+
+                const data = await response.json();
+
+                if (data.code === 200) {
+                    resultEl.innerHTML = `<span class="success">✅ 调用成功！</span>
+<span class="info">用户信息:</span>
+${JSON.stringify(data.data, null, 2)}`;
+                } else {
+                    resultEl.innerHTML = `<span class="error">❌ 调用失败: ${data.message}</span>
+<span class="info">响应:</span>
+${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 清除所有
+        function clearAll() {
+            const resultEl = document.getElementById('clearResult');
+
+            // 清除LocalStorage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            // 清除所有Cookie
+            const cookies = document.cookie.split(';');
+            cookies.forEach(cookie => {
+                const eqPos = cookie.indexOf('=');
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            });
+
+            resultEl.innerHTML = `<span class="success">✅ 已清除所有数据</span>
+<span class="info">LocalStorage:</span> 已清空
+<span class="info">SessionStorage:</span> 已清空
+<span class="info">Cookie:</span> 已清空`;
+        }
+
+        // 辅助函数
+        function setCookie(name, value, maxAge) {
+            document.cookie = `${name}=${value}; path=/; max-age=${maxAge}; SameSite=Lax`;
+            console.log(`✅ Cookie已设置: ${name}=${value.substring(0, 30)}...`);
+        }
+
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        // 页面加载时检查Cookie
+        window.onload = function() {
+            checkCookie();
+        };
+    </script>
+</body>
+</html>

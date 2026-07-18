@@ -1,0 +1,41 @@
+.wf-guidance {
+  margin-top: 10px;
+  border: 1px solid #dbe3ef;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.wf-guidance > .ant-alert {
+  border: 0;
+  border-bottom: 1px solid #e2e8f0;
+  border-radius: 10px 10px 0 0;
+}
+
+.wf-guidance .ant-collapse-content-box {
+  padding-top: 4px;
+}
+
+.wf-guidance__json {
+  max-height: 280px;
+  margin: 0;
+  padding: 12px;
+  overflow: auto;
+  border-radius: 8px;
+  color: #dbeafe;
+  background: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.wf-template-menu-item {
+  display: flex;
+  flex-direction: column;
+  min-width: 220px;
+}
+
+.wf-template-menu-item small {
+  margin-top: 2px;
+  color: #64748b;
+}

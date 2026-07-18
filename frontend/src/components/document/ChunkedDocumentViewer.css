@@ -1,0 +1,197 @@
+/* ── ChunkedDocumentViewer ───────────────────────────── */
+
+.chunked-viewer {
+  background: transparent;
+}
+
+.chunked-viewer-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* ── Metadata bar ───────────────────────────────────── */
+
+.chunked-viewer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  margin-bottom: 4px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 12px;
+}
+
+.chunked-viewer-meta-item {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.chunked-viewer-meta-sep {
+  width: 1px;
+  height: 14px;
+  background: rgba(148, 163, 184, 0.2);
+  margin: 0 4px;
+}
+
+/* ── Toolbar ────────────────────────────────────────── */
+
+.chunked-viewer-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+/* ── Section ────────────────────────────────────────── */
+
+.chunked-section {
+  border-radius: 10px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: background 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.chunked-section:hover {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.chunked-section.expanded {
+  border-color: rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.45);
+  margin-bottom: 14px;
+}
+
+/* ── Section header ─────────────────────────────────── */
+
+.chunked-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  user-select: none;
+  color: #e2e8f0;
+  font-weight: 600;
+  transition: background 0.15s ease;
+  border-radius: 10px;
+}
+
+.chunked-section-header:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.chunked-section-header:focus-visible {
+  outline: 1px solid rgba(99, 102, 241, 0.5);
+  outline-offset: -1px;
+}
+
+/* Level indentation */
+.chunked-section-header.section-level-2 { padding-left: 14px; }
+.chunked-section-header.section-level-3 { padding-left: 28px; }
+.chunked-section-header.section-level-4 { padding-left: 42px; }
+.chunked-section-header.section-level-5 { padding-left: 56px; }
+.chunked-section-header.section-level-6 { padding-left: 70px; }
+
+/* Level font sizes */
+.section-level-1 .chunked-section-title { font-size: 20px; }
+.section-level-2 .chunked-section-title { font-size: 17px; }
+.section-level-3 .chunked-section-title { font-size: 15px; }
+.section-level-4 .chunked-section-title { font-size: 14px; }
+.section-level-5 .chunked-section-title { font-size: 13px; color: #94a3b8; }
+.section-level-6 .chunked-section-title { font-size: 13px; color: #94a3b8; }
+
+/* ── Arrow icon ─────────────────────────────────────── */
+
+.chunked-section-arrow {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: #6366f1;
+  transition: transform 0.2s ease;
+}
+
+.chunked-section-arrow.rotated {
+  transform: rotate(90deg);
+}
+
+/* ── Section body ───────────────────────────────────── */
+
+.chunked-section-body {
+  padding: 0 20px 20px;
+  animation: sectionFadeIn 0.2s ease;
+}
+
+.chunked-section-body .markdown-content {
+  /* Inherited from DocumentDetailPage styles */
+}
+
+@keyframes sectionFadeIn {
+  from { opacity: 0.6; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Collapsed hint ─────────────────────────────────── */
+
+.chunked-section-collapsed-hint {
+  height: 4px;
+  margin-left: 14px;
+  margin-right: 14px;
+  margin-bottom: 2px;
+  background: linear-gradient(180deg,
+    rgba(148, 163, 184, 0.06) 0%,
+    transparent 100%);
+  border-radius: 0 0 6px 6px;
+}
+
+/* ── Preamble section ───────────────────────────────── */
+
+#section-preamble-header,
+#preamble .chunked-section-header {
+  /* Preamble section always expanded, hide toggle */
+}
+
+/* ── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .chunked-viewer-meta {
+    gap: 6px;
+    padding: 10px 14px;
+  }
+
+  .chunked-section-header {
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .chunked-section-header.section-level-2 { padding-left: 12px; }
+  .chunked-section-header.section-level-3 { padding-left: 22px; }
+  .chunked-section-header.section-level-4 { padding-left: 32px; }
+  .chunked-section-header.section-level-5 { padding-left: 42px; }
+  .chunked-section-header.section-level-6 { padding-left: 52px; }
+
+  .section-level-1 .chunked-section-title { font-size: 18px; }
+  .section-level-2 .chunked-section-title { font-size: 16px; }
+  .section-level-3 .chunked-section-title { font-size: 14px; }
+
+  .chunked-section-body {
+    padding: 0 14px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chunked-section-header.section-level-2 { padding-left: 10px; }
+  .chunked-section-header.section-level-3 { padding-left: 18px; }
+  .chunked-section-header.section-level-4 { padding-left: 26px; }
+  .chunked-section-header.section-level-5 { padding-left: 34px; }
+  .chunked-section-header.section-level-6 { padding-left: 42px; }
+
+  .section-level-1 .chunked-section-title { font-size: 17px; }
+  .section-level-2 .chunked-section-title { font-size: 15px; }
+}

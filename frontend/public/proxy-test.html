@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>代理测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Vite代理测试页面</h1>
+
+    <div class="test-section">
+        <h2>环境信息</h2>
+        <div id="envInfo" class="result info">加载中...</div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试1：检查当前URL</h2>
+        <button onclick="testCurrentURL()">显示当前URL</button>
+        <div id="urlResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试2：通过代理访问后端API</h2>
+        <button onclick="testProxyAPI()">测试代理请求</button>
+        <div id="proxyResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>测试3：直接访问后端（会失败）</h2>
+        <button onclick="testDirectAPI()">测试直接请求（CORS）</button>
+        <div id="directResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>📝 代理工作原理说明</h2>
+        <div class="result info">
+浏览器请求: http://localhost:3002/api/auth/auth/login
+         ↓ (Vite代理)
+实际请求到: http://localhost:8080/api/auth/auth/login
+         ↓ (后端处理)
+返回给浏览器: 响应数据
+
+这样浏览器认为请求是同源的（都是localhost:3002），
+但实际上后端处理是在localhost:8080。
+        </div>
+    </div>
+
+    <script>
+        // 显示环境信息
+        document.getElementById('envInfo').textContent = `
+当前页面URL: ${window.location.href}
+前端端口: 3002
+后端端口: 8080
+代理路径: /api -> http://localhost:8080/api
+        `;
+
+        function testCurrentURL() {
+            const result = document.getElementById('urlResult');
+            result.textContent = `当前页面URL: ${window.location.href}\n协议: ${window.location.protocol}\n主机: ${window.location.host}\n端口: ${window.location.port || '默认'}`;
+            result.className = 'result info';
+        }
+
+        async function testProxyAPI() {
+            const result = document.getElementById('proxyResult');
+            result.textContent = '正在测试代理请求...';
+            result.className = 'result info';
+
+            try {
+                // 这个请求会被Vite代理到 http://localhost:8080/api/auth/auth/login
+                const response = await fetch('/api/auth/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'test',
+                        password: 'test'
+                    })
+                });
+
+                result.textContent = `✅ 代理请求成功！
+状态码: ${response.status}
+状态文本: ${response.statusText}
+
+这证明代理工作正常：
+浏览器看到的URL: ${window.location.origin}/api/auth/auth/login
+实际请求的后端: http://localhost:8080/api/auth/auth/login`;
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent = `❌ 代理请求失败！
+错误: ${error.message}
+
+可能原因：
+1. 后端服务器未运行（请检查 http://localhost:8080）
+2. 代理配置错误
+3. 网络连接问题`;
+                result.className = 'result error';
+            }
+        }
+
+        async function testDirectAPI() {
+            const result = document.getElementById('directResult');
+            result.textContent = '正在测试直接请求后端...';
+            result.className = 'result info';
+
+            try {
+                // 直接请求后端，应该会因为CORS失败
+                const response = await fetch('http://localhost:8080/api/auth/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: 'test',
+                        password: 'test'
+                    })
+                });
+
+                result.textContent = `✅ 直接请求成功（意外！）
+
+如果看到这个消息，说明后端已配置CORS允许跨域请求。
+状态码: ${response.status}`;
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent = `❌ 直接请求失败（预期的）
+
+错误: ${error.message}
+
+这是正常的！因为浏览器的同源策略会阻止直接访问不同端口的后端。
+这就是为什么需要使用代理的原因。`;
+                result.className = 'result error';
+            }
+        }
+
+        // 自动运行第一个测试
+        testCurrentURL();
+    </script>
+</body>
+</html>

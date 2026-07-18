@@ -1,0 +1,75 @@
+# kb-core Nacos 配置（与 backend/nacos/kb-core-dev.yaml.template 同步）
+# 端口见 deploy/.env
+
+server:
+  port: 8090
+
+spring:
+  datasource:
+    platform:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:20006/kb_foundation?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+      druid:
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        validation-query: SELECT 1
+        test-while-idle: true
+        filters: stat,wall
+    iam:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:20006/kb_user?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+      druid:
+        initial-size: 5
+        min-idle: 5
+        max-active: 20
+        validation-query: SELECT 1
+        test-while-idle: true
+        filters: stat,wall
+    document:
+      type: com.alibaba.druid.pool.DruidDataSource
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://127.0.0.1:20006/kb_document?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: root
+      password: 123456
+      druid:
+        initial-size: 20
+        min-idle: 10
+        max-active: 100
+        validation-query: SELECT 1
+        test-while-idle: true
+        filters: stat,wall
+
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 20079
+      password: susan123
+      database: 2
+    mongodb:
+      host: 127.0.0.1
+      port: 20017
+      database: knowledge_base
+      username: mongodb
+      password: susan123
+      authentication-database: knowledge_base
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 20572
+    username: admin
+    password: susan123
+
+  elasticsearch:
+    uris: http://127.0.0.1:20920
+    username: elastic
+    password: susan123
+
+kb-file:
+  url: http://localhost:8084

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🔐 登录功能测试页面</h1>
+
+    <!-- 1. 登录测试 -->
+    <div class="section">
+        <h3>1️⃣ 用户登录</h3>
+        <input type="text" id="username" placeholder="用户名" value="admin">
+        <input type="password" id="password" placeholder="密码" value="123456">
+        <button onclick="testLogin()">登录</button>
+        <pre id="loginResult">等待登录...</pre>
+    </div>
+
+    <!-- 2. 获取用户信息 -->
+    <div class="section">
+        <h3>2️⃣ 获取当前用户信息</h3>
+        <button onclick="testGetUser()">获取用户信息</button>
+        <pre id="userResult">等待请求...</pre>
+    </div>
+
+    <!-- 3. 查看当前Token -->
+    <div class="section">
+        <h3>3️⃣ 查看当前Token</h3>
+        <button onclick="showToken()">显示Token</button>
+        <pre id="tokenResult">等待查询...</pre>
+    </div>
+
+    <!-- 4. 清除登录信息 -->
+    <div class="section">
+        <h3>4️⃣ 清除登录信息</h3>
+        <button onclick="clearAuth()">清除</button>
+        <pre id="clearResult">等待清除...</pre>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentToken = null;
+
+        // 1. 测试登录
+        async function testLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const resultEl = document.getElementById('loginResult');
+
+            try {
+                resultEl.innerHTML = '<span class="info">登录中...</span>';
+
+                const response = await fetch(`${API_BASE}/auth/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (data.code === 200 && data.data) {
+                    currentToken = data.data.accessToken;
+
+                    // 保存Token到LocalStorage
+                    localStorage.setItem('access_token', currentToken);
+                    localStorage.setItem('refresh_token', data.data.refreshToken);
+                    localStorage.setItem('user_info', JSON.stringify(data.data.userInfo));
+
+                    // 保存Token到Cookie（7天过期）
+                    document.cookie = `access_token=${currentToken}; path=/; max-age=${7*24*60*60}`;
+                    document.cookie = `refresh_token=${data.data.refreshToken}; path=/; max-age=${7*24*60*60}`;
+
+                    resultEl.innerHTML = `<span class="success">✅ 登录成功！</span>
+<strong>Token:</strong> ${currentToken.substring(0, 50)}...
+<strong>用户名:</strong> ${data.data.userInfo.username}
+<strong>昵称:</strong> ${data.data.userInfo.nickname}`;
+                } else {
+                    resultEl.innerHTML = `<span class="error">❌ 登录失败: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 2. 测试获取用户信息
+        async function testGetUser() {
+            const resultEl = document.getElementById('userResult');
+            const token = localStorage.getItem('access_token') || currentToken;
+
+            if (!token) {
+                resultEl.innerHTML = '<span class="error">❌ 请先登录</span>';
+                return;
+            }
+
+            try {
+                resultEl.innerHTML = `<span class="info">请求中...</span>
+<span class="info">Authorization: Bearer ${token.substring(0, 30)}...</span>`;
+
+                const response = await fetch(`${API_BASE}/auth/auth/me`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.code === 200 && data.data) {
+                    resultEl.innerHTML = `<span class="success">✅ 获取成功！</span>
+<strong>用户ID:</strong> ${data.data.id}
+<strong>用户名:</strong> ${data.data.username}
+<strong>真实姓名:</strong> ${data.data.realName}
+<strong>邮箱:</strong> ${data.data.email}`;
+                } else {
+                    resultEl.innerHTML = `<span class="error">❌ 获取失败: ${data.message}</span>`;
+                }
+            } catch (error) {
+                resultEl.innerHTML = `<span class="error">❌ 请求失败: ${error.message}</span>`;
+            }
+        }
+
+        // 3. 显示当前Token
+        function showToken() {
+            const resultEl = document.getElementById('tokenResult');
+            const token = localStorage.getItem('access_token');
+            const cookieToken = getCookie('access_token');
+
+            resultEl.innerHTML = `<strong>LocalStorage Token:</strong> ${token ? token.substring(0, 50) + '...' : '无'}
+<strong>Cookie Token:</strong> ${cookieToken ? cookieToken.substring(0, 50) + '...' : '无'}
+<strong>UserInfo:</strong> ${localStorage.getItem('user_info') || '无'}`;
+        }
+
+        // 4. 清除登录信息
+        function clearAuth() {
+            const resultEl = document.getElementById('clearResult');
+
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user_info');
+
+            document.cookie = 'access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'refresh_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+
+            currentToken = null;
+
+            resultEl.innerHTML = '<span class="success">✅ 已清除所有登录信息</span>';
+        }
+
+        // 辅助函数：获取Cookie
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // 页面加载时检查登录状态
+        window.onload = function() {
+            showToken();
+        };
+    </script>
+</body>
+</html>

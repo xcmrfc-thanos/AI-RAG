@@ -1,0 +1,43 @@
+# 公共 Nacos 配置（本地 Docker，端口见 deploy/.env）
+# 导入：KNOWLEDGE_BASE → application-dev.yaml
+# 各服务通过 spring.config.import 优先加载
+
+spring:
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 20079
+      password: susan123
+      database: 2
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 20
+          max-wait: 3000ms
+          max-idle: 10
+          min-idle: 5
+          time-between-eviction-runs: 30s
+
+  rabbitmq:
+    host: 127.0.0.1
+    port: 20572
+    username: admin
+    password: susan123
+    virtual-host: /
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    default-property-inclusion: non_null
+
+jwt:
+  secret: knowledge-base-secret-key-for-jwt-token-generation-must-be-long-enough
+  expiration: 7200
+  refresh-expiration: 604800
+  header: Authorization
+  prefix: Bearer
+  issuer: knowledge-base
+
+logging:
+  level:
+    root: INFO

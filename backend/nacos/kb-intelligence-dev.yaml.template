@@ -1,0 +1,173 @@
+# kb-intelligence Nacos 配置（本地 Docker）
+# 导入：KNOWLEDGE_BASE → kb-intelligence-dev.yaml
+
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:20006/kb_intelligence?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    druid:
+      initial-size: 5
+      min-idle: 5
+      max-active: 30
+      max-wait: 60000
+      validation-query: SELECT 1
+      test-while-idle: true
+      filters: stat,wall
+
+  neo4j:
+    uri: ${NEO4J_URI:bolt://127.0.0.1:20687}
+    authentication:
+      username: ${NEO4J_USERNAME:neo4j}
+      password: ${NEO4J_PASSWORD:susan123}
+
+  elasticsearch:
+    uris: http://127.0.0.1:20920
+    host: 127.0.0.1
+    port: 20920
+    username: elastic
+    password: susan123
+    connection-timeout: 10s
+    socket-timeout: 30s
+
+  rabbitmq:
+    listener:
+      simple:
+        acknowledge-mode: manual
+
+kb-core:
+  url: http://localhost:8090
+  internal:
+    service: kb-intelligence
+    secret: ${KB_INTERNAL_HMAC_SECRET:ai-rag-local-dev-hmac-secret-key!!}
+    system-user-id: 1000000000000000001
+
+qwen:
+  api-key: ${QWEN_API_KEY:}
+  base-url: ${QWEN_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
+  chat:
+    options:
+      model: ${QWEN_MODEL:qwen3-max}
+      temperature: 0.3
+      max-tokens: 4000
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:}
+  model: deepseek-chat
+  base-url: https://api.deepseek.com/v1
+  max-tokens: 4096
+  temperature: 0.7
+
+ai:
+  # 与模块 application.yml、计划文档一致：默认千问；DeepSeek 仅作强推理可选
+  default-model: qwen
+  dev-stub-enabled: ${AI_DEV_STUB:false}
+  suggestions:
+    items:
+      - "如何使用企业知识库？"
+      - "查找关于技术文档的内容"
+      - "帮我总结最近的文档"
+      - "分析文档趋势"
+
+intelligence:
+  indexing:
+    document-index: kb_document
+    chunk-index: kb_chunk
+    use-ik-analyzer: false
+  executor:
+    search:
+      core-pool-size: 0
+      max-pool-size: 0
+      queue-capacity: 200
+    rag:
+      core-pool-size: 0
+      max-pool-size: 0
+      queue-capacity: 300
+    graph:
+      core-pool-size: 2
+      max-pool-size: 4
+      queue-capacity: 50
+
+rag:
+  enabled: ${RAG_ENABLED:true}
+  vector-store: ${RAG_VECTOR_STORE:elasticsearch}
+  milvus:
+    host: ${MILVUS_HOST:localhost}
+    port: ${MILVUS_PORT:19530}
+    collection: kb_chunk
+    database: default
+  # Qdrant 旁路：正式全开默认 true；ES 双写 + hybrid=ES BM25 + Qdrant dense
+  qdrant:
+    enabled: ${RAG_QDRANT_ENABLED:true}
+    host: ${QDRANT_HOST:127.0.0.1}
+    port: ${QDRANT_GRPC_PORT:26334}
+    collection: kb_chunk
+    api-key: ${QDRANT_API_KEY:}
+    connect-timeout-ms: 10000
+    fail-open: true
+  hybrid:
+    fusion: ${RAG_HYBRID_FUSION:rrf}
+    bm25-weight: ${RAG_HYBRID_BM25_WEIGHT:0.5}
+    dense-weight: ${RAG_HYBRID_DENSE_WEIGHT:0.5}
+  chunking:
+    chunk-size: ${RAG_CHUNK_SIZE:512}
+    chunk-overlap: ${RAG_CHUNK_OVERLAP:64}
+    paragraph-aware: true
+  embedding:
+    model: ${RAG_EMBEDDING_MODEL:text-embedding-v3}
+    dimension: 1024
+    provider: qwen
+    batch-size: 10
+    cache-enabled: true
+    cache-ttl-seconds: 86400
+  retrieval:
+    default-top-k: 5
+    hybrid-top-k: 20
+    final-top-k: 5
+    rrf-c: 60
+  rerank:
+    enabled: true
+    model: qwen
+  index:
+    chunk-index-name: kb_chunk
+  async:
+    enabled: true
+    reindex-batch-size: 10
+
+kag:
+  enabled: ${KAG_ENABLED:true}
+  extraction:
+    batch-size: ${KAG_EXTRACTION_BATCH_SIZE:5}
+    max-entities-per-chunk: 10
+    max-relations-per-chunk: 15
+    model: qwen
+    max-retries: 2
+    similarity-threshold: 0.85
+  graph:
+    database: neo4j
+    clear-before-build: true
+    batch-write-size: 50
+  retrieval:
+    max-hops: ${KAG_MAX_HOPS:2}
+    max-entities-per-query: 10
+    max-chunks-per-entity: 3
+    timeout-seconds: 10
+  fusion:
+    rerank-enabled: true
+    rag-weight: 0.5
+    kag-weight: 0.5
+  async:
+    enabled: true
+    build-batch-size: 5
+    max-retries: 3
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+logging:
+  level:
+    com.knowledge.base: debug

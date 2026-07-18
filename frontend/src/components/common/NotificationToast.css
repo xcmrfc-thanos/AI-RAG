@@ -1,0 +1,127 @@
+/* ============================================
+   WebSocket 实时通知弹窗 — 一线互联网大厂标准
+   通过 Ant Design notification + className 实现
+   ============================================ */
+
+/* 弹窗容器 */
+.custom-notif-toast {
+  width: 380px;
+  max-width: calc(100vw - 48px);
+}
+
+.custom-notif-toast .ant-notification-notice {
+  width: 100%;
+  padding: 18px 20px 14px;
+  margin: 0;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.06),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.custom-notif-toast .ant-notification-notice:hover {
+  box-shadow:
+    0 24px 32px -6px rgba(0, 0, 0, 0.12),
+    0 10px 12px -8px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+/* 消息区域 — 移除默认图标的左间距，靠我们的 icon prop */
+.custom-notif-toast .ant-notification-notice-message {
+  margin-bottom: 0;
+  padding-right: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.01em;
+  line-height: 1.4;
+}
+
+/* 描述区域 */
+.custom-notif-toast .ant-notification-notice-description {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* 关闭按钮 */
+.custom-notif-toast .ant-notification-notice-close {
+  top: 14px;
+  right: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.15s;
+}
+
+.custom-notif-toast .ant-notification-notice:hover .ant-notification-notice-close {
+  opacity: 1;
+}
+
+.custom-notif-toast .ant-notification-notice-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* 左侧图标 */
+.custom-notif-toast .ant-notification-notice-icon {
+  width: 36px;
+  height: 36px;
+  margin-left: 0;
+  margin-right: 14px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 入场动画 */
+@keyframes notif-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(48px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.custom-notif-toast {
+  animation: notif-toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 退出动画 */
+@keyframes notif-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(48px) scale(0.96);
+  }
+}
+
+.custom-notif-toast.ant-notification-notice-leave {
+  animation: notif-toast-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .custom-notif-toast {
+    width: calc(100vw - 32px);
+    max-width: none;
+  }
+
+  .custom-notif-toast .ant-notification-notice {
+    padding: 14px 16px 12px;
+  }
+}
