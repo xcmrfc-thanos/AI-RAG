@@ -32,6 +32,7 @@ npm run dev
 | [docs/README.md](docs/README.md) | 架构 / 运维 / 评测文档索引 |
 | [docs/第7阶段-地基治理与Agent演进计划.md](docs/第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段（56–75）计划与验收证据 |
 | [docs/eval/rag-llm-spotcheck.md](docs/eval/rag-llm-spotcheck.md) | 真实 LLM 质量抽验清单 |
+| [docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md](docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md) | 真进度 + 分片/续传/秒传最小实现计划 |
 | [deploy/README.md](deploy/README.md) | Docker 端口、启动脚本、联调冒烟 |
 | [backend/README.md](backend/README.md) | 后端模块、编译、数据库初始化 |
 | [frontend/README.md](frontend/README.md) | 前端技术栈与开发说明 |

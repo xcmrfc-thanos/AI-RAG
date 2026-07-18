@@ -3377,3 +3377,20 @@ D:\Users\environments\Java25
 - 登录失败根因是 core 宕机，非前端鉴权回归；需留意 RabbitMQ unresponsive consumer 是否再次拖垮 core
 
 ---
+
+## 2026-07-18（上传真进度/分片续传/秒传 · 计划）
+
+### 【本次功能】
+
+产出最小实现计划：先真进度 → 秒传预检 → 暴露并修复分片 API → 文件管理统一上传器 → 导入页可选接入。
+
+### 【参考文件】
+
+- docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md
+- readme.md（索引）
+
+### 【差距总结】
+
+- 仅计划，未开工；会话仍拟 JVM 内存（多实例后续再做）
+
+---
