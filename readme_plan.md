@@ -3523,3 +3523,19 @@ D:\Users\environments\Java25
 - 分片可上传至 resumable max，但解析仍受 upload max 约束（超限有明确提示）
 
 ---
+
+## 2026-07-18（fix：from-file 解析上限对齐分片路径）
+
+### 【本次功能】
+
+`createFromStoredFile` 解析上限改为 `file.upload.resumable.max.size`（默认 500MB），不再误用小文件 `file.upload.max.size` 拒掉刚分片成功的文件。
+
+### 【参考文件】
+
+- backend/.../DocumentServiceImpl.java
+
+### 【差距总结】
+
+- 无
+
+---
