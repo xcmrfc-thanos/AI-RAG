@@ -3338,3 +3338,25 @@ D:\Users\environments\Java25
 - 未做业务代码大清扫 / 未删 `_archive`
 
 ---
+
+## 2026-07-18（导入页侧栏「消失」）
+
+### 【本次功能】
+
+1. **根因**：`ImportDocumentPage.css` 全局 `.sidebar` 与 MainLayout 主侧栏类名冲突，进入导入页后主侧栏样式被覆盖（首页收起后再进更明显）
+2. 导入页局部侧栏改名为 `import-aside`；收紧与 Layout 叠垫造成的顶空隙
+3. `layout.css` 窄屏隐藏侧栏改为 `.main-container > .sidebar`，避免误伤页面内局部栏
+4. 图谱页 `sidebar-section` 改名为 `graph-sidebar-section`，同理防污染
+
+### 【参考文件】
+
+- frontend/src/pages/ImportDocumentPage.tsx、ImportDocumentPage.css
+- frontend/src/pages/KnowledgeGraphPage.tsx、KnowledgeGraphPage.css
+- frontend/src/styles/layout.css
+
+### 【差距总结】
+
+- 非「设计如此」；导出等页未发现同类全局 `.sidebar` 冲突
+- 收起状态会跨页保留（localStorage），属预期；收起后仍应看到图标轨
+
+---
