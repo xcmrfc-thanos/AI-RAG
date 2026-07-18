@@ -3478,3 +3478,29 @@ D:\Users\environments\Java25
 - 未改 streamFile / 导入页 Task5
 
 ---
+
+## 2026-07-18（Task5：导入文档页接入大文件分片后再解析）
+
+### 【本次功能】
+
+1. Core 新增 `POST /documents/from-file/{fileId}`：按 FileMetadata.id 拉取已存文件 → 既有解析管线 → 建草稿（不重复上传）
+2. `FileManagementService.readFileBytes` 复用上游 URL 解析；导入页 &lt;20MB 仍走 upload/parse 真进度，≥20MB 走 `uploadWithResume` → from-file
+3. 导入页进度展示指纹/分片/合并/解析阶段文案；单文件上限对齐分片 max（500MB）
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../DocumentController.java
+- backend/kb-core/kb-core-document/.../DocumentService.java
+- backend/kb-core/kb-core-document/.../service/impl/DocumentServiceImpl.java
+- backend/kb-core/kb-core-document/.../FileManagementService.java
+- backend/kb-core/kb-core-document/.../service/impl/FileManagementServiceImpl.java
+- frontend/src/services/document.service.ts
+- frontend/src/pages/ImportDocumentPage.tsx
+
+### 【差距总结】
+
+- fileId 约定为 FileMetadata.id（非 kb-file FileInfo.id）
+- 解析仍整文件入内存，极大文件内存压力与小文件路径一致，未做流式解析
+- 未做 Task6 Nacos/冒烟脚本收口
+
+---
