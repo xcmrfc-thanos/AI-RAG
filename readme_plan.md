@@ -3089,7 +3089,7 @@ D:\Users\environments\Java25
 | 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组 / 侧栏 SQL 化明确延期（不增加能力，易搅乱回归）** |
 | RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | **已收口（后置 + 查询期 ES/Qdrant filter）** |
 | Statistics/Graph 服务端 ACL | 热门/最新/图谱全局投影可能泄露元数据 | **已收口（见同日投影 ACL 条目）** |
-| 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | **清单+半自动脚本已落地；人肉判定待跑** |
+| 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | **2026-07-18 结构抽验 3/6（Advisory）；人肉勾选待补** |
 
 ### P3 — 质量与运维深化
 
@@ -3279,6 +3279,26 @@ D:\Users\environments\Java25
 - 抽验脚本结构 PASS ≠ 人肉通过；需在 `AI_DEV_STUB=false` + 真实 Key 下跑并勾选判定表
 - CriteriaQuery BM25 降级路径未注查询期 filter（依赖后置过滤）；Milvus 路径仍仅后置
 - pages 重组 / 侧栏 SQL 化仍明确不做，直到有强回归需求
+
+---
+
+## 2026-07-18（真实 LLM 抽验首跑 · Advisory）
+
+### 【本次功能】
+
+1. 重启过期 intelligence 后跑通 `verify-rag-llm-spotcheck.ps1 -WriteJudgementSheet`
+2. 结构结果：**3/6 PASS**（cite-spring-boot、refuse-quantum、refuse-mars）；FAIL：mysql/k8s 未出引用、hallucination 引用非 seed 文档 ID
+3. 判定表：`docs/eval/rag-llm-spotcheck-judgement.csv`（已 gitignore，仅本地）
+
+### 【参考文件】
+
+- deploy/scripts/verify-rag-llm-spotcheck.ps1
+- docs/eval/rag-llm-spotcheck.md、rag-llm-spotcheck-set.json
+
+### 【差距总结】
+
+- 结构门未全过 = 业务门未关；需人肉看 FAIL 题是检索空洞还是生成拒答过激
+- pages 大重组 / 侧栏 SQL 化仍按原裁决**不做**
 
 ---
 
