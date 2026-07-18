@@ -3504,3 +3504,22 @@ D:\Users\environments\Java25
 - 未做 Task6 Nacos/冒烟脚本收口
 
 ---
+
+## 2026-07-18（Task5 质量：from-file 限大小+收窄事务+阶段错误）
+
+### 【本次功能】
+
+1. `createFromStoredFile`：`readFileBytes` 前按 `file.upload.max.size` 拒超限文件
+2. 拉取/解析用 `NOT_SUPPORTED` 脱离长事务，草稿落库用短 `TransactionTemplate`
+3. 导入页大文件区分「分片上传失败」与「解析建草稿失败」文案
+
+### 【参考文件】
+
+- backend/.../DocumentServiceImpl.java
+- frontend/src/pages/ImportDocumentPage.tsx
+
+### 【差距总结】
+
+- 分片可上传至 resumable max，但解析仍受 upload max 约束（超限有明确提示）
+
+---
