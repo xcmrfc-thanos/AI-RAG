@@ -3088,6 +3088,7 @@ D:\Users\environments\Java25
 | 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | **最小条件分支已落地**；循环/并行/审批/多 Agent 仍延期 |
 | 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组仍延期** |
 | RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | **已收口（见同日 RAG ACL 条目）** |
+| Statistics/Graph 服务端 ACL | 热门/最新/图谱全局投影可能泄露元数据 | **已收口（见同日投影 ACL 条目）** |
 | 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
 
 ### P3 — 质量与运维深化
@@ -3152,7 +3153,7 @@ D:\Users\environments\Java25
 
 ### 【差距总结】
 
-- 未改 Statistics/Graph 服务端投影 ACL（仍依赖 Tool 侧探针）；实体无 documentId 时靠邻域关系探测，可能增加调用次数
+- Statistics/Graph 服务端投影 ACL 已在同日后续条目落地；实体无 documentId 时 Agent 侧仍可能做邻域探测
 - 工作流 DAG / 前端 pages 权限码统一仍未做
 
 ---
@@ -3218,3 +3219,29 @@ D:\Users\environments\Java25
 
 - 未在 ES/Qdrant 查询期注入 ACL filter（仍为超采后置过滤）；无 ACL 元数据且 ES 补全失败时 fail-closed
 - Neo4j 文档节点仍未持久化 isPublic/teamId，KAG 依赖 kb_document 补全
+
+---
+
+## 2026-07-18（Statistics/Graph 服务端投影 ACL）
+
+### 【本次功能】
+
+1. `stat_document` 增加 `is_public`/`team_id`；Core 文档投影 upsert 同步写入
+2. 热门/最新：缓存超采后按 `DocumentVisibility` 过滤；去掉按用户不安全的 `@Cacheable`
+3. Core 新增 `POST /internal/documents/visible-ids`；图谱 `getNodes`/`searchGraph` 过滤带 documentId 的节点
+4. 内部鉴权白名单允许该 POST；statistics Nacos 补 `kb-core` HMAC 配置
+
+### 【参考文件】
+
+- backend/sql/patch/stat_document_acl_columns.sql、sql/schema/kb_statistics.sql
+- backend/kb-common/.../CoreStatisticsProjectionEventDTO.java、CoreStatisticsProjectionPublisher.java
+- backend/kb-statistics/.../StatisticsDocumentAclFilter.java、StatisticsServiceImpl.java、StatDocumentRepository.java
+- backend/kb-core/.../InternalDocumentVisibilityController.java、InternalServiceAuthFilter.java
+- backend/kb-intelligence-graph/.../GraphDocumentAclFilter.java、GraphServiceImpl.java
+- backend/nacos/kb-core-dev.yaml.template、kb-statistics-dev.yaml.template
+
+### 【差距总结】
+
+- 存量投影需执行 patch SQL；历史行默认公开，真实私有状态依赖后续文档 upsert 回填
+- 图谱无 documentId 的实体节点仍直接返回（不泄露正文，仅实体名）；边/路径/社区未逐条过滤
+- Agent Tool 侧探针可保留作双保险，后续可简化
