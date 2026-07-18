@@ -92,7 +92,9 @@ $containers = @(
     @{ Name = "kb-rabbitmq"; Label = "RabbitMQ" },
     @{ Name = "kb-elasticsearch"; Label = "Elasticsearch" },
     @{ Name = "kb-nacos"; Label = "Nacos" },
-    @{ Name = "kb-rustfs"; Label = "RustFS" }
+    @{ Name = "kb-rustfs"; Label = "RustFS" },
+    @{ Name = "kb-neo4j"; Label = "Neo4j" },
+    @{ Name = "kb-qdrant"; Label = "Qdrant" }
 )
 
 foreach ($c in $containers) {
@@ -154,6 +156,68 @@ if (Test-HttpReachable -Url $RustFsUrl -AcceptStatusCodes @(401, 403, 404)) {
 }
 else {
     Write-CheckResult -Name "RustFS" -Status "WARN" -Detail "endpoint unreachable"
+}
+
+# Neo4j HTTP（宿主机 20474）：探活 + 图谱节点规模
+$Neo4jHttp = if ($env:NEO4J_HTTP_URL) { $env:NEO4J_HTTP_URL } else { "http://127.0.0.1:20474" }
+$Neo4jUser = if ($env:NEO4J_USER) { $env:NEO4J_USER } else { "neo4j" }
+$Neo4jPass = if ($env:NEO4J_PASSWORD) { $env:NEO4J_PASSWORD } else { "susan123" }
+try {
+    $neoAuth = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes("${Neo4jUser}:${Neo4jPass}"))
+    $neoBody = @{ statements = @(
+            @{ statement = "MATCH (d:KnowledgeDocument) RETURN count(d) AS docs" }
+            @{ statement = "MATCH (e:KnowledgeEntity) RETURN count(e) AS ents" }
+        ) } | ConvertTo-Json -Depth 5
+    $neoResp = Invoke-RestMethod -Uri ($Neo4jHttp + "/db/neo4j/tx/commit") -Method Post `
+        -Headers @{ Authorization = "Basic $neoAuth"; "Content-Type" = "application/json" } `
+        -Body $neoBody -TimeoutSec 8
+    if ($neoResp.errors -and $neoResp.errors.Count -gt 0) {
+        Write-CheckResult -Name "Neo4j graph" -Status "FAIL" -Detail ($neoResp.errors | ConvertTo-Json -Compress)
+    }
+    else {
+        $docs = [int]$neoResp.results[0].data[0].row[0]
+        $ents = [int]$neoResp.results[1].data[0].row[0]
+        if ($docs -gt 0 -and $ents -gt 0) {
+            Write-CheckResult -Name "Neo4j graph" -Status "PASS" -Detail ("KnowledgeDocument=$docs KnowledgeEntity=$ents")
+        }
+        elseif ($docs -eq 0 -and $ents -eq 0) {
+            Write-CheckResult -Name "Neo4j graph" -Status "WARN" -Detail "empty (run rebuild-neo4j-graph.ps1 or UI 生成知识图谱)"
+        }
+        else {
+            Write-CheckResult -Name "Neo4j graph" -Status "WARN" -Detail ("partial docs=$docs ents=$ents")
+        }
+    }
+}
+catch {
+    Write-CheckResult -Name "Neo4j HTTP" -Status "WARN" -Detail $_.Exception.Message
+}
+
+# Qdrant HTTP（宿主机 26333）：集合存在且维度与默认 embedding 一致
+$QdrantUrl = if ($env:QDRANT_HTTP_URL) { $env:QDRANT_HTTP_URL } else { "http://127.0.0.1:26333" }
+$ExpectedDim = if ($env:RAG_EMBEDDING_DIMENSION) { [int]$env:RAG_EMBEDDING_DIMENSION } else { 1024 }
+try {
+    $collections = Invoke-RestMethod -Uri ($QdrantUrl + "/collections") -TimeoutSec 5
+    $names = @()
+    if ($collections.result.collections) {
+        $names = @($collections.result.collections | ForEach-Object { $_.name })
+    }
+    if ($names -contains "kb_chunk") {
+        $info = Invoke-RestMethod -Uri ($QdrantUrl + "/collections/kb_chunk") -TimeoutSec 5
+        $dim = $info.result.config.params.vectors.size
+        $points = $info.result.points_count
+        if ($dim -eq $ExpectedDim) {
+            Write-CheckResult -Name "Qdrant kb_chunk" -Status "PASS" -Detail ("dim=$dim points=$points")
+        }
+        else {
+            Write-CheckResult -Name "Qdrant kb_chunk dimension" -Status "FAIL" -Detail ("expected=$ExpectedDim actual=$dim")
+        }
+    }
+    else {
+        Write-CheckResult -Name "Qdrant kb_chunk" -Status "WARN" -Detail "collection missing (enable rag.qdrant + reindex)"
+    }
+}
+catch {
+    Write-CheckResult -Name "Qdrant HTTP" -Status "WARN" -Detail $_.Exception.Message
 }
 
 Write-Host ""

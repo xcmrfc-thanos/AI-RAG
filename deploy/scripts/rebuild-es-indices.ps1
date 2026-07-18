@@ -7,7 +7,8 @@
   1. 删除旧索引并按 backend/sql/es/*.json 创建新 mapping
   2. 若 kb-intelligence 已启动且提供 Token，则调用：
      - POST /api/search/index/rebuild  （文档元数据）
-     - POST /api/rag/reindex/all       （chunk + 向量）
+     - POST /api/rag/reindex/all       （chunk + 向量；rag.qdrant.enabled 时旁路双写 Qdrant）
+  3. 可选：重建前清空 Qdrant 集合 kb_chunk（-ResetQdrant），避免维度漂移残留
 
 .PARAMETER EsHost
   Elasticsearch 地址，默认 http://127.0.0.1:20920
@@ -36,7 +37,9 @@ param(
     [string]$EsPass = $(if ($env:ELASTIC_PASSWORD) { $env:ELASTIC_PASSWORD } else { "susan123" }),
     [string]$GatewayUrl = "http://localhost:8080",
     [string]$Token = "",
-    [long]$DocumentId = 0
+    [long]$DocumentId = 0,
+    [string]$QdrantUrl = $(if ($env:QDRANT_HTTP_URL) { $env:QDRANT_HTTP_URL } else { "http://127.0.0.1:26333" }),
+    [switch]$ResetQdrant
 )
 
 $ErrorActionPreference = "Stop"
@@ -161,11 +164,22 @@ Remove-EsIndex -Name "kb_chunk"
 New-EsIndex -Name "kb_document" -JsonPath (Join-Path $EsDir "kb_document_index.json")
 New-EsIndex -Name "kb_chunk" -JsonPath (Join-Path $EsDir "kb_chunk_index.json")
 
+if ($ResetQdrant) {
+    Write-Host "=== 步骤 2b：重置 Qdrant 集合 kb_chunk ===" -ForegroundColor Cyan
+    try {
+        Invoke-RestMethod -Uri "$QdrantUrl/collections/kb_chunk" -Method DELETE -TimeoutSec 10 | Out-Null
+        Write-Host "  已删除 Qdrant 集合 kb_chunk（reindex 时将按 embedding.dimension 重建）" -ForegroundColor Yellow
+    } catch {
+        Write-Host "  跳过删除 Qdrant kb_chunk：$($_.Exception.Message)" -ForegroundColor DarkGray
+    }
+}
+
 Write-Host "=== 步骤 3/3：业务数据回填 ===" -ForegroundColor Cyan
 if (-not $Token) {
     Write-Host "  未提供 Token，请手动执行：" -ForegroundColor Yellow
     Write-Host "    POST $GatewayUrl/api/search/index/rebuild"
     Write-Host "    POST $GatewayUrl/api/rag/reindex/all"
+    Write-Host "  若已开启 rag.qdrant.enabled，reindex 会旁路双写 Qdrant；可用 -ResetQdrant 先清空集合。" -ForegroundColor Yellow
     Write-Host "  验证：搜索 startTransition（关键词模式）应命中正文片段。" -ForegroundColor Yellow
     exit 0
 }
@@ -185,6 +199,12 @@ try {
     if ([int]$chunkResult.code -ne 200 -or -not $chunkTaskId) { throw "chunk rebuild rejected" }
     Write-Host "  Chunk 索引任务：$chunkTaskId" -ForegroundColor Green
     Wait-ReindexTask -TaskId $chunkTaskId
+    try {
+        $qInfo = Invoke-RestMethod -Uri "$QdrantUrl/collections/kb_chunk" -TimeoutSec 5
+        Write-Host ("  Qdrant kb_chunk：points={0} dim={1}" -f $qInfo.result.points_count, $qInfo.result.config.params.vectors.size) -ForegroundColor Green
+    } catch {
+        Write-Host "  Qdrant 校验跳过（未启用或不可达）：$($_.Exception.Message)" -ForegroundColor DarkGray
+    }
 } catch {
     Write-Host "  Chunk 索引重建失败：$($_.Exception.Message)" -ForegroundColor Red
     $script:FailCount++

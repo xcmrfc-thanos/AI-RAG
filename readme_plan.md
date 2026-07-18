@@ -14,6 +14,71 @@ D:\Users\environments\Java25
 
 ---
 
+## 2026-07-18（正式全开：Qdrant + 关 Stub）
+
+### 【本次功能】
+
+1. `.env`：`RAG_QDRANT_ENABLED=true`、`AI_DEV_STUB=false`；已 `docker compose up -d qdrant`（及 neo4j）并 `import-nacos.ps1`
+2. Nacos `kb-intelligence-dev.yaml` 含 qdrant/hybrid，`enabled` 默认占位 `${RAG_QDRANT_ENABLED:true}`
+3. 待你填写 `QWEN_API_KEY` 后重启微服务并重建索引验证双写
+
+### 【参考文件】
+
+- deploy/.env、backend/nacos/kb-intelligence-dev.yaml.template、deploy/docker-compose.yml
+
+### 【差距总结】
+
+- 代码层 `RagProperties.qdrant.enabled` 仍默认 false，避免无容器环境误装配；正式靠 Nacos/环境变量打开
+- 联调发现 Qdrant upsert 缺 `protobuf-java`/`MapFieldReflectionAccessor`：已显式依赖 `protobuf-java:4.28.2`，并将 fail-open 改为捕获 `Throwable`
+- 复测：`verify-llm-config` PASS；重建索引后 Qdrant `kb_chunk` points=13，日志有「双写成功」
+
+---
+
+## 2026-07-18（Qdrant 旁路双写 + ES BM25 混合检索）
+
+### 【本次功能】
+
+1. 新增 `rag.qdrant.enabled`（默认 false）：开启后 ES chunk 成功写入后旁路双写 Qdrant
+2. 开启时 dense 通道切 `QdrantDenseRetriever`；keyword 仍为 ES BM25；融合默认 RRF，可选 `rag.hybrid.fusion=weighted` + 权重
+3. Docker 增加可选 `kb-qdrant`（26333/26334）；Nacos 模板同步配置；单测覆盖 weighted 融合
+
+### 【参考文件】
+
+- docs/superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md
+- docs/superpowers/plans/2026-07-18-qdrant-hybrid-dual-write.md
+- backend/kb-intelligence/kb-intelligence-llm/.../QdrantConfig.java、QdrantChunkWriter.java、QdrantDenseRetriever.java
+- backend/.../HybridSearchFusion.java、RrfHybridRetriever.java、ElasticsearchVectorIndexServiceImpl.java、RagProperties.java
+- backend/nacos/kb-intelligence-dev.yaml.template、deploy/docker-compose.yml、deploy/README.md
+- docs/eval/vector-store-decision.md
+
+### 【差距总结】
+
+- 默认路径仍为纯 ES，不改变 Phase 7 Golden 基线前提
+- 未把 Qdrant 纳入 `verify-all` 硬门禁；开启后需自行 `up -d qdrant` + 重建索引
+- Qdrant 失败默认 fail-open，不阻断 ES
+
+---
+
+## 2026-07-18（联调垃圾数据清理）
+
+### 【本次功能】
+
+1. 新增 `deploy/scripts/cleanup-dev-junk.ps1`：清理 ACL/phase7 探测文档、smoke Agent 工作流/会话/Run、E2E 对话与孤儿通知
+2. 已执行清理：MySQL 删除 `acl-private-*`/`phase7-perm-*` 文档 27 条、smoke 工作流 22、会话/Run/Step 清空；ES 删除 junk 文档 27 + chunk 26
+3. 保留：seed 样例文档、用户工作流「知识库问答」×2、seed AI 对话
+
+### 【参考文件】
+
+- deploy/scripts/cleanup-dev-junk.ps1
+- deploy/scripts/cleanup-agent-runs.ps1（保留期运维，未改行为）
+
+### 【差距总结】
+
+- 阶段 6/7 功能门禁已闭合；剩余为可选演进（见下方「仍差什么」），非阻塞交付项
+- 未删除人手创建的草稿类文档（非 acl/smoke 前缀）；需要可再指定规则清扫
+
+---
+
 ## 2026-07-17（系统整改与 Agent 画布最终收口）
 
 ### 【本次功能】
@@ -2889,3 +2954,181 @@ D:\Users\environments\Java25
 - Settings 页 `vectorStoreType` 写入 `rag.vector.store`，切换向量后端仍需同步 yml/环境变量并重启 kb-ai（未做运行时热切换）
 - Milvus 模式下的关键词检索使用 VARCHAR `like` 近似 BM25，精度低于 ES ik 分词
 - 前端文档页仍保留 RustFS URL 过滤逻辑，功能不受影响
+
+---
+
+## 2026-07-18（文件管理 PDF 下载打不开）
+
+### 【本次功能】
+
+1. **根因**：文件管理下载用浏览器直链 `accessUrl`（RustFS `:20090`），匿名访问 **403**，错误页被存成 `.pdf` 导致无法打开；预览/stream 亦代理该直链而失败
+2. **后端**：`streamFile` 将 RustFS 直链改写为 kb-file `hash-preview` / API download 上游；支持 `?download=true` 附件下载
+3. **前端**：下载改为鉴权 Blob（stream）；PDF 预览带 Authorization；文档类 fetch 补鉴权头
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../FileManagementServiceImpl.java
+- backend/kb-core/kb-core-document/.../FileManagementController.java
+- backend/kb-core/kb-core-document/.../FileManagementService.java
+- frontend/src/services/file-management.service.ts
+- frontend/src/services/request.ts
+- frontend/src/pages/FileManagementPage.tsx
+- frontend/src/components/file-management/PdfPreviewPanel.tsx
+
+### 【差距总结】
+
+- 已验证：stream+download 返回完整 `%PDF-1.6`（约 7.7MB，含 `%%EOF`）
+- 图片预览仍可能直链 `accessUrl`（需 Blob/stream，未本次全改）；文档页 `download-pdf` 对富文本文档另有 JSON 错误，与文件管理 PDF 无关
+- Neo4j 图谱重建仍待补齐
+
+---
+
+## 2026-07-18（文档详情下载PDF + Agent 管理单开页）
+
+### 【本次功能】
+
+1. **文档详情「下载PDF」**：根因是中文字体加载失败回退 Helvetica，以及测宽时把 `\n` 送入字体；修复为优先加载 simhei/msyh（TTC 用 TrueTypeCollection），并清洗控制字符；已验证导出约 53KB 合法 PDF
+2. **前端下载**：`http.download` 识别 JSON 错误 Blob，避免把错误信息存成 `.pdf`
+3. **Agent 编排单开页**：`/admin/agents` 提升为与文档详情同级的顶层路由（脱离 MainLayout/AdminLayout）；极简顶栏「返回管理中心」；导航点击 `window.open` 新标签
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../PdfExportServiceImpl.java
+- frontend/src/services/request.ts
+- frontend/src/router/index.tsx
+- frontend/src/pages/admin/AgentAdminPage.tsx
+- frontend/src/features/agent-workflow/AgentWorkbench.css
+- frontend/src/components/layout/MainLayout.tsx
+- frontend/src/components/layout/AdminLayout.tsx
+- frontend/src/pages/DocumentDetailPage.tsx
+
+### 【差距总结】
+
+- Agent 单开页仍保留页内操作按钮（保存/校验/发布），仅去掉全局菜单与管理侧栏
+- Neo4j 图谱重建仍待补齐
+
+---
+
+## 2026-07-18（主侧栏展开/收起）
+
+### 【本次功能】
+
+1. 主布局左侧栏增加展开/收起按钮（顶栏右侧，状态写入 localStorage）
+2. 折叠后仅保留图标轨（64px），悬停 title 提示；展开默认宽度略增（300/340px）
+
+### 【参考文件】
+
+- frontend/src/components/layout/MainLayout.tsx
+- frontend/src/styles/layout.css
+
+### 【差距总结】
+
+- 无
+
+---
+
+## 2026-07-18（AI 引用来源可点击打开文档）
+
+### 【本次功能】
+
+引用来源 Tag / 知识引用列表面板点击后新标签打开 `/documents/{documentId}`
+
+### 【参考文件】
+
+- frontend/src/types/index.ts
+- frontend/src/pages/AIAssistantPage.tsx
+
+### 【差距总结】
+
+- 无
+
+---
+
+## 2026-07-18（媒体鉴权预览 + Qdrant 运维收口）
+
+### 【本次功能】
+
+1. **文件管理图片/音视频**：预览统一走鉴权 stream；URL 追加 `access_token`；网关与 JWT 支持 query/Cookie 取 Token
+2. **Qdrant**：`ensureCollection` 校验已有集合维度；`verify-integration` 纳入 Qdrant 容器与 `kb_chunk` 维度；`rebuild-es-indices -ResetQdrant` 可清空集合，reindex 后打印 points/dim
+3. **仍延期**：Agent 图谱/热门文档 Tool、分支 DAG；前端 pages/权限码/类型治理；Golden/压测/画布人工确认；Neo4j 图谱重建
+
+### 【参考文件】
+
+- frontend/src/services/file-management.service.ts
+- frontend/src/pages/FileManagementPage.tsx
+- backend/kb-core/kb-core-iam/.../JwtAuthenticationFilter.java
+- backend/kb-gateway/.../AuthGlobalFilter.java
+- backend/kb-intelligence/.../QdrantChunkWriter.java
+- deploy/scripts/verify-integration.ps1
+- deploy/scripts/rebuild-es-indices.ps1
+
+### 【差距总结】
+
+- Agent 延期项与前端治理、Neo4j 重建未在本轮实施
+
+---
+
+## 2026-07-18（剩余业务缺口清单 · 备案）
+
+> 阶段 6/7 门禁已闭合；下列为业务/能力演进，非「系统起不来」。Prometheus/火焰图不抢优先级。
+
+### P1 — 功能空转 / 体验断点
+
+| 缺口 | 说明 | 状态 |
+|------|------|------|
+| Neo4j 图谱重建 | 删卷后库空；「图谱推理」/KAG 多跳空转 | **已收口（见同日重建条目）** |
+| 图谱页有真实数据 | 依赖重建与抽取链路 | **已有真实节点（重建后）** |
+
+### P2 — 能力延期
+
+| 缺口 | 说明 | 状态 |
+|------|------|------|
+| Agent：知识图谱 Tool | 等终端用户 ACL | 延期 |
+| Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | 延期 |
+| 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | 延期 |
+| 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | 延期 |
+| RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | 可选 |
+| 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
+
+### P3 — 质量与运维深化
+
+| 缺口 | 说明 | 状态 |
+|------|------|------|
+| Golden 指标深化 | Hit@5 有基线；Recall@10 / p95 仍 pending | 可选 |
+| 压测与拆分依据 | 有脚本，缺稳定负载表 | 可选 |
+| Agent 画布人工确认 | 门禁过，浏览器交互建议点一遍 | 可选 |
+| Prometheus / 火焰图 | 见 p3-3-operations §五 | 不优先 |
+| 56-Ops 边角 | 密钥轮换矩阵、端口暴露检查等 | 可选 |
+
+### 【参考文件】
+
+- 本条目（备案）；下一步实施见同日「Neo4j 图谱重建」条目
+
+### 【差距总结】
+
+- 仅记录优先级，不改变已关闭的 Phase 7 门禁结论
+
+---
+
+## 2026-07-18（Neo4j 图谱重建收口）
+
+### 【本次功能】
+
+1. **根因**：seed 文档 MySQL `content` 被清空，且实体曾 `@TableField(exist=false)` 导致即使有列也读不到；KAG Feign 拿到空正文直接 skip
+2. **修复**：`Document.content` 改为 SELECT 映射（insert/update NEVER）；`sql/patch/restore_seed_document_content.sql` 回填 9 篇 seed 正文
+3. **运维**：网关补 `/api/kag/**`；新增 `rebuild-neo4j-graph.ps1`；`verify-integration` 纳入 Neo4j 容器 + KnowledgeDocument/Entity 计数
+4. **验证**：触发全量 rebuild 后 Neo4j 约 **docs≥10 / ents≥180**；verify-integration **ALL PASS**（含 Neo4j graph）
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../entity/Document.java
+- backend/sql/patch/restore_seed_document_content.sql
+- backend/nacos/kb-gateway-dev.yaml.template
+- deploy/scripts/rebuild-neo4j-graph.ps1
+- deploy/scripts/verify-integration.ps1
+- deploy/README.md
+
+### 【差距总结】
+
+- 部分仅有 Mongo `content_id` 的用户文档可能仍在异步队列或因抽取耗时未全部入图；可用 `rebuild-neo4j-graph.ps1 -WaitSec 600` 再跑一轮
+- Agent 图谱 Tool / 工作流 DAG / 前端治理仍按缺口清单延期

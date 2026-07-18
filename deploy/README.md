@@ -14,6 +14,26 @@
 | Neo4j | **20474** / Bolt **20687** | neo4j / susan123 |
 | RustFS | **20090** / 控制台 **20091** | rustfsadmin / rustfsadmin |
 | Nacos | **20848** / gRPC **21848** | 本地开发已关闭鉴权 |
+| Qdrant（可选） | HTTP **26333** / gRPC **26334** | 默认不随 setup 强制启动 |
+
+> Neo4j：若反复出现 `Changed password...` / `Neo4j is already running` 后退出，通常是旧 `neo4j_data` 卷与 `NEO4J_AUTH` 初始化冲突。本地可 `docker compose stop neo4j && docker compose rm -f neo4j && docker volume rm ai-rag_neo4j_data && docker compose up -d neo4j`（图谱可重建）。
+> 全量重建：`deploy/scripts/rebuild-neo4j-graph.ps1`，或知识图谱页「生成知识图谱」。
+
+### 可选：开启 Qdrant 双写混合检索
+
+默认仍为纯 ES。需要「ES BM25 + Qdrant dense」时：
+
+```powershell
+docker compose --env-file .env up -d qdrant
+# Nacos / 环境变量：
+# RAG_QDRANT_ENABLED=true
+# QDRANT_HOST=127.0.0.1
+# QDRANT_GRPC_PORT=26334
+# RAG_HYBRID_FUSION=rrf          # 或 weighted
+# RAG_HYBRID_BM25_WEIGHT=0.5
+# RAG_HYBRID_DENSE_WEIGHT=0.5
+# 然后 import-nacos + 重启 kb-intelligence，并重建索引以补齐 Qdrant 向量
+```
 
 ## 一键部署
 
