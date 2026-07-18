@@ -3360,3 +3360,20 @@ D:\Users\environments\Java25
 - 收起状态会跨页保留（localStorage），属预期；收起后仍应看到图标轨
 
 ---
+
+## 2026-07-18（登录恢复 + 导入页重设计）
+
+### 【本次功能】
+
+1. kb-core 进程退出导致登录 500，已重启恢复（8090）
+2. 导入页改为单栏：主侧栏只保留 Layout 导航；格式用 chip；上传区居中，去掉左侧说明栏
+
+### 【参考文件】
+
+- frontend/src/pages/ImportDocumentPage.tsx、ImportDocumentPage.css
+
+### 【差距总结】
+
+- 登录失败根因是 core 宕机，非前端鉴权回归；需留意 RabbitMQ unresponsive consumer 是否再次拖垮 core
+
+---
