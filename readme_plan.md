@@ -3087,7 +3087,7 @@ D:\Users\environments\Java25
 | Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | **已落地 hot/latest_documents** |
 | 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | **最小条件分支已落地**；循环/并行/审批/多 Agent 仍延期 |
 | 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组仍延期** |
-| RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | 可选 |
+| RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | **已收口（见同日 RAG ACL 条目）** |
 | 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
 
 ### P3 — 质量与运维深化
@@ -3196,3 +3196,25 @@ D:\Users\environments\Java25
 
 - 未做循环、并行扇出、人工审批、多 Agent；条件表达式仅为简易比较/真值，非完整脚本语言
 - 画布删除条件节点不会自动重连（避免生成非法并行），需用户手动补边
+
+---
+
+## 2026-07-18（RAG/KAG 直连检索 ACL）
+
+### 【本次功能】
+
+1. `RagAclFilter`：按 `DocumentVisibility` 过滤 RAG 命中；缺字段时从 `kb_document` mget 补全
+2. `RagRetrievalServiceImpl.retrieve` 在 LLM 重排前过滤，避免私有 chunk 进 Prompt
+3. 检索器（ES/Qdrant/Milvus）透传 `is_public`/`author_id`/`team_id`；KAG 关联块同样过滤
+4. 单测覆盖公开/私有/匿名可见性
+
+### 【参考文件】
+
+- backend/kb-intelligence-llm/.../RagAclFilter.java、RagRetrievalServiceImpl.java、KAGRetrievalServiceImpl.java、HybridSearchFusion.java、RagSearchResultVO.java
+- backend/kb-intelligence-llm/.../Elasticsearch*Retriever.java、QdrantDenseRetriever.java、Milvus*Retriever.java
+- backend/kb-intelligence-llm/.../RagAclFilterTest.java
+
+### 【差距总结】
+
+- 未在 ES/Qdrant 查询期注入 ACL filter（仍为超采后置过滤）；无 ACL 元数据且 ES 补全失败时 fail-closed
+- Neo4j 文档节点仍未持久化 isPublic/teamId，KAG 依赖 kb_document 补全
