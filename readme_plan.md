@@ -3282,7 +3282,21 @@ D:\Users\environments\Java25
 
 ---
 
-## 2026-07-18（真实 LLM 抽验首跑 · Advisory）
+## 2026-07-18（新建文档顶栏空隙）
+
+### 【本次功能】
+
+去掉 `CreateDocumentPage` 内重复的 fixed 顶栏与 `paddingTop: 80px`（页面已在 MainLayout 内，Layout 顶栏 z-index 更高盖住伪顶栏，但 80px 仍占位，造成大块空白）。
+
+### 【参考文件】
+
+- frontend/src/pages/CreateDocumentPage.tsx
+
+### 【差距总结】
+
+- 未改 MainLayout 全局 content padding；编辑页若无同类问题则不动
+
+---
 
 ### 【本次功能】
 
