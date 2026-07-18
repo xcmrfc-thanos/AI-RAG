@@ -3083,8 +3083,8 @@ D:\Users\environments\Java25
 
 | 缺口 | 说明 | 状态 |
 |------|------|------|
-| Agent：知识图谱 Tool | 等终端用户 ACL | 延期 |
-| Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | 延期 |
+| Agent：知识图谱 Tool | 等终端用户 ACL | **已落地 graph_search（超采+文档 ACL）** |
+| Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | **已落地 hot/latest_documents** |
 | 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | 延期 |
 | 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | 延期 |
 | RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | 可选 |
@@ -3131,4 +3131,26 @@ D:\Users\environments\Java25
 ### 【差距总结】
 
 - 部分仅有 Mongo `content_id` 的用户文档可能仍在异步队列或因抽取耗时未全部入图；可用 `rebuild-neo4j-graph.ps1 -WaitSec 600` 再跑一轮
-- Agent 图谱 Tool / 工作流 DAG / 前端治理仍按缺口清单延期
+- Agent 图谱/热门 Tool 已在同日后续条目落地；工作流 DAG / 前端治理仍延期
+
+---
+
+## 2026-07-18（Agent 热门/最新/图谱 Tool + ACL 探针）
+
+### 【本次功能】
+
+1. 新增 `hot_documents` / `latest_documents` / `graph_search` 只读 Tool
+2. 统计与图谱仍全局接口；Tool 内超采后经 `GET /documents/{id}` **ACL 探针**过滤不可见文档
+3. 白名单、`node-catalog`、workflow-schema-v1 enum、单测同步
+
+### 【参考文件】
+
+- backend/kb-agent/.../HotDocumentsTool.java、LatestDocumentsTool.java、GraphSearchTool.java、DocumentVisibilityProbe.java
+- backend/kb-agent/.../WorkflowNode.java、AgentToolRegistryTest.java、AgentReadOnlyToolsTest.java
+- frontend/src/features/agent-workflow/types.ts、node-catalog.ts、node-catalog.test.ts
+- docs/agent/workflow-schema-v1.json
+
+### 【差距总结】
+
+- 未改 Statistics/Graph 服务端投影 ACL（仍依赖 Tool 侧探针）；实体无 documentId 时靠邻域关系探测，可能增加调用次数
+- 工作流 DAG / 前端 pages 权限码统一仍未做

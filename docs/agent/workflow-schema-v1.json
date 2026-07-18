@@ -56,7 +56,17 @@
         "type": { "const": "tool" },
         "tool": {
           "type": "string",
-          "enum": ["hybrid_search", "get_document"]
+          "enum": [
+            "hybrid_search",
+            "get_document",
+            "list_documents",
+            "list_categories",
+            "list_tags",
+            "hot_documents",
+            "latest_documents",
+            "graph_search",
+            "text_template"
+          ]
         },
         "input": {
           "type": "object"
