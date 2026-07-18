@@ -3086,7 +3086,7 @@ D:\Users\environments\Java25
 | Agent：知识图谱 Tool | 等终端用户 ACL | **已落地 graph_search（超采+文档 ACL）** |
 | Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | **已落地 hot/latest_documents** |
 | 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | 延期 |
-| 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | 延期 |
+| 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组仍延期** |
 | RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | 可选 |
 | 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
 
@@ -3154,3 +3154,22 @@ D:\Users\environments\Java25
 
 - 未改 Statistics/Graph 服务端投影 ACL（仍依赖 Tool 侧探针）；实体无 documentId 时靠邻域关系探测，可能增加调用次数
 - 工作流 DAG / 前端 pages 权限码统一仍未做
+
+---
+
+## 2026-07-18（前端 file:list / document:list 权限互认）
+
+### 【本次功能】
+
+1. `permission.ts` 增加别名展开：`document:list` ↔ `file:list`
+2. `/files` 路由与主侧栏同时接受两种权限码
+3. vitest 覆盖别名判定
+
+### 【参考文件】
+
+- frontend/src/utils/permission.ts、permission.test.ts
+- frontend/src/router/index.tsx、components/layout/MainLayout.tsx
+
+### 【差距总结】
+
+- 未做 pages 目录大重组；审核双码（若历史仍有）未再扩展；侧栏仍以前端常量为准
