@@ -2,14 +2,12 @@
 # 根仓跟踪：readme.md / docs / deploy / backend / frontend（构建产物与密钥除外）
 # 本地可另有嵌套 .git，不影响根仓推送
 
-# ---------- 本地草稿 / 功能实验目录 ----------
-/docs/feat/
-
 # ---------- 密钥与本地环境 ----------
 .env
 .env.*
 !.env.example
 !**/env.example
+!/deploy/env.example
 **/credentials.json
 **/secret*.yml
 **/secret*.yaml
@@ -18,13 +16,37 @@
 *.p12
 *.jks
 
-# ---------- 部署运行产物 ----------
+# ---------- deploy：本地运行产物与密钥（勿提交） ----------
 /deploy/.env
+/deploy/.env.*
 /deploy/logs/
-/deploy/**/*.log
-/deploy/mysql/data/
-/deploy/mongo/data/
+/deploy/tmp/
 /deploy/**/data/
+/deploy/**/*.log
+/deploy/**/*.out
+/deploy/**/*.err
+/deploy/**/*.hprof
+/deploy/**/*.pid
+/deploy/**/*.dump
+/deploy/docker-compose.override.yml
+/deploy/**/.DS_Store
+
+# ---------- docs：本地草稿 / 实验 / 评测人工产物（勿提交） ----------
+/docs/feat/
+/docs/**/draft/
+/docs/**/tmp/
+/docs/**/*.local.md
+/docs/**/*.local.*
+/docs/eval/*judgement*
+/docs/eval/*-judgement.*
+/docs/eval/*-result*.csv
+/docs/eval/*-output*.csv
+/docs/eval/*.xlsx
+/docs/eval/~$*
+
+# ---------- 本地开发变更记录（仅本机保留，勿提交） ----------
+/readme_plan.md
+readme_plan.md
 
 # ---------- 构建与依赖 ----------
 **/node_modules/
@@ -49,14 +71,6 @@ logs/
 *~
 hs_err_pid*
 replay_pid*
-
-# ---------- 本地开发变更记录（仅本机保留，勿提交） ----------
-/readme_plan.md
-readme_plan.md
-
-# ---------- 评测人工产物（勿入库） ----------
-docs/eval/*judgement*.csv
-docs/eval/*-judgement.csv
 
 # ---------- IDE / 编辑器 ----------
 .idea/
@@ -83,7 +97,7 @@ ehthumbs.db
 # ---------- Cursor / 本地工具 ----------
 .cursor/
 .claude/
-**/agent-transcripts/ 
+**/agent-transcripts/
 
 # ---------- 本地嵌套仓备份（不入库） ----------
 /.git-nested-backup/
