@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://ai-rag.local/schemas/agent-workflow-v1.json",
   "title": "AgentWorkflowV1",
-  "description": "Agent 工作流定义 schemaVersion=1（任务 64 冻结）",
+  "description": "Agent 工作流定义 schemaVersion=1（线性链 + 条件二分支）",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "name", "nodes", "edges"],
@@ -19,11 +19,12 @@
     "nodes": {
       "type": "array",
       "minItems": 1,
-      "maxItems": 10,
+      "maxItems": 12,
       "items": {
         "oneOf": [
           { "$ref": "#/$defs/toolNode" },
-          { "$ref": "#/$defs/llmNode" }
+          { "$ref": "#/$defs/llmNode" },
+          { "$ref": "#/$defs/conditionNode" }
         ]
       }
     },
@@ -35,7 +36,12 @@
         "required": ["from", "to"],
         "properties": {
           "from": { "type": "string", "minLength": 1, "maxLength": 64 },
-          "to": { "type": "string", "minLength": 1, "maxLength": 64 }
+          "to": { "type": "string", "minLength": 1, "maxLength": 64 },
+          "when": {
+            "type": "string",
+            "enum": ["true", "false"],
+            "description": "条件节点出边标签；非条件节点不得填写"
+          }
         }
       }
     }
@@ -88,6 +94,27 @@
             "prompt": {
               "type": "string",
               "minLength": 1
+            }
+          }
+        }
+      }
+    },
+    "conditionNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "type", "input"],
+      "properties": {
+        "id": { "$ref": "#/$defs/nodeId" },
+        "type": { "const": "condition" },
+        "input": {
+          "type": "object",
+          "required": ["expression"],
+          "additionalProperties": true,
+          "properties": {
+            "expression": {
+              "type": "string",
+              "minLength": 1,
+              "description": "变量展开后的简易真值或比较表达式，如 ${input.score} >= 60"
             }
           }
         }

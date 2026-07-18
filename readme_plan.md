@@ -3085,7 +3085,7 @@ D:\Users\environments\Java25
 |------|------|------|
 | Agent：知识图谱 Tool | 等终端用户 ACL | **已落地 graph_search（超采+文档 ACL）** |
 | Agent：热门/最新文档 Tool | 等带 ACL 的终端接口 | **已落地 hot/latest_documents** |
-| 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | 延期 |
+| 工作流线性 Schema | 无分支/循环/并行 DAG/审批/多 Agent | **最小条件分支已落地**；循环/并行/审批/多 Agent 仍延期 |
 | 前端治理 | pages 重组；`document:list` vs `file:list`；审核双码；侧栏常量 vs SQL | **file/document 列表码已互认；pages 大重组仍延期** |
 | RAG 直连 ACL | 检索有 ACL，部分 RAG 直连仍偏弱 | 可选 |
 | 真实 LLM 质量抽验 | Stub 已关，citations/回答需人工抽验 | 可选 |
@@ -3173,3 +3173,26 @@ D:\Users\environments\Java25
 ### 【差距总结】
 
 - 未做 pages 目录大重组；审核双码（若历史仍有）未再扩展；侧栏仍以前端常量为准
+
+---
+
+## 2026-07-18（工作流最小条件分支）
+
+### 【本次功能】
+
+1. Schema v1 扩展 `condition` 节点与边 `when: true|false`；节点上限 12
+2. `LinearGraphValidator` 允许条件二分支且须汇合单终点；非条件并行仍拒绝
+3. `LinearWorkflowEngine` 改为沿边动态行走，条件求值后选真/假路径
+4. 前端节点库「条件分支」、双 Handle、校验/往返映射与 vitest；schema JSON 同步
+
+### 【参考文件】
+
+- backend/kb-agent/.../ConditionExpression.java、LinearGraphValidator.java、LinearWorkflowEngine.java、WorkflowNode.java、WorkflowEdge.java、WorkflowDefinition.java
+- backend/kb-agent/.../LinearWorkflowEngineTest.java、ConditionExpressionTest.java
+- frontend/src/features/agent-workflow/types.ts、node-catalog.ts、workflow-validation.ts、schema-flow-mapper.ts、WorkflowNode.tsx、AgentWorkbench.tsx 等
+- docs/agent/workflow-schema-v1.json
+
+### 【差距总结】
+
+- 未做循环、并行扇出、人工审批、多 Agent；条件表达式仅为简易比较/真值，非完整脚本语言
+- 画布删除条件节点不会自动重连（避免生成非法并行），需用户手动补边
