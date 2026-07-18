@@ -3394,3 +3394,66 @@ D:\Users\environments\Java25
 - 仅计划，未开工；会话仍拟 JVM 内存（多实例后续再做）
 
 ---
+
+## 2026-07-18（导入说明条位置与样式回退）
+
+### 【本次功能】
+
+导入说明移到上传卡片下方；一行文案；底色 `#f4f7fa` + `#e8eef4` 边框（冷灰蓝、低对比，不抢主卡片）。
+
+### 【参考文件】
+
+- frontend/src/pages/ImportDocumentPage.tsx
+- frontend/src/pages/ImportDocumentPage.css
+
+### 【差距总结】
+
+- 说明条不再嵌在 `import-panel` 内；未再使用 `#bae7ff` 强渐变
+
+---
+
+## 2026-07-18（Task4：前端统一上传器 · 秒传+整传+分片）
+
+### 【本次功能】
+
+文件管理页接入统一上传器：SHA-256 指纹 → check-hash 秒传 → &lt;20MB 整传（file-management）→ ≥20MB 分片续传（kb-file resumable API）；Progress 展示阶段文案。
+
+### 【参考文件】
+
+- frontend/src/utils/file-hash.ts
+- frontend/src/services/resumable-upload.ts
+- frontend/src/services/file-management.service.ts
+- frontend/src/stores/file-management.store.ts
+- frontend/src/pages/FileManagementPage.tsx
+
+### 【差距总结】
+
+- 小文件整传落 kb-document 文件管理表；秒传/分片合并落 kb-file，刷新列表可能看不到新行（同内容二次秒传时列表已有旧记录则正常）
+- 分片会话 sessionId 缓存在 sessionStorage；kb-file 进程重启后需重新 init
+- 导入页大文件分片未做（Task5）
+
+---
+
+## 2026-07-18（Spec gap：秒传/分片后登记 FileMetadata）
+
+### 【本次功能】
+
+1. kb-document 新增 `POST /file-management/register-stored`：按已存 URL + SHA-256 登记/复用 FileMetadata（不重复上传）
+2. 前端 `uploadWithResume`：check-hash 命中与分片 merge 后调用 register-stored，列表/下载使用 FileMetadata id
+3. 单测：同用户同 sha256 幂等返回；新建 insert 且不调用 uploadFile
+
+### 【参考文件】
+
+- backend/kb-core/kb-core-document/.../dto/RegisterStoredDTO.java
+- backend/kb-core/kb-core-document/.../service/FileManagementService.java
+- backend/kb-core/kb-core-document/.../service/impl/FileManagementServiceImpl.java
+- backend/kb-core/kb-core-document/.../controller/FileManagementController.java
+- backend/kb-core/kb-core-document/.../service/FileRegisterStoredTest.java
+- frontend/src/services/resumable-upload.ts
+
+### 【差距总结】
+
+- 与 Spec 对齐：秒传/分片后文件管理列表与 stream/download 可用 FileMetadata id
+- 未做导入页 Task5、未大改 Nacos Task6、未改写 streamFile
+
+---
