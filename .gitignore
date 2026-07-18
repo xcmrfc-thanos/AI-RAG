@@ -1,8 +1,8 @@
 # ==================== AI-RAG 根仓库过滤 ====================
-# 根仓职责：readme / docs（规划文档）/ deploy（不含密钥）
-# backend、frontend 为独立 Git 仓，不由根仓跟踪
+# 根仓跟踪：readme.md / docs / deploy / backend / frontend（构建产物与密钥除外）
+# 本地可另有嵌套 .git，不影响根仓推送
 
-# ---------- 独立子仓 / 嵌套仓库 ---------- 
+# ---------- 本地草稿 / 功能实验目录 ----------
 /docs/feat/
 
 # ---------- 密钥与本地环境 ----------
@@ -49,11 +49,15 @@ logs/
 *~
 hs_err_pid*
 replay_pid*
+
+# ---------- 本地开发变更记录（仅本机保留，勿提交） ----------
+/readme_plan.md
 readme_plan.md
+
 # ---------- 评测人工产物（勿入库） ----------
 docs/eval/*judgement*.csv
 docs/eval/*-judgement.csv
-readme_plan.md
+
 # ---------- IDE / 编辑器 ----------
 .idea/
 .vscode/
