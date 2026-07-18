@@ -3457,3 +3457,24 @@ D:\Users\environments\Java25
 - 未做导入页 Task5、未大改 Nacos Task6、未改写 streamFile
 
 ---
+
+## 2026-07-18（安全：register-stored 按 hash 服务端解析 URL）
+
+### 【本次功能】
+
+1. `register-stored` 忽略客户端 `fileUrl`，经 Feign `GET /files/upload/check-hash` 取 kb-file 权威 URL/size/mime
+2. check-hash miss →「文件不存在，无法登记」；客户端 fileSize 与已存不一致则拒绝
+3. 前端不再传 fileUrl；`computeFileHash` 改用 hash-wasm 增量 SHA-256
+
+### 【参考文件】
+
+- backend/.../feign/FileServiceFeignClient.java、FileServiceFallbackFactory.java
+- backend/.../dto/RegisterStoredDTO.java、FileManagementServiceImpl.java、FileRegisterStoredTest.java
+- frontend/src/services/resumable-upload.ts、frontend/src/utils/file-hash.ts、package.json
+
+### 【差距总结】
+
+- Critical 已修：恶意外链无法写入 FileMetadata.accessUrl
+- 未改 streamFile / 导入页 Task5
+
+---
