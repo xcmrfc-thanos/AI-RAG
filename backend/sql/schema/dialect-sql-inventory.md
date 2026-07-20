@@ -127,9 +127,9 @@
 
 ## 下一步（对应计划）
 
-- Task 2：✅ Oracle MERGE（`upsertSql` / 统计 JDBC）
-- Task 3：✅ 统计 Mapper + SearchHistory `databaseId=oracle`（见下对照）
-- Task 4：PostgreSQL DDL 生产级校对
+- Task 2～7：✅（含 PG 全栈 JDBC 冒烟 `smoke-pg-stack.ps1`）
+- Task 8：MySQL 默认路径回归
+- Task 9：文档收口与合入
 - P2：`TeamMapper`/`TagMapper`/`DocumentReview` 的 `CONCAT` 在 Oracle 验证
 
 ## Task 3 人工对照（MySQL 默认 vs Oracle）

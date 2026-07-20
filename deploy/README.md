@@ -118,3 +118,14 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 5. **重启服务**：`.\stop-services.ps1` 后 `.\start-services.ps1`；冒烟 `verify-all` / 关键 API
 
 一部署一方言，勿混用。
+
+### PostgreSQL 最小全栈冒烟
+
+```powershell
+cd deploy
+.\scripts\smoke-pg-stack.ps1
+# 仅起库：docker compose -f docker-compose.pg.yml up -d
+# 停库：docker compose -f docker-compose.pg.yml down
+```
+
+脚本会导入 `backend/sql/schema/postgresql/` 并跑 `PgStatisticsJdbcIT`（统计宽表 upsert + 读回）。

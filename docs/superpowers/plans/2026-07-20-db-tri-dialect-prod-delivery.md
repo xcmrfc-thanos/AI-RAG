@@ -200,19 +200,19 @@ Oracle：
 - A. `kb-statistics` 或 `kb-agent` 单服务 + Testcontainers/本地 compose `postgres` profile
 - B. 脚本：起 PG → import schema → 启 `kb-core`（若多数据源过重则先单库服务）
 
-- [ ] **Step 1:** 增加 `deploy/docker-compose.pg.yml` 或 compose profile `postgres`
-- [ ] **Step 2:** 导入 schema；配置 Nacos/本地 yml
-- [ ] **Step 3:** 启动目标服务；打通 1 个 API 或集成测试
-- [ ] **Step 4:** 记录失败点回写 Task 1 清单并修
-- [ ] **Step 5:** Commit：`test(db): PostgreSQL 最小全栈冒烟`
+- [x] **Step 1:** 增加 `deploy/docker-compose.pg.yml` 或 compose profile `postgres`
+- [x] **Step 2:** 导入 schema；配置 Nacos/本地 yml
+- [x] **Step 3:** 启动目标服务；打通 1 个 API 或集成测试
+- [x] **Step 4:** 记录失败点回写 Task 1 清单并修
+- [x] **Step 5:** Commit：`test(db): PostgreSQL 最小全栈冒烟`
 
 ---
 
 ## Task 8: MySQL 回归（硬约束）
 
-- [ ] **Step 1:** 默认 MySQL 栈 `import-schema.ps1` + 现有 `verify-all`/关键冒烟不回退
-- [ ] **Step 2:** 确认未改默认 `kb.db.type` 空/mysql 行为
-- [ ] **Step 3:** Commit（若有修复）：`fix: MySQL 默认路径回归`
+- [x] **Step 1:** 默认 MySQL 栈 `import-schema.ps1` + 现有 `verify-all`/关键冒烟不回退
+- [x] **Step 2:** 确认未改默认 `kb.db.type` 空/mysql 行为
+- [x] **Step 3:** Commit（若有修复）：`fix: MySQL 默认路径回归`（本次无代码回退，仅确认 + 文档勾选）
 
 ---
 
