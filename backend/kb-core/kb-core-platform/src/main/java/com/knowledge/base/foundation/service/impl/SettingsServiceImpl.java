@@ -127,6 +127,17 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("kagMaxEntitiesPerChunk", new String[]{"kag.extraction.max-entities-per-chunk", "number", "10", "GRAPH"});
         FIELD_TO_CONFIG.put("kagMaxHops",             new String[]{"kag.retrieval.max-hops",           "number",  "2",      "GRAPH"});
         FIELD_TO_CONFIG.put("kagClearBeforeBuild",    new String[]{"kag.graph.clear-before-build",     "boolean", "true",   "GRAPH"});
+
+        // ===== Agent =====
+        FIELD_TO_CONFIG.put("agentDefaultWorkflowId",   new String[]{"agent.default-workflow-id",        "number",  "0",     "AGENT"});
+        FIELD_TO_CONFIG.put("agentDefaultModel",        new String[]{"agent.default-model",              "string",  "qwen",  "AGENT"});
+        FIELD_TO_CONFIG.put("agentRunTimeoutSeconds",   new String[]{"agent.timeouts.run-seconds",      "number",  "90",    "AGENT"});
+        FIELD_TO_CONFIG.put("agentLlmTimeoutSeconds",   new String[]{"agent.timeouts.llm-seconds",      "number",  "60",    "AGENT"});
+        FIELD_TO_CONFIG.put("agentToolTimeoutSeconds",  new String[]{"agent.timeouts.tool-seconds",     "number",  "5",     "AGENT"});
+        FIELD_TO_CONFIG.put("agentToolHybridSearch",    new String[]{"agent.tools.hybrid-search.enabled","boolean","true",  "AGENT"});
+        FIELD_TO_CONFIG.put("agentToolGraphSearch",     new String[]{"agent.tools.graph-search.enabled", "boolean","true",  "AGENT"});
+        FIELD_TO_CONFIG.put("agentToolGetDocument",     new String[]{"agent.tools.get-document.enabled", "boolean","true",  "AGENT"});
+        FIELD_TO_CONFIG.put("agentRunRetentionDays",    new String[]{"agent.run-retention-days",         "number",  "30",    "AGENT"});
     }
 
     // ==================== 按分组读取 ====================
@@ -156,6 +167,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> export       = buildSection(configMap, "EXPORT",     SETTINGS_EXPORT_FIELDS,         "export");
         Map<String, Object> rag          = buildSection(configMap, "RAG",        SETTINGS_RAG_FIELDS,            "rag");
         Map<String, Object> graph        = buildSection(configMap, "GRAPH",      SETTINGS_GRAPH_FIELDS,          "graph");
+        Map<String, Object> agent        = buildSection(configMap, "AGENT",      SETTINGS_AGENT_FIELDS,          "agent");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -166,6 +178,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .export(export)
                 .rag(rag)
                 .graph(graph)
+                .agent(agent)
                 .status(getSystemStatus())
                 .build();
     }
@@ -200,6 +213,12 @@ public class SettingsServiceImpl implements SettingsService {
     private static final List<String> SETTINGS_GRAPH_FIELDS = List.of(
             "kagEnabled", "kagAutoExtract", "kagExtractionModel",
             "kagMaxEntitiesPerChunk", "kagMaxHops", "kagClearBeforeBuild"
+    );
+    private static final List<String> SETTINGS_AGENT_FIELDS = List.of(
+            "agentDefaultWorkflowId", "agentDefaultModel",
+            "agentRunTimeoutSeconds", "agentLlmTimeoutSeconds", "agentToolTimeoutSeconds",
+            "agentToolHybridSearch", "agentToolGraphSearch", "agentToolGetDocument",
+            "agentRunRetentionDays"
     );
 
     /**

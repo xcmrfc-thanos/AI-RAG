@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 /**
  * Agent 运行时配置（默认模型、Gateway、超时）
  *
+ * <p>系统设置 AGENT 分组写入同名配置键（如 {@code agent.default-model}、
+ * {@code agent.timeouts.run-seconds}、{@code agent.tools.*.enabled}），
+ * 供管理面落库；本服务当前以 yml/Nacos 绑定为准，后续可接 SystemConfigCache 热读。</p>
+ *
  * @author AI-RAG
  * @since 1.0.0
  */

@@ -636,6 +636,8 @@ export interface SystemSettings {
   rag?: RagSettings;
   /** 知识图谱 / KAG */
   graph?: GraphSettings;
+  /** Agent 工作流 */
+  agent?: AgentSettings;
   status: SystemStatus;
 }
 
@@ -732,6 +734,20 @@ export interface GraphSettings {
   kagMaxHops?: number;
   /** 全量重建前是否清空图 */
   kagClearBeforeBuild?: boolean;
+}
+
+/** Agent 设置（落配置表；runtime 以 agent.yml / Nacos 为准，Agent 侧可读配置键） */
+export interface AgentSettings {
+  /** 0 表示未指定默认工作流 */
+  agentDefaultWorkflowId: number;
+  agentDefaultModel: string;
+  agentRunTimeoutSeconds: number;
+  agentLlmTimeoutSeconds: number;
+  agentToolTimeoutSeconds: number;
+  agentToolHybridSearch: boolean;
+  agentToolGraphSearch: boolean;
+  agentToolGetDocument: boolean;
+  agentRunRetentionDays?: number;
 }
 
 export interface SystemStatus {

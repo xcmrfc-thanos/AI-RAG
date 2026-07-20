@@ -41,11 +41,13 @@ import {
   FileProtectOutlined,
   SearchOutlined,
   ApartmentOutlined,
+  ClusterOutlined,
 } from '@ant-design/icons';
-import { settingsService, aiService, graphService } from '@/services';
+import { settingsService, aiService, graphService, agentService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
 import { useAppStore } from '@/stores';
 import type { SystemSettings, AIModelOption } from '@/types';
+import type { AgentWorkflowSummary } from '@/services/agent.service';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -95,7 +97,12 @@ const KAG_MODEL_OPTIONS = [
   { value: 'custom', label: '自定义（与聊天模型一致）' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'status';
+const AGENT_MODEL_OPTIONS = [
+  { value: 'qwen', label: '通义千问 Qwen' },
+  { value: 'deepseek', label: 'DeepSeek' },
+];
+
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'agent' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -111,6 +118,7 @@ const TABS: TabConfig[] = [
   { key: 'ai',            label: 'AI设置',       icon: <RobotOutlined /> },
   { key: 'rag',           label: '检索/RAG',     icon: <SearchOutlined /> },
   { key: 'graph',         label: '知识图谱',     icon: <ApartmentOutlined /> },
+  { key: 'agent',         label: 'Agent',        icon: <ClusterOutlined /> },
   { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
@@ -142,8 +150,10 @@ export const SettingsPage: React.FC = () => {
   const [exportForm]   = Form.useForm();
   const [ragForm]      = Form.useForm();
   const [graphForm]    = Form.useForm();
+  const [agentForm]    = Form.useForm();
   const [reindexing, setReindexing] = useState(false);
   const [graphBusy, setGraphBusy] = useState<'rebuild' | 'cleanup' | null>(null);
+  const [agentWorkflows, setAgentWorkflows] = useState<AgentWorkflowSummary[]>([]);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
   const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
@@ -232,6 +242,32 @@ export const SettingsPage: React.FC = () => {
           kagClearBeforeBuild: true,
         });
       }
+      if (data.agent) {
+        agentForm.setFieldsValue({
+          agentDefaultWorkflowId: 0,
+          agentDefaultModel: 'qwen',
+          agentRunTimeoutSeconds: 90,
+          agentLlmTimeoutSeconds: 60,
+          agentToolTimeoutSeconds: 5,
+          agentToolHybridSearch: true,
+          agentToolGraphSearch: true,
+          agentToolGetDocument: true,
+          agentRunRetentionDays: 30,
+          ...data.agent,
+        });
+      } else {
+        agentForm.setFieldsValue({
+          agentDefaultWorkflowId: 0,
+          agentDefaultModel: 'qwen',
+          agentRunTimeoutSeconds: 90,
+          agentLlmTimeoutSeconds: 60,
+          agentToolTimeoutSeconds: 5,
+          agentToolHybridSearch: true,
+          agentToolGraphSearch: true,
+          agentToolGetDocument: true,
+          agentRunRetentionDays: 30,
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
       setState(prev => ({ ...prev, loading: false, error: msg }));
@@ -256,6 +292,19 @@ export const SettingsPage: React.FC = () => {
         if (!cancelled) setChatModels(Array.isArray(list) ? list : []);
       } catch {
         if (!cancelled) setChatModels([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const list = await agentService.listPublishedWorkflows();
+        if (!cancelled) setAgentWorkflows(Array.isArray(list) ? list : []);
+      } catch {
+        if (!cancelled) setAgentWorkflows([]);
       }
     })();
     return () => { cancelled = true; };
@@ -286,6 +335,7 @@ export const SettingsPage: React.FC = () => {
   const handleSaveExport   = () => { exportForm.validateFields().then(v => handleSave('export', v)); };
   const handleSaveRag      = () => { ragForm.validateFields().then(v => handleSave('rag', v)); };
   const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
+  const handleSaveAgent    = () => { agentForm.validateFields().then(v => handleSave('agent', v)); };
 
   /**
    * 触发全量重建向量索引（异步任务）。
@@ -508,6 +558,8 @@ export const SettingsPage: React.FC = () => {
         return renderRagTab();
       case 'graph':
         return renderGraphTab();
+      case 'agent':
+        return renderAgentTab();
       case 'export':
         return renderExportTab();
       case 'status':
@@ -1281,6 +1333,117 @@ export const SettingsPage: React.FC = () => {
           </Space>
         </Space>
         {renderSaveBar(handleSaveGraph)}
+      </Card>
+    );
+  }
+
+  // ===================== AGENT TAB =====================
+  /**
+   * Agent 设置：默认工作流、超时与工具开关。
+   *
+   * @returns Agent 设置 Tab 内容
+   */
+  function renderAgentTab() {
+    const workflowOptions = [
+      { value: 0, label: '未指定（运行页自行选择）' },
+      ...agentWorkflows.map((w) => ({
+        value: w.id,
+        label: `${w.name} (#${w.id})`,
+      })),
+    ];
+
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <ClusterOutlined />,
+          'Agent',
+          '默认工作流、Run/LLM/工具超时与常用工具开关',
+          handleSaveAgent,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="配置写入系统配置表（键名对齐 agent.*）；kb-agent 运行时仍以 application.yml / Nacos 为准，后续可接 Redis SystemConfigCache 热读。功能入口开关见「基本设置 → enableAgent」。"
+        />
+        <Form
+          form={agentForm}
+          layout="vertical"
+          initialValues={{
+            agentDefaultWorkflowId: 0,
+            agentDefaultModel: 'qwen',
+            agentRunTimeoutSeconds: 90,
+            agentLlmTimeoutSeconds: 60,
+            agentToolTimeoutSeconds: 5,
+            agentToolHybridSearch: true,
+            agentToolGraphSearch: true,
+            agentToolGetDocument: true,
+            agentRunRetentionDays: 30,
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="默认工作流"
+                name="agentDefaultWorkflowId"
+                extra="已发布工作流列表；0 表示不预选"
+              >
+                <Select options={workflowOptions} showSearch optionFilterProp="label" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="默认模型"
+                name="agentDefaultModel"
+                rules={[{ required: true, message: '请选择默认模型' }]}
+              >
+                <Select options={AGENT_MODEL_OPTIONS} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="Run 超时（秒）" name="agentRunTimeoutSeconds" rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={10} max={600} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="LLM 超时（秒）" name="agentLlmTimeoutSeconds" rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={5} max={300} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="工具超时（秒）" name="agentToolTimeoutSeconds" rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={1} max={120} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="工具 hybrid_search" name="agentToolHybridSearch" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="工具 graph_search" name="agentToolGraphSearch" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="工具 get_document" name="agentToolGetDocument" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="Run 保留天数" name="agentRunRetentionDays">
+                <InputNumber style={{ width: '100%' }} min={1} max={365} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        {renderSaveBar(handleSaveAgent)}
       </Card>
     );
   }

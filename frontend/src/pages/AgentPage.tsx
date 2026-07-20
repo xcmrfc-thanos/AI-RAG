@@ -16,6 +16,7 @@ import { PlayCircleOutlined, RobotOutlined, StopOutlined } from '@ant-design/ico
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
 import { useAppStore, useAuthStore } from '@/stores';
 import { agentService, type AgentRunStepView, type AgentRunView, type AgentWorkflowSummary } from '@/services/agent.service';
+import { settingsService } from '@/services';
 import { extractAgentAnswer, getAgentRunPageGate } from '@/utils/agent-access';
 
 const { Title, Text, Paragraph } = Typography;
@@ -44,8 +45,20 @@ const AgentPage: React.FC = () => {
 
   const loadWorkflows = useCallback(async () => {
     try {
-      const list = await agentService.listPublishedWorkflows();
-      setWorkflows(Array.isArray(list) ? list : []);
+      const [list, settings] = await Promise.all([
+        agentService.listPublishedWorkflows(),
+        settingsService.getSettings().catch(() => null),
+      ]);
+      const workflowsList = Array.isArray(list) ? list : [];
+      setWorkflows(workflowsList);
+
+      const defaultId = Number(settings?.agent?.agentDefaultWorkflowId || 0);
+      if (defaultId > 0) {
+        const matched = workflowsList.find((w) => w.id === defaultId && w.publishedVersionId);
+        if (matched?.publishedVersionId) {
+          setSelectedVersionId(matched.publishedVersionId);
+        }
+      }
     } catch {
       setWorkflows([]);
     }

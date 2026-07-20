@@ -48,6 +48,9 @@ public class SettingsVO implements Serializable {
     @Schema(description = "知识图谱/KAG 设置")
     private Map<String, Object> graph;
 
+    @Schema(description = "Agent 设置")
+    private Map<String, Object> agent;
+
     @Schema(description = "系统状态")
     private SystemStatusVO status;
 }
