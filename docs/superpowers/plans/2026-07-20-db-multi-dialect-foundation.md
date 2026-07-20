@@ -32,7 +32,7 @@
 - Create: `backend/kb-common/.../config/KbDbTypeResolver.java`
 - Test: `backend/kb-common/src/test/java/.../KbDbTypeResolverTest.java`
 
-- [ ] **Step 1: KbDbProperties**
+- [x] **Step 1: KbDbProperties**
 
 ```java
 @ConfigurationProperties(prefix = "kb.db")
@@ -44,7 +44,7 @@ public class KbDbProperties {
 
 需在某个 `@EnableConfigurationProperties` 或 `@Component` 注册；若 kb-common 无 Boot 自动配置，用 `@Component` + `@ConfigurationProperties`。
 
-- [ ] **Step 2: KbDbTypeResolver**
+- [x] **Step 2: KbDbTypeResolver**
 
 ```java
 /**
@@ -55,9 +55,9 @@ public static DbType resolve(String configuredType, String jdbcUrl);
 
 规则：`postgresql`/`postgres`/`pg` → POSTGRE_SQL；`oracle` → ORACLE；`mysql`/`mariadb` → MYSQL；URL 含 `jdbc:postgresql` / `jdbc:oracle` / `jdbc:mysql`；否则 MYSQL。
 
-- [ ] **Step 3: 单测** 覆盖显式 type、URL 推断、默认。
+- [x] **Step 3: 单测** 覆盖显式 type、URL 推断、默认。
 
-- [ ] **Step 4: Commit** `feat(db): 增加 kb.db.type 方言解析`
+- [x] **Step 4: Commit** `feat(db): 增加 kb.db.type 方言解析`
 
 ---
 
@@ -67,15 +67,15 @@ public static DbType resolve(String configuredType, String jdbcUrl);
 - Modify: `backend/kb-common/.../MybatisPlusConfig.java`
 - Modify: `backend/nacos/application-dev.yaml.template`（加 kb.db.type 注释默认 mysql）
 
-- [ ] **Step 1: MybatisPlusConfig 注入 KbDbProperties + 可选 datasource url**
+- [x] **Step 1: MybatisPlusConfig 注入 KbDbProperties + 可选 datasource url**
 
 优先用 `kb.db.type`；若空，尝试 `@Value("${spring.datasource.url:}")`（多数据源场景 core 可能不是这个键——此时默认 MYSQL 并打 warn）。
 
 Core 有三数据源且同方言：文档声明「一部署一方言」。
 
-- [ ] **Step 2: `new PaginationInnerInterceptor(resolvedDbType)`**
+- [x] **Step 2: `new PaginationInnerInterceptor(resolvedDbType)`**
 
-- [ ] **Step 3: application-dev.yaml.template**
+- [x] **Step 3: application-dev.yaml.template**
 
 ```yaml
 kb:
@@ -83,7 +83,7 @@ kb:
     type: ${KB_DB_TYPE:mysql}
 ```
 
-- [ ] **Step 4: Commit** `feat(db): MyBatis-Plus 分页按 kb.db.type 切换`
+- [x] **Step 4: Commit** `feat(db): MyBatis-Plus 分页按 kb.db.type 切换`
 
 ---
 
@@ -93,7 +93,7 @@ kb:
 - Modify: `backend/pom.xml`（dependencyManagement）
 - Modify: 各用到 JDBC 的模块 pom（或仅 common）——**仅 dependencyManagement + 文档**；mysql 保持现有 compile 依赖不动。
 
-- [ ] **Step 1: dependencyManagement 增加**
+- [x] **Step 1: dependencyManagement 增加**
 
 ```xml
 <dependency>
@@ -104,11 +104,11 @@ kb:
 <!-- ojdbc：使用 Oracle 官方坐标，version 与 Boot 3.2 兼容；optional -->
 ```
 
-- [ ] **Step 2: kb-common 或 README 说明**：切 PG/Oracle 时在对应服务 pom 打开依赖。
+- [x] **Step 2: kb-common 或 README 说明**：切 PG/Oracle 时在对应服务 pom 打开依赖。
 
 YAGNI：本阶段**不**给每个模块强制加 PG/Oracle 依赖，避免无 License/体积问题；只在 dependencyManagement 锁版本。
 
-- [ ] **Step 3: Commit** `chore(db): 父 POM 管理 postgresql/ojdbc 版本`
+- [x] **Step 3: Commit** `chore(db): 父 POM 管理 postgresql/ojdbc 版本`
 
 ---
 
@@ -120,15 +120,15 @@ YAGNI：本阶段**不**给每个模块强制加 PG/Oracle 依赖，避免无 Li
 - Create: `backend/sql/schema/postgresql/README.md`、`oracle/README.md`
 - Modify: `deploy/mysql/init-schema.sh`、`backend/sql/install_*.sh/bat`、文档中路径引用
 
-- [ ] **Step 1: 创建 mysql/ 并 git mv 全部 .sql**
+- [x] **Step 1: 创建 mysql/ 并 git mv 全部 .sql**
 
-- [ ] **Step 2: 更新 init-schema.sh / install 脚本路径**
+- [x] **Step 2: 更新 init-schema.sh / install 脚本路径**
 
-- [ ] **Step 3: PG/Oracle README** 写明：DDL 未翻译；地基阶段仅占位；切库前需补 schema + 改 Mapper。
+- [x] **Step 3: PG/Oracle README** 写明：DDL 未翻译；地基阶段仅占位；切库前需补 schema + 改 Mapper。
 
-- [ ] **Step 4: `backend/sql/README.md` 更新目录说明**
+- [x] **Step 4: `backend/sql/README.md` 更新目录说明**
 
-- [ ] **Step 5: Commit** `chore(sql): schema 按方言分目录（mysql 为准）`
+- [x] **Step 5: Commit** `chore(sql): schema 按方言分目录（mysql 为准）`
 
 ---
 
@@ -140,15 +140,15 @@ YAGNI：本阶段**不**给每个模块强制加 PG/Oracle 依赖，避免无 Li
 - Create: `docs/superpowers/specs/2026-07-20-db-multi-dialect-design.md`
 - Modify: `deploy/env.example` → `KB_DB_TYPE=mysql`
 
-- [ ] **Step 1–3: 文档与 env**
+- [x] **Step 1–3: 文档与 env**
 
-- [ ] **Step 4: 单测 + 编译**
+- [x] **Step 4: 单测 + 编译**
 
 ```powershell
 mvn -pl kb-common -am test -Dtest=KbDbTypeResolverTest -Dsurefire.failIfNoSpecifiedTests=false
 ```
 
-- [ ] **Step 5: 合并说明**：默认 mysql 回归；不跑 PG/Oracle 集成。
+- [x] **Step 5: 合并说明**：默认 mysql 回归；不跑 PG/Oracle 集成。
 
 ---
 
