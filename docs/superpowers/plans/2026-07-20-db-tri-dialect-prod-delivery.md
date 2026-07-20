@@ -145,9 +145,9 @@ public String upsertSql(String table, String conflictColumns,
 - 唯一索引/主键与 MySQL 语义对齐（雪花 ID，无依赖 AI）
 - `install_all.sql` 顺序正确；`kb_notification_template` 重复建表可接受 IF NOT EXISTS
 
-- [ ] **Step 1:** 对照 `mysql/` 逐 BC 抽查 + 修翻译稿
-- [ ] **Step 2:** 跑 `.\deploy\scripts\verify-pg-schema.ps1` 必须 PASS
-- [ ] **Step 3:** Commit：`fix(db): PostgreSQL DDL 生产级校对`
+- [x] **Step 1:** 对照 `mysql/` 逐 BC 抽查 + 修翻译稿
+- [x] **Step 2:** 跑 `.\deploy\scripts\verify-pg-schema.ps1` 必须 PASS
+- [x] **Step 3:** Commit：`fix(db): PostgreSQL DDL 生产级校对`
 
 ---
 

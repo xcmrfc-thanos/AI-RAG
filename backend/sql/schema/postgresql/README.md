@@ -20,10 +20,12 @@ psql -U postgres -f install_all.sql
 
 切换 `KB_DB_TYPE=postgresql` 前还须：
 
-1. 在目标 PG 实例上验证本目录脚本（当前为机械翻译，**未**保证生产可用）
+1. 在目标 PG 实例上验证本目录脚本（2026-07-20 已用 `verify-pg-schema.ps1` 冒烟 PASS，表集合与 MySQL 对齐 50 张；上线前仍建议在目标环境复验）
 2. 业务模块引入 `org.postgresql:postgresql`（父 POM 已管理版本）
 3. JDBC URL / `currentSchema`；Core 多数据源同一方言
 4. 确认 upsert / DATE / LIMIT 已走 `SqlDialectHelper` 或 Mapper `databaseId`
+
+表名对照：`py -3 ..\_tools\compare_mysql_pg_tables.py`
 
 **重新生成翻译稿**（会覆盖除 `kb_intelligence.sql` / `00_create_schemas.sql` / `install_all.sql` 外的生成文件）：
 

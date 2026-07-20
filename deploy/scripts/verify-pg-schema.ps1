@@ -107,6 +107,27 @@ try {
         }
     }
 
+    Write-Step "assert key tables"
+    $keyTables = @(
+        "kb_user.kb_user",
+        "kb_document.kb_document",
+        "kb_file.kb_file",
+        "kb_statistics.stat_document",
+        "kb_intelligence.kb_search_history",
+        "kb_agent.agent_session"
+    )
+    foreach ($fqn in $keyTables) {
+        $parts = $fqn -split '\.'
+        $schema = $parts[0]
+        $table = $parts[1]
+        $existsSql = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '$schema' AND table_name = '$table';"
+        $exists = docker exec -e "PGPASSWORD=$PgPassword" $Container psql -U $PgUser -d $PgDb -At -c $existsSql
+        if ($LASTEXITCODE -ne 0 -or $exists.ToString().Trim() -ne "1") {
+            throw "missing key table: $fqn (got '$exists')"
+        }
+    }
+    Write-Host "key tables OK: $($keyTables -join ', ')"
+
     Write-Host "[pg-smoke] PASS" -ForegroundColor Green
 }
 catch {
