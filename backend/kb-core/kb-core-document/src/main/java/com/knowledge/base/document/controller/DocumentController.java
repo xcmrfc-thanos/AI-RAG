@@ -1,6 +1,7 @@
 package com.knowledge.base.document.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.knowledge.base.common.annotation.OperationLog;
 import com.knowledge.base.common.result.Result;
 import com.knowledge.base.document.dto.BatchExportRequest;
 import com.knowledge.base.document.dto.AutoSaveDTO;
@@ -409,6 +410,7 @@ public class DocumentController {
      */
     @GetMapping("/{documentId}/export-pdf")
     @Operation(summary = "导出PDF", description = "导出文档为PDF并返回下载链接")
+    @OperationLog(module = "文档导出", operation = "导出PDF", description = "导出文档为PDF并返回下载链接")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
     public Result<String> exportDocumentToPdf(
         @Parameter(description = "文档ID", required = true)
@@ -427,6 +429,7 @@ public class DocumentController {
      */
     @GetMapping("/{documentId}/download-pdf")
     @Operation(summary = "下载PDF", description = "直接下载文档PDF文件")
+    @OperationLog(module = "文档导出", operation = "下载PDF", description = "直接下载文档PDF文件")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
     public void downloadDocumentPdf(
         @Parameter(description = "文档ID", required = true)
@@ -464,6 +467,7 @@ public class DocumentController {
      */
     @PostMapping("/batch-export")
     @Operation(summary = "批量导出", description = "批量导出选中文档为PDF或Markdown格式的ZIP文件")
+    @OperationLog(module = "文档导出", operation = "批量导出", description = "批量导出文档为ZIP")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
     public void batchExportDocuments(
             @Parameter(description = "批量导出请求", required = true)

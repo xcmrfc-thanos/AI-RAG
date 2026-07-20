@@ -40,6 +40,7 @@ const { Text } = Typography;
 
 const MODULE_OPTIONS = [
   { value: 'DOCUMENT', label: '文档管理' },
+  { value: '文档导出', label: '文档导出' },
   { value: 'USER', label: '用户管理' },
   { value: 'AUTH', label: '认证授权' },
   { value: 'AI', label: 'AI服务' },
