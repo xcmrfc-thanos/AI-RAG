@@ -1,8 +1,8 @@
 #Requires -Version 5.1
-# 重新导入 backend/sql/schema 全部 DDL（库已存在时补表/重建）
+# 重新导入 backend/sql/schema/mysql 全部 DDL（库已存在时补表/重建）
 $ErrorActionPreference = "Stop"
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
-$SchemaDir = Join-Path (Split-Path -Parent $DeployDir) "backend\sql\schema"
+$SchemaDir = Join-Path (Split-Path -Parent $DeployDir) "backend\sql\schema\mysql"
 $Password = if ($env:MYSQL_ROOT_PASSWORD) { $env:MYSQL_ROOT_PASSWORD } else { "123456" }
 
 . (Join-Path $DeployDir "scripts\mysql-import-utils.ps1")
@@ -16,10 +16,11 @@ $files = @(
     "kb_statistics.sql",
     "kb_favorite.sql",
     "kb_notification_template.sql",
-    "kb_intelligence.sql"
+    "kb_intelligence.sql",
+    "kb_agent.sql"
 )
 
-Write-Host "导入 schema -> kb-mysql (root/$Password)..." -ForegroundColor Cyan
+Write-Host "导入 schema/mysql -> kb-mysql (root/$Password)..." -ForegroundColor Cyan
 foreach ($f in $files) {
     $path = Join-Path $SchemaDir $f
     if (-not (Test-Path $path)) { throw "找不到 $path" }

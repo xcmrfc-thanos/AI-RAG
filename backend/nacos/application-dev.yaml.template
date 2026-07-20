@@ -38,6 +38,11 @@ jwt:
   prefix: Bearer
   issuer: knowledge-base
 
+# 关系数据库方言（一部署一方言）：mysql | postgresql | oracle
+kb:
+  db:
+    type: ${KB_DB_TYPE:mysql}
+
 logging:
   level:
     root: INFO

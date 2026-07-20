@@ -1,5 +1,4 @@
-#!/bin/bash
-# MySQL 首次启动自动导入 kb DDL（挂载 backend/sql/schema）
+# MySQL 首次启动自动导入 kb DDL（挂载 backend/sql/schema/mysql → /sql-schema）
 set -e
 
 echo "[kb-mysql-init] importing schema..."

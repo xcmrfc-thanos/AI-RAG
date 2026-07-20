@@ -3,71 +3,63 @@ package com.knowledge.base.common.config;
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * MyBatis Plus配置类
+ * MyBatis Plus 配置类。
  *
- * <p>功能说明：</p>
- * <ul>
- *   <li>乐观锁插件：自动处理version字段的并发控制</li>
- *   <li>分页插件：自动处理分页查询</li>
- *   <li>防止全表更新和删除插件</li>
- * </ul>
- *
- * <p>使用说明：</p>
- * <ul>
- *   <li>乐观锁：在实体类的version字段上添加@Version注解</li>
- *   <li>分页：使用Page<T>对象进行分页查询</li>
- *   <li>逻辑删除：在实体类的deleted字段上添加@TableLogic注解</li>
- * </ul>
+ * <p>分页方言由 {@code kb.db.type}（或 JDBC URL 推断）决定，默认 MySQL。
+ * 一部署一方言；Core 多数据源须使用同一方言。</p>
  *
  * @author 苏三
  * @since 1.0.0
  */
+@Slf4j
 @Configuration
 public class MybatisPlusConfig {
 
+    @Autowired
+    private KbDbProperties kbDbProperties;
+
     /**
-     * 配置MyBatis Plus拦截器
+     * 可选：单数据源场景的 spring.datasource.url，用于推断方言。
+     * Core 多数据源未绑定时可为空，此时依赖 kb.db.type 或默认 mysql。
+     */
+    @Value("${spring.datasource.url:}")
+    private String springDatasourceUrl;
+
+    /**
+     * 配置 MyBatis Plus 拦截器（乐观锁 → 分页 → 防全表更新）。
      *
-     * <p>拦截器执行顺序（按添加顺序）：</p>
-     * <ol>
-     *   <li>乐观锁拦截器：在更新时自动处理version字段</li>
-     *   <li>分页拦截器：在查询时自动处理分页</li>
-     *   <li>防止全表更新和删除拦截器</li>
-     * </ol>
-     *
-     * @return MyBatisPlusInterceptor
+     * @return MybatisPlusInterceptor
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
-
-        // 添加乐观锁插件
-        // 注意：必须在分页插件之前添加
         interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
 
-        // 添加分页插件
-        // 自动识别数据库类型，根据项目配置的DbType
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
+        DbType dbType = KbDbTypeResolver.resolve(kbDbProperties.getType(), springDatasourceUrl);
+        log.info("MyBatis-Plus 分页方言：dbType={}, kb.db.type={}, datasourceUrlConfigured={}",
+                dbType, kbDbProperties.getType(),
+                springDatasourceUrl != null && !springDatasourceUrl.isBlank());
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(dbType));
 
-        // 添加防止全表更新和删除插件
         interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
-
         return interceptor;
     }
 
     /**
-     * 自定义ID生成器（雪花算法）
+     * 自定义 ID 生成器（雪花算法）。
      *
-     * <p>优先级最高，会覆盖MyBatis-Plus默认的IdWorker</p>
-     * <p>使用 @TableId(type = IdType.ASSIGN_ID) 时自动调用此生成器</p>
+     * @return IdentifierGenerator
      */
     @Bean
     public IdentifierGenerator customIdGenerator() {

@@ -141,6 +141,18 @@
                 <version>${fastjson2.version}</version>
             </dependency>
 
+            <!-- 多方言 JDBC（按需在业务模块引入；默认仍用各模块已有的 mysql-connector-j） -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.7.3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle.database.jdbc</groupId>
+                <artifactId>ojdbc11</artifactId>
+                <version>23.3.0.23.09</version>
+            </dependency>
+
             <!-- 内部模块依赖 -->
             <dependency>
                 <groupId>com.knowledge.base</groupId>
