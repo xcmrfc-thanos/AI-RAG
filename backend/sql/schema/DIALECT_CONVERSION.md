@@ -30,13 +30,21 @@
 | `ON DUPLICATE KEY` | `MERGE`（助手尚未实现） |
 | `JSON` | `JSON` 类型或 `CLOB`（版本相关） |
 
-## 试点状态
+## 试点 / 翻译状态
 
 | 目录 | 状态 |
 |------|------|
 | `mysql/` | 权威、可部署 |
-| `postgresql/00_create_schemas.sql` + `kb_intelligence.sql` | **试点可执行** |
-| `postgresql/` 其余 BC | 待翻译 |
+| `postgresql/00_create_schemas.sql` + `install_all.sql` + 各 `kb_*.sql` | **翻译稿可执行审阅**（`kb_intelligence` 为人工试点；其余由 `_tools/mysql_to_pg.py` 生成） |
 | `oracle/` | 仅 README，无 DDL |
 
-切换 `KB_DB_TYPE` 前必须：补齐目标方言 DDL、引入驱动、确认 Mapper/`SqlDialectHelper` 覆盖业务 SQL。
+切换 `KB_DB_TYPE` 前必须：补齐并验证目标方言 DDL、引入驱动、确认 Mapper/`SqlDialectHelper` 覆盖业务 SQL。
+
+### 重新生成 PG 翻译稿
+
+```powershell
+cd backend/sql/schema
+py -3 _tools/mysql_to_pg.py
+```
+
+注意：脚本会覆盖除 `kb_intelligence.sql` 外的同名生成文件；生成后请抽查 `VARCHAR(n)`、UNIQUE、DROP CASCADE。

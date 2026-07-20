@@ -171,9 +171,30 @@ public class SqlDialectHelper {
                         + toExcludedAssignments(mysqlUpdateAssignments.trim());
             }
             case ORACLE -> throw new UnsupportedOperationException(
-                    "Oracle UPSERT 请改用 MERGE；SqlDialectHelper 尚未实现");
+                    "Oracle UPSERT 请改用 MERGE INTO ... USING dual；"
+                            + "示例: MERGE INTO t USING (SELECT ? AS id FROM dual) s ON (t.id=s.id) "
+                            + "WHEN MATCHED THEN UPDATE SET ... WHEN NOT MATCHED THEN INSERT ...; "
+                            + "SqlDialectHelper.mergeInto 尚未实现");
             default -> " ON DUPLICATE KEY UPDATE " + mysqlUpdateAssignments.trim();
         };
+    }
+
+    /**
+     * Oracle MERGE 占位：本阶段未实现，统一抛出明确异常。
+     *
+     * <p>调用方在切到 Oracle 前应改为手写 MERGE 或等待后续里程碑。</p>
+     *
+     * @param table           目标表
+     * @param conflictColumns 冲突列（逗号分隔）
+     * @param insertColumns   INSERT 列清单
+     * @param updateSet       UPDATE SET 子句（不含 SET 关键字）
+     * @return 永不返回
+     */
+    public String mergeInto(String table, String conflictColumns, String insertColumns, String updateSet) {
+        throw new UnsupportedOperationException(
+                "SqlDialectHelper.mergeInto 尚未实现 table=" + table
+                        + " conflict=" + conflictColumns
+                        + "；请手写 MERGE 或继续使用 MySQL/PostgreSQL upsert");
     }
 
     /**

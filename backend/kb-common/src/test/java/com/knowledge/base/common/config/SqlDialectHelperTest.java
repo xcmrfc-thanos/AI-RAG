@@ -79,6 +79,14 @@ class SqlDialectHelperTest {
                 () -> helper.onDuplicateKeyUpdate("id", "title=VALUES(title)"));
     }
 
+    /** MERGE 占位仍抛异常。 */
+    @Test
+    void mergeInto_unsupported() {
+        helper.setDbTypeForTest(DbType.ORACLE);
+        assertThrows(UnsupportedOperationException.class,
+                () -> helper.mergeInto("stat_user", "id", "id,username", "username=EXCLUDED.username"));
+    }
+
     /** VALUES → EXCLUDED 转换。 */
     @Test
     void toExcludedAssignments() {

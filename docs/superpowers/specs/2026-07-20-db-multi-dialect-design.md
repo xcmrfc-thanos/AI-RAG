@@ -32,6 +32,14 @@
 - PG 试点：`schema/postgresql/00_create_schemas.sql` + `kb_intelligence.sql`；`DIALECT_CONVERSION.md`
 - CI 矩阵文档：`plans/2026-07-20-db-dialect-ci-matrix.md`（手工）
 
+## 第四里程碑（PG 其余 BC DDL，2026-07-20）
+
+计划：[plans/2026-07-20-db-dialect-m4-pg-ddl.md](../plans/2026-07-20-db-dialect-m4-pg-ddl.md)
+
+- `_tools/mysql_to_pg.py` 生成其余 `kb_*.sql`；`install_all.sql`
+- `SqlDialectHelper.mergeInto` 占位（仍 Unsupported，带 MERGE 提示）
+- 权威仍为 `schema/mysql/`；PG 为翻译稿需人工验证
+
 ## 一部署一方言
 
 Core 三数据源、各 BC 单库：同一部署只能一种方言。
