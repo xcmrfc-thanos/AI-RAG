@@ -116,9 +116,12 @@ rag:
     chunk-overlap: ${RAG_CHUNK_OVERLAP:64}
     paragraph-aware: true
   embedding:
+    # 空 api-key/base-url 时回退 qwen.*；硅基/Ollama 请单独填写
     model: ${RAG_EMBEDDING_MODEL:text-embedding-v3}
-    dimension: 1024
-    provider: qwen
+    dimension: ${RAG_EMBEDDING_DIMENSION:1024}
+    provider: ${RAG_EMBEDDING_PROVIDER:qwen}
+    api-key: ${RAG_EMBEDDING_API_KEY:}
+    base-url: ${RAG_EMBEDDING_BASE_URL:}
     batch-size: 10
     cache-enabled: true
     cache-ttl-seconds: 86400
@@ -128,7 +131,7 @@ rag:
     final-top-k: 5
     rrf-c: 60
   rerank:
-    enabled: true
+    enabled: ${RAG_RERANK_ENABLED:true}
     model: qwen
   index:
     chunk-index-name: kb_chunk

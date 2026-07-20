@@ -60,14 +60,34 @@ public class RagProperties {
         private boolean paragraphAware = true;
     }
 
+    /**
+     * 嵌入（向量）配置。
+     *
+     * <p>支持与对话 LLM 解耦：可单独指定 {@code apiKey}/{@code baseUrl}
+     *（如 SiliconFlow 的 BAAI/bge-m3 或内网 Ollama）。二者为空时回退 {@code qwen.*}，
+     * 兼容历史「对话与向量共用通义」部署。</p>
+     *
+     * <p><b>注意：</b>更换 {@code model} 或向量提供商后，ES/Qdrant 索引必须重建，
+     * 不同模型的向量空间不可混用（即使维度同为 1024）。</p>
+     */
     @Data
     public static class Embedding {
-        /** 嵌入模型名称 */
+        /** 嵌入模型名称（如 text-embedding-v3、BAAI/bge-m3） */
         private String model = "text-embedding-v3";
-        /** 嵌入向量维度 */
+        /** 嵌入向量维度（与索引 mapping 一致，默认 1024） */
         private int dimension = 1024;
-        /** 嵌入提供商：qwen */
+        /**
+         * 提供商标签（日志/文档用）：qwen | siliconflow | ollama | local
+         */
         private String provider = "qwen";
+        /**
+         * 嵌入 API Key；空字符串时由 EmbeddingConfig 回退 {@code qwen.api-key}
+         */
+        private String apiKey = "";
+        /**
+         * OpenAI 兼容嵌入 base-url；空时回退 {@code qwen.base-url}
+         */
+        private String baseUrl = "";
         /** 批量嵌入大小 */
         private int batchSize = 20;
         /** 是否缓存嵌入结果 */

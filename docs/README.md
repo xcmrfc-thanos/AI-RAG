@@ -12,6 +12,8 @@
 | [第7阶段-地基治理与Agent演进计划.md](第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段计划与验收证据（56–75，已完成） |
 | [superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md](superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md) | Qdrant 旁路双写设计 |
 | [superpowers/plans/2026-07-18-upload-progress-resume-fast.md](superpowers/plans/2026-07-18-upload-progress-resume-fast.md) | 真进度 + 分片/续传/秒传实现计划 |
+| [superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md](superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md) | AI 公网/内网双环境（对话+向量）实现计划 |
+| [superpowers/specs/2026-07-20-ai-dual-env-design.md](superpowers/specs/2026-07-20-ai-dual-env-design.md) | AI 双环境设计（回退规则与切换步骤） |
 
 ## 部署与运维
 

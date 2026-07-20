@@ -23,6 +23,7 @@ knife4j:
   production: false
 
 # 与模块 application.yml 同值兜底；准源为本 Nacos 配置
+# 内网：QWEN_BASE_URL=http://127.0.0.1:11434/v1，QWEN_MODEL=qwen2.5:7b，QWEN_API_KEY=ollama
 agent:
   default-model: qwen
   gateway-base-url: http://127.0.0.1:8080
@@ -34,8 +35,8 @@ agent:
       model: ${QWEN_MODEL:qwen3-max}
     deepseek:
       api-key: ${DEEPSEEK_API_KEY:}
-      base-url: https://api.deepseek.com/v1
-      model: deepseek-chat
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}
+      model: ${DEEPSEEK_MODEL:deepseek-chat}
   timeouts:
     run-seconds: 90
     llm-seconds: 60
