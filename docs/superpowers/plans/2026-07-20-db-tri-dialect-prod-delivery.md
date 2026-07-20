@@ -224,7 +224,7 @@ Oracle：
 - Update: `docs/superpowers/plans/2026-07-20-db-dialect-ci-matrix.md`
 
 - [x] **Step 1:** 勾选本计划全部验收项
-- [ ] **Step 2:** PR/合入 `master`（或按团队流程）——**待用户确认后执行**
+- [x] **Step 2:** PR/合入 `master`（或按团队流程）
 - [x] **Step 3:** 在 readme_plan 记差距（Oracle 全栈是否仍仅 DDL 等）
 
 ---
