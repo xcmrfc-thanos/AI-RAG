@@ -52,8 +52,24 @@
 计划：[plans/2026-07-20-db-tri-dialect-prod-delivery.md](../plans/2026-07-20-db-tri-dialect-prod-delivery.md)  
 设计：[2026-07-20-db-tri-dialect-prod-design.md](./2026-07-20-db-tri-dialect-prod-design.md)
 
-- 目标：换配置 + 库脚本即可切 PG/Oracle；字段/函数公约；Oracle MERGE；PG 最小全栈；MySQL 回归
-- **状态：计划已落盘，待换会话按 Task 0～9 执行**
+### 交付结果（Task 0～8，分支 `feat/db-multi-dialect`）
+
+| 项 | 状态 |
+|----|------|
+| 字段/函数公约 + 方言 SQL 清单 | ✅ |
+| Oracle `upsertSql` / `mergeInto` + 统计 JDBC | ✅ |
+| 统计/检索 Mapper `databaseId=oracle` | ✅ |
+| PostgreSQL DDL 校对 + `verify-pg-schema.ps1` | ✅ |
+| Oracle DDL 首版 + `verify-oracle-schema.ps1` | ✅ PASS |
+| 三库 Profile + 切库清单 | ✅ |
+| PG 最小全栈：`smoke-pg-stack.ps1` + `PgStatisticsJdbcIT` | ✅ PASS |
+| MySQL 默认路径：`import-schema.ps1` + 方言单测 | ✅ 确认无回退 |
+
+### 仍属差距
+
+- 未拉起完整 JVM 微服务连 PG/Oracle（免 Nacos/Redis/MQ 全栈）；统计 JDBC 路径已证明
+- Oracle 列名 `"level"` 等保留字需确认 ORM 映射
+- 待合入 `master` / 开 PR（按团队流程，本文件不自动 merge）
 
 ## 一部署一方言
 

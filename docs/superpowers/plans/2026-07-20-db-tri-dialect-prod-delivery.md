@@ -223,19 +223,19 @@ Oracle：
 - Modify: 本地 `readme_plan.md`（不入库）
 - Update: `docs/superpowers/plans/2026-07-20-db-dialect-ci-matrix.md`
 
-- [ ] **Step 1:** 勾选本计划全部验收项
-- [ ] **Step 2:** PR/合入 `master`（或按团队流程）
-- [ ] **Step 3:** 在 readme_plan 记差距（Oracle 全栈是否仍仅 DDL 等）
+- [x] **Step 1:** 勾选本计划全部验收项
+- [ ] **Step 2:** PR/合入 `master`（或按团队流程）——**待用户确认后执行**
+- [x] **Step 3:** 在 readme_plan 记差距（Oracle 全栈是否仍仅 DDL 等）
 
 ---
 
 ## 验收标准（Definition of Done）
 
-- [ ] **MySQL 默认：** 现有部署文档零强制变更即可上线
-- [ ] **PostgreSQL：** DDL 冒烟 PASS + 至少 1 个服务全栈冒烟 PASS
-- [ ] **Oracle：** DDL 可装载（或官方 SKIP 原因）+ `MERGE` 统计 upsert 不再 Unsupported
-- [ ] **切换方式：** 仅 Profile/环境变量 + 执行对应 `schema/{dialect}/install*`，无客户定制业务分支
-- [ ] **字段公约：** 新增表/列遵循 Task 0；旧表分脚本差异可保留但有文档
+- [x] **MySQL 默认：** 现有部署文档零强制变更即可上线
+- [x] **PostgreSQL：** DDL 冒烟 PASS + 至少 1 个服务全栈冒烟 PASS（`smoke-pg-stack.ps1` / 统计 JDBC）
+- [x] **Oracle：** DDL 可装载（或官方 SKIP 原因）+ `MERGE` 统计 upsert 不再 Unsupported
+- [x] **切换方式：** 仅 Profile/环境变量 + 执行对应 `schema/{dialect}/install*`，无客户定制业务分支
+- [x] **字段公约：** 新增表/列遵循 Task 0；旧表分脚本差异可保留但有文档
 
 ---
 
