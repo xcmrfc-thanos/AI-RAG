@@ -1,5 +1,6 @@
 package com.knowledge.base.statistics.repository;
 
+import com.knowledge.base.common.config.SqlDialectHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class StatDocumentRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final SqlDialectHelper sqlDialectHelper;
 
     /**
      * Upsert 文档投影行（含 ACL 字段）
@@ -40,16 +42,18 @@ public class StatDocumentRepository {
     public void upsert(Long id, String title, Long authorId, Long categoryId, Integer status,
                        Long viewCount, Long likeCount, Long favoriteCount, String summary, Integer deleted,
                        Integer isPublic, Long teamId) {
+        String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
                 "INSERT INTO stat_document (id, title, author_id, category_id, status, view_count, like_count, "
                         + "favorite_count, summary, is_public, team_id, created_at, updated_at, deleted) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?) "
-                        + "ON DUPLICATE KEY UPDATE title=VALUES(title), author_id=VALUES(author_id), "
-                        + "category_id=VALUES(category_id), status=VALUES(status), "
-                        + "view_count=VALUES(view_count), like_count=VALUES(like_count), "
-                        + "favorite_count=VALUES(favorite_count), summary=VALUES(summary), "
-                        + "is_public=VALUES(is_public), team_id=VALUES(team_id), "
-                        + "updated_at=NOW(), deleted=VALUES(deleted)",
+                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " + now + ", " + now + ", ?) "
+                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                        "title=VALUES(title), author_id=VALUES(author_id), "
+                                + "category_id=VALUES(category_id), status=VALUES(status), "
+                                + "view_count=VALUES(view_count), like_count=VALUES(like_count), "
+                                + "favorite_count=VALUES(favorite_count), summary=VALUES(summary), "
+                                + "is_public=VALUES(is_public), team_id=VALUES(team_id), "
+                                + "updated_at=" + now + ", deleted=VALUES(deleted)"),
                 id, title, authorId, categoryId, status,
                 viewCount != null ? viewCount : 0L,
                 likeCount != null ? likeCount : 0L,
@@ -72,7 +76,9 @@ public class StatDocumentRepository {
      * 标记文档投影删除
      */
     public void markDeleted(Long id) {
-        jdbcTemplate.update("UPDATE stat_document SET deleted = 1, updated_at = NOW() WHERE id = ?", id);
+        jdbcTemplate.update(
+                "UPDATE stat_document SET deleted = 1, updated_at = " + sqlDialectHelper.currentTimestamp() + " WHERE id = ?",
+                id);
     }
 
     /**
@@ -106,6 +112,12 @@ public class StatDocumentRepository {
         return summaryMap;
     }
 
+    /**
+     * 安全转 Long
+     *
+     * @param value 原始值
+     * @return Long 或 null
+     */
     private Long toLong(Object value) {
         if (value == null) {
             return null;

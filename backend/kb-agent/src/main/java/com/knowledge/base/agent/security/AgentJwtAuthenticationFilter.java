@@ -1,5 +1,6 @@
 package com.knowledge.base.agent.security;
 
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.utils.JwtTokenUtil;
 import com.knowledge.base.common.utils.UserContextUtil;
 import jakarta.servlet.FilterChain;
@@ -37,6 +38,7 @@ public class AgentJwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenUtil jwtTokenUtil;
     private final JdbcTemplate jdbcTemplate;
+    private final SqlDialectHelper sqlDialectHelper;
 
     /**
      * 解析并校验 JWT，写入 Security / UserContext
@@ -81,13 +83,14 @@ public class AgentJwtAuthenticationFilter extends OncePerRequestFilter {
     private List<SimpleGrantedAuthority> loadAuthorities(Long userId) {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
         try {
+            String roleDeletedOk = sqlDialectHelper.ifNull("r.deleted", "0");
             List<String> roles = jdbcTemplate.query(
                     """
                             SELECT r.role_code
                             FROM kb_user.kb_user_role ur
                             JOIN kb_user.kb_role r ON r.id = ur.role_id
-                            WHERE ur.user_id = ? AND r.status = 1 AND IFNULL(r.deleted, 0) = 0
-                            """,
+                            WHERE ur.user_id = ? AND r.status = 1 AND %s = 0
+                            """.formatted(roleDeletedOk),
                     (rs, rowNum) -> rs.getString(1),
                     userId);
             for (String roleCode : roles) {
@@ -98,14 +101,15 @@ public class AgentJwtAuthenticationFilter extends OncePerRequestFilter {
                 authorities.add(new SimpleGrantedAuthority(withPrefix));
             }
 
+            String permDeletedOk = sqlDialectHelper.ifNull("p.deleted", "0");
             List<String> permissions = jdbcTemplate.query(
                     """
                             SELECT DISTINCT p.permission_code
                             FROM kb_user.kb_user_role ur
                             JOIN kb_user.kb_role_permission rp ON rp.role_id = ur.role_id
                             JOIN kb_user.kb_permission p ON p.id = rp.permission_id
-                            WHERE ur.user_id = ? AND IFNULL(p.deleted, 0) = 0 AND p.status = 1
-                            """,
+                            WHERE ur.user_id = ? AND %s = 0 AND p.status = 1
+                            """.formatted(permDeletedOk),
                     (rs, rowNum) -> rs.getString(1),
                     userId);
             for (String code : permissions) {

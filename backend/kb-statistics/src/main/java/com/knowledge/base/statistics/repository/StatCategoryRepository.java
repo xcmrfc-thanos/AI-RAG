@@ -1,5 +1,6 @@
 package com.knowledge.base.statistics.repository;
 
+import com.knowledge.base.common.config.SqlDialectHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,19 +19,27 @@ import java.util.Map;
 public class StatCategoryRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final SqlDialectHelper sqlDialectHelper;
 
     /**
      * Upsert 分类投影行
+     *
+     * @param id           分类 ID
+     * @param categoryName 名称
+     * @param deleted      删除标记
      */
     public void upsert(Long id, String categoryName, Integer deleted) {
         jdbcTemplate.update(
                 "INSERT INTO stat_category (id, category_name, deleted) VALUES (?, ?, ?) "
-                        + "ON DUPLICATE KEY UPDATE category_name=VALUES(category_name), deleted=VALUES(deleted)",
+                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                        "category_name=VALUES(category_name), deleted=VALUES(deleted)"),
                 id, categoryName, deleted != null ? deleted : 0);
     }
 
     /**
      * 统计未删除分类数
+     *
+     * @return 数量
      */
     public long countActive() {
         try {
@@ -45,6 +54,8 @@ public class StatCategoryRepository {
 
     /**
      * 查询有效分类 id→name 映射
+     *
+     * @return 映射
      */
     public Map<Long, String> findActiveNameMap() {
         Map<Long, String> nameMap = new HashMap<>();
@@ -66,6 +77,12 @@ public class StatCategoryRepository {
         return nameMap;
     }
 
+    /**
+     * 安全转 Long
+     *
+     * @param value 原始值
+     * @return Long 或 null
+     */
     private Long toLong(Object value) {
         if (value == null) {
             return null;

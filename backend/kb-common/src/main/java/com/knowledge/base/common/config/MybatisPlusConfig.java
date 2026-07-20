@@ -8,10 +8,14 @@ import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInt
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.mapping.DatabaseIdProvider;
+import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Properties;
 
 /**
  * MyBatis Plus 配置类。
@@ -69,5 +73,22 @@ public class MybatisPlusConfig {
                 return SnowflakeIdGenerator.getInstance().nextId();
             }
         };
+    }
+
+    /**
+     * MyBatis databaseId：供 Mapper XML 按方言分支（如 upsert）。
+     *
+     * @return DatabaseIdProvider
+     */
+    @Bean
+    public DatabaseIdProvider databaseIdProvider() {
+        VendorDatabaseIdProvider provider = new VendorDatabaseIdProvider();
+        Properties properties = new Properties();
+        properties.setProperty("MySQL", "mysql");
+        properties.setProperty("MariaDB", "mysql");
+        properties.setProperty("PostgreSQL", "postgresql");
+        properties.setProperty("Oracle", "oracle");
+        provider.setProperties(properties);
+        return provider;
     }
 }

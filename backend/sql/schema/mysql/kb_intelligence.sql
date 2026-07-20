@@ -17,6 +17,7 @@ CREATE TABLE `kb_search_history` (
   `search_params` JSON DEFAULT NULL COMMENT '搜索参数',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '最近搜索时间',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_user_keyword` (`user_id`, `keyword`(191)),
   KEY `idx_user_id` (`user_id`),
   KEY `idx_keyword` (`keyword`(100)),
   KEY `idx_created_at` (`created_at`)

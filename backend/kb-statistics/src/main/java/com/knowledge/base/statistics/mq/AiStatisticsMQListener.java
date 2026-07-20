@@ -1,7 +1,8 @@
 package com.knowledge.base.statistics.mq;
 
-import com.knowledge.base.common.event.AiStatisticsEventDTO;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.constants.AiStatisticsMQConstants;
+import com.knowledge.base.common.event.AiStatisticsEventDTO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -18,8 +19,13 @@ public class AiStatisticsMQListener {
     @Resource
     private JdbcTemplate jdbcTemplate;
 
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
+
     /**
      * 消费 AI 统计事件并写入本地投影表
+     *
+     * @param event 事件
      */
     @RabbitListener(queues = "#{@statisticsAiQueue.name}")
     public void handleAiStatisticsEvent(AiStatisticsEventDTO event) {
@@ -41,17 +47,23 @@ public class AiStatisticsMQListener {
 
     /**
      * 插入对话投影
+     *
+     * @param event 事件
      */
     private void insertConversation(AiStatisticsEventDTO event) {
+        String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_ai_conversation (id, user_id, created_at, deleted) VALUES (?, ?, NOW(), 0) "
-                        + "ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), deleted = 0",
+                "INSERT INTO stat_ai_conversation (id, user_id, created_at, deleted) VALUES (?, ?, " + now + ", 0) "
+                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                        "user_id = VALUES(user_id), deleted = 0"),
                 event.getConversationId(),
                 event.getUserId());
     }
 
     /**
      * 标记对话已删除
+     *
+     * @param event 事件
      */
     private void markConversationDeleted(AiStatisticsEventDTO event) {
         jdbcTemplate.update(
@@ -61,11 +73,15 @@ public class AiStatisticsMQListener {
 
     /**
      * 插入用户消息投影
+     *
+     * @param event 事件
      */
     private void insertUserMessage(AiStatisticsEventDTO event) {
+        String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
                 "INSERT INTO stat_ai_message (id, conversation_id, role, created_at, deleted) "
-                        + "VALUES (?, ?, 'user', NOW(), 0) ON DUPLICATE KEY UPDATE deleted = 0",
+                        + "VALUES (?, ?, 'user', " + now + ", 0) "
+                        + sqlDialectHelper.onDuplicateKeyUpdate("id", "deleted = 0"),
                 event.getMessageId(),
                 event.getConversationId());
     }
