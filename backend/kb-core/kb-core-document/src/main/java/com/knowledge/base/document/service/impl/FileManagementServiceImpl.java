@@ -19,6 +19,7 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.config.SystemConfigCache;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
 
     @Resource
     private SystemConfigCache systemConfigCache;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     /**
      * kb-file 服务根地址，用于把历史 RustFS 直链改写为可读取的上游代理地址。
@@ -283,7 +287,7 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         LambdaQueryWrapper<FileMetadata> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(FileMetadata::getUploaderId, uploaderId)
                 .eq(FileMetadata::getFileSha256, fileSha256)
-                .last("LIMIT 1");
+                .last(sqlDialectHelper.limitClause(1));
         return fileMetadataMapper.selectOne(queryWrapper);
     }
 

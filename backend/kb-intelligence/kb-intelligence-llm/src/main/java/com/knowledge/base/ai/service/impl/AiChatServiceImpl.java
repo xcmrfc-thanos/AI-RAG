@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowledge.base.ai.config.ModelProvider;
 import com.knowledge.base.common.config.IntelligenceExecutorNames;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.ai.dto.ChatRequestDTO;
 import com.knowledge.base.ai.entity.Conversation;
 import com.knowledge.base.ai.entity.Message;
@@ -55,6 +56,7 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     private final MessageMapper messageMapper;
     private final AiConversationService conversationService;
     private final AiStatisticsEventPublisher aiStatisticsEventPublisher;
+    private final SqlDialectHelper sqlDialectHelper;
 
     @Autowired(required = false)
     private RagChatService ragChatService;
@@ -394,7 +396,7 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
         LambdaQueryWrapper<Message> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Message::getConversationId, conversationId)
                 .orderByDesc(Message::getCreatedAt)
-                .last("LIMIT 20");
+                .last(sqlDialectHelper.limitClause(20));
         List<Message> historyMessages = messageMapper.selectList(queryWrapper);
         // 按时间正序排列
         Collections.reverse(historyMessages);

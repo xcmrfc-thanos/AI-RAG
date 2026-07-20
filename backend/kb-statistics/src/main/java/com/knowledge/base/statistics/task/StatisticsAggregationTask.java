@@ -57,7 +57,7 @@ public class StatisticsAggregationTask {
         try {
             String querySql = "SELECT document_id, MAX(document_title) AS document_title, COUNT(*) AS view_count " +
                     "FROM kb_view_history " +
-                    "WHERE DATE(created_at) = ? " +
+                    "WHERE " + sqlDialectHelper.dateOf("created_at") + " = ? " +
                     "GROUP BY document_id";
 
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySql, dateStr);
@@ -117,7 +117,7 @@ public class StatisticsAggregationTask {
         try {
             String querySql = "SELECT user_id, MAX(user_name) AS user_name, COUNT(*) AS view_count " +
                     "FROM kb_view_history " +
-                    "WHERE DATE(created_at) = ? AND user_id IS NOT NULL " +
+                    "WHERE " + sqlDialectHelper.dateOf("created_at") + " = ? AND user_id IS NOT NULL " +
                     "GROUP BY user_id";
 
             List<Map<String, Object>> rows = jdbcTemplate.queryForList(querySql, dateStr);

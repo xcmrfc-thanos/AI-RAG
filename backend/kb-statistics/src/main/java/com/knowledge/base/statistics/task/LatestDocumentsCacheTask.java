@@ -1,6 +1,7 @@
 package com.knowledge.base.statistics.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.statistics.entity.DocumentStatistics;
 import com.knowledge.base.statistics.entity.UserStatistics;
 import com.knowledge.base.statistics.mapper.DocumentStatisticsMapper;
@@ -50,6 +51,9 @@ public class LatestDocumentsCacheTask {
 
     @Resource(name = "caffeineCacheManager")
     private CacheManager caffeineCacheManager;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     private static final String REDIS_KEY = "stats:latestDocuments:top6";
     private static final String CAFFEINE_CACHE_NAME = "latestDocuments";
@@ -108,7 +112,7 @@ public class LatestDocumentsCacheTask {
                         .eq(DocumentStatistics::getStatus, 1)
                         .eq(DocumentStatistics::getDeleted, 0)
                         .orderByDesc(DocumentStatistics::getCreatedAt)
-                        .last("LIMIT " + TOP_N));
+                        .last(sqlDialectHelper.limitClause(TOP_N)));
 
         if (latestDocs == null || latestDocs.isEmpty()) {
             return Collections.emptyList();

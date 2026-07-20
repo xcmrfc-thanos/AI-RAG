@@ -85,4 +85,27 @@ class SqlDialectHelperTest {
         assertEquals("a=EXCLUDED.a, b=EXCLUDED.b",
                 SqlDialectHelper.toExcludedAssignments("a=VALUES(a), b=VALUES(b)"));
     }
+
+    /** DATE 方言。 */
+    @Test
+    void dateOf_variants() {
+        helper.setDbTypeForTest(DbType.MYSQL);
+        assertEquals("DATE(created_at)", helper.dateOf("created_at"));
+        helper.setDbTypeForTest(DbType.POSTGRE_SQL);
+        assertEquals("CAST(created_at AS DATE)", helper.dateOf("created_at"));
+        helper.setDbTypeForTest(DbType.ORACLE);
+        assertEquals("TRUNC(created_at)", helper.dateOf("created_at"));
+    }
+
+    /** LIMIT / FETCH FIRST。 */
+    @Test
+    void limitClause_variants() {
+        helper.setDbTypeForTest(DbType.MYSQL);
+        assertEquals(" LIMIT 10", helper.limitClause(10));
+        helper.setDbTypeForTest(DbType.POSTGRE_SQL);
+        assertEquals(" LIMIT 10", helper.limitClause(10));
+        helper.setDbTypeForTest(DbType.ORACLE);
+        assertEquals(" FETCH FIRST 10 ROWS ONLY", helper.limitClause(10));
+        assertThrows(IllegalArgumentException.class, () -> helper.limitClause(0));
+    }
 }

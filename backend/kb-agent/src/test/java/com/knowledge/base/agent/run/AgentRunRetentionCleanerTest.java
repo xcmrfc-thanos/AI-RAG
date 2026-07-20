@@ -4,6 +4,7 @@ import com.knowledge.base.agent.config.AgentProperties;
 import com.knowledge.base.agent.run.entity.AgentRunEntity;
 import com.knowledge.base.agent.run.mapper.AgentRunMapper;
 import com.knowledge.base.agent.run.mapper.AgentRunStepMapper;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
@@ -37,7 +38,8 @@ class AgentRunRetentionCleanerTest {
         old.setCreatedAt(LocalDateTime.now().minusDays(40));
         when(runMapper.selectList(any())).thenReturn(List.of(old));
 
-        AgentRunRetentionCleaner cleaner = new AgentRunRetentionCleaner(props, runMapper, stepMapper);
+        AgentRunRetentionCleaner cleaner = new AgentRunRetentionCleaner(props, runMapper, stepMapper,
+                new SqlDialectHelper());
         int n = cleaner.cleanupOlderThanDays(30);
         assertEquals(1, n);
         verify(stepMapper).delete(any());

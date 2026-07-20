@@ -3,6 +3,7 @@ package com.knowledge.base.document.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
 import com.knowledge.base.document.dto.DocumentVersionRestoreDTO;
@@ -44,6 +45,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
     @Resource
     private DocumentContentService documentContentService;
 
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createVersion(Long documentId, String changeDescription, Long userId) {
@@ -72,7 +76,7 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
                 new LambdaQueryWrapper<DocumentVersion>()
                         .eq(DocumentVersion::getDocumentId, documentId)
                         .orderByDesc(DocumentVersion::getVersion)
-                        .last("LIMIT 1")
+                        .last(sqlDialectHelper.limitClause(1))
         );
 
         // 从MongoDB获取当前文档内容

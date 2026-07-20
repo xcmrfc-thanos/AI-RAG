@@ -1,6 +1,7 @@
 package com.knowledge.base.statistics.task;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.statistics.entity.DocumentStatistics;
 import com.knowledge.base.statistics.entity.UserStatistics;
 import com.knowledge.base.statistics.mapper.DocumentStatisticsMapper;
@@ -51,6 +52,9 @@ public class HotDocumentsCacheTask {
 
     @Resource(name = "caffeineCacheManager")
     private CacheManager caffeineCacheManager;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     private static final String REDIS_KEY = "stats:hotDocuments:top6";
     private static final String CAFFEINE_CACHE_NAME = "hotDocuments";
@@ -119,7 +123,7 @@ public class HotDocumentsCacheTask {
                         .eq(DocumentStatistics::getDeleted, 0)
                         .gt(DocumentStatistics::getViewCount, 0)
                         .orderByDesc(DocumentStatistics::getViewCount)
-                        .last("LIMIT 500"));
+                        .last(sqlDialectHelper.limitClause(500)));
 
         if (allDocs == null || allDocs.isEmpty()) {
             return Collections.emptyList();

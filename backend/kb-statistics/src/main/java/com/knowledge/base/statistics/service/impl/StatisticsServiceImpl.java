@@ -3,6 +3,7 @@ package com.knowledge.base.statistics.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.statistics.entity.CommentStatistics;
 import com.knowledge.base.statistics.entity.DocumentStatistics;
 import com.knowledge.base.statistics.entity.UserStatistics;
@@ -112,6 +113,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Resource
     private StatisticsDocumentAclFilter documentAclFilter;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     // ======================== 本地内存缓存 ========================
 
@@ -521,7 +525,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         .eq(DocumentStatistics::getDeleted, 0)
                         .gt(DocumentStatistics::getViewCount, 0)
                         .orderByDesc(DocumentStatistics::getViewCount)
-                        .last("LIMIT 500"));
+                        .last(sqlDialectHelper.limitClause(500)));
 
         if (allDocs == null || allDocs.isEmpty()) {
             return Collections.emptyList();
@@ -624,7 +628,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         .eq(DocumentStatistics::getStatus, 1)
                         .eq(DocumentStatistics::getDeleted, 0)
                         .orderByDesc(DocumentStatistics::getCreatedAt)
-                        .last("LIMIT " + limit));
+                        .last(sqlDialectHelper.limitClause(limit)));
 
         if (latestDocs == null || latestDocs.isEmpty()) {
             return Collections.emptyList();

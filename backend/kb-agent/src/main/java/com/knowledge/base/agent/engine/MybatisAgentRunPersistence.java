@@ -1,6 +1,7 @@
 package com.knowledge.base.agent.engine;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.agent.run.entity.AgentRunEntity;
 import com.knowledge.base.agent.run.entity.AgentRunStepEntity;
 import com.knowledge.base.agent.run.mapper.AgentRunMapper;
@@ -22,6 +23,7 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
 
     private final AgentRunMapper runMapper;
     private final AgentRunStepMapper stepMapper;
+    private final SqlDialectHelper sqlDialectHelper;
     private final AtomicLong localSeq = new AtomicLong(System.currentTimeMillis());
 
     /**
@@ -75,6 +77,6 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
         return runMapper.selectOne(new LambdaQueryWrapper<AgentRunEntity>()
                 .eq(AgentRunEntity::getUserId, userId)
                 .eq(AgentRunEntity::getIdempotencyKey, idempotencyKey)
-                .last("LIMIT 1"));
+                .last(sqlDialectHelper.limitClause(1)));
     }
 }

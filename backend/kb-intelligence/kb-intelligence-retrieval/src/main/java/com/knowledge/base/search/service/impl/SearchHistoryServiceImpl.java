@@ -6,6 +6,7 @@ import com.knowledge.base.search.mapper.SearchHistoryMapper;
 import com.knowledge.base.search.service.SearchHistoryService;
 import com.knowledge.base.search.vo.SearchHistoryVO;
 import com.knowledge.base.common.config.IntelligenceExecutorNames;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -37,6 +38,9 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
 
     @Resource(name = IntelligenceExecutorNames.SEARCH)
     private ThreadPoolTaskExecutor searchTaskExecutor;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     /** 按 userId+keyword 串行化 upsert，避免并发异步写入重复行 */
     private final ConcurrentHashMap<String, Object> upsertLocks = new ConcurrentHashMap<>();
@@ -91,7 +95,7 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
         LambdaQueryWrapper<SearchHistory> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.ge(SearchHistory::getCreatedAt, sevenDaysAgo);
         queryWrapper.orderByDesc(SearchHistory::getSearchCount);
-        queryWrapper.last("LIMIT 10");
+        queryWrapper.last(sqlDialectHelper.limitClause(10));
 
         return searchHistoryMapper.selectList(queryWrapper).stream()
             .map(SearchHistory::getKeyword)

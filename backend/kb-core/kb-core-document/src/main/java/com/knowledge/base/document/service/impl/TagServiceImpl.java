@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.common.result.PageResult;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
@@ -46,6 +47,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Resource
     @Qualifier("documentJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -218,7 +222,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 new LambdaQueryWrapper<Tag>()
                         .eq(Tag::getStatus, 1)
                         .orderByDesc(Tag::getDocCount)
-                        .last("LIMIT " + limit)
+                        .last(sqlDialectHelper.limitClause(limit))
         );
 
         return tags.stream()

@@ -1,5 +1,6 @@
 package com.knowledge.base.file.service;
 
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.config.SystemConfigCache;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.file.config.FileStorageProperties;
@@ -85,7 +86,8 @@ class FileResumableMergeTest {
      */
     @BeforeEach
     void setUp() {
-        fileServiceImpl = new FileServiceImpl(storageFactory, storageProperties, mediaService, rabbitTemplate);
+        fileServiceImpl = new FileServiceImpl(storageFactory, storageProperties, mediaService, rabbitTemplate,
+                new SqlDialectHelper());
         ReflectionTestUtils.setField(fileServiceImpl, "fileMapper", fileMapper);
         ReflectionTestUtils.setField(fileServiceImpl, "systemConfigCache", systemConfigCache);
         fileController = new FileController(fileService);

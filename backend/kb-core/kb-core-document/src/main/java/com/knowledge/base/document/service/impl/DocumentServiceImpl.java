@@ -47,6 +47,7 @@ import com.knowledge.base.document.vo.DocumentVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.config.SystemConfigCache;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -147,6 +148,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
 
     @Resource
     private AutoSaveHistoryService autoSaveHistoryService;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     /** 头像缓存，避免对同一用户重复调用HTTP */
     private final Map<Long, String> avatarCache = new ConcurrentHashMap<>();
@@ -347,7 +351,7 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
                             .eq(Document::getStatus, 0)
                             .ge(Document::getCreatedAt, LocalDateTime.now().minusMinutes(5))
                             .orderByDesc(Document::getCreatedAt)
-                            .last("LIMIT 1")
+                            .last(sqlDialectHelper.limitClause(1))
             );
 
             if (recentDraft != null) {

@@ -23,6 +23,15 @@
 - Agent 鉴权、统计投影 JDBC upsert、聚合任务 DATE_SUB 走 helper
 - Oracle UPSERT 仍抛 Unsupported（待 MERGE）；`.last(LIMIT)` / Neo4j LIMIT 不动
 
+## 第三里程碑（DATE / LIMIT / PG 试点，2026-07-20）
+
+计划：[plans/2026-07-20-db-dialect-m3-date-limit-pg.md](../plans/2026-07-20-db-dialect-m3-date-limit-pg.md)
+
+- `dateOf` / `limitClause`；聚合任务 DATE；活跃 Java `.last(LIMIT)` 改 helper
+- `DocumentStatisticsMapper` Oracle `databaseId`（TRUNC / FETCH FIRST）
+- PG 试点：`schema/postgresql/00_create_schemas.sql` + `kb_intelligence.sql`；`DIALECT_CONVERSION.md`
+- CI 矩阵文档：`plans/2026-07-20-db-dialect-ci-matrix.md`（手工）
+
 ## 一部署一方言
 
 Core 三数据源、各 BC 单库：同一部署只能一种方言。

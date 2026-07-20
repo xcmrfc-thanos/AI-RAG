@@ -2,6 +2,7 @@ package com.knowledge.base.agent.run;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.knowledge.base.agent.config.AgentProperties;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.agent.run.entity.AgentRunEntity;
 import com.knowledge.base.agent.run.entity.AgentRunStepEntity;
 import com.knowledge.base.agent.run.mapper.AgentRunMapper;
@@ -28,6 +29,7 @@ public class AgentRunRetentionCleaner {
     private final AgentProperties agentProperties;
     private final AgentRunMapper runMapper;
     private final AgentRunStepMapper stepMapper;
+    private final SqlDialectHelper sqlDialectHelper;
 
     /**
      * 每天凌晨清理过期 Run 及其 Step
@@ -49,7 +51,7 @@ public class AgentRunRetentionCleaner {
         LocalDateTime threshold = LocalDateTime.now().minusDays(days);
         List<AgentRunEntity> expired = runMapper.selectList(new LambdaQueryWrapper<AgentRunEntity>()
                 .lt(AgentRunEntity::getCreatedAt, threshold)
-                .last("LIMIT 500"));
+                .last(sqlDialectHelper.limitClause(500)));
         int count = 0;
         for (AgentRunEntity run : expired) {
             stepMapper.delete(new LambdaQueryWrapper<AgentRunStepEntity>()

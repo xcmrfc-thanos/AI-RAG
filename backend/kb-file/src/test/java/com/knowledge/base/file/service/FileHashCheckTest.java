@@ -1,6 +1,7 @@
 package com.knowledge.base.file.service;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.result.Result;
 import com.knowledge.base.common.result.ResultCode;
 import com.knowledge.base.file.config.FileStorageProperties;
@@ -67,7 +68,8 @@ class FileHashCheckTest {
      */
     @BeforeEach
     void setUp() {
-        fileServiceImpl = new FileServiceImpl(storageFactory, storageProperties, mediaService, rabbitTemplate);
+        fileServiceImpl = new FileServiceImpl(storageFactory, storageProperties, mediaService, rabbitTemplate,
+                new SqlDialectHelper());
         ReflectionTestUtils.setField(fileServiceImpl, "fileMapper", fileMapper);
         fileController = new FileController(fileService);
     }

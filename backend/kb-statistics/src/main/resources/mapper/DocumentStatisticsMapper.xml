@@ -77,6 +77,17 @@
         ORDER BY date ASC
     </select>
 
+    <select id="countDailyDocuments" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.DailyCount">
+        SELECT TRUNC(created_at) AS date, COUNT(*) AS count
+        FROM stat_document
+        WHERE created_at &gt;= #{startDate}
+        AND created_at &lt;= #{endDate}
+        AND deleted = 0
+        GROUP BY TRUNC(created_at)
+        ORDER BY date ASC
+    </select>
+
     <!-- 统计最热门的文档（按浏览量） -->
     <select id="selectMostViewedDocuments" resultMap="BaseResultMap">
         SELECT
@@ -85,6 +96,15 @@
         WHERE deleted = 0
         ORDER BY view_count DESC
         LIMIT #{limit}
+    </select>
+
+    <select id="selectMostViewedDocuments" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM stat_document
+        WHERE deleted = 0
+        ORDER BY view_count DESC
+        FETCH FIRST #{limit} ROWS ONLY
     </select>
 
     <!-- 统计最受欢迎的文档（按点赞数） -->
@@ -97,6 +117,15 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectMostLikedDocuments" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM stat_document
+        WHERE deleted = 0
+        ORDER BY like_count DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <!-- 统计最多收藏的文档 -->
     <select id="selectMostFavoritedDocuments" resultMap="BaseResultMap">
         SELECT
@@ -107,6 +136,15 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectMostFavoritedDocuments" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM stat_document
+        WHERE deleted = 0
+        ORDER BY favorite_count DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <!-- 统计最活跃的作者 -->
     <select id="selectTopAuthors" resultType="com.knowledge.base.statistics.model.IdCount">
         SELECT author_id AS id, COUNT(*) AS count
@@ -115,6 +153,16 @@
         GROUP BY author_id
         ORDER BY count DESC
         LIMIT #{limit}
+    </select>
+
+    <select id="selectTopAuthors" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.IdCount">
+        SELECT author_id AS id, COUNT(*) AS count
+        FROM stat_document
+        WHERE deleted = 0
+        GROUP BY author_id
+        ORDER BY count DESC
+        FETCH FIRST #{limit} ROWS ONLY
     </select>
 
     <!-- 统计各分类的文档数量 -->

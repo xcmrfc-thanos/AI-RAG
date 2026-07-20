@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.event.CoreStatisticsProjectionPublisher;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.common.result.ResultCode;
@@ -98,6 +99,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     @Override
     public LoginVO login(String username, String password) {
@@ -622,7 +626,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     new LambdaQueryWrapper<Role>()
                             .eq(Role::getRoleCode, "ROLE_USER")
                             .eq(Role::getDeleted, 0)
-                            .last("LIMIT 1"));
+                            .last(sqlDialectHelper.limitClause(1)));
             if (role != null) {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(userId);

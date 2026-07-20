@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowledge.base.common.config.InstanceIdentifier;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.common.result.PageResult;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
@@ -84,6 +85,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     private final FileStorageProperties storageProperties;
     private final MediaService mediaService;
     private final RabbitTemplate rabbitTemplate;
+    private final SqlDialectHelper sqlDialectHelper;
 
     /**
      * 上传文件
@@ -452,7 +454,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
                         .eq(FileInfo::getFileHash, fileHash)
                         .eq(FileInfo::getStatus, 1)
                         .orderByDesc(FileInfo::getCreatedAt)
-                        .last("LIMIT 1")
+                        .last(sqlDialectHelper.limitClause(1))
         );
         if (fileInfo == null) {
             throw new BusinessException("文件不存在");
@@ -479,7 +481,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
                         .eq(FileInfo::getFileHash, fileHash)
                         .eq(FileInfo::getStatus, 1)
                         .orderByDesc(FileInfo::getCreatedAt)
-                        .last("LIMIT 1")
+                        .last(sqlDialectHelper.limitClause(1))
         );
         if (existFile == null) {
             return Optional.empty();
