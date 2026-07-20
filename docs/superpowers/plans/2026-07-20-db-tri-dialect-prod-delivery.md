@@ -186,9 +186,9 @@ Oracle：
 - `kb.db.type=oracle`
 - 业务模块按需引入 `ojdbc11`（父 POM 已管理版本）
 
-- [ ] **Step 1:** 三个 profile 样例写全必填项（无真实密钥）
-- [ ] **Step 2:** README 写清：MySQL 默认；切库步骤 1～5
-- [ ] **Step 3:** Commit：`docs(deploy): 三库切换 Profile 与检查清单`
+- [x] **Step 1:** 三个 profile 样例写全必填项（无真实密钥）
+- [x] **Step 2:** README 写清：MySQL 默认；切库步骤 1～5
+- [x] **Step 3:** Commit：`docs(deploy): 三库切换 Profile 与检查清单`
 
 ---
 

@@ -39,6 +39,7 @@ jwt:
   issuer: knowledge-base
 
 # 关系数据库方言（一部署一方言）：mysql | postgresql | oracle
+# 切库：改 KB_DB_TYPE + 各服务 datasource（样例见 deploy/profiles/*.env.example）后 import-nacos
 kb:
   db:
     type: ${KB_DB_TYPE:mysql}

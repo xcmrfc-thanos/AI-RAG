@@ -106,3 +106,15 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 - 微服务 `application.yml` 与 `backend/nacos/*.template` 已同步上述端口
 - 业务服务端口不变：gateway 8080、core 8090、intelligence 8091、file 8084、statistics 8085、agent 8092
 - Nacos 控制台：http://127.0.0.1:20848/nacos
+
+## 切库检查清单（MySQL 默认 / PostgreSQL / Oracle）
+
+默认 **MySQL**，业务代码不按客户 fork。切库 = 换配置 + 对应初始化脚本。
+
+1. **选方言**：`KB_DB_TYPE=mysql|postgresql|oracle`（`deploy/.env` 与 Nacos `kb.db.type`）
+2. **装 DDL**：MySQL 走 setup；PG 用 `backend/sql/schema/postgresql/`；Oracle 用 `backend/sql/schema/oracle/`（可先跑 `verify-*-schema.ps1`）
+3. **改数据源**：对照 `deploy/profiles/*.env.example` 改各 `backend/nacos/*-dev.yaml.template` 的 driver/url/user（Core 三个源一起改）
+4. **导入配置**：`.\scripts\import-nacos.ps1`
+5. **重启服务**：`.\stop-services.ps1` 后 `.\start-services.ps1`；冒烟 `verify-all` / 关键 API
+
+一部署一方言，勿混用。

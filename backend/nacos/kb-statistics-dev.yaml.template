@@ -1,11 +1,14 @@
 # kb-statistics Nacos 配置（本地 Docker）
 # 导入：KNOWLEDGE_BASE → kb-statistics-dev.yaml
+# 切 PG/Oracle：改 driver/url/username（deploy/profiles/*.env.example），保持 kb.db.type 一致
 
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:20006/kb_statistics?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    # postgresql 例: jdbc:postgresql://127.0.0.1:5432/postgres?currentSchema=kb_statistics
+    # oracle 例: jdbc:oracle:thin:@//127.0.0.1:1521/XEPDB1  username=kb_statistics
     username: root
     password: 123456
     druid:
