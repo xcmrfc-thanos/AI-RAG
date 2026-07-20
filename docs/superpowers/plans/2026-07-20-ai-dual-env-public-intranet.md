@@ -64,7 +64,7 @@
 - Modify: `backend/kb-intelligence/kb-intelligence-llm/src/main/java/com/knowledge/base/ai/config/RagProperties.java`
 - Test: `backend/kb-intelligence/kb-intelligence-llm/src/test/java/com/knowledge/base/ai/config/RagEmbeddingPropertiesTest.java`（可选 Spring 绑定测试；无 Spring 则测默认值）
 
-- [ ] **Step 1: Embedding 内部类增加字段**
+- [x] **Step 1: Embedding 内部类增加字段**
 
 ```java
 /** 嵌入 API Key；空则回退 qwen.api-key */
@@ -77,9 +77,9 @@ private String provider = "qwen";
 
 保留现有 `model` / `dimension=1024`。
 
-- [ ] **Step 2: 函数级 JavaDoc** 说明回退规则与「换模型须重建索引」。
+- [x] **Step 2: 函数级 JavaDoc** 说明回退规则与「换模型须重建索引」。
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git commit -m "feat(rag): Embedding 支持独立 api-key/base-url"
@@ -93,7 +93,7 @@ git commit -m "feat(rag): Embedding 支持独立 api-key/base-url"
 - Modify: `backend/kb-intelligence/kb-intelligence-llm/src/main/java/com/knowledge/base/ai/config/EmbeddingConfig.java`
 - Test: `.../EmbeddingConfigEndpointTest.java`（可测 resolve 方法；若把 resolve 抽成 package 可见静态/组件更好测）
 
-- [ ] **Step 1: 注入 RagProperties + 保留 qwen 回退**
+- [x] **Step 1: 注入 RagProperties + 保留 qwen 回退**
 
 逻辑：
 
@@ -105,11 +105,11 @@ model   = rag.embedding.model
 
 Bean 创建条件：`rag.enabled=true` 且 **resolved apiKey 非空**（不要只判断 qwen.api-key，否则硅基独立 Key 无法启动）。
 
-- [ ] **Step 2: 日志打印 provider/model/baseUrl（Key 脱敏）**
+- [x] **Step 2: 日志打印 provider/model/baseUrl（Key 脱敏）**
 
-- [ ] **Step 3: 单测** resolved 回退与独立配置优先。
+- [x] **Step 3: 单测** resolved 回退与独立配置优先。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git commit -m "feat(rag): EmbeddingConfig 支持硅基/Ollama 独立 endpoint"
@@ -124,7 +124,7 @@ git commit -m "feat(rag): EmbeddingConfig 支持硅基/Ollama 独立 endpoint"
 - Modify: `backend/kb-intelligence/kb-intelligence-llm/src/main/resources/application.yml`
 - Modify: `backend/nacos/kb-agent-dev.yaml.template`（注释 + QWEN_MODEL 已有则确认）
 
-- [ ] **Step 1: intelligence 模板**
+- [x] **Step 1: intelligence 模板**
 
 ```yaml
 rag:
@@ -147,9 +147,9 @@ qwen:
   chat.options.model: ${QWEN_MODEL:qwen3-max}
 ```
 
-- [ ] **Step 2: 模块 application.yml 同步同键（启动兜底）**
+- [x] **Step 2: 模块 application.yml 同步同键（启动兜底）**
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git commit -m "chore(nacos): 暴露 embedding 独立 endpoint 与 rerank 开关"
@@ -164,7 +164,7 @@ git commit -m "chore(nacos): 暴露 embedding 独立 endpoint 与 rerank 开关"
 - Create: `deploy/profiles/public.env.example`
 - Create: `deploy/profiles/intranet.env.example`
 
-- [ ] **Step 1: env.example 增加**
+- [x] **Step 1: env.example 增加**
 
 ```env
 # public | intranet（文档约定；实际靠下方变量生效）
@@ -185,7 +185,7 @@ RAG_EMBEDDING_BASE_URL=
 RAG_RERANK_ENABLED=true
 ```
 
-- [ ] **Step 2: public.env.example**
+- [x] **Step 2: public.env.example**
 
 对话 DashScope + DeepSeek；向量二选一注释块：
 
@@ -199,7 +199,7 @@ RAG_EMBEDDING_MODEL=text-embedding-v3
 # RAG_EMBEDDING_API_KEY=sk-xxx
 ```
 
-- [ ] **Step 3: intranet.env.example**
+- [x] **Step 3: intranet.env.example**
 
 ```env
 AI_PROFILE=intranet
@@ -218,7 +218,7 @@ KAG_ENABLED=false
 
 注明：Ollama 需已 `pull qwen2.5:7b` 与可用的 embedding 模型名（以本机 `ollama list` 为准；若 embedding 走 TEI 则改 BASE_URL）。
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git commit -m "docs(deploy): 公网/内网 AI Profile 环境样例"
@@ -233,13 +233,13 @@ git commit -m "docs(deploy): 公网/内网 AI Profile 环境样例"
 - Modify: `docs/README.md`
 - Create: `docs/superpowers/specs/2026-07-20-ai-dual-env-design.md`（短设计：矩阵 + 回退规则 + 重建索引）
 
-- [ ] **Step 1: readme 增加「AI 双环境」小节**（公网/内网表 + 切换步骤：改 `.env` → import-nacos → 重启 intelligence/agent → 换向量须 rebuild）
+- [x] **Step 1: readme 增加「AI 双环境」小节**（公网/内网表 + 切换步骤：改 `.env` → import-nacos → 重启 intelligence/agent → 换向量须 rebuild）
 
-- [ ] **Step 2: docs/README 一行索引**
+- [x] **Step 2: docs/README 一行索引**
 
-- [ ] **Step 3: 短设计 spec 落盘**
+- [x] **Step 3: 短设计 spec 落盘**
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git commit -m "docs: AI 公网/内网双环境说明与设计"
@@ -249,7 +249,7 @@ git commit -m "docs: AI 公网/内网双环境说明与设计"
 
 ### Task 6: 自检与收口
 
-- [ ] **Step 1: 编译**
+- [x] **Step 1: 编译**
 
 ```powershell
 $env:JAVA_HOME='D:\Users\environments\Java21'
@@ -257,11 +257,11 @@ cd backend
 mvn -pl kb-intelligence/kb-intelligence-llm -am test -Dtest=EmbeddingConfigEndpointTest,RagEmbeddingPropertiesTest -DfailIfNoTests=false
 ```
 
-- [ ] **Step 2: grep 确认** EmbeddingConfig 不再强制只认 `qwen.api-key` 作为唯一条件（resolved key）
+- [x] **Step 2: grep 确认** EmbeddingConfig 不再强制只认 `qwen.api-key` 作为唯一条件（resolved key）
 
-- [ ] **Step 3: 更新本地 `readme_plan.md`（不入库）记一条
+- [x] **Step 3: 更新本地 `readme_plan.md`（不入库）记一条
 
-- [ ] **Step 4: 全量 status，无密钥入仓，push（若用户要求）
+- [x] **Step 4: 全量 status，无密钥入仓，push（若用户要求）
 
 ---
 
