@@ -107,11 +107,11 @@ public String upsertSql(String table, String conflictColumns,
                         String mysqlUpdateAssignments);
 ```
 
-- [ ] **Step 1:** 单测：Oracle `mergeInto`/`upsertSql` 产出含 `MERGE INTO` 与 `WHEN MATCHED`
-- [ ] **Step 2:** 实现；MySQL/PG 回归单测不变绿
-- [ ] **Step 3:** 统计投影仓储：Oracle 时不再抛 Unsupported
-- [ ] **Step 4:** `mvn -pl kb-common,kb-statistics -am test -Dtest=SqlDialectHelperTest,StatDocumentRepositoryTest`
-- [ ] **Step 5:** Commit：`feat(db): Oracle MERGE upsert 接入统计 JDBC`
+- [x] **Step 1:** 单测：Oracle `mergeInto`/`upsertSql` 产出含 `MERGE INTO` 与 `WHEN MATCHED`
+- [x] **Step 2:** 实现；MySQL/PG 回归单测不变绿
+- [x] **Step 3:** 统计投影仓储：Oracle 时不再抛 Unsupported
+- [x] **Step 4:** `mvn -pl kb-common,kb-statistics -am test -Dtest=SqlDialectHelperTest,StatDocumentRepositoryTest`
+- [x] **Step 5:** Commit：`feat(db): Oracle MERGE upsert 接入统计 JDBC`
 
 ---
 

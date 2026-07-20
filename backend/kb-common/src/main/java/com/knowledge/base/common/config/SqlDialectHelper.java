@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,8 +17,8 @@ import java.util.regex.Pattern;
 /**
  * SQL 方言片段助手（JdbcTemplate / 手写 SQL）。
  *
- * <p>覆盖 IFNULL、当前时间、按天清理、DATE/LIMIT、UPSERT 后缀。默认与 MySQL 语义对齐。
- * PostgreSQL 使用 COALESCE / ON CONFLICT / CAST AS DATE；Oracle 的 UPSERT 本阶段抛出明确异常（待 MERGE）。</p>
+ * <p>覆盖 IFNULL、当前时间、按天清理、DATE/LIMIT、UPSERT。MySQL/PG 用 ON DUPLICATE/CONFLICT；
+ * Oracle 用 {@link #mergeInto} / {@link #upsertSql} 生成 MERGE。</p>
  *
  * @author 苏三
  * @since 1.0.0
@@ -64,7 +66,7 @@ public class SqlDialectHelper {
     }
 
     /**
-     * 空值函数：MySQL IFNULL / PG&amp;Oracle COALESCE（Oracle 亦可用 NVL，统一 COALESCE 兼容性更好）。
+     * 空值函数：MySQL IFNULL / PG COALESCE / Oracle NVL。
      *
      * @param expression 列或表达式
      * @param defaultSql 默认值 SQL 字面量（如 {@code 0}）
@@ -147,11 +149,42 @@ public class SqlDialectHelper {
     }
 
     /**
-     * 生成 UPSERT 冲突更新后缀。
+     * 生成简单主键 UPSERT 完整语句。
      *
-     * <p>MySQL：{@code ON DUPLICATE KEY UPDATE a=VALUES(a), ...}<br>
-     * PostgreSQL：{@code ON CONFLICT (cols) DO UPDATE SET a=EXCLUDED.a, ...}<br>
-     * Oracle：本阶段不支持，抛出 {@link UnsupportedOperationException}。</p>
+     * <p>MySQL/PG：{@code INSERT INTO ... VALUES ...} + {@link #onDuplicateKeyUpdate}；
+     * Oracle：{@link #mergeInto}。</p>
+     *
+     * @param table                  目标表
+     * @param conflictColumns        冲突列（逗号分隔）
+     * @param insertColumnList       INSERT 列清单
+     * @param insertValuesSql        VALUES 内表达式（与列一一对应，可含 {@code ?} / {@code NOW()}）
+     * @param mysqlUpdateAssignments MySQL 风格赋值，可用 {@code VALUES(col)}
+     * @return 完整 UPSERT SQL
+     */
+    public String upsertSql(String table, String conflictColumns,
+                            String insertColumnList, String insertValuesSql,
+                            String mysqlUpdateAssignments) {
+        if (!StringUtils.hasText(table)) {
+            throw new IllegalArgumentException("table required");
+        }
+        if (!StringUtils.hasText(insertColumnList) || !StringUtils.hasText(insertValuesSql)) {
+            throw new IllegalArgumentException("insertColumnList/insertValuesSql required");
+        }
+        if (!StringUtils.hasText(mysqlUpdateAssignments)) {
+            throw new IllegalArgumentException("mysqlUpdateAssignments required");
+        }
+        if (dbType == DbType.ORACLE) {
+            return mergeInto(table, conflictColumns, insertColumnList, insertValuesSql, mysqlUpdateAssignments);
+        }
+        return "INSERT INTO " + table.trim() + " (" + insertColumnList.trim() + ") VALUES ("
+                + insertValuesSql.trim() + ")"
+                + onDuplicateKeyUpdate(conflictColumns, mysqlUpdateAssignments);
+    }
+
+    /**
+     * 生成 UPSERT 冲突更新后缀（仅 MySQL/PostgreSQL）。
+     *
+     * <p>Oracle 请改用 {@link #upsertSql} / {@link #mergeInto}。</p>
      *
      * @param conflictColumns        冲突列（PG 必填，逗号分隔，如 {@code id}）
      * @param mysqlUpdateAssignments MySQL 风格赋值，可用 {@code VALUES(col)}
@@ -171,30 +204,88 @@ public class SqlDialectHelper {
                         + toExcludedAssignments(mysqlUpdateAssignments.trim());
             }
             case ORACLE -> throw new UnsupportedOperationException(
-                    "Oracle UPSERT 请改用 MERGE INTO ... USING dual；"
-                            + "示例: MERGE INTO t USING (SELECT ? AS id FROM dual) s ON (t.id=s.id) "
-                            + "WHEN MATCHED THEN UPDATE SET ... WHEN NOT MATCHED THEN INSERT ...; "
-                            + "SqlDialectHelper.mergeInto 尚未实现");
+                    "Oracle 请使用 SqlDialectHelper.upsertSql / mergeInto，勿再拼接 ON DUPLICATE 后缀");
             default -> " ON DUPLICATE KEY UPDATE " + mysqlUpdateAssignments.trim();
         };
     }
 
     /**
-     * Oracle MERGE 占位：本阶段未实现，统一抛出明确异常。
-     *
-     * <p>调用方在切到 Oracle 前应改为手写 MERGE 或等待后续里程碑。</p>
+     * 生成 Oracle MERGE UPSERT 语句。
      *
      * @param table           目标表
      * @param conflictColumns 冲突列（逗号分隔）
      * @param insertColumns   INSERT 列清单
-     * @param updateSet       UPDATE SET 子句（不含 SET 关键字）
-     * @return 永不返回
+     * @param insertValues    与列对应的值表达式
+     * @param updateSet       MySQL 风格 UPDATE 赋值（可含 {@code VALUES(col)}）
+     * @return MERGE INTO ... SQL
      */
+    public String mergeInto(String table, String conflictColumns, String insertColumns,
+                            String insertValues, String updateSet) {
+        if (!StringUtils.hasText(table)) {
+            throw new IllegalArgumentException("table required");
+        }
+        if (!StringUtils.hasText(conflictColumns)) {
+            throw new IllegalArgumentException("conflictColumns required for Oracle MERGE");
+        }
+        if (!StringUtils.hasText(insertColumns) || !StringUtils.hasText(insertValues)) {
+            throw new IllegalArgumentException("insertColumns/insertValues required");
+        }
+        if (!StringUtils.hasText(updateSet)) {
+            throw new IllegalArgumentException("updateSet required");
+        }
+        List<String> cols = splitCsv(insertColumns);
+        List<String> vals = splitCsv(insertValues);
+        if (cols.size() != vals.size()) {
+            throw new IllegalArgumentException(
+                    "insertColumns/insertValues size mismatch: " + cols.size() + " vs " + vals.size());
+        }
+        StringBuilder usingSelect = new StringBuilder("SELECT ");
+        for (int i = 0; i < cols.size(); i++) {
+            if (i > 0) {
+                usingSelect.append(", ");
+            }
+            usingSelect.append(vals.get(i)).append(" AS ").append(cols.get(i));
+        }
+        usingSelect.append(" FROM dual");
+
+        List<String> conflicts = splitCsv(conflictColumns);
+        StringBuilder on = new StringBuilder();
+        for (int i = 0; i < conflicts.size(); i++) {
+            if (i > 0) {
+                on.append(" AND ");
+            }
+            String c = conflicts.get(i);
+            on.append("t.").append(c).append(" = s.").append(c);
+        }
+
+        StringBuilder insertSrc = new StringBuilder();
+        for (int i = 0; i < cols.size(); i++) {
+            if (i > 0) {
+                insertSrc.append(", ");
+            }
+            insertSrc.append("s.").append(cols.get(i));
+        }
+
+        return "MERGE INTO " + table.trim() + " t USING (" + usingSelect + ") s ON (" + on + ") "
+                + "WHEN MATCHED THEN UPDATE SET " + toMergeAssignments(updateSet.trim()) + " "
+                + "WHEN NOT MATCHED THEN INSERT (" + String.join(", ", cols) + ") VALUES ("
+                + insertSrc + ")";
+    }
+
+    /**
+     * 兼容旧四参数签名：无 insertValues 时无法生成 USING，明确失败。
+     *
+     * @param table           目标表
+     * @param conflictColumns 冲突列
+     * @param insertColumns   INSERT 列
+     * @param updateSet       UPDATE 赋值
+     * @return 永不返回
+     * @deprecated 请使用五参数 {@link #mergeInto(String, String, String, String, String)}
+     */
+    @Deprecated
     public String mergeInto(String table, String conflictColumns, String insertColumns, String updateSet) {
         throw new UnsupportedOperationException(
-                "SqlDialectHelper.mergeInto 尚未实现 table=" + table
-                        + " conflict=" + conflictColumns
-                        + "；请手写 MERGE 或继续使用 MySQL/PostgreSQL upsert");
+                "请改用 mergeInto(table, conflict, insertColumns, insertValues, updateSet) 或 upsertSql");
     }
 
     /**
@@ -211,5 +302,71 @@ public class SqlDialectHelper {
         }
         m.appendTail(sb);
         return sb.toString();
+    }
+
+    /**
+     * 将 MySQL 风格赋值转为 Oracle MERGE：{@code t.col = s.col}；字面量右侧保持不变。
+     *
+     * @param mysqlAssignments MySQL 赋值列表
+     * @return MERGE UPDATE SET 列表
+     */
+    static String toMergeAssignments(String mysqlAssignments) {
+        List<String> parts = splitCsv(mysqlAssignments);
+        List<String> out = new ArrayList<>(parts.size());
+        for (String part : parts) {
+            int eq = part.indexOf('=');
+            if (eq <= 0) {
+                throw new IllegalArgumentException("invalid assignment: " + part);
+            }
+            String left = part.substring(0, eq).trim();
+            String right = part.substring(eq + 1).trim();
+            if (!left.contains(".")) {
+                left = "t." + left;
+            }
+            Matcher m = VALUES_PATTERN.matcher(right);
+            if (m.matches()) {
+                right = "s." + m.group(1).toLowerCase(Locale.ROOT);
+            }
+            out.add(left + " = " + right);
+        }
+        return String.join(", ", out);
+    }
+
+    /**
+     * 按顶层逗号拆分（忽略括号内逗号）。
+     *
+     * @param csv 逗号分隔文本
+     * @return 片段列表
+     */
+    static List<String> splitCsv(String csv) {
+        List<String> parts = new ArrayList<>();
+        if (csv == null) {
+            return parts;
+        }
+        StringBuilder cur = new StringBuilder();
+        int depth = 0;
+        for (int i = 0; i < csv.length(); i++) {
+            char ch = csv.charAt(i);
+            if (ch == '(') {
+                depth++;
+                cur.append(ch);
+            } else if (ch == ')') {
+                depth = Math.max(0, depth - 1);
+                cur.append(ch);
+            } else if (ch == ',' && depth == 0) {
+                String piece = cur.toString().trim();
+                if (!piece.isEmpty()) {
+                    parts.add(piece);
+                }
+                cur.setLength(0);
+            } else {
+                cur.append(ch);
+            }
+        }
+        String last = cur.toString().trim();
+        if (!last.isEmpty()) {
+            parts.add(last);
+        }
+        return parts;
     }
 }

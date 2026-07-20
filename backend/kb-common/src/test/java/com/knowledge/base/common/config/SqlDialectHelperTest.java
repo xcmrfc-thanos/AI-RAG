@@ -71,7 +71,7 @@ class SqlDialectHelperTest {
         assertTrue(s.contains("EXCLUDED.deleted"));
     }
 
-    /** Oracle 暂不支持。 */
+    /** Oracle 禁止再拼 ON DUPLICATE 后缀。 */
     @Test
     void onDuplicate_oracleUnsupported() {
         helper.setDbTypeForTest(DbType.ORACLE);
@@ -79,12 +79,37 @@ class SqlDialectHelperTest {
                 () -> helper.onDuplicateKeyUpdate("id", "title=VALUES(title)"));
     }
 
-    /** MERGE 占位仍抛异常。 */
+    /** Oracle MERGE 含 MERGE INTO / WHEN MATCHED。 */
     @Test
-    void mergeInto_unsupported() {
+    void mergeInto_oracle() {
         helper.setDbTypeForTest(DbType.ORACLE);
-        assertThrows(UnsupportedOperationException.class,
-                () -> helper.mergeInto("stat_user", "id", "id,username", "username=EXCLUDED.username"));
+        String sql = helper.mergeInto(
+                "stat_user",
+                "id",
+                "id, username, deleted",
+                "?, ?, ?",
+                "username=VALUES(username), deleted=VALUES(deleted)");
+        assertTrue(sql.contains("MERGE INTO stat_user"));
+        assertTrue(sql.contains("WHEN MATCHED THEN UPDATE SET"));
+        assertTrue(sql.contains("WHEN NOT MATCHED THEN INSERT"));
+        assertTrue(sql.contains("t.username = s.username"));
+        assertTrue(sql.contains("FROM dual"));
+    }
+
+    /** upsertSql：MySQL 走 INSERT+ON DUPLICATE；Oracle 走 MERGE。 */
+    @Test
+    void upsertSql_mysqlAndOracle() {
+        helper.setDbTypeForTest(DbType.MYSQL);
+        String mysql = helper.upsertSql("stat_user", "id", "id, username", "?, ?",
+                "username=VALUES(username)");
+        assertTrue(mysql.startsWith("INSERT INTO stat_user"));
+        assertTrue(mysql.contains("ON DUPLICATE KEY UPDATE"));
+
+        helper.setDbTypeForTest(DbType.ORACLE);
+        String oracle = helper.upsertSql("stat_user", "id", "id, username", "?, ?",
+                "username=VALUES(username)");
+        assertTrue(oracle.contains("MERGE INTO stat_user"));
+        assertTrue(oracle.contains("WHEN MATCHED"));
     }
 
     /** VALUES → EXCLUDED 转换。 */
@@ -92,6 +117,13 @@ class SqlDialectHelperTest {
     void toExcludedAssignments() {
         assertEquals("a=EXCLUDED.a, b=EXCLUDED.b",
                 SqlDialectHelper.toExcludedAssignments("a=VALUES(a), b=VALUES(b)"));
+    }
+
+    /** VALUES → MERGE 源表列。 */
+    @Test
+    void toMergeAssignments() {
+        assertEquals("t.a = s.a, t.deleted = 0",
+                SqlDialectHelper.toMergeAssignments("a=VALUES(a), deleted=0"));
     }
 
     /** DATE 方言。 */

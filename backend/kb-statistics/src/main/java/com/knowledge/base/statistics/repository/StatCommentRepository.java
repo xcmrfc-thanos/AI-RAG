@@ -25,9 +25,11 @@ public class StatCommentRepository {
     public void upsert(Long id, Long userId, Long documentId) {
         String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_comment (id, user_id, document_id, created_at, deleted) "
-                        + "VALUES (?, ?, ?, " + now + ", 0) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_comment",
+                        "id",
+                        "id, user_id, document_id, created_at, deleted",
+                        "?, ?, ?, " + now + ", 0",
                         "user_id=VALUES(user_id), document_id=VALUES(document_id), deleted=0"),
                 id, userId, documentId);
     }

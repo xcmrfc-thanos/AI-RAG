@@ -44,10 +44,12 @@ public class StatDocumentRepository {
                        Integer isPublic, Long teamId) {
         String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_document (id, title, author_id, category_id, status, view_count, like_count, "
-                        + "favorite_count, summary, is_public, team_id, created_at, updated_at, deleted) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " + now + ", " + now + ", ?) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_document",
+                        "id",
+                        "id, title, author_id, category_id, status, view_count, like_count, "
+                                + "favorite_count, summary, is_public, team_id, created_at, updated_at, deleted",
+                        "?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, " + now + ", " + now + ", ?",
                         "title=VALUES(title), author_id=VALUES(author_id), "
                                 + "category_id=VALUES(category_id), status=VALUES(status), "
                                 + "view_count=VALUES(view_count), like_count=VALUES(like_count), "

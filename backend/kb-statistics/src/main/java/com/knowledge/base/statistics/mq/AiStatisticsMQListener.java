@@ -53,8 +53,11 @@ public class AiStatisticsMQListener {
     private void insertConversation(AiStatisticsEventDTO event) {
         String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_ai_conversation (id, user_id, created_at, deleted) VALUES (?, ?, " + now + ", 0) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_ai_conversation",
+                        "id",
+                        "id, user_id, created_at, deleted",
+                        "?, ?, " + now + ", 0",
                         "user_id = VALUES(user_id), deleted = 0"),
                 event.getConversationId(),
                 event.getUserId());
@@ -79,9 +82,12 @@ public class AiStatisticsMQListener {
     private void insertUserMessage(AiStatisticsEventDTO event) {
         String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_ai_message (id, conversation_id, role, created_at, deleted) "
-                        + "VALUES (?, ?, 'user', " + now + ", 0) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id", "deleted = 0"),
+                sqlDialectHelper.upsertSql(
+                        "stat_ai_message",
+                        "id",
+                        "id, conversation_id, role, created_at, deleted",
+                        "?, ?, 'user', " + now + ", 0",
+                        "deleted = 0"),
                 event.getMessageId(),
                 event.getConversationId());
     }

@@ -29,9 +29,11 @@ public class StatUserRepository {
                        Integer status, Integer deleted) {
         String now = sqlDialectHelper.currentTimestamp();
         jdbcTemplate.update(
-                "INSERT INTO stat_user (id, username, real_name, avatar, status, created_at, updated_at, deleted) "
-                        + "VALUES (?, ?, ?, ?, ?, " + now + ", " + now + ", ?) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_user",
+                        "id",
+                        "id, username, real_name, avatar, status, created_at, updated_at, deleted",
+                        "?, ?, ?, ?, ?, " + now + ", " + now + ", ?",
                         "username=VALUES(username), real_name=VALUES(real_name), "
                                 + "avatar=VALUES(avatar), status=VALUES(status), updated_at=" + now
                                 + ", deleted=VALUES(deleted)"),

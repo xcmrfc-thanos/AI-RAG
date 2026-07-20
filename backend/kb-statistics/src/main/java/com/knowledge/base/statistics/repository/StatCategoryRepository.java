@@ -30,8 +30,11 @@ public class StatCategoryRepository {
      */
     public void upsert(Long id, String categoryName, Integer deleted) {
         jdbcTemplate.update(
-                "INSERT INTO stat_category (id, category_name, deleted) VALUES (?, ?, ?) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_category",
+                        "id",
+                        "id, category_name, deleted",
+                        "?, ?, ?",
                         "category_name=VALUES(category_name), deleted=VALUES(deleted)"),
                 id, categoryName, deleted != null ? deleted : 0);
     }

@@ -68,13 +68,13 @@ public class StatisticsAggregationTask {
             }
 
             String now = sqlDialectHelper.currentTimestamp();
-            String insertSql = "INSERT INTO kb_document_statistics " +
-                    "(id, document_id, document_title, view_count, like_count, comment_count, stat_date, created_at) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, " + now + ") " +
-                    sqlDialectHelper.onDuplicateKeyUpdate(
-                            "document_id, stat_date",
-                            "view_count = VALUES(view_count), like_count = VALUES(like_count), "
-                                    + "comment_count = VALUES(comment_count)");
+            String insertSql = sqlDialectHelper.upsertSql(
+                    "kb_document_statistics",
+                    "document_id, stat_date",
+                    "id, document_id, document_title, view_count, like_count, comment_count, stat_date, created_at",
+                    "?, ?, ?, ?, ?, ?, ?, " + now,
+                    "view_count = VALUES(view_count), like_count = VALUES(like_count), "
+                            + "comment_count = VALUES(comment_count)");
 
             List<Object[]> batchArgs = new ArrayList<>();
             for (Map<String, Object> row : rows) {
@@ -128,12 +128,12 @@ public class StatisticsAggregationTask {
             }
 
             String now = sqlDialectHelper.currentTimestamp();
-            String insertSql = "INSERT INTO kb_user_statistics " +
-                    "(id, user_id, user_name, document_count, comment_count, like_count, view_count, login_count, stat_date, created_at) " +
-                    "VALUES (?, ?, ?, 0, 0, 0, ?, 0, ?, " + now + ") " +
-                    sqlDialectHelper.onDuplicateKeyUpdate(
-                            "user_id, stat_date",
-                            "view_count = VALUES(view_count)");
+            String insertSql = sqlDialectHelper.upsertSql(
+                    "kb_user_statistics",
+                    "user_id, stat_date",
+                    "id, user_id, user_name, document_count, comment_count, like_count, view_count, login_count, stat_date, created_at",
+                    "?, ?, ?, 0, 0, 0, ?, 0, ?, " + now,
+                    "view_count = VALUES(view_count)");
 
             List<Object[]> batchArgs = new ArrayList<>();
             for (Map<String, Object> row : rows) {

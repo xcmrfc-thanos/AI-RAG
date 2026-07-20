@@ -38,7 +38,7 @@ class StatDocumentRepositoryTest {
     }
 
     /**
-     * 验证 upsert 命中 stat_document INSERT
+     * 验证 upsert 命中 stat_document INSERT（MySQL）
      */
     @Test
     void upsert_usesStatDocumentSql() {
@@ -50,6 +50,22 @@ class StatDocumentRepositoryTest {
         assertTrue(sql.getValue().contains("INSERT INTO stat_document"));
         assertTrue(sql.getValue().contains("is_public"));
         assertTrue(sql.getValue().contains("ON DUPLICATE KEY UPDATE"));
+    }
+
+    /**
+     * Oracle 方言下 upsert 应生成 MERGE，不再抛 Unsupported。
+     */
+    @Test
+    void upsert_oracleUsesMerge() {
+        sqlDialectHelper.setDbTypeForTest(DbType.ORACLE);
+        repository.upsert(1L, "t", 2L, 3L, 1, 0L, 0L, 0L, "s", 0, 1, 9L);
+
+        ArgumentCaptor<String> sql = ArgumentCaptor.forClass(String.class);
+        verify(jdbcTemplate).update(sql.capture(), eq(1L), eq("t"), eq(2L), eq(3L), eq(1),
+                eq(0L), eq(0L), eq(0L), eq("s"), eq(1), eq(9L), eq(0));
+        assertTrue(sql.getValue().contains("MERGE INTO stat_document"));
+        assertTrue(sql.getValue().contains("WHEN MATCHED"));
+        assertTrue(sql.getValue().contains("SYSTIMESTAMP"));
     }
 
     /**

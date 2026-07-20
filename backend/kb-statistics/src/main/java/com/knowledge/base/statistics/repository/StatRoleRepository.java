@@ -28,8 +28,11 @@ public class StatRoleRepository {
      */
     public void upsert(Long id, String roleName, String roleCode, Integer status, Integer deleted) {
         jdbcTemplate.update(
-                "INSERT INTO stat_role (id, role_name, role_code, status, deleted) VALUES (?, ?, ?, ?, ?) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_role",
+                        "id",
+                        "id, role_name, role_code, status, deleted",
+                        "?, ?, ?, ?, ?",
                         "role_name=VALUES(role_name), role_code=VALUES(role_code), "
                                 + "status=VALUES(status), deleted=VALUES(deleted)"),
                 id, roleName, roleCode, status, deleted != null ? deleted : 0);

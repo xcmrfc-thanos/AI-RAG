@@ -28,8 +28,11 @@ public class StatTeamRepository {
      */
     public void upsert(Long id, String teamName, String teamCode, Integer status, Integer deleted) {
         jdbcTemplate.update(
-                "INSERT INTO stat_team (id, team_name, team_code, status, deleted) VALUES (?, ?, ?, ?, ?) "
-                        + sqlDialectHelper.onDuplicateKeyUpdate("id",
+                sqlDialectHelper.upsertSql(
+                        "stat_team",
+                        "id",
+                        "id, team_name, team_code, status, deleted",
+                        "?, ?, ?, ?, ?",
                         "team_name=VALUES(team_name), team_code=VALUES(team_code), "
                                 + "status=VALUES(status), deleted=VALUES(deleted)"),
                 id, teamName, teamCode, status, deleted != null ? deleted : 0);
