@@ -22,7 +22,7 @@ export const settingsService = {
   /**
    * 按分组批量更新设置
    *
-   * @param section - 分组标识: basic | security | storage | notification | ai | export | rag | graph | agent | compliance
+   * @param section - 分组标识: basic | security | storage | notification | ai | export | rag | graph | agent | compliance | integration
    * @param settings - 该分组下需要更新的字段键值对
    */
   updateSettings: (section: string, settings: Record<string, unknown>): Promise<boolean> =>

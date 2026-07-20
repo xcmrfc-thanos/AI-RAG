@@ -640,6 +640,8 @@ export interface SystemSettings {
   agent?: AgentSettings;
   /** 审计与合规 */
   compliance?: ComplianceSettings;
+  /** 集成中枢 */
+  integration?: IntegrationSettings;
   status: SystemStatus;
 }
 
@@ -764,6 +766,15 @@ export interface ComplianceSettings {
   confirmSensitiveGraphOps: boolean;
   /** 删除类操作二次确认 */
   confirmSensitiveDelete: boolean;
+}
+
+/** 集成中枢（对象存储标识等；明细编辑跳转存储/通知 Tab） */
+export interface IntegrationSettings {
+  /** rustfs | minio | s3 | other */
+  storageProvider: string;
+  storageRegion?: string;
+  integrationNeo4jUri?: string;
+  integrationEsHosts?: string;
 }
 
 export interface SystemStatus {

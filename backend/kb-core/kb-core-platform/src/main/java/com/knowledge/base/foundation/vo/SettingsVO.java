@@ -54,6 +54,9 @@ public class SettingsVO implements Serializable {
     @Schema(description = "审计与合规设置")
     private Map<String, Object> compliance;
 
+    @Schema(description = "集成中枢（对象存储标识、图谱/ES 连接说明）")
+    private Map<String, Object> integration;
+
     @Schema(description = "系统状态")
     private SystemStatusVO status;
 }

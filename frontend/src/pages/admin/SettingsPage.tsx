@@ -21,6 +21,7 @@ import {
   Collapse,
   Alert,
   AutoComplete,
+  Descriptions,
 } from 'antd';
 import { App } from 'antd';
 import {
@@ -43,6 +44,7 @@ import {
   ApartmentOutlined,
   ClusterOutlined,
   AuditOutlined,
+  ApiOutlined,
 } from '@ant-design/icons';
 import { settingsService, aiService, graphService, agentService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
@@ -104,7 +106,14 @@ const AGENT_MODEL_OPTIONS = [
   { value: 'deepseek', label: 'DeepSeek' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'agent' | 'compliance' | 'status';
+const STORAGE_PROVIDER_OPTIONS = [
+  { value: 'rustfs', label: 'RustFS（S3 兼容，推荐）' },
+  { value: 'minio', label: 'MinIO' },
+  { value: 's3', label: 'AWS S3 / 兼容服务' },
+  { value: 'other', label: '其他' },
+];
+
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'agent' | 'compliance' | 'integration' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -122,6 +131,7 @@ const TABS: TabConfig[] = [
   { key: 'graph',         label: '知识图谱',     icon: <ApartmentOutlined /> },
   { key: 'agent',         label: 'Agent',        icon: <ClusterOutlined /> },
   { key: 'compliance',    label: '审计与合规',   icon: <AuditOutlined /> },
+  { key: 'integration',   label: '集成',         icon: <ApiOutlined /> },
   { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
@@ -156,6 +166,7 @@ export const SettingsPage: React.FC = () => {
   const [graphForm]    = Form.useForm();
   const [agentForm]    = Form.useForm();
   const [complianceForm] = Form.useForm();
+  const [integrationForm] = Form.useForm();
   const [reindexing, setReindexing] = useState(false);
   const [graphBusy, setGraphBusy] = useState<'rebuild' | 'cleanup' | null>(null);
   const [agentWorkflows, setAgentWorkflows] = useState<AgentWorkflowSummary[]>([]);
@@ -294,6 +305,22 @@ export const SettingsPage: React.FC = () => {
           confirmSensitiveDelete: true,
         });
       }
+      if (data.integration) {
+        integrationForm.setFieldsValue({
+          storageProvider: 'rustfs',
+          storageRegion: 'us-east-1',
+          integrationNeo4jUri: 'bolt://localhost:7687',
+          integrationEsHosts: 'http://localhost:9200',
+          ...data.integration,
+        });
+      } else {
+        integrationForm.setFieldsValue({
+          storageProvider: 'rustfs',
+          storageRegion: 'us-east-1',
+          integrationNeo4jUri: 'bolt://localhost:7687',
+          integrationEsHosts: 'http://localhost:9200',
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
       setState(prev => ({ ...prev, loading: false, error: msg }));
@@ -363,6 +390,7 @@ export const SettingsPage: React.FC = () => {
   const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
   const handleSaveAgent    = () => { agentForm.validateFields().then(v => handleSave('agent', v)); };
   const handleSaveCompliance = () => { complianceForm.validateFields().then(v => handleSave('compliance', v)); };
+  const handleSaveIntegration = () => { integrationForm.validateFields().then(v => handleSave('integration', v)); };
 
   /**
    * 触发全量重建向量索引（异步任务）。
@@ -589,6 +617,8 @@ export const SettingsPage: React.FC = () => {
         return renderAgentTab();
       case 'compliance':
         return renderComplianceTab();
+      case 'integration':
+        return renderIntegrationTab();
       case 'export':
         return renderExportTab();
       case 'status':
@@ -1599,6 +1629,118 @@ export const SettingsPage: React.FC = () => {
           </Row>
         </Form>
         {renderSaveBar(handleSaveCompliance)}
+      </Card>
+    );
+  }
+
+  // ===================== INTEGRATION TAB =====================
+  /**
+   * 集成中枢：对象存储/邮件等集中展示，明细编辑跳转存储与通知 Tab。
+   *
+   * @returns 集成 Tab 内容
+   */
+  function renderIntegrationTab() {
+    const storage = settings?.storage;
+    const notification = settings?.notification;
+    const rag = settings?.rag;
+
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <ApiOutlined />,
+          '集成',
+          '对象存储（RustFS/S3）、邮件与检索依赖集中一览；避免与存储/通知 Tab 重复维护',
+          handleSaveIntegration,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="Endpoint/Bucket、SMTP 主机端口等明细请在「存储设置」「通知设置」中修改；本页保存提供商标识与 Neo4j/ES 说明项。运行时仍以 deploy/.env / Nacos 为准。"
+        />
+
+        <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+          <Col span={12}>
+            <Card size="small" title={<Space><CloudServerOutlined /> 对象存储</Space>}
+              extra={<Button type="link" size="small" onClick={() => handleTabChange('storage')}>去编辑</Button>}
+            >
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="Endpoint">{storage?.storageEndpoints || '—'}</Descriptions.Item>
+                <Descriptions.Item label="Bucket">{storage?.storageBucket || '—'}</Descriptions.Item>
+                <Descriptions.Item label="最大上传">{storage?.maxFileSize ? formatBytes(Number(storage.maxFileSize)) : '—'}</Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title={<Space><MailOutlined /> 邮件通知</Space>}
+              extra={<Button type="link" size="small" onClick={() => handleTabChange('notification')}>去编辑</Button>}
+            >
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="启用">{notification?.emailEnabled ? '是' : '否'}</Descriptions.Item>
+                <Descriptions.Item label="SMTP">{notification?.emailHost || '—'}{notification?.emailPort ? `:${notification.emailPort}` : ''}</Descriptions.Item>
+                <Descriptions.Item label="WebSocket">{notification?.websocketEnabled ? '开' : '关'}</Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title={<Space><SearchOutlined /> 向量 / 检索</Space>}
+              extra={<Button type="link" size="small" onClick={() => handleTabChange('rag')}>去编辑</Button>}
+            >
+              <Descriptions column={1} size="small">
+                <Descriptions.Item label="向量库">{rag?.ragVectorStoreType || settings?.ai?.vectorStoreType || '—'}</Descriptions.Item>
+                <Descriptions.Item label="RAG">{rag?.ragEnabled === false ? '关' : '开'}</Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title={<Space><ApartmentOutlined /> 图谱库</Space>}
+              extra={<Button type="link" size="small" onClick={() => handleTabChange('graph')}>去编辑</Button>}
+            >
+              <Text type="secondary">Neo4j 连接说明见下方表单；KAG 开关在「知识图谱」Tab。</Text>
+            </Card>
+          </Col>
+        </Row>
+
+        <Divider orientation="left" plain>集成标识（可保存）</Divider>
+        <Form
+          form={integrationForm}
+          layout="vertical"
+          initialValues={{
+            storageProvider: 'rustfs',
+            storageRegion: 'us-east-1',
+            integrationNeo4jUri: 'bolt://localhost:7687',
+            integrationEsHosts: 'http://localhost:9200',
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="对象存储提供商"
+                name="storageProvider"
+                rules={[{ required: true, message: '请选择提供商' }]}
+                extra="标识用途；实际访问仍用存储 Tab 的 Endpoint"
+              >
+                <Select options={STORAGE_PROVIDER_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="存储 Region" name="storageRegion">
+                <Input placeholder="us-east-1" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Neo4j URI" name="integrationNeo4jUri" extra="说明项，runtime 以 Nacos neo4j.* 为准">
+                <Input placeholder="bolt://localhost:7687" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="Elasticsearch Hosts" name="integrationEsHosts" extra="说明项，runtime 以 Nacos elasticsearch.* 为准">
+                <Input placeholder="http://localhost:9200" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        {renderSaveBar(handleSaveIntegration)}
       </Card>
     );
   }

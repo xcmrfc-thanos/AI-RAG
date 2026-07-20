@@ -145,6 +145,12 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("confirmSensitiveReindex",   new String[]{"audit.confirm.reindex",              "boolean", "true", "COMPLIANCE"});
         FIELD_TO_CONFIG.put("confirmSensitiveGraphOps",  new String[]{"audit.confirm.graph-ops",            "boolean", "true", "COMPLIANCE"});
         FIELD_TO_CONFIG.put("confirmSensitiveDelete",    new String[]{"audit.confirm.delete",               "boolean", "true", "COMPLIANCE"});
+
+        // ===== 集成（对象存储 / 邮件中枢标识，明细仍在 STORAGE / NOTIFICATION） =====
+        FIELD_TO_CONFIG.put("storageProvider",       new String[]{"s3.provider",            "string",  "rustfs", "INTEGRATION"});
+        FIELD_TO_CONFIG.put("storageRegion",         new String[]{"s3.region",              "string",  "us-east-1", "INTEGRATION"});
+        FIELD_TO_CONFIG.put("integrationNeo4jUri",   new String[]{"neo4j.uri",              "string",  "bolt://localhost:7687", "INTEGRATION"});
+        FIELD_TO_CONFIG.put("integrationEsHosts",    new String[]{"elasticsearch.hosts",    "string",  "http://localhost:9200", "INTEGRATION"});
     }
 
     // ==================== 按分组读取 ====================
@@ -176,6 +182,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> graph        = buildSection(configMap, "GRAPH",      SETTINGS_GRAPH_FIELDS,          "graph");
         Map<String, Object> agent        = buildSection(configMap, "AGENT",      SETTINGS_AGENT_FIELDS,          "agent");
         Map<String, Object> compliance   = buildSection(configMap, "COMPLIANCE", SETTINGS_COMPLIANCE_FIELDS,     "compliance");
+        Map<String, Object> integration  = buildSection(configMap, "INTEGRATION", SETTINGS_INTEGRATION_FIELDS,  "integration");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -188,6 +195,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .graph(graph)
                 .agent(agent)
                 .compliance(compliance)
+                .integration(integration)
                 .status(getSystemStatus())
                 .build();
     }
@@ -233,6 +241,9 @@ public class SettingsServiceImpl implements SettingsService {
             "operationLogRetentionDays",
             "confirmSensitiveExport", "confirmSensitiveReindex",
             "confirmSensitiveGraphOps", "confirmSensitiveDelete"
+    );
+    private static final List<String> SETTINGS_INTEGRATION_FIELDS = List.of(
+            "storageProvider", "storageRegion", "integrationNeo4jUri", "integrationEsHosts"
     );
 
     /**
