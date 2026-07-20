@@ -50,7 +50,7 @@
         AND deleted = 0
     </select>
 
-    <!-- 统计每日新增用户数量 -->
+    <!-- 统计每日新增用户数量（默认 MySQL/PG） -->
     <select id="countDailyUsers" resultType="com.knowledge.base.statistics.model.DailyCount">
         SELECT DATE(created_at) AS date, COUNT(*) AS count
         FROM stat_user
@@ -58,6 +58,17 @@
         AND created_at &lt;= #{endDate}
         AND deleted = 0
         GROUP BY DATE(created_at)
+        ORDER BY date ASC
+    </select>
+
+    <select id="countDailyUsers" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.DailyCount">
+        SELECT TRUNC(created_at) AS date, COUNT(*) AS count
+        FROM stat_user
+        WHERE created_at &gt;= #{startDate}
+        AND created_at &lt;= #{endDate}
+        AND deleted = 0
+        GROUP BY TRUNC(created_at)
         ORDER BY date ASC
     </select>
 
@@ -71,6 +82,18 @@
         GROUP BY user_id
         ORDER BY count DESC
         LIMIT #{limit}
+    </select>
+
+    <select id="selectMostActiveUsers" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.IdCount">
+        SELECT user_id AS id, COUNT(*) AS count
+        FROM stat_operation_log
+        WHERE created_at &gt;= #{startDate}
+        AND created_at &lt;= #{endDate}
+        AND status = 1
+        GROUP BY user_id
+        ORDER BY count DESC
+        FETCH FIRST #{limit} ROWS ONLY
     </select>
 
     <!-- 统计用户操作次数 -->
@@ -105,6 +128,14 @@
         WHERE user_id = #{userId}
         AND stat_date &gt;= DATE(#{startDate})
         AND stat_date &lt;= DATE(#{endDate})
+    </select>
+
+    <select id="countUserViews" databaseId="oracle" resultType="java.lang.Long">
+        SELECT COALESCE(SUM(view_count), 0)
+        FROM kb_user_statistics
+        WHERE user_id = #{userId}
+        AND stat_date &gt;= TRUNC(#{startDate})
+        AND stat_date &lt;= TRUNC(#{endDate})
     </select>
 
 </mapper>

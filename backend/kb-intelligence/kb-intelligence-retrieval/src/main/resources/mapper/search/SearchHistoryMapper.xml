@@ -35,6 +35,15 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectHotKeywordsByUserId" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_search_history
+        WHERE user_id = #{userId}
+        ORDER BY search_count DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <!-- 根据用户ID和关键词查询 -->
     <select id="selectByUserIdAndKeyword" resultMap="BaseResultMap">
         SELECT
@@ -43,6 +52,15 @@
         WHERE user_id = #{userId}
         AND keyword = #{keyword}
         LIMIT 1
+    </select>
+
+    <select id="selectByUserIdAndKeyword" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_search_history
+        WHERE user_id = #{userId}
+        AND keyword = #{keyword}
+        FETCH FIRST 1 ROWS ONLY
     </select>
 
     <!-- 增加搜索次数 -->
@@ -72,6 +90,19 @@
         created_at = NOW()
     </insert>
 
+    <!-- 更新或插入搜索历史（Oracle MERGE，依赖 uk_user_keyword） -->
+    <insert id="insertOrUpdate" databaseId="oracle"
+            parameterType="com.knowledge.base.search.entity.SearchHistory">
+        MERGE INTO kb_search_history t
+        USING (SELECT #{userId} AS user_id, #{keyword} AS keyword FROM dual) s
+        ON (t.user_id = s.user_id AND t.keyword = s.keyword)
+        WHEN MATCHED THEN UPDATE SET
+            t.search_count = t.search_count + 1,
+            t.created_at = SYSTIMESTAMP
+        WHEN NOT MATCHED THEN INSERT (user_id, keyword, search_count, created_at)
+            VALUES (s.user_id, s.keyword, 1, SYSTIMESTAMP)
+    </insert>
+
     <!-- 删除搜索历史 -->
     <delete id="deleteByUserIdAndKeyword">
         DELETE FROM kb_search_history
@@ -92,13 +123,23 @@
         WHERE user_id = #{userId}
     </select>
 
-    <!-- 根据关键词模糊搜索 -->
+    <!-- 根据关键词模糊搜索（默认 MySQL/PG CONCAT） -->
     <select id="searchByKeyword" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
         FROM kb_search_history
         WHERE user_id = #{userId}
         AND keyword LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY search_count DESC, created_at DESC
+    </select>
+
+    <!-- Oracle：CONCAT 仅两参数，改用 || -->
+    <select id="searchByKeyword" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_search_history
+        WHERE user_id = #{userId}
+        AND keyword LIKE '%' || #{keyword} || '%'
         ORDER BY search_count DESC, created_at DESC
     </select>
 

@@ -127,6 +127,24 @@
 
 ## 下一步（对应计划）
 
-- Task 2：Oracle MERGE（统计 JDBC `ON_DUPLICATE`/`已helper组装` 在 Oracle 下接通）
-- Task 3：统计 Mapper 的 `DATE_FUNC`/`LIMIT_XML` 补 `databaseId=oracle`；SearchHistory `LIMIT`/`CONCAT`
+- Task 2：✅ Oracle MERGE（`upsertSql` / 统计 JDBC）
+- Task 3：✅ 统计 Mapper + SearchHistory `databaseId=oracle`（见下对照）
+- Task 4：PostgreSQL DDL 生产级校对
 - P2：`TeamMapper`/`TagMapper`/`DocumentReview` 的 `CONCAT` 在 Oracle 验证
+
+## Task 3 人工对照（MySQL 默认 vs Oracle）
+
+### DocumentStatisticsMapper.countDailyDocuments
+
+| | MySQL（无 databaseId） | Oracle |
+|--|--|--|
+| 取日 | `DATE(created_at)` | `TRUNC(created_at)` |
+| 分组 | `GROUP BY DATE(created_at)` | `GROUP BY TRUNC(created_at)` |
+
+### SearchHistoryMapper
+
+| 语句 | MySQL | Oracle |
+|--|--|--|
+| 热词 LIMIT | `LIMIT #{limit}` | `FETCH FIRST #{limit} ROWS ONLY` |
+| upsert | `ON DUPLICATE KEY UPDATE` | `MERGE INTO ... USING dual` |
+| 模糊搜 | `LIKE CONCAT('%', #{keyword}, '%')` | `LIKE '%' \|\| #{keyword} \|\| '%'` |

@@ -126,9 +126,9 @@ public String upsertSql(String table, String conflictColumns,
 - `databaseId="postgresql"` 仅当与默认不兼容
 - `databaseId="oracle"`：`TRUNC` + `FETCH FIRST`
 
-- [ ] **Step 1:** 按清单改 P0 Mapper
-- [ ] **Step 2:** 抽 1～2 个 XML 做人工对照表（MySQL vs Oracle）
-- [ ] **Step 3:** Commit：`feat(db): 统计/检索 Mapper Oracle databaseId`
+- [x] **Step 1:** 按清单改 P0 Mapper
+- [x] **Step 2:** 抽 1～2 个 XML 做人工对照表（MySQL vs Oracle）
+- [x] **Step 3:** Commit：`feat(db): 统计/检索 Mapper Oracle databaseId`
 
 ---
 

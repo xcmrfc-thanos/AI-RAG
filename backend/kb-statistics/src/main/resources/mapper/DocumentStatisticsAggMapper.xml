@@ -29,6 +29,20 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectTopDocumentsByViews" databaseId="oracle" resultType="java.util.HashMap">
+        SELECT
+            s.document_id AS document_id,
+            MAX(s.document_title) AS document_title,
+            COALESCE(SUM(s.view_count), 0) AS total_views,
+            COALESCE(SUM(s.like_count), 0) AS total_likes,
+            COALESCE(SUM(s.comment_count), 0) AS total_comments
+        FROM kb_document_statistics s
+        WHERE s.stat_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY s.document_id
+        ORDER BY total_views DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <!-- 按日期范围汇总浏览量 -->
     <select id="sumViewCountByDateRange" resultType="java.lang.Long">
         SELECT COALESCE(SUM(view_count), 0)

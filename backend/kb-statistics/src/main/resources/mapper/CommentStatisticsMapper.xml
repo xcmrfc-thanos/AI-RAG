@@ -37,13 +37,23 @@
         AND created_at &lt;= #{endDate}
     </select>
 
-    <!-- 统计每日评论数量 -->
+    <!-- 统计每日评论数量（默认 MySQL/PG） -->
     <select id="countDailyComments" resultType="com.knowledge.base.statistics.model.DailyCount">
         SELECT DATE(created_at) AS date, COUNT(*) AS count
         FROM stat_comment
         WHERE created_at &gt;= #{startDate}
         AND created_at &lt;= #{endDate}
         GROUP BY DATE(created_at)
+        ORDER BY date ASC
+    </select>
+
+    <select id="countDailyComments" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.DailyCount">
+        SELECT TRUNC(created_at) AS date, COUNT(*) AS count
+        FROM stat_comment
+        WHERE created_at &gt;= #{startDate}
+        AND created_at &lt;= #{endDate}
+        GROUP BY TRUNC(created_at)
         ORDER BY date ASC
     </select>
 
@@ -65,6 +75,15 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectTopCommenters" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.IdCount">
+        SELECT user_id AS id, COUNT(*) AS count
+        FROM stat_comment
+        GROUP BY user_id
+        ORDER BY count DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <!-- 统计评论最多的文档 -->
     <select id="selectMostCommentedDocuments" resultType="com.knowledge.base.statistics.model.IdCount">
         SELECT document_id AS id, COUNT(*) AS count
@@ -72,6 +91,15 @@
         GROUP BY document_id
         ORDER BY count DESC
         LIMIT #{limit}
+    </select>
+
+    <select id="selectMostCommentedDocuments" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.IdCount">
+        SELECT document_id AS id, COUNT(*) AS count
+        FROM stat_comment
+        GROUP BY document_id
+        ORDER BY count DESC
+        FETCH FIRST #{limit} ROWS ONLY
     </select>
 
     <!-- 统计平均每日评论数量 -->

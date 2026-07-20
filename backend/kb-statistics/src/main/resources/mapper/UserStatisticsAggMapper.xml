@@ -15,4 +15,16 @@
         LIMIT #{limit}
     </select>
 
+    <select id="selectTopActiveUsers" databaseId="oracle"
+            resultType="com.knowledge.base.statistics.model.IdCount">
+        SELECT
+            s.user_id AS id,
+            COALESCE(SUM(s.view_count), 0) AS count
+        FROM kb_user_statistics s
+        WHERE s.stat_date BETWEEN #{startDate} AND #{endDate}
+        GROUP BY s.user_id
+        ORDER BY count DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
 </mapper>
