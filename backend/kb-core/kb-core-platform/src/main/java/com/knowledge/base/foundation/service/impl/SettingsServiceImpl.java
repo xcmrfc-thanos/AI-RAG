@@ -110,6 +110,15 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("pdfWatermarkType",     new String[]{"pdf.watermark.type",             "string",  "user",                              "EXPORT"});
         FIELD_TO_CONFIG.put("pdfWatermarkText",     new String[]{"pdf.watermark.text",             "string",  "内部资料",                            "EXPORT"});
         FIELD_TO_CONFIG.put("pdfWatermarkOpacity",  new String[]{"pdf.watermark.opacity",          "number",  "0.15",                               "EXPORT"});
+
+        // ===== 检索 / RAG =====
+        FIELD_TO_CONFIG.put("ragEnabled",           new String[]{"rag.enabled",                    "boolean", "true",                               "RAG"});
+        FIELD_TO_CONFIG.put("ragDefaultTopK",       new String[]{"rag.retrieval.default-top-k",    "number",  "5",                                  "RAG"});
+        FIELD_TO_CONFIG.put("ragHybridTopK",        new String[]{"rag.retrieval.hybrid-top-k",     "number",  "20",                                 "RAG"});
+        FIELD_TO_CONFIG.put("ragFinalTopK",         new String[]{"rag.retrieval.final-top-k",      "number",  "5",                                  "RAG"});
+        FIELD_TO_CONFIG.put("ragHybridEnabled",     new String[]{"rag.hybrid.enabled",             "boolean", "true",                               "RAG"});
+        FIELD_TO_CONFIG.put("ragRerankEnabled",     new String[]{"rag.rerank.enabled",             "boolean", "true",                               "RAG"});
+        FIELD_TO_CONFIG.put("ragVectorStoreType",   new String[]{"rag.vector.store",               "string",  "elasticsearch",                      "RAG"});
     }
 
     // ==================== 按分组读取 ====================
@@ -137,6 +146,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> notification = buildSection(configMap, "NOTIFICATION", SETTINGS_NOTIFICATION_FIELDS, "notification");
         Map<String, Object> ai           = buildSection(configMap, "AI",         SETTINGS_AI_FIELDS,             "ai");
         Map<String, Object> export       = buildSection(configMap, "EXPORT",     SETTINGS_EXPORT_FIELDS,         "export");
+        Map<String, Object> rag          = buildSection(configMap, "RAG",        SETTINGS_RAG_FIELDS,            "rag");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -145,6 +155,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .notification(notification)
                 .ai(ai)
                 .export(export)
+                .rag(rag)
                 .status(getSystemStatus())
                 .build();
     }
@@ -171,6 +182,10 @@ public class SettingsServiceImpl implements SettingsService {
     );
     private static final List<String> SETTINGS_EXPORT_FIELDS = List.of(
             "pdfWatermarkEnabled", "pdfWatermarkType", "pdfWatermarkText", "pdfWatermarkOpacity"
+    );
+    private static final List<String> SETTINGS_RAG_FIELDS = List.of(
+            "ragEnabled", "ragDefaultTopK", "ragHybridTopK", "ragFinalTopK",
+            "ragHybridEnabled", "ragRerankEnabled", "ragVectorStoreType"
     );
 
     /**

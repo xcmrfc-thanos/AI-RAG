@@ -42,6 +42,9 @@ public class SettingsVO implements Serializable {
     @Schema(description = "文档导出设置（水印等）")
     private Map<String, Object> export;
 
+    @Schema(description = "检索/RAG 设置")
+    private Map<String, Object> rag;
+
     @Schema(description = "系统状态")
     private SystemStatusVO status;
 }

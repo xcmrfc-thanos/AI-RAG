@@ -632,6 +632,8 @@ export interface SystemSettings {
   ai: AISettings;
   /** 文档导出 / PDF 水印 */
   export?: ExportSettings;
+  /** 检索 / RAG */
+  rag?: RagSettings;
   status: SystemStatus;
 }
 
@@ -704,6 +706,18 @@ export interface ExportSettings {
   pdfWatermarkText: string;
   /** 0~1 */
   pdfWatermarkOpacity?: number;
+}
+
+/** 检索 / RAG 设置（落配置表；runtime 以 .env/Nacos 为准） */
+export interface RagSettings {
+  ragEnabled: boolean;
+  ragDefaultTopK: number;
+  ragHybridTopK: number;
+  ragFinalTopK: number;
+  ragHybridEnabled: boolean;
+  ragRerankEnabled: boolean;
+  /** elasticsearch | qdrant | milvus */
+  ragVectorStoreType: string;
 }
 
 export interface SystemStatus {

@@ -425,6 +425,26 @@ export const aiService = {
       }
     });
   },
+
+  /**
+   * 全量重建 RAG 向量索引（异步，返回 taskId）
+   *
+   * @returns 任务 ID
+   */
+  reindexAll: (): Promise<string> => {
+    return http.post<string>('/ai/rag/reindex/all');
+  },
+
+  /**
+   * 查询重建索引进度
+   *
+   * @param taskId 任务 ID
+   */
+  getReindexProgress: (taskId: string) => {
+    return http.get<{ taskId?: string; status?: string; progress?: number; message?: string }>(
+      `/ai/rag/reindex/progress/${taskId}`,
+    );
+  },
 };
 
 export default aiService;

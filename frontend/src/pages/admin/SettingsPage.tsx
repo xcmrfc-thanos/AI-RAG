@@ -39,6 +39,7 @@ import {
   SendOutlined,
   CloudUploadOutlined,
   FileProtectOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import { settingsService, aiService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
@@ -87,7 +88,7 @@ const WATERMARK_TYPE_OPTIONS = [
   { value: 'user_time', label: '用户名 + 导出时间' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'status';
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -101,6 +102,7 @@ const TABS: TabConfig[] = [
   { key: 'storage',       label: '存储设置',     icon: <CloudServerOutlined /> },
   { key: 'notification',  label: '通知设置',     icon: <BellOutlined /> },
   { key: 'ai',            label: 'AI设置',       icon: <RobotOutlined /> },
+  { key: 'rag',           label: '检索/RAG',     icon: <SearchOutlined /> },
   { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
@@ -130,6 +132,8 @@ export const SettingsPage: React.FC = () => {
   const [notifForm]    = Form.useForm();
   const [aiForm]       = Form.useForm();
   const [exportForm]   = Form.useForm();
+  const [ragForm]      = Form.useForm();
+  const [reindexing, setReindexing] = useState(false);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
   const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
@@ -174,6 +178,28 @@ export const SettingsPage: React.FC = () => {
           pdfWatermarkType: 'user',
           pdfWatermarkText: '内部资料',
           pdfWatermarkOpacity: 0.15,
+        });
+      }
+      if (data.rag) {
+        ragForm.setFieldsValue({
+          ragEnabled: true,
+          ragDefaultTopK: 5,
+          ragHybridTopK: 20,
+          ragFinalTopK: 5,
+          ragHybridEnabled: true,
+          ragRerankEnabled: true,
+          ragVectorStoreType: 'elasticsearch',
+          ...data.rag,
+        });
+      } else {
+        ragForm.setFieldsValue({
+          ragEnabled: true,
+          ragDefaultTopK: 5,
+          ragHybridTopK: 20,
+          ragFinalTopK: 5,
+          ragHybridEnabled: true,
+          ragRerankEnabled: true,
+          ragVectorStoreType: (data.ai as any)?.vectorStoreType || 'elasticsearch',
         });
       }
     } catch (err: unknown) {
@@ -228,6 +254,23 @@ export const SettingsPage: React.FC = () => {
   const handleSaveNotif    = () => { notifForm.validateFields().then(v => handleSave('notification', Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'emailTestAddress')))); };
   const handleSaveAI       = () => { aiForm.validateFields().then(v => handleSave('ai', v)); };
   const handleSaveExport   = () => { exportForm.validateFields().then(v => handleSave('export', v)); };
+  const handleSaveRag      = () => { ragForm.validateFields().then(v => handleSave('rag', v)); };
+
+  /**
+   * 触发全量重建向量索引（异步任务）。
+   */
+  const handleReindexAll = async () => {
+    setReindexing(true);
+    try {
+      const taskId = await aiService.reindexAll();
+      message.success(taskId ? `全量重建已提交，任务ID：${taskId}` : '全量重建任务已提交');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '重建索引失败';
+      message.error(msg);
+    } finally {
+      setReindexing(false);
+    }
+  };
 
   // ---- Status Actions ----
 
@@ -398,6 +441,8 @@ export const SettingsPage: React.FC = () => {
         return renderNotificationTab();
       case 'ai':
         return renderAITab();
+      case 'rag':
+        return renderRagTab();
       case 'export':
         return renderExportTab();
       case 'status':
@@ -938,6 +983,112 @@ export const SettingsPage: React.FC = () => {
           />
         </Form>
         {renderSaveBar(handleSaveAI)}
+      </Card>
+    );
+  }
+
+  // ===================== RAG TAB =====================
+  /**
+   * 检索 / RAG 设置：TopK、混合检索、向量库与重建索引入口。
+   *
+   * @returns RAG 设置 Tab 内容
+   */
+  function renderRagTab() {
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <SearchOutlined />,
+          '检索 / RAG',
+          'TopK、混合检索、重排序与向量库；重建索引走已有 /rag/reindex',
+          handleSaveRag,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="此处写入系统配置表，供管理与审计对齐；运行时检索仍以 deploy/.env 与 Nacos（rag.*）为准，变更后通常需重启 intelligence。更换 Embedding/向量库后必须重建索引。"
+        />
+        <Form
+          form={ragForm}
+          layout="vertical"
+          initialValues={{
+            ragEnabled: true,
+            ragDefaultTopK: 5,
+            ragHybridTopK: 20,
+            ragFinalTopK: 5,
+            ragHybridEnabled: true,
+            ragRerankEnabled: true,
+            ragVectorStoreType: 'elasticsearch',
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="启用 RAG" name="ragEnabled" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="默认混合检索" name="ragHybridEnabled" valuePropName="checked"
+                extra="管理面偏好开关；搜索 API 仍可按请求指定 mode">
+                <Switch checkedChildren="混合" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="启用重排序" name="ragRerankEnabled" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="默认 TopK" name="ragDefaultTopK" rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={1} max={50} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="混合检索 TopK" name="ragHybridTopK" extra="BM25/kNN 各自召回数"
+                rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={1} max={100} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="最终 TopK" name="ragFinalTopK" rules={[{ required: true }]}>
+                <InputNumber style={{ width: '100%' }} min={1} max={50} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="向量库"
+                name="ragVectorStoreType"
+                rules={[{ required: true, message: '请选择向量库' }]}
+                extra="与 AI 设置中的向量库同源配置键 rag.vector.store"
+              >
+                <Select options={VECTOR_STORE_OPTIONS} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        <Divider />
+        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+          <Text strong>重建索引</Text>
+          <Text type="secondary" style={{ display: 'block' }}>
+            调用已有接口 POST /api/ai/rag/reindex/all，对已发布文档重新分块与嵌入。耗时长，请勿频繁触发。
+          </Text>
+          <Popconfirm
+            title="确认全量重建向量索引？"
+            description="将提交异步任务，可能占用 Embedding 与 ES 资源"
+            onConfirm={handleReindexAll}
+            okText="确认重建"
+            cancelText="取消"
+          >
+            <Button type="primary" danger loading={reindexing} icon={<ReloadOutlined />}>
+              全量重建索引
+            </Button>
+          </Popconfirm>
+        </Space>
+        {renderSaveBar(handleSaveRag)}
       </Card>
     );
   }
