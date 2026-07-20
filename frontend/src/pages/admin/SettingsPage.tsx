@@ -18,6 +18,9 @@ import {
   Divider,
   Statistic,
   Popconfirm,
+  Collapse,
+  Alert,
+  AutoComplete,
 } from 'antd';
 import { App } from 'antd';
 import {
@@ -36,14 +39,46 @@ import {
   SendOutlined,
   CloudUploadOutlined,
 } from '@ant-design/icons';
-import { settingsService } from '@/services';
+import { settingsService, aiService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
 import { useAppStore } from '@/stores';
-import type { SystemSettings } from '@/types';
+import type { SystemSettings, AIModelOption } from '@/types';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+
+/** Embedding 预设（含自定义） */
+const EMBEDDING_PRESETS: Record<string, { label: string; models: { value: string; label: string }[] }> = {
+  siliconflow: {
+    label: '硅基流动 SiliconFlow',
+    models: [
+      { value: 'BAAI/bge-m3', label: 'BAAI/bge-m3' },
+      { value: 'BAAI/bge-large-zh-v1.5', label: 'BAAI/bge-large-zh-v1.5' },
+    ],
+  },
+  qwen: {
+    label: '通义千问 Qwen',
+    models: [
+      { value: 'text-embedding-v3', label: 'text-embedding-v3' },
+      { value: 'text-embedding-v2', label: 'text-embedding-v2' },
+    ],
+  },
+  custom: { label: '自定义', models: [] },
+};
+
+const CHAT_PROVIDER_OPTIONS = [
+  { value: 'qwen', label: '通义千问 Qwen' },
+  { value: 'siliconflow', label: '硅基流动 SiliconFlow' },
+  { value: 'deepseek', label: 'DeepSeek' },
+  { value: 'custom', label: '自定义' },
+];
+
+const VECTOR_STORE_OPTIONS = [
+  { value: 'elasticsearch', label: 'Elasticsearch（推荐）' },
+  { value: 'qdrant', label: 'Qdrant' },
+  { value: 'milvus', label: 'Milvus（兼容）' },
+];
 
 type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'status';
 
@@ -87,6 +122,10 @@ export const SettingsPage: React.FC = () => {
   const [notifForm]    = Form.useForm();
   const [aiForm]       = Form.useForm();
 
+  const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
+  const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
+  const embeddingProvider = Form.useWatch('embeddingProvider', aiForm) || 'siliconflow';
+
   const enableEmail = useAppStore((s) => s.enableEmail);
 
   // ---- Data Fetching ----
@@ -102,7 +141,14 @@ export const SettingsPage: React.FC = () => {
       if (data.security) securityForm.setFieldsValue(data.security);
       if (data.storage)  storageForm.setFieldsValue(data.storage);
       if (data.notification) notifForm.setFieldsValue(data.notification);
-      if (data.ai)       aiForm.setFieldsValue(data.ai);
+      if (data.ai) {
+        aiForm.setFieldsValue({
+          ...data.ai,
+          chatProvider: (data.ai as any).chatProvider || 'qwen',
+          embeddingProvider: (data.ai as any).embeddingProvider || 'siliconflow',
+          vectorStoreType: (data.ai as any).vectorStoreType || 'elasticsearch',
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
       setState(prev => ({ ...prev, loading: false, error: msg }));
@@ -117,6 +163,20 @@ export const SettingsPage: React.FC = () => {
     });
     return () => cancelAnimationFrame(frameId);
   }, [fetchSettings]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const models = await aiService.getModels();
+        const list = Array.isArray(models) ? models : ((models as any)?.data ?? []);
+        if (!cancelled) setChatModels(Array.isArray(list) ? list : []);
+      } catch {
+        if (!cancelled) setChatModels([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   // ---- Save Handlers ----
 
@@ -690,55 +750,162 @@ export const SettingsPage: React.FC = () => {
 
   // ===================== AI TAB =====================
   function renderAITab() {
+    const embeddingPresets = EMBEDDING_PRESETS[embeddingProvider]?.models ?? [];
+    const modelSelectOptions = chatModels.length > 0
+      ? chatModels.map((m) => ({
+          value: m.key,
+          label: m.displayName || m.key,
+        }))
+      : [
+          { value: 'qwen3-max', label: 'qwen3-max' },
+          { value: 'qwen-max', label: 'qwen-max' },
+          { value: 'qwen-plus', label: 'qwen-plus' },
+        ];
+
     return (
       <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
         {renderSectionHeader(
           <RobotOutlined />,
           'AI设置',
-          '配置大模型和向量数据库连接参数',
+          '对齐现网：聊天模型 / Embedding Provider / 向量库（ES·Qdrant）',
           handleSaveAI,
         )}
-        <Form form={aiForm} layout="vertical">
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="此处配置写入系统配置表，供管理与审计；运行时 LLM/向量仍以 deploy/.env 与 Nacos 为准，变更后通常需重启 intelligence。"
+        />
+        <Form form={aiForm} layout="vertical" initialValues={{
+          chatProvider: 'qwen',
+          embeddingProvider: 'siliconflow',
+          vectorStoreType: 'elasticsearch',
+          aiModelName: 'qwen3-max',
+          embeddingModel: 'BAAI/bge-m3',
+        }}>
           <Row gutter={[24, 0]}>
             <Col span={12}>
               <Form.Item
-                label="大模型名称"
+                label="聊天 Provider"
+                name="chatProvider"
+                rules={[{ required: true, message: '请选择聊天 Provider' }]}
+              >
+                <Select
+                  options={CHAT_PROVIDER_OPTIONS}
+                  onChange={() => {
+                    /* 保留当前模型名，允许跨 Provider 自定义 */
+                  }}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="聊天 / 写作模型"
                 name="aiModelName"
-                rules={[{ required: true, message: '请输入模型名称' }]}
+                rules={[{ required: true, message: '请选择或填写模型' }]}
+                extra="优先从 /ai/chat/models 拉取；也可直接输入自定义模型名"
               >
-                <Input placeholder="qwen-max" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Embedding模型"
-                name="embeddingModel"
-                rules={[{ required: true, message: '请输入Embedding模型名称' }]}
-              >
-                <Input placeholder="text-embedding-v3" />
+                <AutoComplete
+                  options={modelSelectOptions}
+                  filterOption={(input, option) =>
+                    String(option?.value ?? '').toLowerCase().includes(input.toLowerCase())
+                    || String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  placeholder="qwen3-max"
+                />
               </Form.Item>
             </Col>
           </Row>
           <Row gutter={[24, 0]}>
             <Col span={12}>
               <Form.Item
-                label="Milvus主机"
-                name="milvusHost"
-                rules={[{ required: true, message: '请输入Milvus主机地址' }]}
+                label="Embedding Provider"
+                name="embeddingProvider"
+                rules={[{ required: true, message: '请选择 Embedding Provider' }]}
               >
-                <Input placeholder="localhost" />
+                <Select
+                  options={Object.entries(EMBEDDING_PRESETS).map(([value, meta]) => ({
+                    value,
+                    label: meta.label,
+                  }))}
+                  onChange={(v) => {
+                    const first = EMBEDDING_PRESETS[v]?.models?.[0]?.value;
+                    if (first) aiForm.setFieldValue('embeddingModel', first);
+                  }}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                label="Milvus端口"
-                name="milvusPort"
-                rules={[{ required: true, message: '请输入Milvus端口' }]}
+                label="Embedding 模型"
+                name="embeddingModel"
+                rules={[{ required: true, message: '请选择或填写 Embedding 模型' }]}
               >
-                <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="19530" />
+                <AutoComplete
+                  options={
+                    embeddingProvider === 'custom' || embeddingPresets.length === 0
+                      ? []
+                      : embeddingPresets.map((m) => ({ value: m.value, label: m.label }))
+                  }
+                  filterOption={(input, option) =>
+                    String(option?.value ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                  placeholder="BAAI/bge-m3"
+                />
               </Form.Item>
             </Col>
           </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="向量库"
+                name="vectorStoreType"
+                rules={[{ required: true, message: '请选择向量库' }]}
+              >
+                <Select options={VECTOR_STORE_OPTIONS} />
+              </Form.Item>
+            </Col>
+          </Row>
+          {vectorStoreType === 'milvus' && (
+            <Row gutter={[24, 0]}>
+              <Col span={12}>
+                <Form.Item label="Milvus 主机" name="milvusHost">
+                  <Input placeholder="localhost" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Milvus 端口" name="milvusPort">
+                  <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="19530" />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+          <Collapse
+            ghost
+            items={[{
+              key: 'advanced',
+              label: '高级参数（温度 / Token / 超时）',
+              children: (
+                <Row gutter={[24, 0]}>
+                  <Col span={8}>
+                    <Form.Item label="温度" name="aiTemperature" extra="0~1，如 0.7">
+                      <InputNumber style={{ width: '100%' }} min={0} max={2} step={0.1} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="最大 Token" name="aiMaxTokens">
+                      <InputNumber style={{ width: '100%' }} min={256} max={128000} step={256} />
+                    </Form.Item>
+                  </Col>
+                  <Col span={8}>
+                    <Form.Item label="超时（秒）" name="aiTimeoutSeconds">
+                      <InputNumber style={{ width: '100%' }} min={10} max={600} />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              ),
+            }]}
+          />
         </Form>
         {renderSaveBar(handleSaveAI)}
       </Card>

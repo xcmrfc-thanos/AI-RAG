@@ -204,8 +204,16 @@ export const aiService = {
   },
 
   // 获取快捷问题
-  getQuickQuestions: () => {
-    return http.get<AIQuickQuestion[]>('/ai/quick-questions');
+  getQuickQuestions: async () => {
+    // 对齐后端 GET /ai/suggestions（网关 StripPrefix 后 /suggestions）
+    const items = await http.get<string[]>('/ai/suggestions');
+    const list = Array.isArray(items) ? items : [];
+    return list.map((text, index) => ({
+      id: String(index + 1),
+      title: text,
+      question: text,
+      category: 'default',
+    })) as AIQuickQuestion[];
   },
 
   // ==================== AI Writing APIs ====================
@@ -220,13 +228,14 @@ export const aiService = {
     return http.post<WritingResult>('/ai/writing/generate', { ...data, actionType: 'generate' });
   },
 
-  // 流式生成写作内容
+  // 流式生成写作内容（与 askStream 同款批处理，边生成边刷新）
   generateWritingStream: (
     data: WritingRequest,
     onMessage: (chunk: string) => void,
     onDone?: (result: WritingResult) => void,
     onError?: (error: string) => void,
   ) => {
+    const { addToken, flush } = createBatchedCallback(onMessage, 80);
     const apiBase = import.meta.env.VITE_API_BASE_URL;
     return fetch(`${apiBase}/ai/writing/generate/stream`, {
       method: 'POST',
@@ -257,7 +266,7 @@ export const aiService = {
         for (const line of lines) {
           if (line.startsWith('event:')) {
             if (messageLines.length > 0) {
-              onMessage(messageLines.join('\n'));
+              addToken(messageLines.join('\n'));
               messageLines = [];
             }
             currentEvent = line.slice(6).trim();
@@ -266,10 +275,12 @@ export const aiService = {
           if (line.startsWith('data:')) {
             const data = line.startsWith('data: ') ? line.slice(6) : line.slice(5);
             if (currentEvent === 'error') {
+              flush();
               onError?.(data);
               continue;
             }
             if (currentEvent === 'done') {
+              flush();
               try {
                 const parsed = JSON.parse(data);
                 onDone?.(parsed);
@@ -281,7 +292,7 @@ export const aiService = {
           }
           if (line === '') {
             if (messageLines.length > 0) {
-              onMessage(messageLines.join('\n'));
+              addToken(messageLines.join('\n'));
               messageLines = [];
             }
             currentEvent = '';
@@ -289,8 +300,9 @@ export const aiService = {
         }
       }
       if (messageLines.length > 0) {
-        onMessage(messageLines.join('\n'));
+        addToken(messageLines.join('\n'));
       }
+      flush();
     });
   },
 

@@ -74,6 +74,20 @@ public class NotificationController {
         return notificationService.markAllAsRead(userId);
     }
 
+    /**
+     * 清空当前用户全部通知（必须在 /{id} 之前声明，避免 all 被当成路径变量）
+     *
+     * @return 是否成功
+     */
+    @DeleteMapping("/all")
+    @Operation(summary = "清空全部通知", description = "删除当前用户的全部通知")
+    public Result<Boolean> deleteAllNotifications() {
+        Long userId = UserContextUtil.getUserId();
+        log.info("清空全部通知请求：userId={}", userId);
+
+        return notificationService.deleteAllByUserId(userId);
+    }
+
     @DeleteMapping("/{id}")
     @Operation(summary = "删除通知", description = "根据通知ID删除通知")
     public Result<Boolean> deleteNotification(

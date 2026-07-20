@@ -38,4 +38,12 @@ public interface SettingsService {
      * 创建数据备份
      */
     String createBackup();
+
+    /**
+     * 发送测试邮件（当前为占位：校验地址并返回成功，未配置 SMTP 时不真实发信）
+     *
+     * @param email 目标邮箱
+     * @return 结果说明
+     */
+    String testEmail(String email);
 }

@@ -15,12 +15,12 @@ import org.springframework.util.StringUtils;
 /**
  * 嵌入模型配置（OpenAI 兼容接口）。
  *
- * <p>优先使用 {@code rag.embedding.api-key}/{@code base-url}；为空时回退
- * {@code qwen.api-key}/{@code qwen.base-url}，从而支持：</p>
- * <ul>
- *   <li>公网：通义 text-embedding-v3，或硅基 BAAI/bge-m3（独立 Key/URL）</li>
- *   <li>内网：Ollama / TEI 上的 bge-m3，与对话 qwen2.5 可同机或分端口</li>
- * </ul>
+ * <p>凭证解析顺序：</p>
+ * <ol>
+ *   <li>{@code rag.embedding.api-key}/{@code base-url}（可选覆盖）</li>
+ *   <li>当 {@code rag.embedding.provider=siliconflow} 时 → 根节点 {@code siliconflow.*}</li>
+ *   <li>否则回退根节点 {@code qwen.*}（历史「对话与向量共用通义」）</li>
+ * </ol>
  *
  * @author 苏三
  * @since 1.0.0
@@ -29,11 +29,22 @@ import org.springframework.util.StringUtils;
 @Configuration
 public class EmbeddingConfig {
 
+    private static final String PROVIDER_SILICONFLOW = "siliconflow";
+    private static final String DEFAULT_QWEN_BASE_URL =
+            "https://dashscope.aliyuncs.com/compatible-mode/v1";
+    private static final String DEFAULT_SILICONFLOW_BASE_URL = "https://api.siliconflow.cn/v1";
+
     @Value("${qwen.api-key:}")
     private String qwenApiKey;
 
     @Value("${qwen.base-url:https://dashscope.aliyuncs.com/compatible-mode/v1}")
     private String qwenBaseUrl;
+
+    @Value("${siliconflow.api-key:}")
+    private String siliconflowApiKey;
+
+    @Value("${siliconflow.base-url:https://api.siliconflow.cn/v1}")
+    private String siliconflowBaseUrl;
 
     @Autowired
     private RagProperties ragProperties;
@@ -41,7 +52,7 @@ public class EmbeddingConfig {
     /**
      * 创建 EmbeddingModel Bean。
      *
-     * <p>条件：rag.enabled=true，且 {@code rag.embedding.api-key} 或 {@code qwen.api-key} 非空。</p>
+     * <p>条件：rag.enabled=true，且 embedding / siliconflow / qwen 任一 api-key 非空。</p>
      *
      * @return OpenAI 兼容嵌入模型
      */
@@ -49,6 +60,7 @@ public class EmbeddingConfig {
     @ConditionalOnProperty(name = "rag.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnExpression(
             "T(org.springframework.util.StringUtils).hasText('${rag.embedding.api-key:}') "
+                    + "|| T(org.springframework.util.StringUtils).hasText('${siliconflow.api-key:}') "
                     + "|| T(org.springframework.util.StringUtils).hasText('${qwen.api-key:}')")
     public EmbeddingModel embeddingModel() {
         String apiKey = resolveApiKey();
@@ -77,12 +89,12 @@ public class EmbeddingConfig {
                     ragProperties.getEmbedding().getDimension(),
                     apiKey.length());
         } else {
-            log.warn("⚠️ RAG嵌入不可用：未配置 RAG_EMBEDDING_API_KEY / QWEN_API_KEY");
+            log.warn("⚠️ RAG嵌入不可用：未配置 SILICONFLOW_API_KEY / RAG_EMBEDDING_API_KEY / QWEN_API_KEY");
         }
     }
 
     /**
-     * 解析嵌入 API Key：embedding 配置优先，否则回退 qwen。
+     * 解析嵌入 API Key：embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
      *
      * @return 非空 Key，或空字符串
      */
@@ -91,11 +103,14 @@ public class EmbeddingConfig {
         if (StringUtils.hasText(fromEmbedding)) {
             return fromEmbedding.trim();
         }
+        if (isSiliconflowProvider()) {
+            return siliconflowApiKey != null ? siliconflowApiKey.trim() : "";
+        }
         return qwenApiKey != null ? qwenApiKey.trim() : "";
     }
 
     /**
-     * 解析嵌入 base-url：embedding 配置优先，否则回退 qwen。
+     * 解析嵌入 base-url：embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
      *
      * @return OpenAI 兼容 base-url
      */
@@ -104,8 +119,22 @@ public class EmbeddingConfig {
         if (StringUtils.hasText(fromEmbedding)) {
             return fromEmbedding.trim();
         }
-        return StringUtils.hasText(qwenBaseUrl)
-                ? qwenBaseUrl.trim()
-                : "https://dashscope.aliyuncs.com/compatible-mode/v1";
+        if (isSiliconflowProvider()) {
+            return StringUtils.hasText(siliconflowBaseUrl)
+                    ? siliconflowBaseUrl.trim()
+                    : DEFAULT_SILICONFLOW_BASE_URL;
+        }
+        return StringUtils.hasText(qwenBaseUrl) ? qwenBaseUrl.trim() : DEFAULT_QWEN_BASE_URL;
+    }
+
+    /**
+     * 判断当前嵌入提供商是否为硅基流动。
+     *
+     * @return true 表示 provider=siliconflow
+     */
+    private boolean isSiliconflowProvider() {
+        String provider = ragProperties.getEmbedding().getProvider();
+        return StringUtils.hasText(provider)
+                && PROVIDER_SILICONFLOW.equalsIgnoreCase(provider.trim());
     }
 }

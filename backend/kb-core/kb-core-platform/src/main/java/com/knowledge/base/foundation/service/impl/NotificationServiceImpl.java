@@ -216,6 +216,23 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
 
     /** {@inheritDoc} */
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Result<Boolean> deleteAllByUserId(Long userId) {
+        log.info("清空用户全部通知：userId={}", userId);
+
+        if (userId == null) {
+            throw new BusinessException("用户ID不能为空");
+        }
+
+        LambdaQueryWrapper<Notification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Notification::getUserId, userId);
+        int count = notificationMapper.delete(wrapper);
+        log.info("已清空{}条通知：userId={}", count, userId);
+        return Result.success(true);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public Result<Long> getUnreadCount(Long userId) {
         log.info("获取未读通知数量：userId={}", userId);
 

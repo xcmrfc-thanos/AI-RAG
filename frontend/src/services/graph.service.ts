@@ -37,21 +37,21 @@ export const graphService = {
    * 获取节点关系
    */
   getNodeRelationships: async (nodeId: string): Promise<GraphEdge[]> => {
-    return http.get(`/graph/node/${nodeId}/relationships`);
+    return http.get(`/graph/node/${nodeId}/relations`);
   },
 
   /**
    * 路径分析
    */
   findPath: async (startNodeId: string, endNodeId: string): Promise<GraphPathResult> => {
-    return http.get('/graph/path', { params: { startNodeId, endNodeId } });
+    return http.get('/graph/path', { params: { sourceId: startNodeId, targetId: endNodeId } });
   },
 
   /**
    * 获取社区检测结果
    */
   detectCommunities: async (): Promise<{ id: string; nodes: string[] }[]> => {
-    return http.get('/graph/communities');
+    return http.get('/graph/community');
   },
 
   /**

@@ -100,10 +100,15 @@ qwen:
 # DeepSeek配置
 deepseek:
   api-key: ${DEEPSEEK_API_KEY:}
-  model: deepseek-chat
-  base-url: https://api.deepseek.com/v1
+  model: ${DEEPSEEK_MODEL:deepseek-chat}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}
   max-tokens: 4096
   temperature: 0.7
+
+# 硅基流动（向量 Embedding；与 qwen/deepseek 同级根节点）
+siliconflow:
+  api-key: ${SILICONFLOW_API_KEY:}
+  base-url: ${SILICONFLOW_BASE_URL:https://api.siliconflow.cn/v1}
 
 # kb-core 直连（文档 Feign / 索引重建）
 kb-core:

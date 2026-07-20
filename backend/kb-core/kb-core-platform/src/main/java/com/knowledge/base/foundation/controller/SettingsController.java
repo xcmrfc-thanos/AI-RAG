@@ -79,4 +79,18 @@ public class SettingsController {
         String result = settingsService.createBackup();
         return Result.success("备份创建成功", result);
     }
+
+    /**
+     * 发送测试邮件
+     *
+     * @param dto 邮箱地址
+     * @return 受理结果
+     */
+    @PostMapping("/test-email")
+    @Operation(summary = "测试邮件", description = "向指定邮箱发送测试邮件（未配置 SMTP 时为占位成功）")
+    public Result<String> testEmail(@Valid @RequestBody TestEmailDTO dto) {
+        log.info("测试邮件请求：email={}", dto.getEmail());
+        String result = settingsService.testEmail(dto.getEmail());
+        return Result.success(result, result);
+    }
 }

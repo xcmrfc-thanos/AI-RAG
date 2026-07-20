@@ -63,9 +63,9 @@ public class RagProperties {
     /**
      * 嵌入（向量）配置。
      *
-     * <p>支持与对话 LLM 解耦：可单独指定 {@code apiKey}/{@code baseUrl}
-     *（如 SiliconFlow 的 BAAI/bge-m3 或内网 Ollama）。二者为空时回退 {@code qwen.*}，
-     * 兼容历史「对话与向量共用通义」部署。</p>
+     * <p>模型/维度/提供商标签在此配置；凭证优先根节点 {@code siliconflow.*} /
+     * {@code qwen.*}（与对话 LLM 同风格）。{@code apiKey}/{@code baseUrl} 仅作可选覆盖
+     *（如内网 Ollama 临时改写）。</p>
      *
      * <p><b>注意：</b>更换 {@code model} 或向量提供商后，ES/Qdrant 索引必须重建，
      * 不同模型的向量空间不可混用（即使维度同为 1024）。</p>
@@ -77,15 +77,15 @@ public class RagProperties {
         /** 嵌入向量维度（与索引 mapping 一致，默认 1024） */
         private int dimension = 1024;
         /**
-         * 提供商标签（日志/文档用）：qwen | siliconflow | ollama | local
+         * 提供商标签：qwen | siliconflow | ollama | local（决定回退哪组根节点凭证）
          */
         private String provider = "qwen";
         /**
-         * 嵌入 API Key；空字符串时由 EmbeddingConfig 回退 {@code qwen.api-key}
+         * 可选覆盖；空时按 provider 回退 {@code siliconflow.api-key} 或 {@code qwen.api-key}
          */
         private String apiKey = "";
         /**
-         * OpenAI 兼容嵌入 base-url；空时回退 {@code qwen.base-url}
+         * 可选覆盖；空时按 provider 回退 {@code siliconflow.base-url} 或 {@code qwen.base-url}
          */
         private String baseUrl = "";
         /** 批量嵌入大小 */

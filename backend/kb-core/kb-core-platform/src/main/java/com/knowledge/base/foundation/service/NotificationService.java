@@ -83,6 +83,14 @@ public interface NotificationService {
     Result<Boolean> deleteNotification(Long id);
 
     /**
+     * 清空当前用户全部通知
+     *
+     * @param userId 用户ID
+     * @return 是否成功
+     */
+    Result<Boolean> deleteAllByUserId(Long userId);
+
+    /**
      * 获取未读通知数量
      *
      * @param userId 用户ID

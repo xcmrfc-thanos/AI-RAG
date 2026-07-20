@@ -1,0 +1,134 @@
+# 系统设置增强 + API 契约对齐 Implementation Plan
+
+> **For agentic workers:** 按 Phase 顺序推进；每 Phase 可独立验证。Steps 用 checkbox 跟踪。
+
+**Goal:** 修掉前后端中/高风险接口契约问题，并把系统设置从「早期骨架」补成与现网能力匹配的配置面：先 AI/导出合规，再 RAG/图谱/Agent/审计/集成。
+
+**Architecture:** Phase1 契约对齐；P2–P5 走 Settings 分组 + PDF 导出链路；P6+ 按业务 Tab 扩展配置键，默认只落库展示，运行时热更新按模块另开。
+
+**Tech Stack:** React/Ant Design 设置页、kb-core Settings/Document、kb-intelligence AI/Graph/RAG、PDFBox、可选证书
+
+---
+
+## 范围对照（产品建议 vs 计划）
+
+| 产品建议 | 是否已进计划 | Phase |
+|----------|--------------|-------|
+| API 契约（中/高风险） | 是 | **P1（已完成）** |
+| AI 设置下拉（Provider/模型/Embedding/向量库） | 是 | **P2（下一步）** |
+| 文件/导出：PDF 水印（用户/自定义） | 是 | **P3** |
+| 导出审计日志 | 是 | **P4** |
+| 真数字签名（证书/PKCS#7） | 是（可选） | **P5** |
+| 检索/RAG Tab（TopK、混合检索、重建说明） | **已补入 backlog** | **P6** |
+| 知识图谱 Tab（自动抽取、重建/清理） | **已补入 backlog** | **P7** |
+| Agent Tab（默认工作流、超时、工具） | **已补入 backlog** | **P8** |
+| 审计与合规 Tab（保留期、二次确认） | **已补入 backlog** | **P9** |
+| 集成 Tab（RustFS/邮件集中） | **已补入 backlog** | **P10** |
+| 银行支付全套（KYC/清算等） | **不做** | 仅吸收水印+审计+复核思路 |
+
+---
+
+## 范围与分期
+
+| Phase | 内容 | 验收 | 状态 |
+|-------|------|------|------|
+| **P1** | API 契约对齐 | 相关调用不再因路径/类型 500 | **完成** |
+| **P2** | AI 设置下拉对齐真实栈 | 可保存；弱化纯 Milvus 写死 | 待做 |
+| **P3** | 文件设置 + PDF 水印 | 下载 PDF 可见水印 | 待做 |
+| **P4** | 导出审计 | 谁/何时/哪篇可查 | 待做 |
+| **P5** | 数字签名（可选） | 有合规硬需求再开 | 默认跳过 |
+| **P6** | 检索/RAG 设置 Tab | TopK/混合检索/向量库说明可配 | backlog |
+| **P7** | 知识图谱设置 Tab | 自动抽取开关 + 重建入口说明 | backlog |
+| **P8** | Agent 设置 Tab | 默认工作流/超时/工具开关 | backlog |
+| **P9** | 审计与合规 Tab | 日志保留期、敏感操作二次确认 | backlog |
+| **P10** | 集成 Tab | 存储/邮件配置集中展示 | backlog |
+
+---
+
+## Phase 1 — API 契约
+
+### Tasks
+
+- [x] P1.1 分类/版本/图谱/文件 前端对齐
+- [x] P1.2 AiFeedback 映射修复
+- [x] P1.3 test-email 后端
+- [x] P1.4 高风险字面路径（users/categories）后端或前端改走已有接口
+- [x] P1.5 quick-questions：对齐 `/ai/suggestions`
+- [x] P1.6 更新 `readme_plan.md`；重启受影响服务冒烟
+
+---
+
+## Phase 2 — AI 设置下拉（下一步）
+
+- [x] 设置 VO/DTO 扩展：chatProvider、embeddingProvider、chatModel、embeddingModel、vectorStore、高级参数
+- [x] SettingsPage AI Tab：下拉 + AutoComplete；向量库 ES / Qdrant / Milvus
+- [x] 从 `/ai/chat/models` 拉聊天模型列表；Embedding 预设硅基 bge-m3 / 通义等
+- [x] 高级折叠：温度、maxToken、超时
+- [x] 说明：运行时以 .env/Nacos 为准，配置表需重启 intelligence
+
+---
+
+## Phase 3 — 文件/导出 + PDF 水印
+
+- [ ] 新增设置 Tab「文档与导出」（或「文件设置」）
+- [ ] 配置键：`pdf.watermark.enabled` / `type`（user|custom|user_time）/ `text`；透明度可选
+- [ ] `PdfExportServiceImpl` 按设置绘制水印
+- [ ] P5 前可加「导出页脚声明」开关（非真签）
+
+---
+
+## Phase 4 — 导出审计
+
+- [ ] 审计记录：documentId、userId、format、ip、time
+- [ ] download-pdf / batch-export 写入
+- [ ] 管理端简单列表或并入操作日志
+
+---
+
+## Phase 5 — 数字签名（可选）
+
+- [ ] 合规确认后再设计证书托管与 PKCS#7
+- [ ] 无硬需求则跳过；用页脚声明 + P3/P4 替代
+
+---
+
+## Phase 6 — 检索 / RAG Tab（backlog）
+
+- [ ] TopK、混合检索开关、向量库展示（只读或可写）
+- [ ] 重建索引操作说明/入口（链到已有 reindex）
+
+---
+
+## Phase 7 — 知识图谱 Tab（backlog）
+
+- [ ] 自动抽实体开关、抽取模型选择
+- [ ] 重建/清理说明（链到现有 graph rebuild/cleanup）
+
+---
+
+## Phase 8 — Agent Tab（backlog）
+
+- [ ] 默认工作流、超时、工具开关（落 Settings，Agent 侧读取）
+
+---
+
+## Phase 9 — 审计与合规 Tab（backlog）
+
+- [ ] 操作日志保留期
+- [ ] 敏感操作二次确认（导出/删库/清图谱等）
+
+---
+
+## Phase 10 — 集成 Tab（backlog）
+
+- [ ] 对象存储/RustFS、邮件等配置集中；与现有存储/通知页去重或跳转
+
+---
+
+## 原则
+
+1. 字面路径必须在 `/{id}` 前声明（或仅改前端避开）。
+2. 优先改前端对齐稳定后端；缺能力再补最小后端。
+3. 设置项先入库/配置表，再绑运行时；避免只改 UI 不落库。
+4. P5 默认不做，除非用户明确要求。
+5. P6–P10 不阻塞 P2–P4；银行支付中台能力不纳入本仓库范围。

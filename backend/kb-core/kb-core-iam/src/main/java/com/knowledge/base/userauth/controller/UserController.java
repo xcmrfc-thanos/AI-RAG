@@ -65,6 +65,53 @@ public class UserController {
     }
 
     /**
+     * 批量删除用户（字面路径，须在 /{userId} 之前）
+     *
+     * @param body 含 ids
+     * @return 是否成功
+     */
+    @DeleteMapping("/batch")
+    @Operation(summary = "批量删除用户", description = "按 ID 列表批量删除用户")
+    public Result<Boolean> batchDeleteUsers(@RequestBody java.util.Map<String, java.util.List<Long>> body) {
+        java.util.List<Long> ids = body != null ? body.get("ids") : null;
+        log.info("批量删除用户请求：ids={}", ids);
+        if (ids == null || ids.isEmpty()) {
+            return Result.success(true);
+        }
+        for (Long id : ids) {
+            userService.deleteUser(id);
+        }
+        return Result.success("批量删除成功", true);
+    }
+
+    /**
+     * 搜索用户（字面路径）
+     *
+     * @param keyword 关键词
+     * @return 用户列表
+     */
+    @GetMapping("/search")
+    @Operation(summary = "搜索用户", description = "按关键词搜索用户")
+    public Result<List<UserVO>> searchUsers(
+            @Parameter(description = "关键词") @RequestParam(required = false) String keyword) {
+        log.info("搜索用户请求：keyword={}", keyword);
+        IPage<UserVO> page = userService.pageUsers(1L, 50L, keyword, null, null);
+        return Result.success(page.getRecords());
+    }
+
+    /**
+     * 在线用户（字面路径；暂返回空列表占位）
+     *
+     * @return 在线用户
+     */
+    @GetMapping("/online")
+    @Operation(summary = "在线用户", description = "获取当前在线用户列表（占位）")
+    public Result<List<UserVO>> getOnlineUsers() {
+        log.info("查询在线用户请求");
+        return Result.success(java.util.Collections.emptyList());
+    }
+
+    /**
      * 删除用户
      *
      * @param userId 用户ID

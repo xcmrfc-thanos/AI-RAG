@@ -39,9 +39,9 @@ export const categoryService = {
     return http.post<DocumentCategory>('/document/categories', data);
   },
 
-  // 更新分类
+  // 更新分类（后端 PUT /categories，id 放 body）
   updateCategory: (id: string, data: Partial<DocumentCategory>) => {
-    return http.put<DocumentCategory>(`/document/categories/${id}`, data);
+    return http.put<DocumentCategory>('/document/categories', { ...data, id });
   },
 
   // 删除分类
@@ -49,9 +49,12 @@ export const categoryService = {
     return http.delete(`/document/categories/${id}`);
   },
 
-  // 移动分类
+  // 移动分类（后端 PUT /categories/{id}/move?newParentId=）
   moveCategory: (params: CategoryMoveParams) => {
-    return http.post('/document/categories/move', params);
+    const parentId = params.targetParentId ?? '0';
+    return http.put(`/document/categories/${params.categoryId}/move`, null, {
+      params: { newParentId: parentId },
+    });
   },
 
   // 批量删除分类
@@ -59,9 +62,11 @@ export const categoryService = {
     return http.delete('/document/categories/batch', { data: { ids } });
   },
 
-  // 获取分类下的文档
+  // 获取分类下的文档（暂无文档分页 + categoryId，避免无后端接口）
   getCategoryDocuments: (categoryId: string, params?: PageParams) => {
-    return http.get(`/document/categories/${categoryId}/documents`, { params });
+    return http.get('/document/documents/page', {
+      params: { ...params, categoryId },
+    });
   },
 
   // 获取分类统计

@@ -24,6 +24,8 @@ import {
   FileAddOutlined,
   ClearOutlined,
   ArrowLeftOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -353,6 +355,40 @@ const toneOptions = [
   { value: 'authoritative', label: '权威' },
 ];
 
+/** 空态快捷写作入口（映射后端模板或动作提示） */
+const QUICK_WRITING_TIPS: Array<{
+  label: string;
+  templateId?: string;
+  /** 无后端模板时的本地填表 */
+  fallback?: {
+    topic: string;
+    requirements: string;
+    contentType: string;
+    style: string;
+  };
+}> = [
+  { label: '撰写技术方案', templateId: 'tech-solution' },
+  { label: '编写项目周报', templateId: 'weekly-report' },
+  {
+    label: '优化已有文档',
+    fallback: {
+      topic: '优化已有文档',
+      requirements: '请将下方待优化原文粘贴到此处，并说明优化目标（更清晰 / 更正式 / 更简洁等）。',
+      contentType: 'documentation',
+      style: 'formal',
+    },
+  },
+  {
+    label: '续写未完成内容',
+    fallback: {
+      topic: '续写未完成内容',
+      requirements: '请将已写好的前文粘贴到此处，我将按相同风格继续撰写。',
+      contentType: 'article',
+      style: 'formal',
+    },
+  },
+];
+
 // ==================== 主页面组件 ====================
 
 const AIWritingContent: React.FC = () => {
@@ -371,6 +407,10 @@ const AIWritingContent: React.FC = () => {
   const [tone, setTone] = useState<string>('neutral');
   const [length, setLength] = useState<number | null>(800);
   const [useStream, setUseStream] = useState(true);
+  /** 左侧写作表单是否收起 */
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  /** 当前选中的写作模板 id（用于列表高亮） */
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
 
   // 读取 URL 参数预填表单
   useEffect(() => {
@@ -385,12 +425,45 @@ const AIWritingContent: React.FC = () => {
     fetchTemplates();
   }, [fetchTemplates]);
 
-  // 应用模板
+  // 应用模板：名称→主题，prompt→写作要求（并给出可见反馈）
   const applyTemplate = useCallback((tpl: WritingTemplate) => {
-    setTopic(tpl.prompt || '');
+    setTopic(tpl.name || '');
+    setRequirements(tpl.prompt || '');
     if (tpl.suggestedContentType) setContentType(tpl.suggestedContentType);
     if (tpl.suggestedStyle) setStyle(tpl.suggestedStyle);
-  }, []);
+    setSelectedTemplateId(tpl.id);
+    setSidebarCollapsed(false);
+    message.success(`已应用模板「${tpl.name}」，可补充主题细节后点击生成`);
+  }, [message]);
+
+  /**
+   * 应用空态快捷写作入口。
+   *
+   * @param tip 快捷标签配置
+   */
+  const applyQuickTip = useCallback((tip: (typeof QUICK_WRITING_TIPS)[number]) => {
+    if (tip.templateId) {
+      const matched = store.templates.find((t) => t.id === tip.templateId);
+      if (matched) {
+        applyTemplate(matched);
+        return;
+      }
+    }
+    if (tip.fallback) {
+      setTopic(tip.fallback.topic);
+      setRequirements(tip.fallback.requirements);
+      setContentType(tip.fallback.contentType);
+      setStyle(tip.fallback.style);
+      setSelectedTemplateId(null);
+      setSidebarCollapsed(false);
+      message.success(`已填入「${tip.label}」，请完善左侧表单后生成`);
+      return;
+    }
+    setTopic(tip.label);
+    setSelectedTemplateId(null);
+    setSidebarCollapsed(false);
+    message.info('已填入主题，请补充写作要求后生成');
+  }, [applyTemplate, message, store.templates]);
 
   // 构建请求参数
   const buildRequest = (actionType: WritingRequest['actionType']): WritingRequest => ({
@@ -515,6 +588,7 @@ const AIWritingContent: React.FC = () => {
     setStyle('formal');
     setTone('neutral');
     setLength(800);
+    setSelectedTemplateId(null);
     store.clearResult();
   };
 
@@ -569,32 +643,42 @@ const AIWritingContent: React.FC = () => {
       )}
       footer={(
         <div style={{ marginTop: 32, display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center', maxWidth: 480, marginInline: 'auto' }}>
-          {['撰写技术方案', '编写项目周报', '优化已有文档', '续写未完成内容'].map((tip) => (
+          {QUICK_WRITING_TIPS.map((tip) => {
+            const selected = Boolean(tip.templateId && tip.templateId === selectedTemplateId);
+            return (
             <Tag
-              key={tip}
-              onClick={() => setTopic(tip)}
+              key={tip.label}
+              onClick={() => applyQuickTip(tip)}
               style={{
                 padding: '6px 14px',
                 fontSize: 13,
                 cursor: 'pointer',
                 borderRadius: 20,
-                background: COLORS.quickTagBg,
-                border: '1px solid transparent',
-                color: COLORS.tagText,
+                background: selected ? COLORS.accentBg : COLORS.quickTagBg,
+                border: selected ? `1px solid ${COLORS.accentBorder}` : '1px solid transparent',
+                color: selected ? COLORS.accent : COLORS.tagText,
+                fontWeight: selected ? 600 : 400,
                 transition: 'all 0.15s ease',
               }}
               onMouseEnter={(e) => {
+                if (selected) return;
                 e.currentTarget.style.background = '#e8edf6';
                 e.currentTarget.style.borderColor = '#d4ddf0';
               }}
               onMouseLeave={(e) => {
+                if (selected) {
+                  e.currentTarget.style.background = COLORS.accentBg;
+                  e.currentTarget.style.borderColor = COLORS.accentBorder;
+                  return;
+                }
                 e.currentTarget.style.background = COLORS.quickTagBg;
                 e.currentTarget.style.borderColor = 'transparent';
               }}
             >
-              {tip}
+              {tip.label}
             </Tag>
-          ))}
+            );
+          })}
         </div>
       )}
     />
@@ -675,16 +759,19 @@ const AIWritingContent: React.FC = () => {
         {/* ==================== 左侧面板 ==================== */}
         <div
           style={{
-            width: 380,
-            minWidth: 380,
+            width: sidebarCollapsed ? 0 : 380,
+            minWidth: sidebarCollapsed ? 0 : 380,
             height: '100%',
-            overflow: 'hidden auto',
-            borderRight: `1px solid ${COLORS.sidebarBorder}`,
+            overflow: sidebarCollapsed ? 'hidden' : 'hidden auto',
+            borderRight: sidebarCollapsed ? 'none' : `1px solid ${COLORS.sidebarBorder}`,
             background: COLORS.sidebarBg,
-            padding: '20px 20px 24px',
+            padding: sidebarCollapsed ? 0 : '20px 20px 24px',
             display: 'flex',
             flexDirection: 'column',
             gap: 18,
+            transition: 'width 0.2s ease, min-width 0.2s ease, padding 0.2s ease',
+            opacity: sidebarCollapsed ? 0 : 1,
+            pointerEvents: sidebarCollapsed ? 'none' : 'auto',
           }}
         >
           {/* ---- 头部 ---- */}
@@ -953,32 +1040,52 @@ const AIWritingContent: React.FC = () => {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {store.templates.slice(0, 6).map((tpl) => (
+                {store.templates.slice(0, 6).map((tpl) => {
+                  const selected = selectedTemplateId === tpl.id;
+                  return (
                   <div
                     key={tpl.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={selected}
                     onClick={() => applyTemplate(tpl)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        applyTemplate(tpl);
+                      }
+                    }}
                     style={{
                       padding: '11px 14px',
                       borderRadius: 10,
                       cursor: 'pointer',
-                      background: COLORS.cardBg,
-                      border: `1px solid ${COLORS.cardBorder}`,
+                      background: selected ? '#eff6ff' : COLORS.cardBg,
+                      border: selected ? `1.5px solid ${COLORS.accent}` : `1px solid ${COLORS.cardBorder}`,
+                      boxShadow: selected
+                        ? '0 0 0 3px rgba(37, 99, 235, 0.12)'
+                        : '0 1px 2px rgba(0,0,0,0.02)',
                       transition: 'all 0.15s ease',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
                     }}
                     onMouseEnter={(e) => {
+                      if (selected) return;
                       e.currentTarget.style.borderColor = '#bfdbfe';
                       e.currentTarget.style.background = '#f0f6ff';
                       e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.06)';
                     }}
                     onMouseLeave={(e) => {
+                      if (selected) {
+                        e.currentTarget.style.borderColor = COLORS.accent;
+                        e.currentTarget.style.background = '#eff6ff';
+                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.12)';
+                        return;
+                      }
                       e.currentTarget.style.borderColor = COLORS.cardBorder;
                       e.currentTarget.style.background = COLORS.cardBg;
                       e.currentTarget.style.boxShadow = '0 1px 2px rgba(0,0,0,0.02)';
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <Text strong style={{ fontSize: 13, color: COLORS.textPrimary }}>
+                      <Text strong style={{ fontSize: 13, color: selected ? COLORS.accent : COLORS.textPrimary }}>
                         {tpl.name}
                       </Text>
                       <Tag
@@ -1007,7 +1114,8 @@ const AIWritingContent: React.FC = () => {
                       {tpl.description}
                     </Text>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -1054,8 +1162,30 @@ const AIWritingContent: React.FC = () => {
               flexShrink: 0,
             }}
           >
-            {/* 左侧统计信息 */}
+            {/* 左侧：展开侧栏 + 统计 */}
             <Space size={14}>
+              {sidebarCollapsed && (
+                <Tooltip title="展开写作面板">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<MenuUnfoldOutlined />}
+                    onClick={() => setSidebarCollapsed(false)}
+                    style={{ color: COLORS.textSecondary }}
+                  />
+                </Tooltip>
+              )}
+              {!sidebarCollapsed && (
+                <Tooltip title="收起写作面板">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<MenuFoldOutlined />}
+                    onClick={() => setSidebarCollapsed(true)}
+                    style={{ color: COLORS.textMuted }}
+                  />
+                </Tooltip>
+              )}
               {store.lastResult && (
                 <>
                   <Tag

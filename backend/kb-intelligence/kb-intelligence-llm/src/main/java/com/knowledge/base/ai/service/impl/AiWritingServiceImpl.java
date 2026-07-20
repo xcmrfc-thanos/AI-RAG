@@ -6,8 +6,11 @@ import com.knowledge.base.ai.service.AiWritingService;
 import com.knowledge.base.ai.vo.WritingResultVO;
 import com.knowledge.base.ai.vo.WritingTemplateVO;
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.StreamingResponseHandler;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.output.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +21,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * AI写作服务实现类
@@ -68,60 +72,83 @@ public class AiWritingServiceImpl implements AiWritingService {
     /** {@inheritDoc} */
     @Override
     public SseEmitter generateStream(WritingRequestDTO dto, Long userId) {
-        String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
+        final String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
         log.info("AI写作流式生成请求：userId={}, model={}", userId, modelName);
 
         SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);
-        String prompt = buildWritingPrompt(dto);
+        final String prompt = buildWritingPrompt(dto);
         logModelCallParams("流式生成", modelName, dto, prompt);
 
-        ChatLanguageModel model = resolveModel(dto.getModel());
-
-        try {
-            UserMessage userMessage = UserMessage.from(prompt);
-            log.info(">>> 开始调用大模型 [{}] (流式)：promptLength={}", modelName, prompt.length());
-            Response<AiMessage> response = model.generate(userMessage);
-            String fullContent = response.content().text().trim();
-
-            logModelCallResult("流式生成", modelName, response, fullContent);
-
-            // 按字符分块发送，模拟流式输出
-            int chunkSize = 10;
-            for (int i = 0; i < fullContent.length(); i += chunkSize) {
-                int end = Math.min(i + chunkSize, fullContent.length());
-                String chunk = fullContent.substring(i, end);
-                emitter.send(SseEmitter.event()
-                        .name("message")
-                        .data(chunk));
-            }
-
-            // 发送完成事件
-            WritingResultVO result = WritingResultVO.builder()
-                    .content(fullContent)
-                    .tokens(response.tokenUsage() != null ? response.tokenUsage().totalTokenCount() : null)
-                    .wordCount(fullContent.length())
-                    .model(modelName)
-                    .build();
-            emitter.send(SseEmitter.event()
-                    .name("done")
-                    .data(result));
-            emitter.complete();
-
-            log.info("AI写作流式生成完成：userId={}, wordCount={}", userId, fullContent.length());
-        } catch (IOException e) {
-            log.error("AI写作流式生成SSE发送失败：model={}, error={}", modelName, e.getMessage(), e);
-            emitter.completeWithError(e);
-        } catch (Exception e) {
-            log.error("AI写作流式生成失败：model={}, error={}", modelName, e.getMessage(), e);
+        // 必须先返回 emitter，再在异步线程中推送；否则会等整段生成完才 flush，前端表现为「全部完成才展示」
+        CompletableFuture.runAsync(() -> {
             try {
-                emitter.send(SseEmitter.event()
-                        .name("error")
-                        .data("AI写作生成失败: " + e.getMessage()));
-                emitter.complete();
-            } catch (IOException ex) {
-                emitter.completeWithError(ex);
+                StreamingChatLanguageModel streamingModel = modelProvider.getStreamingModel(modelName);
+                log.info(">>> 开始调用大模型 [{}] (真流式)：promptLength={}", modelName, prompt.length());
+
+                StringBuilder fullContentBuilder = new StringBuilder();
+                List<ChatMessage> messages = List.of(UserMessage.from(prompt));
+                streamingModel.generate(messages, new StreamingResponseHandler<AiMessage>() {
+                    @Override
+                    public void onNext(String token) {
+                        fullContentBuilder.append(token);
+                        try {
+                            emitter.send(SseEmitter.event()
+                                    .name("message")
+                                    .data(token));
+                        } catch (IOException e) {
+                            log.warn("发送写作流式token失败（客户端可能已断开）: {}", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onComplete(Response<AiMessage> response) {
+                        try {
+                            String fullContent = fullContentBuilder.toString().trim();
+                            logModelCallResult("流式生成", modelName, response, fullContent);
+
+                            WritingResultVO result = WritingResultVO.builder()
+                                    .content(fullContent)
+                                    .tokens(response.tokenUsage() != null
+                                            ? response.tokenUsage().totalTokenCount() : null)
+                                    .wordCount(fullContent.length())
+                                    .model(modelName)
+                                    .build();
+                            emitter.send(SseEmitter.event()
+                                    .name("done")
+                                    .data(result));
+                            emitter.complete();
+                            log.info("AI写作流式生成完成：userId={}, wordCount={}", userId, fullContent.length());
+                        } catch (IOException e) {
+                            log.warn("发送写作完成事件失败（客户端可能已断开）: {}", e.getMessage());
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable error) {
+                        log.error("AI写作流式生成失败：model={}, error={}", modelName, error.getMessage(), error);
+                        try {
+                            emitter.send(SseEmitter.event()
+                                    .name("error")
+                                    .data("AI写作生成失败: " + (error.getMessage() != null
+                                            ? error.getMessage() : "未知错误")));
+                            emitter.complete();
+                        } catch (IOException ex) {
+                            emitter.completeWithError(ex);
+                        }
+                    }
+                });
+            } catch (Exception e) {
+                log.error("AI写作流式生成启动失败：model={}, error={}", modelName, e.getMessage(), e);
+                try {
+                    emitter.send(SseEmitter.event()
+                            .name("error")
+                            .data("AI写作生成失败: " + e.getMessage()));
+                    emitter.complete();
+                } catch (IOException ex) {
+                    emitter.completeWithError(ex);
+                }
             }
-        }
+        });
 
         return emitter;
     }

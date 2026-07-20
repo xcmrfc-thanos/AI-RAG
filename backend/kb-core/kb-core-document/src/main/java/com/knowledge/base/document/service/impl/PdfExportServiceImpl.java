@@ -31,6 +31,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,13 +110,13 @@ public class PdfExportServiceImpl implements PdfExportService {
      * 系统中文字体路径（按优先级排序）
      */
     private static final String[] CHINESE_FONT_PATHS = {
-            // Windows：优先 TTF（PDFBox 直接加载更稳），再试 TTC
+            // Windows：优先独立 TTF（PDFBox 子集化安全）；TTC 须在 document.save 后再 close
             "C:\\Windows\\Fonts\\simhei.ttf",
             "C:\\Windows\\Fonts\\simkai.ttf",
             "C:\\Windows\\Fonts\\msyh.ttc",
             "C:\\Windows\\Fonts\\msyhbd.ttc",
-            "C:\\Windows\\Fonts\\simsun.ttc",
             "C:\\Windows\\Fonts\\msjh.ttc",
+            "C:\\Windows\\Fonts\\simsun.ttc",
             // macOS
             "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
             "/Library/Fonts/Arial Unicode.ttf",
@@ -139,11 +140,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             throw new BusinessException("文档不存在");
         }
 
-        DocumentContent documentContent = documentContentService.getContentById(document.getContentId());
-        String content = documentContent != null ? documentContent.getContent() : "";
-        if (content == null || content.isEmpty()) {
-            content = "";
-        }
+        String content = resolveExportContent(document);
 
         String categoryName = resolveCategoryName(document.getCategoryId());
         byte[] pdfBytes = generatePdf(document.getTitle(), content, document.getAuthorName(),
@@ -166,11 +163,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             throw new BusinessException("文档不存在");
         }
 
-        DocumentContent documentContent = documentContentService.getContentById(document.getContentId());
-        String content = documentContent != null ? documentContent.getContent() : "";
-        if (content == null || content.isEmpty()) {
-            content = "";
-        }
+        String content = resolveExportContent(document);
 
         String categoryName = resolveCategoryName(document.getCategoryId());
         return generatePdf(document.getTitle(), content, document.getAuthorName(),
@@ -192,8 +185,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             List<Document> documents = documentService.listByIds(longIds);
             log.info("查询到{}个文档（请求{}个）", documents.size(), documentIds.size());
             for (Document document : documents) {
-                DocumentContent documentContent = documentContentService.getContentById(document.getContentId());
-                String content = documentContent != null ? documentContent.getContent() : "";
+                String content = resolveExportContent(document);
                 if (content == null) content = "";
 
                 String fileName;
@@ -227,6 +219,52 @@ public class PdfExportServiceImpl implements PdfExportService {
         return baos.toByteArray();
     }
 
+    /**
+     * 解析导出正文：优先 contentId → Mongo 按文档ID → MySQL content → getDocumentById 同源解析。
+     *
+     * @param document 文档实体
+     * @return 正文，永不为 null
+     */
+    private String resolveExportContent(Document document) {
+        if (document == null) {
+            return "";
+        }
+        if (document.getContentId() != null && !document.getContentId().isBlank()) {
+            try {
+                DocumentContent byId = documentContentService.getContentById(document.getContentId());
+                if (byId != null && byId.getContent() != null && !byId.getContent().isEmpty()) {
+                    return byId.getContent();
+                }
+            } catch (Exception e) {
+                log.warn("按 contentId 取正文失败：documentId={}, contentId={}, err={}",
+                        document.getId(), document.getContentId(), e.getMessage());
+            }
+        }
+        if (document.getId() != null) {
+            try {
+                DocumentContent byDoc = documentContentService.getContentByDocumentId(document.getId());
+                if (byDoc != null && byDoc.getContent() != null && !byDoc.getContent().isEmpty()) {
+                    return byDoc.getContent();
+                }
+            } catch (Exception e) {
+                log.warn("按 documentId 取正文失败：documentId={}, err={}", document.getId(), e.getMessage());
+            }
+        }
+        if (document.getContent() != null && !document.getContent().isEmpty()) {
+            return document.getContent();
+        }
+        // 与详情页同源：可能 MySQL content 空但 VO 层能解析到正文
+        try {
+            var vo = documentService.getDocumentById(document.getId());
+            if (vo != null && vo.getContent() != null && !vo.getContent().isEmpty()) {
+                return vo.getContent();
+            }
+        } catch (Exception e) {
+            log.warn("getDocumentById 取正文失败：documentId={}, err={}", document.getId(), e.getMessage());
+        }
+        return "";
+    }
+
     private String sanitizeFileName(String title) {
         if (title == null || title.isEmpty()) {
             return "untitled";
@@ -258,6 +296,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         categoryName = stripUnsupportedCharacters(categoryName);
         summary = stripUnsupportedCharacters(summary);
 
+        List<Closeable> fontResources = new ArrayList<>();
         try (PDDocument document = new PDDocument();
              ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
@@ -271,7 +310,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             // 加载中文字体（中文文档必须成功，禁止回退 Helvetica）
             PDType0Font chineseFont;
             try {
-                chineseFont = loadChineseFont(document);
+                chineseFont = loadChineseFont(document, fontResources);
                 log.info("成功加载中文字体");
             } catch (Exception e) {
                 log.error("无法加载中文字体", e);
@@ -296,7 +335,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                             contentStream.setFont(PDType1Font.HELVETICA_BOLD, TITLE_FONT_SIZE);
                         }
                         contentStream.newLineAtOffset(MARGIN, yPosition);
-                        contentStream.showText(titleLine);
+                        showSafeText(contentStream, chineseFont, titleLine);
                         contentStream.endText();
                         yPosition -= LINE_HEIGHT * 1.5f;
                     }
@@ -314,7 +353,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                             contentStream.setFont(PDType1Font.HELVETICA, SUBTITLE_FONT_SIZE);
                         }
                         contentStream.newLineAtOffset(MARGIN, yPosition);
-                        contentStream.showText(subLine);
+                        showSafeText(contentStream, chineseFont, subLine);
                         contentStream.endText();
                         yPosition -= LINE_HEIGHT;
                     }
@@ -342,7 +381,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                                 contentStream.setFont(PDType1Font.HELVETICA_OBLIQUE, SUBTITLE_FONT_SIZE);
                             }
                             contentStream.newLineAtOffset(MARGIN, yPosition);
-                            contentStream.showText(summaryLine);
+                            showSafeText(contentStream, chineseFont, summaryLine);
                             contentStream.endText();
                             yPosition -= LINE_HEIGHT;
                         }
@@ -438,7 +477,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                                 contentStream.setFont(PDType1Font.HELVETICA_BOLD, headingFontSize);
                             }
                             contentStream.newLineAtOffset(MARGIN, yPosition);
-                            contentStream.showText(headingLine);
+                            showSafeText(contentStream, chineseFont, headingLine);
                             contentStream.endText();
                             yPosition -= LINE_HEIGHT * 1.3f;
                         }
@@ -479,7 +518,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                                     contentStream.setFont(PDType1Font.HELVETICA, FONT_SIZE);
                                 }
                                 contentStream.newLineAtOffset(MARGIN, yPosition);
-                                contentStream.showText(wrappedLine);
+                                showSafeText(contentStream, chineseFont, wrappedLine);
                                 contentStream.endText();
                                 yPosition -= LINE_HEIGHT;
                             }
@@ -488,8 +527,20 @@ public class PdfExportServiceImpl implements PdfExportService {
                     }
 
                     if (line.trim().matches("^[-*+]\\s.*") || line.trim().matches("^\\d+\\.\\s.*")) {
-                        String itemPrefix = line.trim().matches("^\\d+\\.\\s.*") ? "• " : "• ";
-                        String itemText = itemPrefix + extractPlainText(line.trim().substring(2));
+                        // 使用 ASCII 前缀，避免 SimHei 等字体无 U+2022(•) 字形导致导出失败
+                        String trimmed = line.trim();
+                        Matcher numMatcher = MARKDOWN_NUMBER_LIST.matcher(trimmed);
+                        Matcher bulletMatcher = MARKDOWN_LIST.matcher(trimmed);
+                        String itemText;
+                        if (numMatcher.matches()) {
+                            int dotIdx = trimmed.indexOf('.');
+                            String numberPrefix = trimmed.substring(0, dotIdx + 1) + " ";
+                            itemText = numberPrefix + extractPlainText(numMatcher.group(1));
+                        } else if (bulletMatcher.matches()) {
+                            itemText = "- " + extractPlainText(bulletMatcher.group(1));
+                        } else {
+                            itemText = "- " + extractPlainText(trimmed.substring(Math.min(2, trimmed.length())));
+                        }
                         // 列表项按宽度自动换行，防止溢出页面
                         float listMaxWidth = pageWidth - 20; // 减去列表缩进
                         List<String> wrappedList = wrapTextByWidth(itemText, listMaxWidth,
@@ -510,7 +561,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                                 contentStream.setFont(PDType1Font.HELVETICA, FONT_SIZE);
                             }
                             contentStream.newLineAtOffset(MARGIN + 20, yPosition);
-                            contentStream.showText(listLine);
+                            showSafeText(contentStream, chineseFont, listLine);
                             contentStream.endText();
                             yPosition -= LINE_HEIGHT;
                         }
@@ -544,7 +595,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                                 contentStream.setFont(PDType1Font.HELVETICA, FONT_SIZE);
                             }
                             contentStream.newLineAtOffset(MARGIN, yPosition);
-                            contentStream.showText(wrappedLine);
+                            showSafeText(contentStream, chineseFont, wrappedLine);
                             contentStream.endText();
                             yPosition -= LINE_HEIGHT;
                         }
@@ -562,6 +613,15 @@ public class PdfExportServiceImpl implements PdfExportService {
         } catch (IOException e) {
             log.error("生成PDF失败", e);
             throw new BusinessException("生成PDF失败：" + e.getMessage());
+        } finally {
+            // TTC 必须在 save 完成后再关闭，否则子集化时报 raf is null
+            for (Closeable resource : fontResources) {
+                try {
+                    resource.close();
+                } catch (Exception ignored) {
+                    // ignore
+                }
+            }
         }
     }
 
@@ -569,10 +629,11 @@ public class PdfExportServiceImpl implements PdfExportService {
      * 尝试加载系统中文字体（优先 classpath，再按路径逐个尝试；TTC 用 TrueTypeCollection）。
      *
      * @param document PDF 文档
+     * @param fontResources 需延迟关闭的字体资源（如 TTC），在 document.save 后关闭
      * @return 已嵌入的中文字体
      * @throws IOException 全部候选均不可用
      */
-    private PDType0Font loadChineseFont(PDDocument document) throws IOException {
+    private PDType0Font loadChineseFont(PDDocument document, List<Closeable> fontResources) throws IOException {
         // 优先从classpath资源文件加载（保证部署到任何服务器都能正常工作）
         try (InputStream is = getClass().getResourceAsStream("/fonts/Arial Unicode.ttf")) {
             if (is != null) {
@@ -582,10 +643,11 @@ public class PdfExportServiceImpl implements PdfExportService {
         } catch (Exception e) {
             log.warn("classpath Arial Unicode 加载失败：{}", e.getMessage());
         }
-        try (InputStream is = getClass().getResourceAsStream("/fonts/simsun.ttc")) {
+        try {
+            InputStream is = getClass().getResourceAsStream("/fonts/simsun.ttc");
             if (is != null) {
                 log.info("从classpath资源加载中文字体：simsun.ttc");
-                return loadFontFromTtcStream(document, is, "classpath:/fonts/simsun.ttc");
+                return loadFontFromTtcStream(document, is, "classpath:/fonts/simsun.ttc", fontResources);
             }
         } catch (Exception e) {
             log.warn("classpath simsun.ttc 加载失败：{}", e.getMessage());
@@ -600,7 +662,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             }
             try {
                 log.info("从系统路径加载中文字体：{}", fontPath);
-                return loadFontFromFile(document, path.toFile());
+                return loadFontFromFile(document, path.toFile(), fontResources);
             } catch (Exception e) {
                 lastError = e instanceof IOException ? (IOException) e : new IOException(e);
                 log.warn("加载字体失败 {}：{}", fontPath, e.getMessage());
@@ -618,15 +680,18 @@ public class PdfExportServiceImpl implements PdfExportService {
      *
      * @param document PDF 文档
      * @param file 字体文件
+     * @param fontResources 延迟关闭列表
      * @return PDType0Font
      * @throws IOException 加载失败
      */
-    private PDType0Font loadFontFromFile(PDDocument document, File file) throws IOException {
+    private PDType0Font loadFontFromFile(PDDocument document, File file, List<Closeable> fontResources)
+            throws IOException {
         String lowerName = file.getName().toLowerCase();
         if (lowerName.endsWith(".ttc")) {
-            try (TrueTypeCollection collection = new TrueTypeCollection(file)) {
-                return loadFirstFontFromCollection(document, collection, file.getAbsolutePath());
-            }
+            // 不可在此 try-with-resources 关闭：子集化需在 save 时仍打开 RAF
+            TrueTypeCollection collection = new TrueTypeCollection(file);
+            fontResources.add(collection);
+            return loadFirstFontFromCollection(document, collection, file.getAbsolutePath());
         }
         return PDType0Font.load(document, file);
     }
@@ -637,14 +702,16 @@ public class PdfExportServiceImpl implements PdfExportService {
      * @param document PDF 文档
      * @param inputStream TTC 流
      * @param sourceLabel 日志标识
+     * @param fontResources 延迟关闭列表
      * @return PDType0Font
      * @throws IOException 加载失败
      */
-    private PDType0Font loadFontFromTtcStream(PDDocument document, InputStream inputStream, String sourceLabel)
-            throws IOException {
-        try (TrueTypeCollection collection = new TrueTypeCollection(inputStream)) {
-            return loadFirstFontFromCollection(document, collection, sourceLabel);
-        }
+    private PDType0Font loadFontFromTtcStream(PDDocument document, InputStream inputStream, String sourceLabel,
+                                              List<Closeable> fontResources) throws IOException {
+        TrueTypeCollection collection = new TrueTypeCollection(inputStream);
+        fontResources.add(collection);
+        fontResources.add(inputStream);
+        return loadFirstFontFromCollection(document, collection, sourceLabel);
     }
 
     /**
@@ -792,7 +859,7 @@ public class PdfExportServiceImpl implements PdfExportService {
             contentStream.setFont(PDType1Font.HELVETICA, 8);
         }
         contentStream.newLineAtOffset(marginX + 12, yPosition - 19);
-        contentStream.showText(langLabel);
+        showSafeText(contentStream, chineseFont, langLabel);
         contentStream.endText();
 
         // 代码行（支持自动换行）
@@ -810,7 +877,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                     contentStream.setFont(PDType1Font.COURIER, CODE_FONT_SIZE);
                 }
                 contentStream.newLineAtOffset(marginX + 12, textY);
-                contentStream.showText(wrappedLine);
+                showSafeText(contentStream, chineseFont, wrappedLine);
                 contentStream.endText();
                 textY -= lineHeight;
             }
@@ -913,7 +980,7 @@ public class PdfExportServiceImpl implements PdfExportService {
                         }
                     }
                     contentStream.newLineAtOffset(marginX + col * colWidth + 5, textY);
-                    contentStream.showText(line);
+                    showSafeText(contentStream, chineseFont, line);
                     contentStream.endText();
                     textY -= cellLineHeight;
                 }
@@ -1081,6 +1148,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         text = text.replace("\t", "    ").replace("\r\n", "\n").replace('\r', '\n');
 
         for (String paragraph : text.split("\n", -1)) {
+            paragraph = sanitizeForPdfText(paragraph, chineseFont);
             if (paragraph.isEmpty()) {
                 result.add("");
                 continue;
@@ -1124,7 +1192,7 @@ public class PdfExportServiceImpl implements PdfExportService {
         if (text == null || text.isEmpty()) {
             return 0;
         }
-        text = sanitizeForPdfText(text);
+        text = sanitizeForPdfText(text, chineseFont);
         if (text.isEmpty()) {
             return 0;
         }
@@ -1156,25 +1224,167 @@ public class PdfExportServiceImpl implements PdfExportService {
     }
 
     /**
-     * 清洗即将写入 PDF showText / 测宽 的字符串（去掉控制字符）。
+     * 清洗即将写入 PDF showText / 测宽 的字符串。
+     * 去掉控制字符，替换常见缺字形符号，并按字体实际可编码字形过滤（避免 No glyph）。
      *
      * @param text 原始文本
+     * @param font 当前中文字体，可为 null
      * @return 可安全渲染的文本
      */
-    private String sanitizeForPdfText(String text) {
+    private String sanitizeForPdfText(String text, PDType0Font font) {
         if (text == null || text.isEmpty()) {
             return "";
         }
+        // 多字符替换先于逐字扫描
+        text = text
+                .replace("\u2026", "...")
+                .replace("\u2022", "-")
+                .replace("\u2023", "-")
+                .replace("\u2043", "-")
+                .replace("\u2219", "-")
+                .replace("\u25CF", "-")
+                .replace("\u25E6", "-")
+                .replace("\u00B7", "-");
+
         StringBuilder sb = new StringBuilder(text.length());
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c == '\t') {
+        for (int i = 0; i < text.length(); ) {
+            int cp = text.codePointAt(i);
+            int charCount = Character.charCount(cp);
+            i += charCount;
+
+            if (cp == '\t') {
                 sb.append("    ");
-            } else if (c >= 0x20 && c != 0x7F) {
-                sb.append(c);
+                continue;
+            }
+            if (cp < 0x20 || cp == 0x7F) {
+                continue;
+            }
+
+            String candidate;
+            if (cp <= 0xFFFF) {
+                char mapped = mapPdfSafeChar((char) cp);
+                candidate = String.valueOf(mapped);
+            } else {
+                candidate = new String(Character.toChars(cp));
+            }
+
+            if (font == null || canEncode(font, candidate)) {
+                sb.append(candidate);
+            } else {
+                String fallback = fallbackGlyph(cp);
+                if (fallback != null && canEncode(font, fallback)) {
+                    sb.append(fallback);
+                }
+                // 字体仍无法编码则丢弃，避免 No glyph 中断导出
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * 兼容旧调用：无字体时仅做静态符号替换。
+     *
+     * @param text 原始文本
+     * @return 清洗后文本
+     */
+    private String sanitizeForPdfText(String text) {
+        return sanitizeForPdfText(text, null);
+    }
+
+    /**
+     * 判断字体能否编码该字符串。
+     *
+     * @param font PDF 字体
+     * @param s 单字或短串
+     * @return true 可编码
+     */
+    private boolean canEncode(PDType0Font font, String s) {
+        if (font == null || s == null || s.isEmpty()) {
+            return false;
+        }
+        try {
+            font.encode(s);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 为缺字形码点提供 ASCII 回退。
+     *
+     * @param codePoint Unicode 码点
+     * @return 回退串，无法回退则 null
+     */
+    private String fallbackGlyph(int codePoint) {
+        // 几何图形 / 箭头 / 方框绘制等
+        if (codePoint == 0x25C4 || codePoint == 0x25C0 || codePoint == 0x2190 || codePoint == 0x21E6) {
+            return "<";
+        }
+        if (codePoint == 0x25BA || codePoint == 0x25B6 || codePoint == 0x2192 || codePoint == 0x21E8) {
+            return ">";
+        }
+        if (codePoint == 0x25B2 || codePoint == 0x25B3 || codePoint == 0x2191) {
+            return "^";
+        }
+        if (codePoint == 0x25BC || codePoint == 0x25BD || codePoint == 0x2193) {
+            return "v";
+        }
+        if ((codePoint >= 0x2190 && codePoint <= 0x21FF)
+                || (codePoint >= 0x25A0 && codePoint <= 0x25FF)
+                || (codePoint >= 0x2500 && codePoint <= 0x257F)
+                || (codePoint >= 0x2580 && codePoint <= 0x259F)) {
+            return "*";
+        }
+        if (codePoint == 0x2022 || codePoint == 0x2023 || codePoint == 0x25CF) {
+            return "-";
+        }
+        return null;
+    }
+
+    /**
+     * 将单个字符映射为 PDF 常用中文字体可渲染的替代字符。
+     *
+     * @param c 原字符
+     * @return 安全字符
+     */
+    private char mapPdfSafeChar(char c) {
+        // 几何图形区统一走 fallback（由 sanitize 再按字体过滤）
+        if (c >= 0x25A0 && c <= 0x25FF) {
+            String fb = fallbackGlyph(c);
+            return fb != null && !fb.isEmpty() ? fb.charAt(0) : '*';
+        }
+        if (c >= 0x2190 && c <= 0x21FF) {
+            String fb = fallbackGlyph(c);
+            return fb != null && !fb.isEmpty() ? fb.charAt(0) : '*';
+        }
+        if (c >= 0x2500 && c <= 0x257F) {
+            return '-';
+        }
+        return switch (c) {
+            case '\u2022', '\u2023', '\u2043', '\u2219', '\u25CF', '\u25E6', '\u00B7' -> '-';
+            case '\u2013', '\u2014', '\u2015' -> '-'; // en/em dash
+            case '\u00A0', '\u2002', '\u2003', '\u2009', '\u202F', '\u200B' -> ' ';
+            case '\u2018', '\u2019', '\u201A' -> '\'';
+            case '\u201C', '\u201D', '\u201E' -> '"';
+            case '\u00D7' -> 'x';
+            default -> c;
+        };
+    }
+
+    /**
+     * 安全写入文本（按字体字形过滤后再 showText）。
+     *
+     * @param contentStream PDF 内容流
+     * @param font 中文字体
+     * @param text 原始文本
+     * @throws IOException 写入失败
+     */
+    private void showSafeText(PDPageContentStream contentStream, PDType0Font font, String text) throws IOException {
+        String safe = sanitizeForPdfText(text, font);
+        if (!safe.isEmpty()) {
+            contentStream.showText(safe);
+        }
     }
 
     /**
@@ -1212,6 +1422,23 @@ public class PdfExportServiceImpl implements PdfExportService {
         if (text == null || text.isEmpty()) {
             return text;
         }
+        // 常见缺字形符号先替换（SimHei/雅黑常缺 • ◄ 等）
+        text = text
+                .replace("\u2026", "...")
+                .replace("\u2022", "-")
+                .replace("\u2023", "-")
+                .replace("\u2043", "-")
+                .replace("\u2219", "-")
+                .replace("\u25CF", "-")
+                .replace("\u25E6", "-")
+                .replace("\u00B7", "-")
+                .replace("\u2013", "-")
+                .replace("\u2014", "-")
+                .replace("\u2015", "-")
+                .replace("\u25C4", "<")
+                .replace("\u25C0", "<")
+                .replace("\u25BA", ">")
+                .replace("\u25B6", ">");
         StringBuilder sb = new StringBuilder(text.length());
         for (int i = 0; i < text.length(); i++) {
             int codePoint = text.codePointAt(i);
@@ -1222,6 +1449,17 @@ public class PdfExportServiceImpl implements PdfExportService {
             }
             // 跳过常见不支持的符号范围：杂项符号(U+2600-27BF)、装饰符号(U+2700-27BF)
             if (codePoint >= 0x2600 && codePoint <= 0x27BF) {
+                continue;
+            }
+            // 几何图形 / 箭头 / 盒线：雅黑也可能缺字，导出前剔除（sanitize 会再做回退）
+            if ((codePoint >= 0x25A0 && codePoint <= 0x25FF)
+                    || (codePoint >= 0x2190 && codePoint <= 0x21FF)
+                    || (codePoint >= 0x2500 && codePoint <= 0x257F)
+                    || (codePoint >= 0x2580 && codePoint <= 0x259F)) {
+                String fb = fallbackGlyph(codePoint);
+                if (fb != null) {
+                    sb.append(fb);
+                }
                 continue;
             }
             // 跳过其他特殊符号：U+2300-23FF（杂项技术符号）

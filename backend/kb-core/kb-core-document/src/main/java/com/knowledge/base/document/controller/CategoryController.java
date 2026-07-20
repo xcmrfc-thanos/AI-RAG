@@ -65,6 +65,71 @@ public class CategoryController {
     }
 
     /**
+     * 批量删除分类（字面路径，须在 /{categoryId} 之前）
+     *
+     * @param body 含 ids 列表
+     * @return 是否成功
+     */
+    @DeleteMapping("/batch")
+    @Operation(summary = "批量删除分类", description = "按 ID 列表批量删除分类")
+    @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CATEGORY)")
+    public Result<Boolean> batchDeleteCategories(@RequestBody java.util.Map<String, java.util.List<Long>> body) {
+        java.util.List<Long> ids = body != null ? body.get("ids") : null;
+        log.info("批量删除分类请求：ids={}", ids);
+        if (ids == null || ids.isEmpty()) {
+            return Result.success(true);
+        }
+        for (Long id : ids) {
+            categoryService.deleteCategory(id);
+        }
+        return Result.success("批量删除成功", true);
+    }
+
+    /**
+     * 搜索分类（字面路径）
+     *
+     * @param keyword 关键词
+     * @return 匹配列表
+     */
+    @GetMapping("/search")
+    @Operation(summary = "搜索分类", description = "按名称关键词搜索分类")
+    public Result<java.util.List<CategoryVO>> searchCategories(
+            @Parameter(description = "关键词") @RequestParam(required = false) String keyword) {
+        log.info("搜索分类请求：keyword={}", keyword);
+        java.util.List<CategoryVO> all = categoryService.getAllCategories();
+        if (keyword == null || keyword.isBlank()) {
+            return Result.success(all);
+        }
+        String kw = keyword.trim().toLowerCase();
+        java.util.List<CategoryVO> filtered = all.stream()
+                .filter(c -> c.getName() != null && c.getName().toLowerCase().contains(kw))
+                .toList();
+        return Result.success(filtered);
+    }
+
+    /**
+     * 分类统计（字面路径）
+     *
+     * @return 各分类文档数等
+     */
+    @GetMapping("/stats")
+    @Operation(summary = "分类统计", description = "返回各分类文档数量统计")
+    public Result<java.util.List<java.util.Map<String, Object>>> getCategoryStats() {
+        log.info("分类统计请求");
+        java.util.List<CategoryVO> all = categoryService.getAllCategories();
+        java.util.List<java.util.Map<String, Object>> stats = new java.util.ArrayList<>();
+        for (CategoryVO c : all) {
+            java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+            row.put("categoryId", c.getId() != null ? String.valueOf(c.getId()) : null);
+            row.put("categoryName", c.getName());
+            row.put("documentCount", c.getDocumentCount() != null ? c.getDocumentCount() : 0L);
+            row.put("viewCount", 0L);
+            stats.add(row);
+        }
+        return Result.success(stats);
+    }
+
+    /**
      * 删除分类
      *
      * @param categoryId 分类ID

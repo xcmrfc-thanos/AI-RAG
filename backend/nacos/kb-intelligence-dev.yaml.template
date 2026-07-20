@@ -55,10 +55,15 @@ qwen:
 
 deepseek:
   api-key: ${DEEPSEEK_API_KEY:}
-  model: deepseek-chat
-  base-url: https://api.deepseek.com/v1
+  model: ${DEEPSEEK_MODEL:deepseek-chat}
+  base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}
   max-tokens: 4096
   temperature: 0.7
+
+# 硅基流动（向量默认；凭证与 qwen/deepseek 同级根节点）
+siliconflow:
+  api-key: ${SILICONFLOW_API_KEY:}
+  base-url: ${SILICONFLOW_BASE_URL:https://api.siliconflow.cn/v1}
 
 ai:
   # 与模块 application.yml、计划文档一致：默认千问；DeepSeek 仅作强推理可选
@@ -116,7 +121,7 @@ rag:
     chunk-overlap: ${RAG_CHUNK_OVERLAP:64}
     paragraph-aware: true
   embedding:
-    # 空 api-key/base-url 时回退 qwen.*；硅基/Ollama 请单独填写
+    # 模型/维度/provider；凭证优先根节点 siliconflow.* / qwen.*（api-key/base-url 仅可选覆盖）
     model: ${RAG_EMBEDDING_MODEL:text-embedding-v3}
     dimension: ${RAG_EMBEDDING_DIMENSION:1024}
     provider: ${RAG_EMBEDDING_PROVIDER:qwen}

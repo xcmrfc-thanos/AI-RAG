@@ -3,8 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { Spin } from 'antd';
-import { App } from 'antd';
+import { Spin, App, Drawer } from 'antd';
 import { useDocumentStore } from '@/stores/document.store';
 import { useAppStore, useAuthStore, useTeamStore } from '@/stores';
 import { categoryService, fileService, documentService, reviewService } from '@/services';
@@ -165,6 +164,11 @@ const CreateDocumentPage: React.FC = () => {
 
   // 拖拽状态
   const [isDragging, setIsDragging] = useState(false);
+
+  /** 编辑 | 预览（同页切换，默认编辑） */
+  const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
+  /** 文档设置抽屉 */
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // 文本选择状态
   const [showSelectionToolbar, setShowSelectionToolbar] = useState(false);
@@ -1519,7 +1523,73 @@ const CreateDocumentPage: React.FC = () => {
           <div style={{
             display: 'flex',
             gap: '12px',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            justifyContent: 'flex-end',
           }}>
+            {/* 编辑 / 预览 切换 */}
+            <div style={{
+              display: 'inline-flex',
+              border: '1px solid var(--border-color)',
+              borderRadius: 'var(--radius-md)',
+              overflow: 'hidden',
+              background: 'var(--bg-primary)',
+            }}>
+              <button
+                type="button"
+                onClick={() => setViewMode('edit')}
+                style={{
+                  padding: '10px 16px',
+                  border: 'none',
+                  background: viewMode === 'edit' ? 'var(--primary-color)' : 'transparent',
+                  color: viewMode === 'edit' ? '#fff' : 'var(--text-secondary)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                编辑
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('preview')}
+                style={{
+                  padding: '10px 16px',
+                  border: 'none',
+                  borderLeft: '1px solid var(--border-color)',
+                  background: viewMode === 'preview' ? 'var(--primary-color)' : 'transparent',
+                  color: viewMode === 'preview' ? '#fff' : 'var(--text-secondary)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                预览
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                border: '1px solid var(--border-color)',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-secondary)',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              文档设置
+            </button>
             <button
               onClick={() => navigate('/documents')}
               style={{
@@ -1733,14 +1803,14 @@ const CreateDocumentPage: React.FC = () => {
           <div style={{
             display: 'flex',
           }}>
-            {/* 主编辑区域 - 左右分栏 */}
+            {/* 主编辑区域：编辑 | 预览 同页切换 */}
             <div style={{
               flex: 1,
               minWidth: 0,
               display: 'flex',
-              borderRight: '1px solid var(--border-color)',
             }}>
-              {/* 左侧：Markdown输入区 */}
+              {/* Markdown 编辑区 */}
+              {viewMode === 'edit' && (
               <div style={{
                 flex: 1,
                 minWidth: 0,
@@ -3009,14 +3079,15 @@ const CreateDocumentPage: React.FC = () => {
                   )}
                 </div>
               </div>
+              )}
 
-              {/* 右侧：实时预览区 */}
+              {/* 预览区（点「预览」后全宽展示） */}
+              {viewMode === 'preview' && (
               <div style={{
                 flex: 1,
                 minWidth: 0,
                 display: 'flex',
                 flexDirection: 'column',
-                borderLeft: '1px solid var(--border-color)',
                 background: 'var(--bg-secondary)',
               }}>
                 <div style={{
@@ -3033,7 +3104,7 @@ const CreateDocumentPage: React.FC = () => {
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                     <circle cx="12" cy="12" r="3"></circle>
                   </svg>
-                  实时预览
+                  预览
                   {uploadingImages.size > 0 && (
                     <span style={{
                       marginLeft: '12px',
@@ -3258,21 +3329,23 @@ const CreateDocumentPage: React.FC = () => {
                         textAlign: 'center',
                         fontSize: '15px',
                       }}>
-                        在左侧输入内容，这里将实时显示预览效果...
+                        切换到「编辑」输入内容后，可在此查看预览效果...
                       </p>
                     </div>
                   )}
                 </div>
               </div>
+              )}
             </div>
 
-            {/* 右侧边栏 */}
-            <div style={{
-              width: '320px',
-              borderLeft: '1px solid var(--border-color)',
-              background: 'var(--bg-secondary)',
-              padding: '24px',
-            }}>
+            <Drawer
+              title="文档设置"
+              placement="right"
+              width={480}
+              open={settingsOpen}
+              onClose={() => setSettingsOpen(false)}
+              destroyOnClose={false}
+            >
               {/* 文档设置 */}
               <div style={{ marginBottom: '32px' }}>
                 <div style={{
@@ -3283,7 +3356,7 @@ const CreateDocumentPage: React.FC = () => {
                   marginBottom: '16px',
                   letterSpacing: '0.5px',
                 }}>
-                  文档设置
+                  基本信息
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
@@ -3843,7 +3916,7 @@ const CreateDocumentPage: React.FC = () => {
                 </div>
               </div>
               )}
-            </div>
+            </Drawer>
           </div>
         </div>
       </div>

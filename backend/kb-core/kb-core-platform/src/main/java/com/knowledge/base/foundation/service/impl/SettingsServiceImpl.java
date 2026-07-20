@@ -94,11 +94,16 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("notificationRetentionDays", new String[]{"notification.retention.days", "number", "90",                            "NOTIFICATION"});
 
         // ===== AI设置 =====
-        FIELD_TO_CONFIG.put("aiModelName",          new String[]{"qwen.model.name",                "string",  "qwen-max",                           "AI"});
-        FIELD_TO_CONFIG.put("embeddingModel",       new String[]{"qwen.embedding.model",           "string",  "text-embedding-v3",                  "AI"});
+        FIELD_TO_CONFIG.put("aiModelName",          new String[]{"qwen.model.name",                "string",  "qwen3-max",                          "AI"});
+        FIELD_TO_CONFIG.put("embeddingModel",       new String[]{"rag.embedding.model",            "string",  "BAAI/bge-m3",                        "AI"});
+        FIELD_TO_CONFIG.put("chatProvider",         new String[]{"ai.chat.provider",               "string",  "qwen",                               "AI"});
+        FIELD_TO_CONFIG.put("embeddingProvider",    new String[]{"rag.embedding.provider",         "string",  "siliconflow",                        "AI"});
+        FIELD_TO_CONFIG.put("vectorStoreType",      new String[]{"rag.vector.store",               "string",  "elasticsearch",                      "AI"});
         FIELD_TO_CONFIG.put("milvusHost",           new String[]{"milvus.host",                    "string",  "localhost",                          "AI"});
         FIELD_TO_CONFIG.put("milvusPort",           new String[]{"milvus.port",                    "number",  "19530",                              "AI"});
-        FIELD_TO_CONFIG.put("vectorStoreType",      new String[]{"rag.vector.store",              "string",  "elasticsearch",                      "AI"});
+        FIELD_TO_CONFIG.put("aiTemperature",        new String[]{"ai.chat.temperature",            "number",  "0.7",                                "AI"});
+        FIELD_TO_CONFIG.put("aiMaxTokens",          new String[]{"ai.chat.max.tokens",             "number",  "4096",                               "AI"});
+        FIELD_TO_CONFIG.put("aiTimeoutSeconds",     new String[]{"ai.chat.timeout.seconds",        "number",  "120",                                "AI"});
     }
 
     // ==================== 按分组读取 ====================
@@ -152,7 +157,9 @@ public class SettingsServiceImpl implements SettingsService {
             "emailEnabled", "emailHost", "emailPort", "websocketEnabled", "notificationRetentionDays"
     );
     private static final List<String> SETTINGS_AI_FIELDS = List.of(
-            "aiModelName", "embeddingModel", "milvusHost", "milvusPort", "vectorStoreType"
+            "chatProvider", "aiModelName", "embeddingProvider", "embeddingModel",
+            "vectorStoreType", "milvusHost", "milvusPort",
+            "aiTemperature", "aiMaxTokens", "aiTimeoutSeconds"
     );
 
     /**
@@ -187,7 +194,11 @@ public class SettingsServiceImpl implements SettingsService {
             case "boolean" -> "true".equalsIgnoreCase(raw) || "1".equals(raw);
             case "number"  -> {
                 try {
-                    yield Long.parseLong(raw.trim());
+                    String trimmed = raw.trim();
+                    if (trimmed.contains(".")) {
+                        yield Double.parseDouble(trimmed);
+                    }
+                    yield Long.parseLong(trimmed);
                 } catch (NumberFormatException e) {
                     yield raw;
                 }
@@ -318,5 +329,16 @@ public class SettingsServiceImpl implements SettingsService {
         log.info("创建系统备份");
         // 备份逻辑需要集成具体的存储方案，此处为占位实现
         return "备份已创建于 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String testEmail(String email) {
+        log.info("测试邮件请求：email={}", email);
+        if (!StringUtils.hasText(email)) {
+            throw new BusinessException("邮箱地址不能为空");
+        }
+        // SMTP 未统一接入前返回成功占位，避免设置页按钮 404
+        return "测试邮件已受理（当前环境为占位实现，未实际发送）: " + email;
     }
 }

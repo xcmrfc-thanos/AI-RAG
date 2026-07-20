@@ -674,10 +674,24 @@ export interface StorageSettings {
 }
 
 export interface AISettings {
+  /** 聊天模型 Provider：qwen / siliconflow / deepseek / custom */
+  chatProvider: string;
+  /** 聊天/写作默认模型名 */
   aiModelName: string;
+  /** Embedding Provider：qwen / siliconflow / custom */
+  embeddingProvider: string;
+  /** Embedding 模型名 */
   embeddingModel: string;
+  /** 向量库：elasticsearch / qdrant / milvus */
+  vectorStoreType: string;
   milvusHost: string;
   milvusPort: number;
+  /** 高级：温度 */
+  aiTemperature?: number;
+  /** 高级：最大 Token */
+  aiMaxTokens?: number;
+  /** 高级：超时秒 */
+  aiTimeoutSeconds?: number;
 }
 
 export interface SystemStatus {
