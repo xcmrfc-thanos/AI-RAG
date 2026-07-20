@@ -148,4 +148,25 @@ class SqlDialectHelperTest {
         assertEquals(" FETCH FIRST 10 ROWS ONLY", helper.limitClause(10));
         assertThrows(IllegalArgumentException.class, () -> helper.limitClause(0));
     }
+
+    /** LIKE 包含：MySQL CONCAT vs Oracle ||。 */
+    @Test
+    void likeContains_variants() {
+        helper.setDbTypeForTest(DbType.MYSQL);
+        assertEquals("d.title LIKE CONCAT('%', {0}, '%')", helper.likeContains("d.title", "{0}"));
+        helper.setDbTypeForTest(DbType.POSTGRE_SQL);
+        assertEquals("tag_name LIKE CONCAT('%', #{keyword}, '%')",
+                helper.likeContains("tag_name", "#{keyword}"));
+        helper.setDbTypeForTest(DbType.ORACLE);
+        assertEquals("d.title LIKE '%' || {0} || '%'", helper.likeContains("d.title", "{0}"));
+    }
+
+    /** LIKE 前缀。 */
+    @Test
+    void likePrefix_variants() {
+        helper.setDbTypeForTest(DbType.MYSQL);
+        assertEquals("path LIKE CONCAT(#{path}, '%')", helper.likePrefix("path", "#{path}"));
+        helper.setDbTypeForTest(DbType.ORACLE);
+        assertEquals("path LIKE #{path} || '%'", helper.likePrefix("path", "#{path}"));
+    }
 }

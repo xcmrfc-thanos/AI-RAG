@@ -68,7 +68,9 @@
 ### 仍属差距
 
 - 未拉起完整 JVM 微服务连 PG/Oracle（免 Nacos/Redis/MQ 全栈）；统计 JDBC 路径已证明
-- Oracle 列名 `"level"` 等保留字需确认 ORM 映射
+- Oracle 列名 `"level"` 等保留字需确认 ORM 映射（TeamMapper Oracle 分支 ORDER BY 已加引号）
+- Team/Tag/DocumentReview 模糊查询 CONCAT 已补 Oracle 分支 / helper
+- inventory 仍有 LIMIT_XML/ANNOT、部分 DATE_FUNC 待改
 - 待合入 `master` / 开 PR（按团队流程，本文件不自动 merge）
 
 ## 一部署一方言

@@ -25,6 +25,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import com.knowledge.base.common.config.SqlDialectHelper;
 import com.knowledge.base.common.config.SystemConfigCache;
 import com.knowledge.base.common.config.InstanceIdentifier;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -82,6 +83,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
 
     @Resource
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
+
+    @Resource
+    private SqlDialectHelper sqlDialectHelper;
 
     private static final String REVIEW_EXCHANGE = "kb.notification.exchange";
 
@@ -406,11 +410,11 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
             );
         }
 
-        // 关键词搜索
+        // 关键词搜索（Oracle CONCAT 仅两参数，走方言助手）
         if (StringUtils.hasText(dto.getKeyword())) {
-            // 子查询文档标题
+            String titleLike = sqlDialectHelper.likeContains("d.title", "{0}");
             wrapper.exists(
-                    "SELECT 1 FROM kb_document d WHERE d.id = tb_document_review.document_id AND d.title LIKE CONCAT('%', {0}, '%')",
+                    "SELECT 1 FROM kb_document d WHERE d.id = tb_document_review.document_id AND " + titleLike,
                     dto.getKeyword()
             );
         }

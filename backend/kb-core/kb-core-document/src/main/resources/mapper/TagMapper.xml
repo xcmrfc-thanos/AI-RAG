@@ -113,12 +113,23 @@
         </if>
     </select>
 
-    <!-- 模糊搜索标签 -->
+    <!-- 模糊搜索标签（默认 MySQL/PG CONCAT） -->
     <select id="searchByName" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
         FROM kb_tag
         WHERE tag_name LIKE CONCAT('%', #{keyword}, '%')
+        AND status = 1
+        AND deleted = 0
+        ORDER BY doc_count DESC
+    </select>
+
+    <!-- Oracle：CONCAT 多参数改用 || -->
+    <select id="searchByName" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_tag
+        WHERE tag_name LIKE '%' || #{keyword} || '%'
         AND status = 1
         AND deleted = 0
         ORDER BY doc_count DESC

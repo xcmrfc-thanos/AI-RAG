@@ -14,7 +14,8 @@
 | 已helper定义 | LIMIT_HELPER | 1 |
 | 已helper定义 | ON_CONFLICT | 1 |
 | 已helper定义 | ON_DUPLICATE | 1 |
-| 待改 | CONCAT | 4 |
+| 待改 | CONCAT | 1 |
+| 已Oracle分支 | CONCAT | 3 |
 | 待改 | DATE_FUNC | 5 |
 | 待改 | LIMIT_ANNOT | 9 |
 | 待改 | LIMIT_XML | 9 |
@@ -42,15 +43,11 @@
 | P2 | DATE_FUNC | `backend/kb-common/src/main/java/com/knowledge/base/common/enums/OperationType.java` | 29 |
 | P2 | LIMIT_XML | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/mapper/DocumentAccessMapper.java` | 33 |
 | P2 | LIMIT_ANNOT | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/mapper/DocumentAccessMapper.java` | 33 |
-| P2 | CONCAT | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/service/impl/DocumentReviewServiceImpl.java` | 413 |
 | P2 | LIMIT_XML | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 78 |
 | P2 | LIMIT_ANNOT | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 78 |
-| P2 | CONCAT | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 121 |
-| P0 | CONCAT | `backend/kb-core/kb-core-iam/src/main/resources/mapper/TeamMapper.xml` | 96 |
 | P0 | ON_DUPLICATE | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 60 |
 | P0 | LIMIT_XML | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 35 |
 | P1 | LIMIT_ANNOT | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 35 |
-| P0 | CONCAT | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 101 |
 | P1 | DATE_FUNC | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 42,46 |
 | P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 65,74 |
 | P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 65,74 |

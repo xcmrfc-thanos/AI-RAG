@@ -88,7 +88,7 @@
         ORDER BY id ASC
     </select>
 
-    <!-- 根据路径前缀查询团队列表（查询所有子团队） -->
+    <!-- 根据路径前缀查询团队列表（查询所有子团队；默认 MySQL/PG CONCAT） -->
     <select id="selectByPathPrefix" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
@@ -96,6 +96,16 @@
         WHERE path LIKE CONCAT(#{path}, '%')
         AND deleted = 0
         ORDER BY level ASC, id ASC
+    </select>
+
+    <!-- Oracle：CONCAT 多参数改用 || -->
+    <select id="selectByPathPrefix" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_team
+        WHERE path LIKE #{path} || '%'
+        AND deleted = 0
+        ORDER BY "level" ASC, id ASC
     </select>
 
     <!-- 查询团队树 -->

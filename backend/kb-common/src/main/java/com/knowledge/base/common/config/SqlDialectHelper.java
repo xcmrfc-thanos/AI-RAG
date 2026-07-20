@@ -149,6 +149,50 @@ public class SqlDialectHelper {
     }
 
     /**
+     * LIKE 包含匹配表达式（多参数 CONCAT 在 Oracle 不安全）。
+     *
+     * <p>MySQL/PG：{@code col LIKE CONCAT('%', valueExpr, '%')}；
+     * Oracle：{@code col LIKE '%' || valueExpr || '%'}。</p>
+     *
+     * @param column    列或表达式（如 {@code d.title}）
+     * @param valueExpr 值片段（如 {@code #{keyword}} 或 MyBatis-Plus {@code {0}}）
+     * @return 完整 LIKE 条件（不含 WHERE）
+     */
+    public String likeContains(String column, String valueExpr) {
+        if (!StringUtils.hasText(column) || !StringUtils.hasText(valueExpr)) {
+            throw new IllegalArgumentException("column/valueExpr required");
+        }
+        String col = column.trim();
+        String val = valueExpr.trim();
+        return switch (dbType) {
+            case ORACLE -> col + " LIKE '%' || " + val + " || '%'";
+            default -> col + " LIKE CONCAT('%', " + val + ", '%')";
+        };
+    }
+
+    /**
+     * LIKE 前缀匹配表达式。
+     *
+     * <p>MySQL/PG：{@code col LIKE CONCAT(valueExpr, '%')}；
+     * Oracle：{@code col LIKE valueExpr || '%'}。</p>
+     *
+     * @param column    列或表达式
+     * @param valueExpr 值片段
+     * @return 完整 LIKE 条件（不含 WHERE）
+     */
+    public String likePrefix(String column, String valueExpr) {
+        if (!StringUtils.hasText(column) || !StringUtils.hasText(valueExpr)) {
+            throw new IllegalArgumentException("column/valueExpr required");
+        }
+        String col = column.trim();
+        String val = valueExpr.trim();
+        return switch (dbType) {
+            case ORACLE -> col + " LIKE " + val + " || '%'";
+            default -> col + " LIKE CONCAT(" + val + ", '%')";
+        };
+    }
+
+    /**
      * 生成简单主键 UPSERT 完整语句。
      *
      * <p>MySQL/PG：{@code INSERT INTO ... VALUES ...} + {@link #onDuplicateKeyUpdate}；
