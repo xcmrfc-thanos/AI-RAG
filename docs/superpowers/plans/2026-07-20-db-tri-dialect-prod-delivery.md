@@ -200,7 +200,7 @@ Oracle：
 - A. `kb-statistics` 或 `kb-agent` 单服务 + Testcontainers/本地 compose `postgres` profile
 - B. 脚本：起 PG → import schema → 启 `kb-core`（若多数据源过重则先单库服务）
 
-- [x] **Step 1:** 增加 `deploy/docker-compose.pg.yml` 或 compose profile `postgres`
+- [x] **Step 1:** 曾增加 `deploy/docker-compose.pg.yml`（后已移除；DDL 冒烟改用临时容器 `verify-pg-schema.ps1`）
 - [x] **Step 2:** 导入 schema；配置 Nacos/本地 yml
 - [x] **Step 3:** 启动目标服务；打通 1 个 API 或集成测试
 - [x] **Step 4:** 记录失败点回写 Task 1 清单并修
@@ -232,7 +232,7 @@ Oracle：
 ## 验收标准（Definition of Done）
 
 - [x] **MySQL 默认：** 现有部署文档零强制变更即可上线
-- [x] **PostgreSQL：** DDL 冒烟 PASS + 至少 1 个服务全栈冒烟 PASS（`smoke-pg-stack.ps1` / 统计 JDBC）
+- [x] **PostgreSQL：** DDL 冒烟 PASS + 统计 JDBC IT 曾 PASS（常驻 compose / `smoke-pg-stack.ps1` 已移除）
 - [x] **Oracle：** DDL 可装载（或官方 SKIP 原因）+ `MERGE` 统计 upsert 不再 Unsupported
 - [x] **切换方式：** 仅 Profile/环境变量 + 执行对应 `schema/{dialect}/install*`，无客户定制业务分支
 - [x] **字段公约：** 新增表/列遵循 Task 0；旧表分脚本差异可保留但有文档

@@ -62,7 +62,7 @@
 | PostgreSQL DDL 校对 + `verify-pg-schema.ps1` | ✅ |
 | Oracle DDL 首版 + `verify-oracle-schema.ps1` | ✅ PASS |
 | 三库 Profile + 切库清单 | ✅ |
-| PG 最小全栈：`smoke-pg-stack.ps1` + `PgStatisticsJdbcIT` | ✅ PASS |
+| PG DDL 冒烟：`verify-pg-schema.ps1`；可选 `PgStatisticsJdbcIT`（自备 PG） | ✅ PASS（常驻 `kb-postgres` compose 已移除） |
 | MySQL 默认路径：`import-schema.ps1` + 方言单测 | ✅ 确认无回退 |
 
 ### 仍属差距

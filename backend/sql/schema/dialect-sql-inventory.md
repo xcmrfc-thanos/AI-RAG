@@ -127,7 +127,7 @@
 
 ## 下一步（对应计划）
 
-- Task 2～7：✅（含 PG 全栈 JDBC 冒烟 `smoke-pg-stack.ps1`）
+- Task 2～7：✅（含 PG DDL 冒烟 `verify-pg-schema.ps1`；常驻 `kb-postgres` compose 已移除）
 - Task 8：MySQL 默认路径回归
 - Task 9：文档收口与合入
 - P2：`TeamMapper`/`TagMapper`/`DocumentReview` 的 `CONCAT` 在 Oracle 验证

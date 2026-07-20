@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * PostgreSQL 最小全栈冒烟：连本地 compose PG，完成统计宽表 upsert + 读回。
+ * PostgreSQL 统计宽表 upsert + 读回（可选集成测试）。
  *
- * <p>由 {@code deploy/scripts/smoke-pg-stack.ps1} 注入
+ * <p>需自行准备 PG 并注入
  * {@code SMOKE_PG_JDBC_URL}/{@code SMOKE_PG_USER}/{@code SMOKE_PG_PASSWORD}；
  * 未设置环境变量时跳过，避免默认 CI 无 PG 失败。</p>
  */
@@ -35,7 +35,7 @@ class PgStatisticsJdbcIT {
     void setUp() {
         String url = System.getenv(ENV_URL);
         Assumptions.assumeTrue(url != null && !url.isBlank(),
-                "skip: set SMOKE_PG_JDBC_URL via smoke-pg-stack.ps1");
+                "skip: set SMOKE_PG_JDBC_URL to a live PostgreSQL JDBC URL");
 
         String user = System.getenv().getOrDefault(ENV_USER, "postgres");
         String password = System.getenv().getOrDefault(ENV_PASSWORD, "pg_smoke_pass");

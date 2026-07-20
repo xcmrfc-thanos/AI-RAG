@@ -119,13 +119,4 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 
 一部署一方言，勿混用。
 
-### PostgreSQL 最小全栈冒烟
-
-```powershell
-cd deploy
-.\scripts\smoke-pg-stack.ps1
-# 仅起库：docker compose -f docker-compose.pg.yml up -d
-# 停库：docker compose -f docker-compose.pg.yml down
-```
-
-脚本会导入 `backend/sql/schema/postgresql/` 并跑 `PgStatisticsJdbcIT`（统计宽表 upsert + 读回）。
+DDL 冒烟可用 `.\scripts\verify-pg-schema.ps1`（临时容器，跑完即删）；日常默认 MySQL，无需常驻 Postgres 容器。
