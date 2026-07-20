@@ -160,10 +160,10 @@ public String upsertSql(String table, String conflictColumns,
 - Create: `deploy/scripts/verify-oracle-schema.ps1`（Docker `gvenzl/oracle-xe` 若拉取失败则文档门禁 + 语法审阅）
 - Modify: `oracle/README.md`
 
-- [ ] **Step 1:** 写转换要点进 `DIALECT_CONVERSION.md`（MySQL→Oracle）
-- [ ] **Step 2:** 先落地 `kb_intelligence` + `kb_user` 两套可执行，再扩全 BC
-- [ ] **Step 3:** `verify-oracle-schema.ps1` 或「无镜像则 SKIP 并写明原因」
-- [ ] **Step 4:** Commit：`feat(db): Oracle schema 首版与冒烟门禁`
+- [x] **Step 1:** 写转换要点进 `DIALECT_CONVERSION.md`（MySQL→Oracle）
+- [x] **Step 2:** 先落地 `kb_intelligence` + `kb_user` 两套可执行，再扩全 BC
+- [x] **Step 3:** `verify-oracle-schema.ps1` 或「无镜像则 SKIP 并写明原因」
+- [x] **Step 4:** Commit：`feat(db): Oracle schema 首版与冒烟门禁`
 
 ---
 
