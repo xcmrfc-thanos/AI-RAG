@@ -104,6 +104,12 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("aiTemperature",        new String[]{"ai.chat.temperature",            "number",  "0.7",                                "AI"});
         FIELD_TO_CONFIG.put("aiMaxTokens",          new String[]{"ai.chat.max.tokens",             "number",  "4096",                               "AI"});
         FIELD_TO_CONFIG.put("aiTimeoutSeconds",     new String[]{"ai.chat.timeout.seconds",        "number",  "120",                                "AI"});
+
+        // ===== 文档导出 / 水印 =====
+        FIELD_TO_CONFIG.put("pdfWatermarkEnabled",  new String[]{"pdf.watermark.enabled",          "boolean", "false",                              "EXPORT"});
+        FIELD_TO_CONFIG.put("pdfWatermarkType",     new String[]{"pdf.watermark.type",             "string",  "user",                              "EXPORT"});
+        FIELD_TO_CONFIG.put("pdfWatermarkText",     new String[]{"pdf.watermark.text",             "string",  "内部资料",                            "EXPORT"});
+        FIELD_TO_CONFIG.put("pdfWatermarkOpacity",  new String[]{"pdf.watermark.opacity",          "number",  "0.15",                               "EXPORT"});
     }
 
     // ==================== 按分组读取 ====================
@@ -130,6 +136,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> storage      = buildSection(configMap, "STORAGE",    SETTINGS_STORAGE_FIELDS,        "storage");
         Map<String, Object> notification = buildSection(configMap, "NOTIFICATION", SETTINGS_NOTIFICATION_FIELDS, "notification");
         Map<String, Object> ai           = buildSection(configMap, "AI",         SETTINGS_AI_FIELDS,             "ai");
+        Map<String, Object> export       = buildSection(configMap, "EXPORT",     SETTINGS_EXPORT_FIELDS,         "export");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -137,6 +144,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .storage(storage)
                 .notification(notification)
                 .ai(ai)
+                .export(export)
                 .status(getSystemStatus())
                 .build();
     }
@@ -160,6 +168,9 @@ public class SettingsServiceImpl implements SettingsService {
             "chatProvider", "aiModelName", "embeddingProvider", "embeddingModel",
             "vectorStoreType", "milvusHost", "milvusPort",
             "aiTemperature", "aiMaxTokens", "aiTimeoutSeconds"
+    );
+    private static final List<String> SETTINGS_EXPORT_FIELDS = List.of(
+            "pdfWatermarkEnabled", "pdfWatermarkType", "pdfWatermarkText", "pdfWatermarkOpacity"
     );
 
     /**

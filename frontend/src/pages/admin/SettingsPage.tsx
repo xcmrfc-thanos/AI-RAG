@@ -38,6 +38,7 @@ import {
   MailOutlined,
   SendOutlined,
   CloudUploadOutlined,
+  FileProtectOutlined,
 } from '@ant-design/icons';
 import { settingsService, aiService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
@@ -80,7 +81,13 @@ const VECTOR_STORE_OPTIONS = [
   { value: 'milvus', label: 'Milvus（兼容）' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'status';
+const WATERMARK_TYPE_OPTIONS = [
+  { value: 'user', label: '当前用户名' },
+  { value: 'custom', label: '自定义文案' },
+  { value: 'user_time', label: '用户名 + 导出时间' },
+];
+
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -94,6 +101,7 @@ const TABS: TabConfig[] = [
   { key: 'storage',       label: '存储设置',     icon: <CloudServerOutlined /> },
   { key: 'notification',  label: '通知设置',     icon: <BellOutlined /> },
   { key: 'ai',            label: 'AI设置',       icon: <RobotOutlined /> },
+  { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
 
@@ -121,10 +129,13 @@ export const SettingsPage: React.FC = () => {
   const [storageForm]  = Form.useForm();
   const [notifForm]    = Form.useForm();
   const [aiForm]       = Form.useForm();
+  const [exportForm]   = Form.useForm();
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
   const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
   const embeddingProvider = Form.useWatch('embeddingProvider', aiForm) || 'siliconflow';
+  const pdfWatermarkEnabled = Form.useWatch('pdfWatermarkEnabled', exportForm);
+  const pdfWatermarkType = Form.useWatch('pdfWatermarkType', exportForm) || 'user';
 
   const enableEmail = useAppStore((s) => s.enableEmail);
 
@@ -147,6 +158,22 @@ export const SettingsPage: React.FC = () => {
           chatProvider: (data.ai as any).chatProvider || 'qwen',
           embeddingProvider: (data.ai as any).embeddingProvider || 'siliconflow',
           vectorStoreType: (data.ai as any).vectorStoreType || 'elasticsearch',
+        });
+      }
+      if (data.export) {
+        exportForm.setFieldsValue({
+          pdfWatermarkEnabled: false,
+          pdfWatermarkType: 'user',
+          pdfWatermarkText: '内部资料',
+          pdfWatermarkOpacity: 0.15,
+          ...data.export,
+        });
+      } else {
+        exportForm.setFieldsValue({
+          pdfWatermarkEnabled: false,
+          pdfWatermarkType: 'user',
+          pdfWatermarkText: '内部资料',
+          pdfWatermarkOpacity: 0.15,
         });
       }
     } catch (err: unknown) {
@@ -200,6 +227,7 @@ export const SettingsPage: React.FC = () => {
   const handleSaveStorage  = () => { storageForm.validateFields().then(v => handleSave('storage', v)); };
   const handleSaveNotif    = () => { notifForm.validateFields().then(v => handleSave('notification', Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'emailTestAddress')))); };
   const handleSaveAI       = () => { aiForm.validateFields().then(v => handleSave('ai', v)); };
+  const handleSaveExport   = () => { exportForm.validateFields().then(v => handleSave('export', v)); };
 
   // ---- Status Actions ----
 
@@ -370,6 +398,8 @@ export const SettingsPage: React.FC = () => {
         return renderNotificationTab();
       case 'ai':
         return renderAITab();
+      case 'export':
+        return renderExportTab();
       case 'status':
         return renderStatusTab();
       default:
@@ -908,6 +938,98 @@ export const SettingsPage: React.FC = () => {
           />
         </Form>
         {renderSaveBar(handleSaveAI)}
+      </Card>
+    );
+  }
+
+  // ===================== EXPORT TAB =====================
+  /**
+   * 文档与导出设置：PDF 水印开关/类型/文案/透明度。
+   *
+   * @returns 导出设置 Tab 内容
+   */
+  function renderExportTab() {
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <FileProtectOutlined />,
+          '文档与导出',
+          'PDF 导出水印（用户名 / 自定义 / 用户+时间）',
+          handleSaveExport,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="开启后，文档「导出 PDF」会对每一页叠加斜向水印；配置写入系统配置表并同步 Redis，导出时即时生效。"
+        />
+        <Form
+          form={exportForm}
+          layout="vertical"
+          initialValues={{
+            pdfWatermarkEnabled: false,
+            pdfWatermarkType: 'user',
+            pdfWatermarkText: '内部资料',
+            pdfWatermarkOpacity: 0.15,
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="启用 PDF 水印"
+                name="pdfWatermarkEnabled"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="水印透明度"
+                name="pdfWatermarkOpacity"
+                extra="建议 0.1～0.3，过大影响阅读"
+              >
+                <InputNumber
+                  style={{ width: '100%' }}
+                  min={0.05}
+                  max={0.5}
+                  step={0.05}
+                  disabled={!pdfWatermarkEnabled}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="水印类型"
+                name="pdfWatermarkType"
+                rules={[{ required: true, message: '请选择水印类型' }]}
+              >
+                <Select options={WATERMARK_TYPE_OPTIONS} disabled={!pdfWatermarkEnabled} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="自定义水印文案"
+                name="pdfWatermarkText"
+                extra={pdfWatermarkType === 'custom' ? '将作为水印正文' : '类型为「自定义」时生效；其他类型作兜底'}
+                rules={
+                  pdfWatermarkEnabled && pdfWatermarkType === 'custom'
+                    ? [{ required: true, message: '请填写自定义水印文案' }]
+                    : undefined
+                }
+              >
+                <Input
+                  placeholder="内部资料"
+                  maxLength={40}
+                  disabled={!pdfWatermarkEnabled || pdfWatermarkType !== 'custom'}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        {renderSaveBar(handleSaveExport)}
       </Card>
     );
   }

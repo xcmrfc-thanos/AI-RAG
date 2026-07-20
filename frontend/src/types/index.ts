@@ -630,6 +630,8 @@ export interface SystemSettings {
   storage: StorageSettings;
   notification: NotificationSettings;
   ai: AISettings;
+  /** 文档导出 / PDF 水印 */
+  export?: ExportSettings;
   status: SystemStatus;
 }
 
@@ -692,6 +694,16 @@ export interface AISettings {
   aiMaxTokens?: number;
   /** 高级：超时秒 */
   aiTimeoutSeconds?: number;
+}
+
+/** 文档导出 / PDF 水印设置 */
+export interface ExportSettings {
+  pdfWatermarkEnabled: boolean;
+  /** user | custom | user_time */
+  pdfWatermarkType: string;
+  pdfWatermarkText: string;
+  /** 0~1 */
+  pdfWatermarkOpacity?: number;
 }
 
 export interface SystemStatus {

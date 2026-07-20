@@ -15,9 +15,9 @@
 | 产品建议 | 是否已进计划 | Phase |
 |----------|--------------|-------|
 | API 契约（中/高风险） | 是 | **P1（已完成）** |
-| AI 设置下拉（Provider/模型/Embedding/向量库） | 是 | **P2（下一步）** |
-| 文件/导出：PDF 水印（用户/自定义） | 是 | **P3** |
-| 导出审计日志 | 是 | **P4** |
+| AI 设置下拉（Provider/模型/Embedding/向量库） | 是 | **P2（已完成）** |
+| 文件/导出：PDF 水印（用户/自定义） | 是 | **P3（已完成）** |
+| 导出审计日志 | 是 | **P4（下一步）** |
 | 真数字签名（证书/PKCS#7） | 是（可选） | **P5** |
 | 检索/RAG Tab（TopK、混合检索、重建说明） | **已补入 backlog** | **P6** |
 | 知识图谱 Tab（自动抽取、重建/清理） | **已补入 backlog** | **P7** |
@@ -33,8 +33,8 @@
 | Phase | 内容 | 验收 | 状态 |
 |-------|------|------|------|
 | **P1** | API 契约对齐 | 相关调用不再因路径/类型 500 | **完成** |
-| **P2** | AI 设置下拉对齐真实栈 | 可保存；弱化纯 Milvus 写死 | 待做 |
-| **P3** | 文件设置 + PDF 水印 | 下载 PDF 可见水印 | 待做 |
+| **P2** | AI 设置下拉对齐真实栈 | 可保存；弱化纯 Milvus 写死 | **完成** |
+| **P3** | 文件设置 + PDF 水印 | 下载 PDF 可见水印 | **完成** |
 | **P4** | 导出审计 | 谁/何时/哪篇可查 | 待做 |
 | **P5** | 数字签名（可选） | 有合规硬需求再开 | 默认跳过 |
 | **P6** | 检索/RAG 设置 Tab | TopK/混合检索/向量库说明可配 | backlog |
@@ -58,7 +58,7 @@
 
 ---
 
-## Phase 2 — AI 设置下拉（下一步）
+## Phase 2 — AI 设置下拉（已完成）
 
 - [x] 设置 VO/DTO 扩展：chatProvider、embeddingProvider、chatModel、embeddingModel、vectorStore、高级参数
 - [x] SettingsPage AI Tab：下拉 + AutoComplete；向量库 ES / Qdrant / Milvus
@@ -68,16 +68,16 @@
 
 ---
 
-## Phase 3 — 文件/导出 + PDF 水印
+## Phase 3 — 文件/导出 + PDF 水印（已完成）
 
-- [ ] 新增设置 Tab「文档与导出」（或「文件设置」）
-- [ ] 配置键：`pdf.watermark.enabled` / `type`（user|custom|user_time）/ `text`；透明度可选
-- [ ] `PdfExportServiceImpl` 按设置绘制水印
-- [ ] P5 前可加「导出页脚声明」开关（非真签）
+- [x] 新增设置 Tab「文档与导出」（或「文件设置」）
+- [x] 配置键：`pdf.watermark.enabled` / `type`（user|custom|user_time）/ `text`；透明度可选
+- [x] `PdfExportServiceImpl` 按设置绘制水印
+- [x] 「导出页脚声明」本轮跳过，并入 P4/P5 再定
 
 ---
 
-## Phase 4 — 导出审计
+## Phase 4 — 导出审计（下一步）
 
 - [ ] 审计记录：documentId、userId、format、ip、time
 - [ ] download-pdf / batch-export 写入

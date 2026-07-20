@@ -3,6 +3,7 @@ package com.knowledge.base.document.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.http.HttpUtil;
+import com.knowledge.base.common.config.SystemConfigCache;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.document.entity.Category;
 import com.knowledge.base.document.entity.Document;
@@ -12,6 +13,7 @@ import com.knowledge.base.document.service.DocumentContentService;
 import com.knowledge.base.document.service.DocumentService;
 import com.knowledge.base.document.service.FileUploadService;
 import com.knowledge.base.document.service.PdfExportService;
+import com.knowledge.base.document.utils.UserContext;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.fontbox.ttf.TrueTypeCollection;
@@ -23,6 +25,8 @@ import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
+import org.apache.pdfbox.util.Matrix;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -74,6 +78,9 @@ public class PdfExportServiceImpl implements PdfExportService {
 
     @Resource
     private CategoryMapper categoryMapper;
+
+    @Resource
+    private SystemConfigCache systemConfigCache;
 
     @Value("${file.upload.path:/data/knowledge-base/uploads}")
     private String uploadPath;
@@ -607,6 +614,9 @@ public class PdfExportServiceImpl implements PdfExportService {
                 }
             }
 
+            // 按系统设置叠加水印（所有页）
+            applyWatermarkIfEnabled(document, chineseFont);
+
             document.save(outputStream);
             return outputStream.toByteArray();
 
@@ -623,6 +633,92 @@ public class PdfExportServiceImpl implements PdfExportService {
                 }
             }
         }
+    }
+
+    /**
+     * 若系统开启 PDF 水印，则在每页叠加斜向水印文字。
+     *
+     * @param document PDF 文档
+     * @param chineseFont 中文字体
+     * @throws IOException 绘制失败
+     */
+    private void applyWatermarkIfEnabled(PDDocument document, PDType0Font chineseFont) throws IOException {
+        boolean enabled = Boolean.parseBoolean(
+                systemConfigCache.getConfig("pdf.watermark.enabled", "false"));
+        if (!enabled) {
+            return;
+        }
+        String type = systemConfigCache.getConfig("pdf.watermark.type", "user");
+        String custom = systemConfigCache.getConfig("pdf.watermark.text", "内部资料");
+        float opacity = 0.15f;
+        try {
+            opacity = Float.parseFloat(systemConfigCache.getConfig("pdf.watermark.opacity", "0.15"));
+        } catch (NumberFormatException ignored) {
+            // keep default
+        }
+        opacity = Math.max(0.05f, Math.min(0.5f, opacity));
+
+        String text;
+        if ("custom".equalsIgnoreCase(type)) {
+            text = custom != null && !custom.isBlank() ? custom : "内部资料";
+        } else if ("user_time".equalsIgnoreCase(type)) {
+            String user = resolveCurrentUserLabel();
+            text = user + " " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+        } else {
+            text = resolveCurrentUserLabel();
+        }
+        text = sanitizeForPdfText(text, chineseFont);
+        if (text.isEmpty()) {
+            text = "CONFIDENTIAL";
+        }
+
+        PDExtendedGraphicsState gs = new PDExtendedGraphicsState();
+        gs.setNonStrokingAlphaConstant(opacity);
+        gs.setAlphaSourceFlag(true);
+
+        for (PDPage page : document.getPages()) {
+            PDRectangle box = page.getMediaBox();
+            float cx = box.getWidth() / 2f;
+            float cy = box.getHeight() / 2f;
+            try (PDPageContentStream cs = new PDPageContentStream(document, page,
+                    PDPageContentStream.AppendMode.APPEND, true, true)) {
+                cs.setGraphicsStateParameters(gs);
+                cs.beginText();
+                if (chineseFont != null) {
+                    cs.setFont(chineseFont, 42);
+                } else {
+                    cs.setFont(PDType1Font.HELVETICA_BOLD, 42);
+                }
+                cs.setNonStrokingColor(160, 160, 160);
+                // 约 -35° 斜向居中
+                cs.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(-35), cx - 80, cy));
+                showSafeText(cs, chineseFont, text.length() > 40 ? text.substring(0, 40) : text);
+                cs.endText();
+            }
+        }
+        log.info("PDF 水印已叠加：type={}, textLength={}", type, text.length());
+    }
+
+    /**
+     * 解析当前登录用户展示名（水印用）。
+     *
+     * @return 用户名或默认文案
+     */
+    private String resolveCurrentUserLabel() {
+        try {
+            String name = UserContext.getCurrentUserName();
+            if (name != null && !name.isBlank()) {
+                return name;
+            }
+            Long userId = UserContext.getCurrentUserId();
+            if (userId != null) {
+                return "UID-" + userId;
+            }
+        } catch (Exception e) {
+            log.debug("解析当前用户失败：{}", e.getMessage());
+        }
+        String custom = systemConfigCache.getConfig("pdf.watermark.text", "内部资料");
+        return custom != null && !custom.isBlank() ? custom : "内部资料";
     }
 
     /**
