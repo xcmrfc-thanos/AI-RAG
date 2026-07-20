@@ -41,10 +41,10 @@ CREATE TABLE kb_file (
   update_by BIGINT DEFAULT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_uploader_id ON kb_file (uploader_id);
-CREATE INDEX IF NOT EXISTS idx_file_hash ON kb_file (file_hash);
-CREATE INDEX IF NOT EXISTS idx_file_type ON kb_file (file_type);
-CREATE INDEX IF NOT EXISTS idx_access_level ON kb_file (access_level);
-CREATE INDEX IF NOT EXISTS idx_created_at ON kb_file (created_at);
+CREATE INDEX IF NOT EXISTS idx_kb_file_idx_uploader_id ON kb_file (uploader_id);
+CREATE INDEX IF NOT EXISTS idx_kb_file_idx_file_hash ON kb_file (file_hash);
+CREATE INDEX IF NOT EXISTS idx_kb_file_idx_file_type ON kb_file (file_type);
+CREATE INDEX IF NOT EXISTS idx_kb_file_idx_access_level ON kb_file (access_level);
+CREATE INDEX IF NOT EXISTS idx_kb_file_idx_created_at ON kb_file (created_at);
 
 SELECT 'kb_file 数据库表创建完成！' AS message;

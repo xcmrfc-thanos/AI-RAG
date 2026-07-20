@@ -27,8 +27,8 @@ CREATE TABLE agent_workflow (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_owner ON agent_workflow (owner_user_id);
-CREATE INDEX IF NOT EXISTS idx_published_version ON agent_workflow (published_version_id);
+CREATE INDEX IF NOT EXISTS idx_agent_workflow_idx_owner ON agent_workflow (owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_agent_workflow_idx_published_version ON agent_workflow (published_version_id);
 
 CREATE TABLE agent_workflow_version (
   id BIGINT NOT NULL,
@@ -39,7 +39,7 @@ CREATE TABLE agent_workflow_version (
   published_by BIGINT NOT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_workflow ON agent_workflow_version (workflow_id);
+CREATE INDEX IF NOT EXISTS idx_agent_workflow_version_idx_workflow ON agent_workflow_version (workflow_id);
 
 CREATE TABLE agent_session (
   id BIGINT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE agent_session (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_user ON agent_session (user_id);
+CREATE INDEX IF NOT EXISTS idx_agent_session_idx_user ON agent_session (user_id);
 
 CREATE TABLE agent_run (
   id BIGINT NOT NULL,
@@ -71,9 +71,9 @@ CREATE TABLE agent_run (
   PRIMARY KEY (id),
   CONSTRAINT uk_user_idempotency UNIQUE (user_id, idempotency_key)
 );
-CREATE INDEX IF NOT EXISTS idx_version ON agent_run (workflow_version_id);
-CREATE INDEX IF NOT EXISTS idx_user_status ON agent_run (user_id, status);
-CREATE INDEX IF NOT EXISTS idx_session ON agent_run (session_id);
+CREATE INDEX IF NOT EXISTS idx_agent_run_idx_version ON agent_run (workflow_version_id);
+CREATE INDEX IF NOT EXISTS idx_agent_run_idx_user_status ON agent_run (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_agent_run_idx_session ON agent_run (session_id);
 
 CREATE TABLE agent_run_step (
   id BIGINT NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE agent_run_step (
   duration_ms BIGINT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_run ON agent_run_step (run_id);
-CREATE INDEX IF NOT EXISTS idx_run_node ON agent_run_step (run_id, node_id);
+CREATE INDEX IF NOT EXISTS idx_agent_run_step_idx_run ON agent_run_step (run_id);
+CREATE INDEX IF NOT EXISTS idx_agent_run_step_idx_run_node ON agent_run_step (run_id, node_id);
 
 SELECT 'kb_agent 五表创建完成' AS message;

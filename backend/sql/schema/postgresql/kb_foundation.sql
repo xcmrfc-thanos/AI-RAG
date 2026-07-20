@@ -33,11 +33,11 @@ CREATE TABLE kb_notification (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_notification (user_id);
-CREATE INDEX IF NOT EXISTS idx_is_read ON kb_notification (is_read);
-CREATE INDEX IF NOT EXISTS idx_notification_type ON kb_notification (notification_type);
-CREATE INDEX IF NOT EXISTS idx_create_time ON kb_notification (created_at);
-CREATE INDEX IF NOT EXISTS idx_user_read ON kb_notification (user_id, is_read);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_idx_user_id ON kb_notification (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_idx_is_read ON kb_notification (is_read);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_idx_notification_type ON kb_notification (notification_type);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_idx_create_time ON kb_notification (created_at);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_idx_user_read ON kb_notification (user_id, is_read);
 
 -- =====================================================
 -- 2. 系统配置表
@@ -60,7 +60,7 @@ CREATE TABLE kb_system_config (
   PRIMARY KEY (id),
   CONSTRAINT uk_config_key UNIQUE (config_key)
 );
-CREATE INDEX IF NOT EXISTS idx_category ON kb_system_config (category);
+CREATE INDEX IF NOT EXISTS idx_kb_system_config_idx_category ON kb_system_config (category);
 
 -- =====================================================
 -- 3. 操作日志表
@@ -91,11 +91,11 @@ CREATE TABLE kb_operation_log (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_module ON kb_operation_log (module);
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_operation_log (user_id);
-CREATE INDEX IF NOT EXISTS idx_create_time ON kb_operation_log (created_at);
-CREATE INDEX IF NOT EXISTS idx_status ON kb_operation_log (status);
-CREATE INDEX IF NOT EXISTS idx_operation_type ON kb_operation_log (operation_type);
+CREATE INDEX IF NOT EXISTS idx_kb_operation_log_idx_module ON kb_operation_log (module);
+CREATE INDEX IF NOT EXISTS idx_kb_operation_log_idx_user_id ON kb_operation_log (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_operation_log_idx_create_time ON kb_operation_log (created_at);
+CREATE INDEX IF NOT EXISTS idx_kb_operation_log_idx_status ON kb_operation_log (status);
+CREATE INDEX IF NOT EXISTS idx_kb_operation_log_idx_operation_type ON kb_operation_log (operation_type);
 
 -- =====================================================
 -- 4. 字典类型表
@@ -118,7 +118,7 @@ CREATE TABLE kb_dict (
   PRIMARY KEY (id),
   CONSTRAINT uk_dict_code UNIQUE (dict_code)
 );
-CREATE INDEX IF NOT EXISTS idx_dict_type ON kb_dict (dict_type);
+CREATE INDEX IF NOT EXISTS idx_kb_dict_idx_dict_type ON kb_dict (dict_type);
 
 -- =====================================================
 -- 5. 字典数据表
@@ -143,8 +143,8 @@ CREATE TABLE kb_dict_data (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_dict_id ON kb_dict_data (dict_id);
-CREATE INDEX IF NOT EXISTS idx_dict_code ON kb_dict_data (dict_code);
+CREATE INDEX IF NOT EXISTS idx_kb_dict_data_idx_dict_id ON kb_dict_data (dict_id);
+CREATE INDEX IF NOT EXISTS idx_kb_dict_data_idx_dict_code ON kb_dict_data (dict_code);
 
 -- =====================================================
 -- 6. 通知模板表（吸收 master-sql/11_notification_template.sql）
@@ -166,7 +166,7 @@ CREATE TABLE kb_notification_template (
   PRIMARY KEY (id),
   CONSTRAINT uk_template_code UNIQUE (template_code)
 );
-CREATE INDEX IF NOT EXISTS idx_notification_type ON kb_notification_template (notification_type);
-CREATE INDEX IF NOT EXISTS idx_is_active ON kb_notification_template (is_active);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_notification_type ON kb_notification_template (notification_type);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_is_active ON kb_notification_template (is_active);
 
 SELECT 'kb_foundation 数据库表创建完成！' AS message;

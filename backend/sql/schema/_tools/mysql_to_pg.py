@@ -123,7 +123,15 @@ def convert_create_table(block: str) -> str:
         if key:
             cols = re.sub(r"(\w+)\(\d+\)", r"\1", key.group(2))
             indexes.append(
-                f"CREATE INDEX IF NOT EXISTS {key.group(1)} ON {table} ({cols});"
+                f"CREATE INDEX IF NOT EXISTS idx_{table}_{key.group(1)} ON {table} ({cols});"
+            )
+            continue
+        # MySQL FULLTEXT — PG 用 GIN/tsvector，翻译稿阶段跳过
+        ft = re.match(r"(?is)^FULLTEXT\s+(?:KEY|INDEX)\s+(\w+)\s*\((.+)\)$", piece)
+        if ft:
+            indexes.append(
+                f"-- SKIPPED FULLTEXT {ft.group(1)} ON {table} ({ft.group(2)}); "
+                f"-- use tsvector/GIN in app if needed"
             )
             continue
         # 普通列 / 约束

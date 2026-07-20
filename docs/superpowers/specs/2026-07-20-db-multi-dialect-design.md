@@ -40,6 +40,13 @@
 - `SqlDialectHelper.mergeInto` 占位（仍 Unsupported，带 MERGE 提示）
 - 权威仍为 `schema/mysql/`；PG 为翻译稿需人工验证
 
+## 第五里程碑（PG Docker 冒烟 + 合入 master，2026-07-20）
+
+计划：[plans/2026-07-20-db-dialect-m5-pg-smoke.md](../plans/2026-07-20-db-dialect-m5-pg-smoke.md)
+
+- `deploy/scripts/verify-pg-schema.ps1` PASS（修 FULLTEXT 跳过、索引名表前缀）
+- 方言分支合入 `master`
+
 ## 一部署一方言
 
 Core 三数据源、各 BC 单库：同一部署只能一种方言。

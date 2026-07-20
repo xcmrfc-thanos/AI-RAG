@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS kb_notification_template (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT uk_template_code UNIQUE (template_code)
 );
-CREATE INDEX IF NOT EXISTS idx_notification_type ON kb_notification_template (notification_type);
-CREATE INDEX IF NOT EXISTS idx_is_active ON kb_notification_template (is_active);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_notification_type ON kb_notification_template (notification_type);
+CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_is_active ON kb_notification_template (is_active);
 
 -- 初始化默认模板数据
 INSERT INTO kb_notification_template (template_code, template_name, notification_type, title, content, variables, description, is_active) VALUES

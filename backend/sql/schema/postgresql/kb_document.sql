@@ -30,8 +30,8 @@ CREATE TABLE kb_category (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_parent_id ON kb_category (parent_id);
-CREATE INDEX IF NOT EXISTS idx_category_code ON kb_category (category_code);
+CREATE INDEX IF NOT EXISTS idx_kb_category_idx_parent_id ON kb_category (parent_id);
+CREATE INDEX IF NOT EXISTS idx_kb_category_idx_category_code ON kb_category (category_code);
 
 -- 文档标签表（与 Tag 实体 / TagMapper 对齐）
 DROP TABLE IF EXISTS kb_tag CASCADE;
@@ -58,7 +58,7 @@ CREATE TABLE kb_tag (
   PRIMARY KEY (id),
   CONSTRAINT uk_tag_name UNIQUE (tag_name, deleted)
 );
-CREATE INDEX IF NOT EXISTS idx_tag_code ON kb_tag (tag_code);
+CREATE INDEX IF NOT EXISTS idx_kb_tag_idx_tag_code ON kb_tag (tag_code);
 
 -- 文档表（与 Document 实体对齐；正文存 MongoDB，content 列保留兼容旧数据）
 DROP TABLE IF EXISTS kb_document CASCADE;
@@ -103,15 +103,15 @@ CREATE TABLE kb_document (
   create_by BIGINT DEFAULT NULL,
   update_by BIGINT DEFAULT NULL,
   deleted SMALLINT NOT NULL DEFAULT 0,
-  PRIMARY KEY (id),
-  FULLTEXT KEY ft_content (title, content, summary)
+  PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_title ON kb_document (title);
-CREATE INDEX IF NOT EXISTS idx_category_id ON kb_document (category_id);
-CREATE INDEX IF NOT EXISTS idx_team_id ON kb_document (team_id);
-CREATE INDEX IF NOT EXISTS idx_author_id ON kb_document (author_id);
-CREATE INDEX IF NOT EXISTS idx_status ON kb_document (status);
-CREATE INDEX IF NOT EXISTS idx_publish_time ON kb_document (publish_time);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_title ON kb_document (title);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_category_id ON kb_document (category_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_team_id ON kb_document (team_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_author_id ON kb_document (author_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_status ON kb_document (status);
+CREATE INDEX IF NOT EXISTS idx_kb_document_idx_publish_time ON kb_document (publish_time);
+-- SKIPPED FULLTEXT ft_content ON kb_document (title, content, summary); -- use tsvector/GIN in app if needed
 
 -- 文档标签关联表
 DROP TABLE IF EXISTS kb_document_tag CASCADE;
@@ -147,7 +147,7 @@ CREATE TABLE kb_document_version (
   PRIMARY KEY (id),
   CONSTRAINT uk_doc_version UNIQUE (document_id, version)
 );
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_document_version (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_version_idx_document_id ON kb_document_version (document_id);
 
 -- 文档评论表（与 Comment 实体对齐）
 DROP TABLE IF EXISTS kb_comment CASCADE;
@@ -173,9 +173,9 @@ CREATE TABLE kb_comment (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_comment (document_id);
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_comment (user_id);
-CREATE INDEX IF NOT EXISTS idx_parent_id ON kb_comment (parent_id);
+CREATE INDEX IF NOT EXISTS idx_kb_comment_idx_document_id ON kb_comment (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_comment_idx_user_id ON kb_comment (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_comment_idx_parent_id ON kb_comment (parent_id);
 
 -- 文档审核记录表（代码使用 tb_document_review）
 DROP TABLE IF EXISTS tb_document_review CASCADE;
@@ -194,9 +194,9 @@ CREATE TABLE tb_document_review (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_document_id ON tb_document_review (document_id);
-CREATE INDEX IF NOT EXISTS idx_reviewer_id ON tb_document_review (reviewer_id);
-CREATE INDEX IF NOT EXISTS idx_review_result_created ON tb_document_review (review_result, created_at);
+CREATE INDEX IF NOT EXISTS idx_tb_document_review_idx_document_id ON tb_document_review (document_id);
+CREATE INDEX IF NOT EXISTS idx_tb_document_review_idx_reviewer_id ON tb_document_review (reviewer_id);
+CREATE INDEX IF NOT EXISTS idx_tb_document_review_idx_review_result_created ON tb_document_review (review_result, created_at);
 
 -- 点赞表
 DROP TABLE IF EXISTS kb_like CASCADE;
@@ -210,8 +210,8 @@ CREATE TABLE kb_like (
   PRIMARY KEY (id),
   CONSTRAINT uk_target_user_type UNIQUE (target_id, user_id, target_type)
 );
-CREATE INDEX IF NOT EXISTS idx_target_id ON kb_like (target_id);
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_like (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_like_idx_target_id ON kb_like (target_id);
+CREATE INDEX IF NOT EXISTS idx_kb_like_idx_user_id ON kb_like (user_id);
 
 -- 文档访问记录表
 DROP TABLE IF EXISTS kb_document_access CASCADE;
@@ -234,9 +234,9 @@ CREATE TABLE kb_document_access (
   PRIMARY KEY (id),
   CONSTRAINT idx_user_document UNIQUE (user_id, document_id)
 );
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_document_access (user_id);
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_document_access (document_id);
-CREATE INDEX IF NOT EXISTS idx_access_time ON kb_document_access (access_time);
+CREATE INDEX IF NOT EXISTS idx_kb_document_access_idx_user_id ON kb_document_access (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_access_idx_document_id ON kb_document_access (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_access_idx_access_time ON kb_document_access (access_time);
 
 -- 文档分享表
 DROP TABLE IF EXISTS kb_document_share CASCADE;
@@ -267,8 +267,8 @@ CREATE TABLE kb_document_share (
   PRIMARY KEY (id),
   CONSTRAINT uk_share_id UNIQUE (share_id)
 );
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_document_share (document_id);
-CREATE INDEX IF NOT EXISTS idx_sharer_id ON kb_document_share (sharer_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_share_idx_document_id ON kb_document_share (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_document_share_idx_sharer_id ON kb_document_share (sharer_id);
 
 -- 文件元数据表
 DROP TABLE IF EXISTS kb_file_metadata CASCADE;
@@ -302,7 +302,7 @@ CREATE TABLE kb_file_metadata (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_uploader_id ON kb_file_metadata (uploader_id);
-CREATE INDEX IF NOT EXISTS idx_file_category ON kb_file_metadata (file_category);
+CREATE INDEX IF NOT EXISTS idx_kb_file_metadata_idx_uploader_id ON kb_file_metadata (uploader_id);
+CREATE INDEX IF NOT EXISTS idx_kb_file_metadata_idx_file_category ON kb_file_metadata (file_category);
 
 SELECT 'kb_document 数据库表创建完成！' AS message;

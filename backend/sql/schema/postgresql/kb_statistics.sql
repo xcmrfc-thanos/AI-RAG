@@ -30,7 +30,7 @@ CREATE TABLE kb_document_statistics (
   PRIMARY KEY (id),
   CONSTRAINT uk_doc_date UNIQUE (document_id, stat_date)
 );
-CREATE INDEX IF NOT EXISTS idx_stat_date ON kb_document_statistics (stat_date);
+CREATE INDEX IF NOT EXISTS idx_kb_document_statistics_idx_stat_date ON kb_document_statistics (stat_date);
 
 DROP TABLE IF EXISTS kb_user_statistics CASCADE;
 
@@ -48,7 +48,7 @@ CREATE TABLE kb_user_statistics (
   PRIMARY KEY (id),
   CONSTRAINT uk_user_date UNIQUE (user_id, stat_date)
 );
-CREATE INDEX IF NOT EXISTS idx_stat_date ON kb_user_statistics (stat_date);
+CREATE INDEX IF NOT EXISTS idx_kb_user_statistics_idx_stat_date ON kb_user_statistics (stat_date);
 
 DROP TABLE IF EXISTS kb_comment_statistics CASCADE;
 
@@ -62,7 +62,7 @@ CREATE TABLE kb_comment_statistics (
   PRIMARY KEY (id),
   CONSTRAINT uk_comment_date UNIQUE (comment_id, stat_date)
 );
-CREATE INDEX IF NOT EXISTS idx_stat_date ON kb_comment_statistics (stat_date);
+CREATE INDEX IF NOT EXISTS idx_kb_comment_statistics_idx_stat_date ON kb_comment_statistics (stat_date);
 
 -- ---------- 浏览历史 ----------
 
@@ -80,11 +80,11 @@ CREATE TABLE kb_view_history (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_view_history (user_id);
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_view_history (document_id);
-CREATE INDEX IF NOT EXISTS idx_create_time ON kb_view_history (created_at);
-CREATE INDEX IF NOT EXISTS idx_user_document ON kb_view_history (user_id, document_id);
-CREATE INDEX IF NOT EXISTS idx_doc_date ON kb_view_history (document_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_kb_view_history_idx_user_id ON kb_view_history (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_view_history_idx_document_id ON kb_view_history (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_view_history_idx_create_time ON kb_view_history (created_at);
+CREATE INDEX IF NOT EXISTS idx_kb_view_history_idx_user_document ON kb_view_history (user_id, document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_view_history_idx_doc_date ON kb_view_history (document_id, created_at);
 
 -- ---------- MQ 投影宽表（Intelligence / Core → statistics）----------
 
@@ -98,7 +98,7 @@ CREATE TABLE stat_ai_conversation (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_deleted ON stat_ai_conversation (deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_ai_conversation_idx_deleted ON stat_ai_conversation (deleted);
 
 CREATE TABLE stat_ai_message (
   id BIGINT NOT NULL,
@@ -108,7 +108,7 @@ CREATE TABLE stat_ai_message (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_role_deleted ON stat_ai_message (role, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_ai_message_idx_role_deleted ON stat_ai_message (role, deleted);
 
 DROP TABLE IF EXISTS stat_operation_log CASCADE;
 DROP TABLE IF EXISTS stat_team CASCADE;
@@ -135,9 +135,9 @@ CREATE TABLE stat_document (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_author_deleted ON stat_document (author_id, deleted);
-CREATE INDEX IF NOT EXISTS idx_category_deleted ON stat_document (category_id, deleted);
-CREATE INDEX IF NOT EXISTS idx_status_deleted ON stat_document (status, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_document_idx_author_deleted ON stat_document (author_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_document_idx_category_deleted ON stat_document (category_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_document_idx_status_deleted ON stat_document (status, deleted);
 
 CREATE TABLE stat_user (
   id BIGINT NOT NULL,
@@ -150,7 +150,7 @@ CREATE TABLE stat_user (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_status_deleted ON stat_user (status, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_user_idx_status_deleted ON stat_user (status, deleted);
 
 CREATE TABLE stat_comment (
   id BIGINT NOT NULL,
@@ -160,8 +160,8 @@ CREATE TABLE stat_comment (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_user_deleted ON stat_comment (user_id, deleted);
-CREATE INDEX IF NOT EXISTS idx_doc_deleted ON stat_comment (document_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_comment_idx_user_deleted ON stat_comment (user_id, deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_comment_idx_doc_deleted ON stat_comment (document_id, deleted);
 
 CREATE TABLE stat_category (
   id BIGINT NOT NULL,
@@ -178,7 +178,7 @@ CREATE TABLE stat_role (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_deleted ON stat_role (deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_role_idx_deleted ON stat_role (deleted);
 
 CREATE TABLE stat_team (
   id BIGINT NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE stat_team (
   deleted SMALLINT NOT NULL DEFAULT 0,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_deleted ON stat_team (deleted);
+CREATE INDEX IF NOT EXISTS idx_stat_team_idx_deleted ON stat_team (deleted);
 
 CREATE TABLE stat_operation_log (
   id BIGINT NOT NULL,
@@ -198,7 +198,7 @@ CREATE TABLE stat_operation_log (
   created_at TIMESTAMP DEFAULT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_user_created ON stat_operation_log (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_created_status ON stat_operation_log (created_at, status);
+CREATE INDEX IF NOT EXISTS idx_stat_operation_log_idx_user_created ON stat_operation_log (user_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_stat_operation_log_idx_created_status ON stat_operation_log (created_at, status);
 
 SELECT 'kb_statistics 表结构创建完成！' AS message;

@@ -25,10 +25,16 @@ psql -U postgres -f install_all.sql
 3. JDBC URL / `currentSchema`；Core 多数据源同一方言
 4. 确认 upsert / DATE / LIMIT 已走 `SqlDialectHelper` 或 Mapper `databaseId`
 
-**重新生成翻译稿**（会覆盖除 `kb_intelligence.sql` / `00_create_schemas.sql` 外的生成文件）：
+**重新生成翻译稿**（会覆盖除 `kb_intelligence.sql` / `00_create_schemas.sql` / `install_all.sql` 外的生成文件）：
 
 ```powershell
 py -3 ..\_tools\mysql_to_pg.py
+```
+
+**Docker 冒烟**（需 Docker Desktop）：
+
+```powershell
+.\deploy\scripts\verify-pg-schema.ps1
 ```
 
 当前默认部署请继续使用 MySQL。

@@ -38,8 +38,8 @@ CREATE TABLE kb_user (
   CONSTRAINT uk_username UNIQUE (username, deleted),
   CONSTRAINT uk_email UNIQUE (email, deleted)
 );
-CREATE INDEX IF NOT EXISTS idx_department ON kb_user (department);
-CREATE INDEX IF NOT EXISTS idx_status ON kb_user (status);
+CREATE INDEX IF NOT EXISTS idx_kb_user_idx_department ON kb_user (department);
+CREATE INDEX IF NOT EXISTS idx_kb_user_idx_status ON kb_user (status);
 
 -- 角色表
 DROP TABLE IF EXISTS kb_role CASCADE;
@@ -83,8 +83,8 @@ CREATE TABLE kb_permission (
   update_by BIGINT DEFAULT NULL,
   PRIMARY KEY (id)
 );
-CREATE INDEX IF NOT EXISTS idx_parent_id ON kb_permission (parent_id);
-CREATE INDEX IF NOT EXISTS idx_permission_type ON kb_permission (permission_type);
+CREATE INDEX IF NOT EXISTS idx_kb_permission_idx_parent_id ON kb_permission (parent_id);
+CREATE INDEX IF NOT EXISTS idx_kb_permission_idx_permission_type ON kb_permission (permission_type);
 
 -- 用户角色关联表
 DROP TABLE IF EXISTS kb_user_role CASCADE;
@@ -148,7 +148,7 @@ CREATE TABLE kb_team (
   PRIMARY KEY (id),
   CONSTRAINT uk_team_code UNIQUE (team_code, deleted)
 );
-CREATE INDEX IF NOT EXISTS idx_leader_id ON kb_team (leader_id);
+CREATE INDEX IF NOT EXISTS idx_kb_team_idx_leader_id ON kb_team (leader_id);
 
 -- 团队成员表
 DROP TABLE IF EXISTS kb_team_member CASCADE;
@@ -175,6 +175,6 @@ CREATE TABLE tb_token_blacklist (
   PRIMARY KEY (id),
   CONSTRAINT uk_token_hash UNIQUE (token_hash)
 );
-CREATE INDEX IF NOT EXISTS idx_expire_time ON tb_token_blacklist (expire_time);
+CREATE INDEX IF NOT EXISTS idx_tb_token_blacklist_idx_expire_time ON tb_token_blacklist (expire_time);
 
 SELECT 'kb_user 数据库表创建完成！' AS message;

@@ -27,8 +27,8 @@ CREATE TABLE kb_user_favorite (
   PRIMARY KEY (id),
   CONSTRAINT uk_user_document UNIQUE (user_id, document_id, deleted)
 );
-CREATE INDEX IF NOT EXISTS idx_user_id ON kb_user_favorite (user_id);
-CREATE INDEX IF NOT EXISTS idx_document_id ON kb_user_favorite (document_id);
-CREATE INDEX IF NOT EXISTS idx_favorite_time ON kb_user_favorite (favorite_time);
+CREATE INDEX IF NOT EXISTS idx_kb_user_favorite_idx_user_id ON kb_user_favorite (user_id);
+CREATE INDEX IF NOT EXISTS idx_kb_user_favorite_idx_document_id ON kb_user_favorite (document_id);
+CREATE INDEX IF NOT EXISTS idx_kb_user_favorite_idx_favorite_time ON kb_user_favorite (favorite_time);
 
 SELECT 'kb_favorite 表创建完成！' AS message;

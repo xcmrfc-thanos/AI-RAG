@@ -1,22 +1,28 @@
-# 数据库方言 CI / 验收矩阵（手工）
-
-> 第三里程碑不强制流水线双库；本文件作为后续 CI 接入清单。
+# 数据库方言 CI / 验收矩阵
 
 ## 矩阵
 
 | 检查项 | MySQL（默认） | PostgreSQL | Oracle |
 |--------|---------------|------------|--------|
-| 导入 DDL | `schema/mysql/*` | 试点 `postgresql/kb_intelligence` | 无 |
+| 导入 DDL | `schema/mysql/*` + `import-schema.ps1` | `schema/postgresql/*` + `verify-pg-schema.ps1` | 无 |
 | `kb.db.type` | mysql / 空 | postgresql | oracle |
 | 分页插件 | MYSQL | POSTGRE_SQL | ORACLE |
-| IFNULL / DATE / LIMIT / UPSERT | helper 覆盖 JDBC 热点 | 同左 | UPSERT 除外 |
-| 单测 | `SqlDialectHelperTest` 等 | 同左（方言参数化） | 同左 |
-| 服务冒烟 | `deploy` 默认栈 | 待建 compose profile | 待建 |
+| IFNULL / DATE / LIMIT / UPSERT | helper 覆盖 JDBC 热点 | 同左 | UPSERT 除外（`mergeInto` 占位） |
+| 单测 | `SqlDialectHelperTest` 等 | 同左 | 同左 |
+| 服务冒烟 | `deploy` 默认栈 | DDL 容器冒烟已具备；全栈 profile 待建 | 待建 |
+
+## 本地命令
+
+```powershell
+# MySQL（现有）
+.\deploy\scripts\import-schema.ps1
+
+# PostgreSQL DDL 冒烟（临时容器，需 Docker）
+.\deploy\scripts\verify-pg-schema.ps1
+```
 
 ## 建议后续自动化
 
-1. Job A：现有 MySQL + `mvn test`（已有本地习惯）
-2. Job B：起 PG container → 执行 `00_create_schemas.sql` + `kb_intelligence.sql` → 跑 dialect 单测（可选 Testcontainers）
-3. Oracle：仅文档门禁，直至有内部 OE 镜像
-
-仓库暂无 `.github/workflows`；Gitee 可按上表配置流水线。
+1. Job A：MySQL + `mvn test`
+2. Job B：`verify-pg-schema.ps1`（本里程碑已提供脚本）
+3. Oracle：文档门禁，直至有 OE 镜像
