@@ -138,6 +138,13 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("agentToolGraphSearch",     new String[]{"agent.tools.graph-search.enabled", "boolean","true",  "AGENT"});
         FIELD_TO_CONFIG.put("agentToolGetDocument",     new String[]{"agent.tools.get-document.enabled", "boolean","true",  "AGENT"});
         FIELD_TO_CONFIG.put("agentRunRetentionDays",    new String[]{"agent.run-retention-days",         "number",  "30",    "AGENT"});
+
+        // ===== 审计与合规 =====
+        FIELD_TO_CONFIG.put("operationLogRetentionDays", new String[]{"audit.operation-log.retention-days", "number", "90", "COMPLIANCE"});
+        FIELD_TO_CONFIG.put("confirmSensitiveExport",    new String[]{"audit.confirm.export",               "boolean", "true", "COMPLIANCE"});
+        FIELD_TO_CONFIG.put("confirmSensitiveReindex",   new String[]{"audit.confirm.reindex",              "boolean", "true", "COMPLIANCE"});
+        FIELD_TO_CONFIG.put("confirmSensitiveGraphOps",  new String[]{"audit.confirm.graph-ops",            "boolean", "true", "COMPLIANCE"});
+        FIELD_TO_CONFIG.put("confirmSensitiveDelete",    new String[]{"audit.confirm.delete",               "boolean", "true", "COMPLIANCE"});
     }
 
     // ==================== 按分组读取 ====================
@@ -168,6 +175,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> rag          = buildSection(configMap, "RAG",        SETTINGS_RAG_FIELDS,            "rag");
         Map<String, Object> graph        = buildSection(configMap, "GRAPH",      SETTINGS_GRAPH_FIELDS,          "graph");
         Map<String, Object> agent        = buildSection(configMap, "AGENT",      SETTINGS_AGENT_FIELDS,          "agent");
+        Map<String, Object> compliance   = buildSection(configMap, "COMPLIANCE", SETTINGS_COMPLIANCE_FIELDS,     "compliance");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -179,6 +187,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .rag(rag)
                 .graph(graph)
                 .agent(agent)
+                .compliance(compliance)
                 .status(getSystemStatus())
                 .build();
     }
@@ -219,6 +228,11 @@ public class SettingsServiceImpl implements SettingsService {
             "agentRunTimeoutSeconds", "agentLlmTimeoutSeconds", "agentToolTimeoutSeconds",
             "agentToolHybridSearch", "agentToolGraphSearch", "agentToolGetDocument",
             "agentRunRetentionDays"
+    );
+    private static final List<String> SETTINGS_COMPLIANCE_FIELDS = List.of(
+            "operationLogRetentionDays",
+            "confirmSensitiveExport", "confirmSensitiveReindex",
+            "confirmSensitiveGraphOps", "confirmSensitiveDelete"
     );
 
     /**

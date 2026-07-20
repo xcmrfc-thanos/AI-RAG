@@ -51,6 +51,9 @@ public class SettingsVO implements Serializable {
     @Schema(description = "Agent 设置")
     private Map<String, Object> agent;
 
+    @Schema(description = "审计与合规设置")
+    private Map<String, Object> compliance;
+
     @Schema(description = "系统状态")
     private SystemStatusVO status;
 }

@@ -42,12 +42,14 @@ import {
   SearchOutlined,
   ApartmentOutlined,
   ClusterOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 import { settingsService, aiService, graphService, agentService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
 import { useAppStore } from '@/stores';
 import type { SystemSettings, AIModelOption } from '@/types';
 import type { AgentWorkflowSummary } from '@/services/agent.service';
+import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -102,7 +104,7 @@ const AGENT_MODEL_OPTIONS = [
   { value: 'deepseek', label: 'DeepSeek' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'agent' | 'status';
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'agent' | 'compliance' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -119,6 +121,7 @@ const TABS: TabConfig[] = [
   { key: 'rag',           label: '检索/RAG',     icon: <SearchOutlined /> },
   { key: 'graph',         label: '知识图谱',     icon: <ApartmentOutlined /> },
   { key: 'agent',         label: 'Agent',        icon: <ClusterOutlined /> },
+  { key: 'compliance',    label: '审计与合规',   icon: <AuditOutlined /> },
   { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
@@ -133,6 +136,7 @@ interface SettingsPageState {
 
 export const SettingsPage: React.FC = () => {
   const { message } = App.useApp();
+  const navigate = useNavigate();
 
   const [state, setState] = useState<SettingsPageState>({
     loading: true,
@@ -151,9 +155,13 @@ export const SettingsPage: React.FC = () => {
   const [ragForm]      = Form.useForm();
   const [graphForm]    = Form.useForm();
   const [agentForm]    = Form.useForm();
+  const [complianceForm] = Form.useForm();
   const [reindexing, setReindexing] = useState(false);
   const [graphBusy, setGraphBusy] = useState<'rebuild' | 'cleanup' | null>(null);
   const [agentWorkflows, setAgentWorkflows] = useState<AgentWorkflowSummary[]>([]);
+
+  const confirmReindex = Form.useWatch('confirmSensitiveReindex', complianceForm);
+  const confirmGraphOps = Form.useWatch('confirmSensitiveGraphOps', complianceForm);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
   const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
@@ -268,6 +276,24 @@ export const SettingsPage: React.FC = () => {
           agentRunRetentionDays: 30,
         });
       }
+      if (data.compliance) {
+        complianceForm.setFieldsValue({
+          operationLogRetentionDays: 90,
+          confirmSensitiveExport: true,
+          confirmSensitiveReindex: true,
+          confirmSensitiveGraphOps: true,
+          confirmSensitiveDelete: true,
+          ...data.compliance,
+        });
+      } else {
+        complianceForm.setFieldsValue({
+          operationLogRetentionDays: 90,
+          confirmSensitiveExport: true,
+          confirmSensitiveReindex: true,
+          confirmSensitiveGraphOps: true,
+          confirmSensitiveDelete: true,
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
       setState(prev => ({ ...prev, loading: false, error: msg }));
@@ -336,6 +362,7 @@ export const SettingsPage: React.FC = () => {
   const handleSaveRag      = () => { ragForm.validateFields().then(v => handleSave('rag', v)); };
   const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
   const handleSaveAgent    = () => { agentForm.validateFields().then(v => handleSave('agent', v)); };
+  const handleSaveCompliance = () => { complianceForm.validateFields().then(v => handleSave('compliance', v)); };
 
   /**
    * 触发全量重建向量索引（异步任务）。
@@ -560,6 +587,8 @@ export const SettingsPage: React.FC = () => {
         return renderGraphTab();
       case 'agent':
         return renderAgentTab();
+      case 'compliance':
+        return renderComplianceTab();
       case 'export':
         return renderExportTab();
       case 'status':
@@ -1193,17 +1222,23 @@ export const SettingsPage: React.FC = () => {
           <Text type="secondary" style={{ display: 'block' }}>
             调用已有接口 POST /api/ai/rag/reindex/all，对已发布文档重新分块与嵌入。耗时长，请勿频繁触发。
           </Text>
-          <Popconfirm
-            title="确认全量重建向量索引？"
-            description="将提交异步任务，可能占用 Embedding 与 ES 资源"
-            onConfirm={handleReindexAll}
-            okText="确认重建"
-            cancelText="取消"
-          >
-            <Button type="primary" danger loading={reindexing} icon={<ReloadOutlined />}>
+          {confirmReindex === false ? (
+            <Button type="primary" danger loading={reindexing} icon={<ReloadOutlined />} onClick={handleReindexAll}>
               全量重建索引
             </Button>
-          </Popconfirm>
+          ) : (
+            <Popconfirm
+              title="确认全量重建向量索引？"
+              description="将提交异步任务，可能占用 Embedding 与 ES 资源"
+              onConfirm={handleReindexAll}
+              okText="确认重建"
+              cancelText="取消"
+            >
+              <Button type="primary" danger loading={reindexing} icon={<ReloadOutlined />}>
+                全量重建索引
+              </Button>
+            </Popconfirm>
+          )}
         </Space>
         {renderSaveBar(handleSaveRag)}
       </Card>
@@ -1298,38 +1333,62 @@ export const SettingsPage: React.FC = () => {
             重建：POST /api/document/documents/graph/rebuild；清理脏节点：POST .../graph/cleanup。也可在「知识图谱」页面操作。
           </Text>
           <Space wrap>
-            <Popconfirm
-              title="确认全量重建知识图谱？"
-              description="可能耗时较长，并按配置决定是否先清空图数据"
-              onConfirm={handleRebuildGraph}
-              okText="确认重建"
-              cancelText="取消"
-            >
+            {confirmGraphOps === false ? (
               <Button
                 type="primary"
                 loading={graphBusy === 'rebuild'}
                 disabled={graphBusy === 'cleanup'}
                 icon={<ReloadOutlined />}
+                onClick={handleRebuildGraph}
               >
                 重建知识图谱
               </Button>
-            </Popconfirm>
-            <Popconfirm
-              title="确认清理图谱脏节点？"
-              description="将移除无效/孤立节点等脏数据"
-              onConfirm={handleCleanupGraph}
-              okText="确认清理"
-              cancelText="取消"
-            >
+            ) : (
+              <Popconfirm
+                title="确认全量重建知识图谱？"
+                description="可能耗时较长，并按配置决定是否先清空图数据"
+                onConfirm={handleRebuildGraph}
+                okText="确认重建"
+                cancelText="取消"
+              >
+                <Button
+                  type="primary"
+                  loading={graphBusy === 'rebuild'}
+                  disabled={graphBusy === 'cleanup'}
+                  icon={<ReloadOutlined />}
+                >
+                  重建知识图谱
+                </Button>
+              </Popconfirm>
+            )}
+            {confirmGraphOps === false ? (
               <Button
                 danger
                 loading={graphBusy === 'cleanup'}
                 disabled={graphBusy === 'rebuild'}
                 icon={<DeleteOutlined />}
+                onClick={handleCleanupGraph}
               >
                 清理脏节点
               </Button>
-            </Popconfirm>
+            ) : (
+              <Popconfirm
+                title="确认清理图谱脏节点？"
+                description="将移除无效/孤立节点等脏数据"
+                onConfirm={handleCleanupGraph}
+                okText="确认清理"
+                cancelText="取消"
+              >
+                <Button
+                  danger
+                  loading={graphBusy === 'cleanup'}
+                  disabled={graphBusy === 'rebuild'}
+                  icon={<DeleteOutlined />}
+                >
+                  清理脏节点
+                </Button>
+              </Popconfirm>
+            )}
           </Space>
         </Space>
         {renderSaveBar(handleSaveGraph)}
@@ -1444,6 +1503,102 @@ export const SettingsPage: React.FC = () => {
           </Row>
         </Form>
         {renderSaveBar(handleSaveAgent)}
+      </Card>
+    );
+  }
+
+  // ===================== COMPLIANCE TAB =====================
+  /**
+   * 审计与合规：操作日志保留期与敏感操作二次确认开关。
+   *
+   * @returns 合规设置 Tab 内容
+   */
+  function renderComplianceTab() {
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <AuditOutlined />,
+          '审计与合规',
+          '操作日志保留期与敏感操作二次确认',
+          handleSaveCompliance,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="保留期由 kb-core 定时任务按日清理过期操作日志（最少 7 天）。二次确认开关影响设置页/图谱页等敏感按钮；导出确认供业务页按配置接入。"
+        />
+        <Form
+          form={complianceForm}
+          layout="vertical"
+          initialValues={{
+            operationLogRetentionDays: 90,
+            confirmSensitiveExport: true,
+            confirmSensitiveReindex: true,
+            confirmSensitiveGraphOps: true,
+            confirmSensitiveDelete: true,
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="操作日志保留天数"
+                name="operationLogRetentionDays"
+                rules={[{ required: true, message: '请填写保留天数' }]}
+                extra="实际清理下限为 7 天，防止误配清库"
+              >
+                <InputNumber style={{ width: '100%' }} min={7} max={3650} />
+              </Form.Item>
+            </Col>
+            <Col span={12} style={{ display: 'flex', alignItems: 'center' }}>
+              <Button onClick={() => navigate('/admin/operation-logs')}>
+                查看操作日志
+              </Button>
+            </Col>
+          </Row>
+          <Divider orientation="left" plain>敏感操作二次确认</Divider>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="导出 PDF / 批量导出"
+                name="confirmSensitiveExport"
+                valuePropName="checked"
+                extra="配置落库，文档页可按此开关接入确认框"
+              >
+                <Switch checkedChildren="需确认" unCheckedChildren="跳过" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="全量重建向量索引"
+                name="confirmSensitiveReindex"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="需确认" unCheckedChildren="跳过" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="图谱重建 / 清理"
+                name="confirmSensitiveGraphOps"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="需确认" unCheckedChildren="跳过" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="删除类操作"
+                name="confirmSensitiveDelete"
+                valuePropName="checked"
+                extra="如批量删日志等，业务页按配置接入"
+              >
+                <Switch checkedChildren="需确认" unCheckedChildren="跳过" />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        {renderSaveBar(handleSaveCompliance)}
       </Card>
     );
   }

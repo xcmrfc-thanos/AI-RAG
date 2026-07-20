@@ -638,6 +638,8 @@ export interface SystemSettings {
   graph?: GraphSettings;
   /** Agent 工作流 */
   agent?: AgentSettings;
+  /** 审计与合规 */
+  compliance?: ComplianceSettings;
   status: SystemStatus;
 }
 
@@ -748,6 +750,20 @@ export interface AgentSettings {
   agentToolGraphSearch: boolean;
   agentToolGetDocument: boolean;
   agentRunRetentionDays?: number;
+}
+
+/** 审计与合规设置 */
+export interface ComplianceSettings {
+  /** 操作日志保留天数 */
+  operationLogRetentionDays: number;
+  /** PDF/批量导出前二次确认 */
+  confirmSensitiveExport: boolean;
+  /** 全量重建索引进二次确认 */
+  confirmSensitiveReindex: boolean;
+  /** 图谱重建/清理二次确认 */
+  confirmSensitiveGraphOps: boolean;
+  /** 删除类操作二次确认 */
+  confirmSensitiveDelete: boolean;
 }
 
 export interface SystemStatus {

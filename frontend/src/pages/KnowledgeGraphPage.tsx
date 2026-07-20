@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Input, Button, message } from 'antd';
+import { Input, Button, message, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import {
@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 import type { ECharts, GraphicComponentOption } from 'echarts';
 import { KnowledgeGraphData, KnowledgeGraphNode, GraphData } from '@/types';
-import { graphService } from '@/services';
+import { graphService, settingsService } from '@/services';
 import { PageLoading, EmptyState } from '@/components/common';
 import './KnowledgeGraphPage.css';
 
@@ -699,15 +699,42 @@ export const KnowledgeGraphPage: React.FC = () => {
 
   const handleRebuild = async () => {
     if (rebuilding) return;
-    setRebuilding(true);
+
+    /**
+     * 执行重建请求。
+     */
+    const doRebuild = async () => {
+      setRebuilding(true);
+      try {
+        await graphService.rebuildGraph();
+        message.success('知识图谱重建任务已提交，构建完成后请刷新页面查看');
+      } catch (err: any) {
+        message.error(err?.message || '重建失败，请重试');
+      } finally {
+        setRebuilding(false);
+      }
+    };
+
+    let needConfirm = true;
     try {
-      await graphService.rebuildGraph();
-      message.success('知识图谱重建任务已提交，构建完成后请刷新页面查看');
-    } catch (err: any) {
-      message.error(err?.message || '重建失败，请重试');
-    } finally {
-      setRebuilding(false);
+      const settings = await settingsService.getSettings();
+      needConfirm = settings?.compliance?.confirmSensitiveGraphOps !== false;
+    } catch {
+      needConfirm = true;
     }
+
+    if (!needConfirm) {
+      await doRebuild();
+      return;
+    }
+
+    Modal.confirm({
+      title: '确认全量重建知识图谱？',
+      content: '可能耗时较长，并按系统配置决定是否先清空图数据。',
+      okText: '确认重建',
+      cancelText: '取消',
+      onOk: doRebuild,
+    });
   };
 
   const toggleNodeType = (type: NodeTypeKey) => {
