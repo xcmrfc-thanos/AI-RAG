@@ -40,8 +40,9 @@ import {
   CloudUploadOutlined,
   FileProtectOutlined,
   SearchOutlined,
+  ApartmentOutlined,
 } from '@ant-design/icons';
-import { settingsService, aiService } from '@/services';
+import { settingsService, aiService, graphService } from '@/services';
 import { PageLoading, AdminPageHeader } from '@/components/common';
 import { useAppStore } from '@/stores';
 import type { SystemSettings, AIModelOption } from '@/types';
@@ -88,7 +89,13 @@ const WATERMARK_TYPE_OPTIONS = [
   { value: 'user_time', label: '用户名 + 导出时间' },
 ];
 
-type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'status';
+const KAG_MODEL_OPTIONS = [
+  { value: 'qwen', label: '通义千问（默认）' },
+  { value: 'siliconflow', label: '硅基流动' },
+  { value: 'custom', label: '自定义（与聊天模型一致）' },
+];
+
+type SettingsTab = 'basic' | 'security' | 'storage' | 'notification' | 'ai' | 'export' | 'rag' | 'graph' | 'status';
 
 interface TabConfig {
   key: SettingsTab;
@@ -103,6 +110,7 @@ const TABS: TabConfig[] = [
   { key: 'notification',  label: '通知设置',     icon: <BellOutlined /> },
   { key: 'ai',            label: 'AI设置',       icon: <RobotOutlined /> },
   { key: 'rag',           label: '检索/RAG',     icon: <SearchOutlined /> },
+  { key: 'graph',         label: '知识图谱',     icon: <ApartmentOutlined /> },
   { key: 'export',        label: '文档与导出',   icon: <FileProtectOutlined /> },
   { key: 'status',        label: '系统状态',     icon: <DatabaseOutlined /> },
 ];
@@ -133,7 +141,9 @@ export const SettingsPage: React.FC = () => {
   const [aiForm]       = Form.useForm();
   const [exportForm]   = Form.useForm();
   const [ragForm]      = Form.useForm();
+  const [graphForm]    = Form.useForm();
   const [reindexing, setReindexing] = useState(false);
+  const [graphBusy, setGraphBusy] = useState<'rebuild' | 'cleanup' | null>(null);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
   const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
@@ -202,6 +212,26 @@ export const SettingsPage: React.FC = () => {
           ragVectorStoreType: (data.ai as any)?.vectorStoreType || 'elasticsearch',
         });
       }
+      if (data.graph) {
+        graphForm.setFieldsValue({
+          kagEnabled: true,
+          kagAutoExtract: true,
+          kagExtractionModel: 'qwen',
+          kagMaxEntitiesPerChunk: 10,
+          kagMaxHops: 2,
+          kagClearBeforeBuild: true,
+          ...data.graph,
+        });
+      } else {
+        graphForm.setFieldsValue({
+          kagEnabled: true,
+          kagAutoExtract: true,
+          kagExtractionModel: 'qwen',
+          kagMaxEntitiesPerChunk: 10,
+          kagMaxHops: 2,
+          kagClearBeforeBuild: true,
+        });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
       setState(prev => ({ ...prev, loading: false, error: msg }));
@@ -255,6 +285,7 @@ export const SettingsPage: React.FC = () => {
   const handleSaveAI       = () => { aiForm.validateFields().then(v => handleSave('ai', v)); };
   const handleSaveExport   = () => { exportForm.validateFields().then(v => handleSave('export', v)); };
   const handleSaveRag      = () => { ragForm.validateFields().then(v => handleSave('rag', v)); };
+  const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
 
   /**
    * 触发全量重建向量索引（异步任务）。
@@ -269,6 +300,38 @@ export const SettingsPage: React.FC = () => {
       message.error(msg);
     } finally {
       setReindexing(false);
+    }
+  };
+
+  /**
+   * 重建知识图谱（链到已有 graph rebuild）。
+   */
+  const handleRebuildGraph = async () => {
+    setGraphBusy('rebuild');
+    try {
+      const result = await graphService.rebuildGraph();
+      message.success(typeof result === 'string' && result ? result : '知识图谱重建任务已提交');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '重建图谱失败';
+      message.error(msg);
+    } finally {
+      setGraphBusy(null);
+    }
+  };
+
+  /**
+   * 清理知识图谱脏数据（链到已有 graph cleanup）。
+   */
+  const handleCleanupGraph = async () => {
+    setGraphBusy('cleanup');
+    try {
+      const result = await graphService.cleanupGraph();
+      message.success(typeof result === 'string' && result ? result : '图谱清理任务已提交');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '清理图谱失败';
+      message.error(msg);
+    } finally {
+      setGraphBusy(null);
     }
   };
 
@@ -443,6 +506,8 @@ export const SettingsPage: React.FC = () => {
         return renderAITab();
       case 'rag':
         return renderRagTab();
+      case 'graph':
+        return renderGraphTab();
       case 'export':
         return renderExportTab();
       case 'status':
@@ -1089,6 +1154,133 @@ export const SettingsPage: React.FC = () => {
           </Popconfirm>
         </Space>
         {renderSaveBar(handleSaveRag)}
+      </Card>
+    );
+  }
+
+  // ===================== GRAPH TAB =====================
+  /**
+   * 知识图谱 / KAG 设置：自动抽取、模型与重建/清理入口。
+   *
+   * @returns 图谱设置 Tab 内容
+   */
+  function renderGraphTab() {
+    return (
+      <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
+        {renderSectionHeader(
+          <ApartmentOutlined />,
+          '知识图谱',
+          'KAG 自动抽实体、抽取模型与图谱重建/清理',
+          handleSaveGraph,
+        )}
+        <Alert
+          type="info"
+          showIcon
+          style={{ marginBottom: 20 }}
+          message="此处写入系统配置表；运行时 KAG 仍以 deploy/.env 与 Nacos（kag.*）为准。重建/清理调用与「知识图谱」页相同的 document/graph 接口。"
+        />
+        <Form
+          form={graphForm}
+          layout="vertical"
+          initialValues={{
+            kagEnabled: true,
+            kagAutoExtract: true,
+            kagExtractionModel: 'qwen',
+            kagMaxEntitiesPerChunk: 10,
+            kagMaxHops: 2,
+            kagClearBeforeBuild: true,
+          }}
+        >
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="启用 KAG" name="kagEnabled" valuePropName="checked">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="自动抽实体"
+                name="kagAutoExtract"
+                valuePropName="checked"
+                extra="文档发布后触发实体/关系抽取"
+              >
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item
+                label="重建前清空图谱"
+                name="kagClearBeforeBuild"
+                valuePropName="checked"
+              >
+                <Switch checkedChildren="清空" unCheckedChildren="保留" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="抽取模型"
+                name="kagExtractionModel"
+                rules={[{ required: true, message: '请选择抽取模型' }]}
+              >
+                <Select options={KAG_MODEL_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item label="每块最大实体数" name="kagMaxEntitiesPerChunk">
+                <InputNumber style={{ width: '100%' }} min={1} max={50} />
+              </Form.Item>
+            </Col>
+            <Col span={6}>
+              <Form.Item label="检索跳数 maxHops" name="kagMaxHops">
+                <InputNumber style={{ width: '100%' }} min={1} max={5} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+        <Divider />
+        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+          <Text strong>图谱运维</Text>
+          <Text type="secondary" style={{ display: 'block' }}>
+            重建：POST /api/document/documents/graph/rebuild；清理脏节点：POST .../graph/cleanup。也可在「知识图谱」页面操作。
+          </Text>
+          <Space wrap>
+            <Popconfirm
+              title="确认全量重建知识图谱？"
+              description="可能耗时较长，并按配置决定是否先清空图数据"
+              onConfirm={handleRebuildGraph}
+              okText="确认重建"
+              cancelText="取消"
+            >
+              <Button
+                type="primary"
+                loading={graphBusy === 'rebuild'}
+                disabled={graphBusy === 'cleanup'}
+                icon={<ReloadOutlined />}
+              >
+                重建知识图谱
+              </Button>
+            </Popconfirm>
+            <Popconfirm
+              title="确认清理图谱脏节点？"
+              description="将移除无效/孤立节点等脏数据"
+              onConfirm={handleCleanupGraph}
+              okText="确认清理"
+              cancelText="取消"
+            >
+              <Button
+                danger
+                loading={graphBusy === 'cleanup'}
+                disabled={graphBusy === 'rebuild'}
+                icon={<DeleteOutlined />}
+              >
+                清理脏节点
+              </Button>
+            </Popconfirm>
+          </Space>
+        </Space>
+        {renderSaveBar(handleSaveGraph)}
       </Card>
     );
   }

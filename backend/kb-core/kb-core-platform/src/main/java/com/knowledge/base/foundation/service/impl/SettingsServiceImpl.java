@@ -119,6 +119,14 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("ragHybridEnabled",     new String[]{"rag.hybrid.enabled",             "boolean", "true",                               "RAG"});
         FIELD_TO_CONFIG.put("ragRerankEnabled",     new String[]{"rag.rerank.enabled",             "boolean", "true",                               "RAG"});
         FIELD_TO_CONFIG.put("ragVectorStoreType",   new String[]{"rag.vector.store",               "string",  "elasticsearch",                      "RAG"});
+
+        // ===== 知识图谱 / KAG =====
+        FIELD_TO_CONFIG.put("kagEnabled",             new String[]{"kag.enabled",                      "boolean", "true",   "GRAPH"});
+        FIELD_TO_CONFIG.put("kagAutoExtract",         new String[]{"kag.extraction.auto-enabled",      "boolean", "true",   "GRAPH"});
+        FIELD_TO_CONFIG.put("kagExtractionModel",     new String[]{"kag.extraction.model",             "string",  "qwen",   "GRAPH"});
+        FIELD_TO_CONFIG.put("kagMaxEntitiesPerChunk", new String[]{"kag.extraction.max-entities-per-chunk", "number", "10", "GRAPH"});
+        FIELD_TO_CONFIG.put("kagMaxHops",             new String[]{"kag.retrieval.max-hops",           "number",  "2",      "GRAPH"});
+        FIELD_TO_CONFIG.put("kagClearBeforeBuild",    new String[]{"kag.graph.clear-before-build",     "boolean", "true",   "GRAPH"});
     }
 
     // ==================== 按分组读取 ====================
@@ -147,6 +155,7 @@ public class SettingsServiceImpl implements SettingsService {
         Map<String, Object> ai           = buildSection(configMap, "AI",         SETTINGS_AI_FIELDS,             "ai");
         Map<String, Object> export       = buildSection(configMap, "EXPORT",     SETTINGS_EXPORT_FIELDS,         "export");
         Map<String, Object> rag          = buildSection(configMap, "RAG",        SETTINGS_RAG_FIELDS,            "rag");
+        Map<String, Object> graph        = buildSection(configMap, "GRAPH",      SETTINGS_GRAPH_FIELDS,          "graph");
 
         return SettingsVO.builder()
                 .basic(basic)
@@ -156,6 +165,7 @@ public class SettingsServiceImpl implements SettingsService {
                 .ai(ai)
                 .export(export)
                 .rag(rag)
+                .graph(graph)
                 .status(getSystemStatus())
                 .build();
     }
@@ -186,6 +196,10 @@ public class SettingsServiceImpl implements SettingsService {
     private static final List<String> SETTINGS_RAG_FIELDS = List.of(
             "ragEnabled", "ragDefaultTopK", "ragHybridTopK", "ragFinalTopK",
             "ragHybridEnabled", "ragRerankEnabled", "ragVectorStoreType"
+    );
+    private static final List<String> SETTINGS_GRAPH_FIELDS = List.of(
+            "kagEnabled", "kagAutoExtract", "kagExtractionModel",
+            "kagMaxEntitiesPerChunk", "kagMaxHops", "kagClearBeforeBuild"
     );
 
     /**

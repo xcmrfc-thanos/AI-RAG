@@ -634,6 +634,8 @@ export interface SystemSettings {
   export?: ExportSettings;
   /** 检索 / RAG */
   rag?: RagSettings;
+  /** 知识图谱 / KAG */
+  graph?: GraphSettings;
   status: SystemStatus;
 }
 
@@ -718,6 +720,18 @@ export interface RagSettings {
   ragRerankEnabled: boolean;
   /** elasticsearch | qdrant | milvus */
   ragVectorStoreType: string;
+}
+
+/** 知识图谱 / KAG 设置（落配置表；runtime 以 .env/Nacos 为准） */
+export interface GraphSettings {
+  kagEnabled: boolean;
+  /** 文档发布后是否自动抽实体 */
+  kagAutoExtract: boolean;
+  kagExtractionModel: string;
+  kagMaxEntitiesPerChunk?: number;
+  kagMaxHops?: number;
+  /** 全量重建前是否清空图 */
+  kagClearBeforeBuild?: boolean;
 }
 
 export interface SystemStatus {
