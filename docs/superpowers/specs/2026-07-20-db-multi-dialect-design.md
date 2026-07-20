@@ -47,6 +47,14 @@
 - `deploy/scripts/verify-pg-schema.ps1` PASS（修 FULLTEXT 跳过、索引名表前缀）
 - 方言分支合入 `master`
 
+## 生产交付（三库、MySQL 默认）
+
+计划：[plans/2026-07-20-db-tri-dialect-prod-delivery.md](../plans/2026-07-20-db-tri-dialect-prod-delivery.md)  
+设计：[2026-07-20-db-tri-dialect-prod-design.md](./2026-07-20-db-tri-dialect-prod-design.md)
+
+- 目标：换配置 + 库脚本即可切 PG/Oracle；字段/函数公约；Oracle MERGE；PG 最小全栈；MySQL 回归
+- **状态：计划已落盘，待换会话按 Task 0～9 执行**
+
 ## 一部署一方言
 
 Core 三数据源、各 BC 单库：同一部署只能一种方言。
