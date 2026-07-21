@@ -533,6 +533,8 @@ public class SearchServiceImpl implements SearchService {
 
         try {
             int topK = dto.getTopK() > 0 ? dto.getTopK() : 10;
+            // 是否精排由 RagRuntimeSettings（系统设置 rag.rerank.enabled）决定；
+            // 请求 enableRerank 仅表示「允许」；关闭设置时 retrieve 内部不会走重排
             List<RagSearchResultVO> dataList = ragRetrievalService.retrieve(
                     dto.getKeyword(), topK, dto.isEnableRerank());
             log.debug("llm 混合搜索响应：items={}", dataList != null ? dataList.size() : 0);

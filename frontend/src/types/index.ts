@@ -716,7 +716,7 @@ export interface ExportSettings {
   pdfWatermarkOpacity?: number;
 }
 
-/** 检索 / RAG 设置（落配置表 + Redis 热读；密钥仍走 .env/Nacos，两通道不同步） */
+/** 检索 / RAG 设置（落配置表 + Redis；部署形态见 ragRetrievalProfile） */
 export interface RagSettings {
   ragEnabled: boolean;
   ragDefaultTopK: number;
@@ -730,10 +730,16 @@ export interface RagSettings {
   ragRerankProvider?: string;
   /** 空则按 provider 默认模型 */
   ragRerankModel?: string;
-  /** Qdrant 旁路（BM25 仍 ES）；非纯 Qdrant 主库 */
+  /** es-es | es-qdrant | qdrant-qdrant | es-milvus | milvus-milvus */
+  ragRetrievalProfile?: string;
+  ragKeywordEngine?: string;
+  ragDenseEngine?: string;
+  /** @deprecated 由 profile 派生，兼容旧键 */
   ragQdrantEnabled?: boolean;
-  /** elasticsearch | milvus（主向量库） */
+  /** @deprecated 由 profile 派生 */
   ragVectorStoreType: string;
+  milvusHost?: string;
+  milvusPort?: number;
 }
 
 /** 知识图谱 / KAG 设置（落配置表；runtime 以 .env/Nacos 为准） */

@@ -137,6 +137,9 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("ragRerankMode",        new String[]{"rag.rerank.mode",                "string",  "api",                                "RAG"});
         FIELD_TO_CONFIG.put("ragRerankProvider",    new String[]{"rag.rerank.provider",            "string",  "auto",                               "RAG"});
         FIELD_TO_CONFIG.put("ragRerankModel",       new String[]{"rag.rerank.model",               "string",  "",                                   "RAG"});
+        FIELD_TO_CONFIG.put("ragRetrievalProfile",  new String[]{"rag.retrieval.profile",          "string",  "es-es",                              "RAG"});
+        FIELD_TO_CONFIG.put("ragKeywordEngine",     new String[]{"rag.retrieval.keyword-engine",   "string",  "elasticsearch",                      "RAG"});
+        FIELD_TO_CONFIG.put("ragDenseEngine",       new String[]{"rag.retrieval.dense-engine",     "string",  "elasticsearch",                      "RAG"});
         FIELD_TO_CONFIG.put("ragQdrantEnabled",     new String[]{"rag.qdrant.enabled",             "boolean", "false",                              "RAG"});
         FIELD_TO_CONFIG.put("ragVectorStoreType",   new String[]{"rag.vector.store",               "string",  "elasticsearch",                      "RAG"});
 
@@ -247,7 +250,9 @@ public class SettingsServiceImpl implements SettingsService {
             "ragEnabled", "ragDefaultTopK", "ragHybridTopK", "ragFinalTopK",
             "ragHybridEnabled", "ragRerankEnabled",
             "ragRerankMode", "ragRerankProvider", "ragRerankModel",
-            "ragQdrantEnabled", "ragVectorStoreType"
+            "ragRetrievalProfile", "ragKeywordEngine", "ragDenseEngine",
+            "ragQdrantEnabled", "ragVectorStoreType",
+            "milvusHost", "milvusPort"
     );
     private static final List<String> SETTINGS_GRAPH_FIELDS = List.of(
             "kagEnabled", "kagAutoExtract", "kagExtractionModel",

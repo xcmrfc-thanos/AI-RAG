@@ -107,7 +107,29 @@ public class RagProperties {
         private int finalTopK = 5;
         /** RRF（倒数排名融合）常数 */
         private int rrfC = 60;
+        /**
+         * 部署形态 ID（白名单）：es-es | es-qdrant | qdrant-qdrant | es-milvus | milvus-milvus。
+         * 空则由 {@code rag.vector-store} + {@code rag.qdrant.enabled} 推导。
+         */
+        private String profile = "";
+        /** 关键词腿：elasticsearch | qdrant | milvus（可与 profile 互推） */
+        private String keywordEngine = "";
+        /** 向量腿：elasticsearch | qdrant | milvus */
+        private String denseEngine = "";
     }
+
+    /**
+     * 稀疏关键词腿（Hashing BM25-lite）。
+     */
+    @Data
+    public static class Sparse {
+        /** 哈希桶维度 */
+        private int dimension = 30_000;
+    }
+
+    /** 稀疏嵌入配置 */
+    private Sparse sparse = new Sparse();
+
 
     /**
      * 重排序配置。

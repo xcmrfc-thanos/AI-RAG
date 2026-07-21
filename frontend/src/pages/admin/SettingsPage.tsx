@@ -83,9 +83,12 @@ const CHAT_PROVIDER_OPTIONS = [
   { value: 'custom', label: '自定义' },
 ];
 
-const VECTOR_STORE_OPTIONS = [
-  { value: 'elasticsearch', label: 'Elasticsearch（推荐）' },
-  { value: 'milvus', label: 'Milvus（兼容）' },
+const RETRIEVAL_PROFILE_OPTIONS = [
+  { value: 'es-es', label: 'Elasticsearch（单库，推荐）', keyword: 'ES BM25', dense: 'ES dense' },
+  { value: 'es-qdrant', label: 'ES + Qdrant（组合）', keyword: 'ES BM25', dense: 'Qdrant dense' },
+  { value: 'qdrant-qdrant', label: 'Qdrant（单库）', keyword: 'Qdrant sparse', dense: 'Qdrant dense' },
+  { value: 'es-milvus', label: 'ES + Milvus（组合）', keyword: 'ES BM25', dense: 'Milvus dense' },
+  { value: 'milvus-milvus', label: 'Milvus（单库）', keyword: 'Milvus sparse', dense: 'Milvus dense' },
 ];
 
 const RERANK_MODE_OPTIONS = [
@@ -98,8 +101,45 @@ const RERANK_PROVIDER_OPTIONS = [
   { value: 'auto', label: '自动（跟随 Embedding）' },
   { value: 'siliconflow', label: '硅基流动' },
   { value: 'qwen', label: '通义千问' },
-  { value: 'custom', label: '自定义（Nacos base-url）' },
+  { value: 'custom', label: '自定义（部署配置中的 base-url）' },
 ];
+
+/**
+ * 由旧向量库+旁路推导部署形态。
+ */
+function profileFromLegacy(vectorStore?: string, qdrantEnabled?: boolean): string {
+  const vs = (vectorStore || 'elasticsearch').toLowerCase();
+  if (vs === 'milvus') return 'milvus-milvus';
+  if (vs === 'qdrant') return 'qdrant-qdrant';
+  return qdrantEnabled ? 'es-qdrant' : 'es-es';
+}
+
+/**
+ * 部署形态展开为兼容字段（vector-store / qdrant.enabled）。
+ */
+function legacyFromProfile(profile: string): { ragVectorStoreType: string; ragQdrantEnabled: boolean } {
+  switch (profile) {
+    case 'es-qdrant':
+      return { ragVectorStoreType: 'elasticsearch', ragQdrantEnabled: true };
+    case 'qdrant-qdrant':
+      return { ragVectorStoreType: 'qdrant', ragQdrantEnabled: true };
+    case 'es-milvus':
+      return { ragVectorStoreType: 'elasticsearch', ragQdrantEnabled: false };
+    case 'milvus-milvus':
+      return { ragVectorStoreType: 'milvus', ragQdrantEnabled: false };
+    case 'es-es':
+    default:
+      return { ragVectorStoreType: 'elasticsearch', ragQdrantEnabled: false };
+  }
+}
+
+/**
+ * 形态中文名（集成页展示）。
+ */
+function profileDisplayName(profile?: string, vectorStore?: string, qdrantEnabled?: boolean): string {
+  const id = profile || profileFromLegacy(vectorStore, qdrantEnabled);
+  return RETRIEVAL_PROFILE_OPTIONS.find((o) => o.value === id)?.label || id;
+}
 
 const WATERMARK_TYPE_OPTIONS = [
   { value: 'user', label: '当前用户名' },
@@ -187,10 +227,11 @@ export const SettingsPage: React.FC = () => {
   const confirmGraphOps = Form.useWatch('confirmSensitiveGraphOps', complianceForm);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
-  const vectorStoreType = Form.useWatch('vectorStoreType', aiForm);
+  const ragRetrievalProfile = Form.useWatch('ragRetrievalProfile', ragForm) || 'es-es';
   const embeddingProvider = Form.useWatch('embeddingProvider', aiForm) || 'siliconflow';
   const pdfWatermarkEnabled = Form.useWatch('pdfWatermarkEnabled', exportForm);
   const pdfWatermarkType = Form.useWatch('pdfWatermarkType', exportForm) || 'user';
+  const showMilvusHost = ragRetrievalProfile === 'milvus-milvus' || ragRetrievalProfile === 'es-milvus';
 
   const enableEmail = useAppStore((s) => s.enableEmail);
 
@@ -232,6 +273,9 @@ export const SettingsPage: React.FC = () => {
         });
       }
       if (data.rag) {
+        const rag = data.rag as any;
+        const profile = rag.ragRetrievalProfile
+          || profileFromLegacy(rag.ragVectorStoreType || data.ai?.vectorStoreType, rag.ragQdrantEnabled);
         ragForm.setFieldsValue({
           ragEnabled: true,
           ragDefaultTopK: 5,
@@ -244,7 +288,10 @@ export const SettingsPage: React.FC = () => {
           ragRerankModel: '',
           ragQdrantEnabled: false,
           ragVectorStoreType: 'elasticsearch',
-          ...data.rag,
+          milvusHost: (data.ai as any)?.milvusHost || 'localhost',
+          milvusPort: (data.ai as any)?.milvusPort || 19530,
+          ...rag,
+          ragRetrievalProfile: profile,
         });
       } else {
         ragForm.setFieldsValue({
@@ -258,6 +305,10 @@ export const SettingsPage: React.FC = () => {
           ragRerankProvider: 'auto',
           ragRerankModel: '',
           ragQdrantEnabled: false,
+          ragRetrievalProfile: profileFromLegacy(
+            (data.ai as any)?.vectorStoreType,
+            false,
+          ),
           ragVectorStoreType: (data.ai as any)?.vectorStoreType || 'elasticsearch',
         });
       }
@@ -406,7 +457,26 @@ export const SettingsPage: React.FC = () => {
   const handleSaveNotif    = () => { notifForm.validateFields().then(v => handleSave('notification', Object.fromEntries(Object.entries(v).filter(([k]) => k !== 'emailTestAddress')))); };
   const handleSaveAI       = () => { aiForm.validateFields().then(v => handleSave('ai', v)); };
   const handleSaveExport   = () => { exportForm.validateFields().then(v => handleSave('export', v)); };
-  const handleSaveRag      = () => { ragForm.validateFields().then(v => handleSave('rag', v)); };
+  const handleSaveRag      = () => {
+    ragForm.validateFields().then((v) => {
+      const profile = String(v.ragRetrievalProfile || 'es-es');
+      const legacy = legacyFromProfile(profile);
+      const engines: Record<string, { kw: string; dense: string }> = {
+        'es-es': { kw: 'elasticsearch', dense: 'elasticsearch' },
+        'es-qdrant': { kw: 'elasticsearch', dense: 'qdrant' },
+        'qdrant-qdrant': { kw: 'qdrant', dense: 'qdrant' },
+        'es-milvus': { kw: 'elasticsearch', dense: 'milvus' },
+        'milvus-milvus': { kw: 'milvus', dense: 'milvus' },
+      };
+      const e = engines[profile] || engines['es-es'];
+      handleSave('rag', {
+        ...v,
+        ...legacy,
+        ragKeywordEngine: e.kw,
+        ragDenseEngine: e.dense,
+      });
+    });
+  };
   const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
   const handleSaveAgent    = () => { agentForm.validateFields().then(v => handleSave('agent', v)); };
   const handleSaveCompliance = () => { complianceForm.validateFields().then(v => handleSave('compliance', v)); };
@@ -836,7 +906,7 @@ export const SettingsPage: React.FC = () => {
             <Col span={6}>
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
-                  title="总存储空间"
+                  title={hasStorageMetrics ? '总存储空间' : '总存储空间（未接入对象存储计量）'}
                   value={hasStorageMetrics ? formatBytes(Number(status.totalStorage)) : '—'}
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
                 />
@@ -845,7 +915,7 @@ export const SettingsPage: React.FC = () => {
             <Col span={6}>
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
-                  title="已使用"
+                  title={hasStorageMetrics ? '已使用' : '已使用（未接入计量）'}
                   value={hasStorageMetrics ? formatBytes(Number(status.usedStorage)) : '—'}
                   suffix={hasStorageMetrics ? `(${usedPercent}%)` : undefined}
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
@@ -1045,14 +1115,14 @@ export const SettingsPage: React.FC = () => {
         {renderSectionHeader(
           <RobotOutlined />,
           'AI设置',
-          '对齐现网：聊天模型 / Embedding Provider / 向量库（ES·Qdrant）',
+          '对齐现网：聊天模型 / Embedding；检索部署形态见「检索/RAG」',
           handleSaveAI,
         )}
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="此处配置写入系统配置表，供管理与审计；运行时 LLM/向量仍以 deploy/.env 与 Nacos 为准，变更后通常需重启 intelligence。"
+          message="聊天与 Embedding 写入系统配置。API 密钥在部署配置中维护；变更模型后通常需重启 intelligence。检索引擎请到「检索/RAG → 部署形态」。"
         />
         <Form form={aiForm} layout="vertical" initialValues={{
           chatProvider: 'qwen',
@@ -1133,31 +1203,23 @@ export const SettingsPage: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={[24, 0]}>
-            <Col span={12}>
-              <Form.Item
-                label="向量库"
-                name="vectorStoreType"
-                rules={[{ required: true, message: '请选择向量库' }]}
-              >
-                <Select options={VECTOR_STORE_OPTIONS} />
-              </Form.Item>
-            </Col>
-          </Row>
-          {vectorStoreType === 'milvus' && (
-            <Row gutter={[24, 0]}>
-              <Col span={12}>
-                <Form.Item label="Milvus 主机" name="milvusHost">
-                  <Input placeholder="localhost" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Milvus 端口" name="milvusPort">
-                  <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="19530" />
-                </Form.Item>
-              </Col>
-            </Row>
-          )}
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginBottom: 16 }}
+            message={
+              <span>
+                向量 / 关键词引擎请到
+                <Button type="link" size="small" style={{ padding: '0 4px' }} onClick={() => setState((s) => ({ ...s, activeTab: 'rag' }))}>
+                  检索/RAG → 部署形态
+                </Button>
+                统一配置（此处不再单独选择向量库）。
+              </span>
+            }
+          />
+          <Form.Item name="vectorStoreType" hidden><Input /></Form.Item>
+          <Form.Item name="milvusHost" hidden><Input /></Form.Item>
+          <Form.Item name="milvusPort" hidden><InputNumber /></Form.Item>
           <Collapse
             ghost
             items={[{
@@ -1192,24 +1254,25 @@ export const SettingsPage: React.FC = () => {
 
   // ===================== RAG TAB =====================
   /**
-   * 检索 / RAG 设置：TopK、混合检索、向量库与重建索引入口。
+   * 检索 / RAG 设置：TopK、混合检索、部署形态与重建索引入口。
    *
    * @returns RAG 设置 Tab 内容
    */
   function renderRagTab() {
+    const profileMeta = RETRIEVAL_PROFILE_OPTIONS.find((o) => o.value === ragRetrievalProfile);
     return (
       <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
         {renderSectionHeader(
           <SearchOutlined />,
           '检索 / RAG',
-          'TopK、混合检索、重排打分模型与向量库；重建索引走已有 /rag/reindex',
+          'TopK、混合检索、部署形态、搜索/对话精排；重建索引走 /rag/reindex',
           handleSaveRag,
         )}
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="本页写入 kb_system_config + Redis 热读（rag.retrieval.* / rag.rerank.*）。不写 Nacos / deploy/.env；API 密钥与进程级开关仍走部署通道（import-nacos）。两通道不会自动双向同步。更换 Embedding/向量库后必须重建索引。"
+          message="本页写入系统配置并热读（TopK / 重排 / 部署形态）。连接地址与 API 密钥在部署配置中维护；切换形态后须重建索引，部分变更需重启服务。"
         />
         <Form
           form={ragForm}
@@ -1224,6 +1287,7 @@ export const SettingsPage: React.FC = () => {
             ragRerankMode: 'api',
             ragRerankProvider: 'auto',
             ragRerankModel: '',
+            ragRetrievalProfile: 'es-es',
             ragQdrantEnabled: false,
             ragVectorStoreType: 'elasticsearch',
           }}
@@ -1238,12 +1302,6 @@ export const SettingsPage: React.FC = () => {
               <Form.Item label="默认混合检索" name="ragHybridEnabled" valuePropName="checked"
                 extra="管理面偏好开关；搜索 API 仍可按请求指定 mode">
                 <Switch checkedChildren="混合" unCheckedChildren="关" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item label="启用重排序" name="ragRerankEnabled" valuePropName="checked"
-                extra="总开关；关闭后请求也不会进入重排">
-                <Switch checkedChildren="开" unCheckedChildren="关" />
               </Form.Item>
             </Col>
           </Row>
@@ -1266,11 +1324,17 @@ export const SettingsPage: React.FC = () => {
             </Col>
           </Row>
           <Divider style={{ margin: '8px 0 16px' }} />
-          <Text strong style={{ display: 'block', marginBottom: 12 }}>重排打分模型</Text>
+          <Text strong style={{ display: 'block', marginBottom: 12 }}>搜索 / 对话精排</Text>
           <Row gutter={[24, 0]}>
             <Col span={8}>
+              <Form.Item label="启用重排序" name="ragRerankEnabled" valuePropName="checked"
+                extra="总开关：混合搜索与对话按此热读；关闭则不调用重排、结果不展示重排分">
+                <Switch checkedChildren="开" unCheckedChildren="关" />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
               <Form.Item label="重排模式" name="ragRerankMode"
-                extra="推荐 api；密钥在 .env / Nacos">
+                extra="推荐专用 API；密钥在部署配置中维护">
                 <Select options={RERANK_MODE_OPTIONS} />
               </Form.Item>
             </Col>
@@ -1279,35 +1343,51 @@ export const SettingsPage: React.FC = () => {
                 <Select options={RERANK_PROVIDER_OPTIONS} />
               </Form.Item>
             </Col>
-            <Col span={8}>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
               <Form.Item label="重排模型" name="ragRerankModel"
                 extra="可空：硅基默认 BAAI/bge-reranker-v2-m3，通义 qwen3-rerank">
                 <Input placeholder="留空使用 Provider 默认" allowClear />
               </Form.Item>
             </Col>
           </Row>
+          <Divider style={{ margin: '8px 0 16px' }} />
+          <Text strong style={{ display: 'block', marginBottom: 12 }}>检索部署形态</Text>
           <Row gutter={[24, 0]}>
             <Col span={12}>
               <Form.Item
-                label="向量库（主库）"
-                name="ragVectorStoreType"
-                rules={[{ required: true, message: '请选择向量库' }]}
-                extra="与 AI 设置同源键 rag.vector.store；非纯 Qdrant 主库"
+                label="部署形态"
+                name="ragRetrievalProfile"
+                rules={[{ required: true, message: '请选择部署形态' }]}
+                extra={profileMeta ? `关键词：${profileMeta.keyword}；向量：${profileMeta.dense}` : undefined}
               >
-                <Select options={VECTOR_STORE_OPTIONS} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                label="Qdrant 旁路"
-                name="ragQdrantEnabled"
-                valuePropName="checked"
-                extra="开启后 dense 可走 Qdrant，BM25 仍 ES；进程级还需 RAG_QDRANT_ENABLED（.env）"
-              >
-                <Switch checkedChildren="旁路开" unCheckedChildren="关" />
+                <Select options={RETRIEVAL_PROFILE_OPTIONS.map(({ value, label }) => ({ value, label }))} />
               </Form.Item>
             </Col>
           </Row>
+          {showMilvusHost && (
+            <Row gutter={[24, 0]}>
+              <Col span={12}>
+                <Form.Item label="Milvus 主机" name="milvusHost">
+                  <Input placeholder="localhost" />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item label="Milvus 端口" name="milvusPort">
+                  <InputNumber style={{ width: '100%' }} min={1} max={65535} placeholder="19530" />
+                </Form.Item>
+              </Col>
+            </Row>
+          )}
+          <Form.Item name="ragVectorStoreType" hidden><Input /></Form.Item>
+          <Form.Item name="ragQdrantEnabled" hidden valuePropName="checked"><Switch /></Form.Item>
+          <Alert
+            type="warning"
+            showIcon
+            style={{ marginBottom: 12 }}
+            message="切换形态后必须重建索引。Qdrant/Milvus 单库的 sparse 与 ES BM25 质量不对等；默认推荐 Elasticsearch 单库。"
+          />
         </Form>
         <Divider />
         <Space direction="vertical" style={{ width: '100%' }} size={12}>
@@ -1516,7 +1596,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="配置写入系统配置表并同步 Redis（键名 agent.timeouts.* 等）。kb-agent 对 Run/工具超时优先热读 SystemConfigCache；无 Redis 或读失败时回退 application.yml / Nacos。功能入口开关见「基本设置 → enableAgent」。"
+          message="配置写入系统配置并热读超时等项；无缓存时回退进程配置。功能入口开关见「基本设置 → 启用 Agent」。"
         />
         <Form
           form={agentForm}
@@ -1719,7 +1799,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="Endpoint/Bucket、SMTP 主机端口等明细请在「存储设置」「通知设置」中修改；本页保存提供商标识与 Neo4j/ES 说明项。运行时仍以 deploy/.env / Nacos 为准。"
+          message="Endpoint/Bucket、SMTP 等明细请在「存储设置」「通知设置」中修改；本页保存提供商标识与连接说明。连接串以部署配置为准，变更后可能需重启服务。"
         />
 
         <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -1750,7 +1830,11 @@ export const SettingsPage: React.FC = () => {
               extra={<Button type="link" size="small" onClick={() => handleTabChange('rag')}>去编辑</Button>}
             >
               <Descriptions column={1} size="small">
-                <Descriptions.Item label="向量库">{rag?.ragVectorStoreType || settings?.ai?.vectorStoreType || '—'}</Descriptions.Item>
+                <Descriptions.Item label="向量 / 检索形态">{profileDisplayName(
+                  (rag as any)?.ragRetrievalProfile,
+                  rag?.ragVectorStoreType || settings?.ai?.vectorStoreType,
+                  (rag as any)?.ragQdrantEnabled,
+                )}</Descriptions.Item>
                 <Descriptions.Item label="RAG">{rag?.ragEnabled === false ? '关' : '开'}</Descriptions.Item>
               </Descriptions>
             </Card>
@@ -1792,12 +1876,12 @@ export const SettingsPage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="Neo4j URI" name="integrationNeo4jUri" extra="说明项，runtime 以 Nacos neo4j.* 为准">
+              <Form.Item label="Neo4j URI" name="integrationNeo4jUri" extra="说明项；实际连接以部署配置为准">
                 <Input placeholder="bolt://localhost:7687" />
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item label="Elasticsearch Hosts" name="integrationEsHosts" extra="说明项，runtime 以 Nacos elasticsearch.* 为准">
+              <Form.Item label="Elasticsearch Hosts" name="integrationEsHosts" extra="说明项；实际连接以部署配置为准">
                 <Input placeholder="http://localhost:9200" />
               </Form.Item>
             </Col>

@@ -25,7 +25,7 @@ export const SearchModeToggle: React.FC<SearchModeToggleProps> = ({
       >
         <FileTextOutlined /> 关键词搜索
       </button>
-      <Tooltip title="BM25 + 向量语义检索 + RRF 融合；默认关闭 LLM 重排以提升响应速度">
+      <Tooltip title="BM25 + 向量语义检索 + RRF 融合；精排/重排分由系统设置 → 检索设置控制">
         <button
           type="button"
           className={`mode-btn hybrid ${searchMode === 'hybrid' ? 'active' : ''}`}
