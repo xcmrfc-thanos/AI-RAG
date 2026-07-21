@@ -75,6 +75,9 @@ public class RagChatServiceImpl implements RagChatService {
     /** {@inheritDoc} */
     @Override
     public ChatResponseVO chatWithContext(ChatRequestDTO requestDTO, Long userId) {
+        if (requestDTO != null && requestDTO.getContent() != null) {
+            requestDTO.setContent(requestDTO.getContent().trim());
+        }
         // 1. 创建或验证对话
         Long conversationId = prepareConversation(requestDTO, userId);
 
@@ -134,6 +137,9 @@ public class RagChatServiceImpl implements RagChatService {
     /** {@inheritDoc} */
     @Override
     public SseEmitter chatWithContextStream(ChatRequestDTO requestDTO, Long userId) {
+        if (requestDTO != null && requestDTO.getContent() != null) {
+            requestDTO.setContent(requestDTO.getContent().trim());
+        }
         SseEmitter emitter = new SseEmitter(30 * 60 * 1000L);
 
         try {

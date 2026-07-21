@@ -50,7 +50,11 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     /** {@inheritDoc} */
     @Override
     public float[] embed(String text) {
-        if (text == null || text.isEmpty()) {
+        if (text == null) {
+            return new float[ragProperties.getEmbedding().getDimension()];
+        }
+        text = text.trim();
+        if (text.isEmpty()) {
             return new float[ragProperties.getEmbedding().getDimension()];
         }
 

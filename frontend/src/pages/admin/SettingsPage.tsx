@@ -220,6 +220,13 @@ export const SettingsPage: React.FC = () => {
   const [complianceForm] = Form.useForm();
   const [integrationForm] = Form.useForm();
   const [reindexing, setReindexing] = useState(false);
+  const [reindexTaskId, setReindexTaskId] = useState<string | null>(null);
+  const [reindexProgress, setReindexProgress] = useState<{
+    status: string;
+    total: number;
+    completed: number;
+    failed: number;
+  } | null>(null);
   const [graphBusy, setGraphBusy] = useState<'rebuild' | 'cleanup' | null>(null);
   const [agentWorkflows, setAgentWorkflows] = useState<AgentWorkflowSummary[]>([]);
 
@@ -483,18 +490,51 @@ export const SettingsPage: React.FC = () => {
   const handleSaveIntegration = () => { integrationForm.validateFields().then(v => handleSave('integration', v)); };
 
   /**
-   * 触发全量重建向量索引（异步任务）。
+   * 触发全量重建向量索引并轮询进度。
    */
   const handleReindexAll = async () => {
     setReindexing(true);
+    setReindexProgress(null);
     try {
       const taskId = await aiService.reindexAll();
-      message.success(taskId ? `全量重建已提交，任务ID：${taskId}` : '全量重建任务已提交');
+      if (!taskId) {
+        message.success('全量重建任务已提交');
+        setReindexing(false);
+        return;
+      }
+      setReindexTaskId(taskId);
+      message.success(`全量重建已提交，任务ID：${taskId}`);
+      const poll = async () => {
+        try {
+          const p = await aiService.getReindexProgress(taskId);
+          const status = (p?.status || 'UNKNOWN').toUpperCase();
+          const total = p?.totalDocuments ?? 0;
+          const completed = p?.completedDocuments ?? 0;
+          const failed = p?.failedDocuments ?? 0;
+          setReindexProgress({ status, total, completed, failed });
+          if (status === 'RUNNING' || status === 'PENDING') {
+            window.setTimeout(poll, 2000);
+            return;
+          }
+          setReindexing(false);
+          if (status === 'COMPLETED') {
+            message.success(`重建完成：成功 ${completed}/${total || completed}，失败 ${failed}`);
+          } else if (status === 'FAILED' || status === 'ERROR') {
+            message.error(`重建失败（${status}），失败文档 ${failed}`);
+          } else if (status === 'NOT_FOUND') {
+            message.warning('进度暂不可用（任务可能已过期），请稍后在日志确认');
+          }
+        } catch (err: unknown) {
+          setReindexing(false);
+          const msg = err instanceof Error ? err.message : '查询重建进度失败';
+          message.error(msg);
+        }
+      };
+      window.setTimeout(poll, 800);
     } catch (err: unknown) {
+      setReindexing(false);
       const msg = err instanceof Error ? err.message : '重建索引失败';
       message.error(msg);
-    } finally {
-      setReindexing(false);
     }
   };
 
@@ -900,49 +940,64 @@ export const SettingsPage: React.FC = () => {
           handleSaveStorage,
         )}
 
-        {/* Storage Stats */}
+        {/* Storage Stats：有计量显示容量卡；无计量不放空「—」卡，避免像故障 */}
         {status && (
-          <Row gutter={16} style={{ marginBottom: 24 }}>
-            <Col span={6}>
-              <Card size="small" style={STAT_CARD_STYLE}>
-                <Statistic
-                  title={hasStorageMetrics ? '总存储空间' : '总存储空间（未接入对象存储计量）'}
-                  value={hasStorageMetrics ? formatBytes(Number(status.totalStorage)) : '—'}
-                  valueStyle={{ fontSize: 16, fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={STAT_CARD_STYLE}>
-                <Statistic
-                  title={hasStorageMetrics ? '已使用' : '已使用（未接入计量）'}
-                  value={hasStorageMetrics ? formatBytes(Number(status.usedStorage)) : '—'}
-                  suffix={hasStorageMetrics ? `(${usedPercent}%)` : undefined}
-                  valueStyle={{ fontSize: 16, fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={STAT_CARD_STYLE}>
-                <Statistic
-                  title="文档数量"
-                  value={status.documentCount ?? 0}
-                  suffix="个"
-                  valueStyle={{ fontSize: 16, fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-            <Col span={6}>
-              <Card size="small" style={STAT_CARD_STYLE}>
-                <Statistic
-                  title="用户数量"
-                  value={status.userCount ?? 0}
-                  suffix="人"
-                  valueStyle={{ fontSize: 16, fontWeight: 600 }}
-                />
-              </Card>
-            </Col>
-          </Row>
+          <>
+            {!hasStorageMetrics && (
+              <Alert
+                type="info"
+                showIcon
+                style={{ marginBottom: 16 }}
+                message="对象存储用量暂未接入计量"
+                description="容量与已使用空间将在对接对象存储统计后显示；下方文档数、用户数为系统统计，与桶容量无关。"
+              />
+            )}
+            <Row gutter={16} style={{ marginBottom: 24 }}>
+              {hasStorageMetrics && (
+                <>
+                  <Col span={6}>
+                    <Card size="small" style={STAT_CARD_STYLE}>
+                      <Statistic
+                        title="总存储空间"
+                        value={formatBytes(Number(status.totalStorage))}
+                        valueStyle={{ fontSize: 16, fontWeight: 600 }}
+                      />
+                    </Card>
+                  </Col>
+                  <Col span={6}>
+                    <Card size="small" style={STAT_CARD_STYLE}>
+                      <Statistic
+                        title="已使用"
+                        value={formatBytes(Number(status.usedStorage))}
+                        suffix={`(${usedPercent}%)`}
+                        valueStyle={{ fontSize: 16, fontWeight: 600 }}
+                      />
+                    </Card>
+                  </Col>
+                </>
+              )}
+              <Col span={hasStorageMetrics ? 6 : 12}>
+                <Card size="small" style={STAT_CARD_STYLE}>
+                  <Statistic
+                    title="文档数量"
+                    value={status.documentCount ?? 0}
+                    suffix="个"
+                    valueStyle={{ fontSize: 16, fontWeight: 600 }}
+                  />
+                </Card>
+              </Col>
+              <Col span={hasStorageMetrics ? 6 : 12}>
+                <Card size="small" style={STAT_CARD_STYLE}>
+                  <Statistic
+                    title="用户数量"
+                    value={status.userCount ?? 0}
+                    suffix="人"
+                    valueStyle={{ fontSize: 16, fontWeight: 600 }}
+                  />
+                </Card>
+              </Col>
+            </Row>
+          </>
         )}
 
         {status && hasStorageMetrics && (
@@ -1014,6 +1069,22 @@ export const SettingsPage: React.FC = () => {
                 name="storageBucket"
               >
                 <Input placeholder="knowledge-docs" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={[24, 0]}>
+            <Col span={12}>
+              <Form.Item
+                label="存储配额（GB）"
+                name="storageQuotaBytes"
+                tooltip="用于顶部「总存储空间」展示；已使用量来自对象存储 ListObjects 或文件元数据汇总"
+                getValueFromEvent={(val: number) => val}
+                getValueProps={(val: number) => ({
+                  value: val ? Math.round(Number(val) / (1024 * 1024 * 1024)) : 100,
+                })}
+                normalize={(val: number) => (val ? Math.round(val * 1024 * 1024 * 1024) : 107374182400)}
+              >
+                <InputNumber style={{ width: '100%' }} min={1} max={102400} addonAfter="GB" />
               </Form.Item>
             </Col>
           </Row>
@@ -1411,6 +1482,34 @@ export const SettingsPage: React.FC = () => {
                 全量重建索引
               </Button>
             </Popconfirm>
+          )}
+          {reindexTaskId && (
+            <div style={{ marginTop: 8 }}>
+              <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>
+                任务 {reindexTaskId}
+                {reindexProgress
+                  ? ` · ${reindexProgress.status} · ${reindexProgress.completed}/${reindexProgress.total || '—'}`
+                  : ' · 等待进度…'}
+              </Text>
+              <Progress
+                percent={
+                  reindexProgress && reindexProgress.total > 0
+                    ? Math.min(100, Math.round((reindexProgress.completed / reindexProgress.total) * 100))
+                    : reindexProgress?.status === 'COMPLETED'
+                      ? 100
+                      : reindexing
+                        ? 5
+                        : 0
+                }
+                status={
+                  reindexProgress?.status === 'FAILED' || reindexProgress?.status === 'ERROR'
+                    ? 'exception'
+                    : reindexProgress?.status === 'COMPLETED'
+                      ? 'success'
+                      : 'active'
+                }
+              />
+            </div>
           )}
         </Space>
         {renderSaveBar(handleSaveRag)}
@@ -1911,7 +2010,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="开启后，文档「导出 PDF」会对每一页叠加斜向水印；配置写入系统配置表并同步 Redis，导出时即时生效。"
+          message="开启后，文档「导出 PDF」会对每一页密铺左斜水印（字号偏小、逆时针约 30°）；配置写入系统配置表并同步 Redis，导出时即时生效。"
         />
         <Form
           form={exportForm}

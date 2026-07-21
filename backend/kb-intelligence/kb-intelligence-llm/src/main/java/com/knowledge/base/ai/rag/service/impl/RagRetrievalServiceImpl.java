@@ -42,6 +42,9 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
     /** {@inheritDoc} */
     @Override
     public List<RagSearchResultVO> retrieve(String query, int topK, boolean enableRerank) {
+        if (query != null) {
+            query = query.trim();
+        }
         long t0 = System.currentTimeMillis();
 
         // 索引创建留在写入/searchHybrid 路径，避免每次检索打 ES

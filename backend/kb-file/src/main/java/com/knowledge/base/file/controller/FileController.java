@@ -331,6 +331,19 @@ public class FileController {
     }
 
     /**
+     * 对象存储用量（S3 ListObjects 或 kb_file 元数据）。
+     *
+     * <p>网关：{@code GET /api/file/files/storage/usage}</p>
+     *
+     * @return usedBytes / source / dbBytes
+     */
+    @GetMapping("/storage/usage")
+    @Operation(summary = "对象存储用量", description = "优先 ListObjects 累加；失败回退 kb_file 表 SUM(file_size)")
+    public Result<Map<String, Object>> storageUsage() {
+        return Result.success(fileService.getStorageUsage());
+    }
+
+    /**
      * 从文件ID中提取真实的文件ID（去除扩展名）
      *
      * @param fileId 可能包含扩展名的文件ID

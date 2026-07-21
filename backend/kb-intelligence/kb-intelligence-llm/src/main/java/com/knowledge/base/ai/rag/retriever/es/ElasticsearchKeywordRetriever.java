@@ -3,6 +3,7 @@ package com.knowledge.base.ai.rag.retriever.es;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.TextQueryType;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import co.elastic.clients.elasticsearch.core.search.Hit;
 import co.elastic.clients.elasticsearch.core.search.InnerHitsResult;
@@ -45,6 +46,27 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
 
     private static final String MINIMUM_TERM_COVERAGE = "50%";
 
+    /**
+     * 多字段 BM25：标题权重高于正文（市面常见 3～10 倍档）。
+     */
+    private static final List<String> BM25_MULTI_MATCH_FIELDS = List.of(
+            "document_title^5",
+            "document_title.standard^6",
+            "content^1.5",
+            "content.standard^2"
+    );
+
+    /** 标题短语匹配加分（接近整句标题命中时显著抬升） */
+    private static final float TITLE_PHRASE_BOOST = 10f;
+
+    /**
+     * 正文 keyword 通配仅用于短标识符兜底；超过此长度或含空白则不加（避免整句 *...*）。
+     */
+    private static final int CONTENT_WILDCARD_MAX_LEN = 16;
+
+    /** 通配兜底极低权重，不当主通路 */
+    private static final float CONTENT_WILDCARD_BOOST = 0.2f;
+
     private final ElasticsearchClient esClient;
     private final ElasticsearchOperations esOperations;
     private final IntelligenceIndexingProperties indexingProperties;
@@ -53,6 +75,9 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
     /** {@inheritDoc} */
     @Override
     public List<HybridSearchFusion.FusionCandidate> retrieveCandidates(String queryText, int topK) {
+        if (queryText != null) {
+            queryText = queryText.trim();
+        }
         return bm25Search(queryText, topK).stream()
                 .map(this::toCandidate)
                 .collect(Collectors.toList());
@@ -61,6 +86,9 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
     /** {@inheritDoc} */
     @Override
     public List<RagSearchResultVO> retrieve(String queryText, int topK) {
+        if (queryText != null) {
+            queryText = queryText.trim();
+        }
         if (!StringUtils.hasText(queryText) || topK <= 0) {
             return List.of();
         }
@@ -73,6 +101,9 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
     @Override
     public Bm25CollapsePageVO retrieveCollapsed(String queryText, int from, int size,
                                                 int innerHitsPerDoc, List<Long> categoryIds) {
+        if (queryText != null) {
+            queryText = queryText.trim();
+        }
         if (!StringUtils.hasText(queryText) || size <= 0) {
             return Bm25CollapsePageVO.builder().total(0L).documents(List.of()).build();
         }
@@ -89,20 +120,11 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
      */
     private Bm25CollapsePageVO bm25SearchCollapsed(String queryText, int from, int size,
                                                    int innerHitsPerDoc, List<Long> categoryIds) throws Exception {
-        String wildcardKeyword = "*" + escapeWildcard(queryText) + "*";
         SearchResponse<Map> response = esClient.search(s -> {
             s.index(chunkIndexName()).from(from).size(size);
             s.trackTotalHits(t -> t.enabled(true));
             s.query(q -> q.bool(b -> {
-                b.should(sh -> sh.multiMatch(mm -> mm
-                        .query(queryText)
-                        .fields("content^1.5", "content.standard^2",
-                                "document_title^1", "document_title.standard^1.5")
-                        .minimumShouldMatch(MINIMUM_TERM_COVERAGE)));
-                b.should(sh -> sh.wildcard(w -> w
-                        .field("content.keyword")
-                        .value(wildcardKeyword)
-                        .caseInsensitive(true)));
+                appendBm25ShouldClauses(b, queryText);
                 b.minimumShouldMatch("1");
                 b.filter(f -> f.term(t -> t.field("doc_status").value(1)));
                 appendCategoryFilter(b, categoryIds, "category_id");
@@ -283,22 +305,14 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
     }
 
     /**
-     * BM25 关键词搜索（chunk 索引，多字段 + 英文通配兜底）
+     * BM25 关键词搜索（chunk 索引：标题加权 + 标题短语；短词才通配兜底）
      */
     private List<ChunkHit> bm25Search(String queryText, int topK) {
         try {
             SearchResponse<Map> response = esClient.search(s -> {
                 s.index(chunkIndexName()).size(topK);
                 s.query(q -> q.bool(b -> {
-                    b.should(sh -> sh.multiMatch(mm -> mm
-                            .query(queryText)
-                            .fields("content^1.5", "content.standard^2",
-                                    "document_title^1", "document_title.standard^1.5")
-                            .minimumShouldMatch(MINIMUM_TERM_COVERAGE)));
-                    b.should(sh -> sh.wildcard(w -> w
-                            .field("content.keyword")
-                            .value("*" + escapeWildcard(queryText) + "*")
-                            .caseInsensitive(true)));
+                    appendBm25ShouldClauses(b, queryText);
                     b.minimumShouldMatch("1");
                     b.filter(f -> f.term(t -> t.field("doc_status").value(1)));
                     RagAclQuerySupport.appendChunkAclFilter(b, currentAcl());
@@ -374,7 +388,52 @@ public class ElasticsearchKeywordRetriever implements KeywordRetriever {
     }
 
     /**
-     * 转义 wildcard 查询中的特殊字符
+     * 追加 BM25 should：multi_match（主召回）+ 标题 phrase（加分）；
+     * 仅短标识符才加正文 keyword 通配（低 boost），避免整句 *...*。
+     *
+     * @param bool      bool 查询构建器
+     * @param queryText 用户查询（调用方已 trim）
+     */
+    private void appendBm25ShouldClauses(BoolQuery.Builder bool, String queryText) {
+        bool.should(sh -> sh.multiMatch(mm -> mm
+                .query(queryText)
+                .fields(BM25_MULTI_MATCH_FIELDS)
+                .type(TextQueryType.BestFields)
+                .minimumShouldMatch(MINIMUM_TERM_COVERAGE)));
+        bool.should(sh -> sh.matchPhrase(mp -> mp
+                .field("document_title")
+                .query(queryText)
+                .slop(2)
+                .boost(TITLE_PHRASE_BOOST)));
+        if (allowContentWildcard(queryText)) {
+            String pattern = "*" + escapeWildcard(queryText) + "*";
+            bool.should(sh -> sh.wildcard(w -> w
+                    .field("content.keyword")
+                    .value(pattern)
+                    .caseInsensitive(true)
+                    .boost(CONTENT_WILDCARD_BOOST)));
+        }
+    }
+
+    /**
+     * 是否允许正文 keyword 通配：仅短、无空白查询（如类名/短词），长句不用。
+     *
+     * @param queryText 查询
+     * @return true 时追加低权通配
+     */
+    private boolean allowContentWildcard(String queryText) {
+        if (!StringUtils.hasText(queryText)) {
+            return false;
+        }
+        String q = queryText.trim();
+        return q.length() <= CONTENT_WILDCARD_MAX_LEN && !q.contains(" ");
+    }
+
+    /**
+     * 转义 wildcard 查询中的特殊字符。
+     *
+     * @param text 原文
+     * @return 转义后文本
      */
     private String escapeWildcard(String text) {
         if (text == null) {

@@ -43,7 +43,8 @@ public class LlmRerankService {
             ChatLanguageModel model = modelProvider.getDefaultModel();
             List<ScoredChunk> scored = new ArrayList<>();
             for (RagSearchResultVO candidate : candidates) {
-                String prompt = buildRerankPrompt(query, candidate.getContent());
+                String docText = RerankDocumentText.compose(candidate);
+                String prompt = buildRerankPrompt(query, docText);
                 try {
                     String response = model.generate(UserMessage.from(prompt)).content().text();
                     int score = parseRelevanceScore(response);
@@ -88,17 +89,13 @@ public class LlmRerankService {
     }
 
     /**
-     * 截断过长片段。
+     * 截断过长片段（含标题前缀）。
      *
      * @param content 原文
      * @return 截断文本
      */
     private String truncateForRerank(String content) {
-        int maxLen = 1000;
-        if (content == null) {
-            return "";
-        }
-        return content.length() > maxLen ? content.substring(0, maxLen) : content;
+        return RerankDocumentText.truncate(content, 1000);
     }
 
     /**

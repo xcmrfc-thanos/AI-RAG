@@ -636,9 +636,11 @@ public class PdfExportServiceImpl implements PdfExportService {
     }
 
     /**
-     * 若系统开启 PDF 水印，则在每页叠加斜向水印文字。
+     * 若系统开启 PDF 水印，则在每页叠加密铺斜向水印（政府/公文常见样式）。
      *
-     * @param document PDF 文档
+     * <p>默认：字号约 18pt、逆时针约 30°（视觉为「/」左斜）、整页网格密铺。</p>
+     *
+     * @param document    PDF 文档
      * @param chineseFont 中文字体
      * @throws IOException 绘制失败
      */
@@ -650,9 +652,9 @@ public class PdfExportServiceImpl implements PdfExportService {
         }
         String type = systemConfigCache.getConfig("pdf.watermark.type", "user");
         String custom = systemConfigCache.getConfig("pdf.watermark.text", "内部资料");
-        float opacity = 0.15f;
+        float opacity = 0.12f;
         try {
-            opacity = Float.parseFloat(systemConfigCache.getConfig("pdf.watermark.opacity", "0.15"));
+            opacity = Float.parseFloat(systemConfigCache.getConfig("pdf.watermark.opacity", "0.12"));
         } catch (NumberFormatException ignored) {
             // keep default
         }
@@ -671,32 +673,62 @@ public class PdfExportServiceImpl implements PdfExportService {
         if (text.isEmpty()) {
             text = "CONFIDENTIAL";
         }
+        if (text.length() > 40) {
+            text = text.substring(0, 40);
+        }
+
+        // 公文常见：偏小字号 + 左斜（逆时针，视觉为「/」）+ 密铺
+        float fontSize = 18f;
+        try {
+            fontSize = Float.parseFloat(systemConfigCache.getConfig("pdf.watermark.font-size", "18"));
+        } catch (NumberFormatException ignored) {
+            // keep default
+        }
+        fontSize = Math.max(10f, Math.min(36f, fontSize));
+        double angleDeg = 30d;
+        try {
+            angleDeg = Double.parseDouble(systemConfigCache.getConfig("pdf.watermark.angle-deg", "30"));
+        } catch (NumberFormatException ignored) {
+            // keep default
+        }
+        // 正角度 = 逆时针 = 左斜「/」；负角度 = 右斜「\」
+        double angleRad = Math.toRadians(angleDeg);
 
         PDExtendedGraphicsState gs = new PDExtendedGraphicsState();
         gs.setNonStrokingAlphaConstant(opacity);
         gs.setAlphaSourceFlag(true);
 
+        float textWidth = measureTextWidth(text, chineseFont, fontSize);
+        // 网格间距：略大于文字宽/高，保证密但不糊成一片
+        float stepX = Math.max(textWidth + 48f, 120f);
+        float stepY = Math.max(fontSize * 4.5f, 72f);
+
         for (PDPage page : document.getPages()) {
             PDRectangle box = page.getMediaBox();
-            float cx = box.getWidth() / 2f;
-            float cy = box.getHeight() / 2f;
+            float pageW = box.getWidth();
+            float pageH = box.getHeight();
             try (PDPageContentStream cs = new PDPageContentStream(document, page,
                     PDPageContentStream.AppendMode.APPEND, true, true)) {
                 cs.setGraphicsStateParameters(gs);
-                cs.beginText();
-                if (chineseFont != null) {
-                    cs.setFont(chineseFont, 42);
-                } else {
-                    cs.setFont(PDType1Font.HELVETICA_BOLD, 42);
+                cs.setNonStrokingColor(150, 150, 150);
+                // 多行多列密铺（覆盖整页，略超出边界避免留白）
+                for (float y = -stepY; y < pageH + stepY; y += stepY) {
+                    for (float x = -stepX; x < pageW + stepX; x += stepX) {
+                        cs.beginText();
+                        if (chineseFont != null) {
+                            cs.setFont(chineseFont, fontSize);
+                        } else {
+                            cs.setFont(PDType1Font.HELVETICA, fontSize);
+                        }
+                        cs.setTextMatrix(Matrix.getRotateInstance(angleRad, x, y));
+                        showSafeText(cs, chineseFont, text);
+                        cs.endText();
+                    }
                 }
-                cs.setNonStrokingColor(160, 160, 160);
-                // 约 -35° 斜向居中
-                cs.setTextMatrix(Matrix.getRotateInstance(Math.toRadians(-35), cx - 80, cy));
-                showSafeText(cs, chineseFont, text.length() > 40 ? text.substring(0, 40) : text);
-                cs.endText();
             }
         }
-        log.info("PDF 水印已叠加：type={}, textLength={}", type, text.length());
+        log.info("PDF 水印已叠加：type={}, fontSize={}, angleDeg={}, textLength={}",
+                type, fontSize, angleDeg, text.length());
     }
 
     /**

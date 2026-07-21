@@ -153,7 +153,8 @@ public class ApiRerankService {
         root.put("query", query != null ? query : "");
         ArrayNode docs = root.putArray("documents");
         for (RagSearchResultVO c : candidates) {
-            docs.add(c.getContent() != null ? c.getContent() : "");
+            // 标题+正文，避免标题全匹配文档因正文是代码片段而被重排压低
+            docs.add(RerankDocumentText.compose(c));
         }
         root.put("top_n", topN);
         root.put("return_documents", false);

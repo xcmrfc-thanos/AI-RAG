@@ -76,7 +76,7 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
               <span
                 className="result-score-badge"
                 style={{ color: getScoreColor(result.score, maxScore) }}
-                title="相对本页结果的相关度（非绝对命中率）"
+                title="相对本页最高分的相关度（非绝对命中率；极低显示 <1%）"
               >
                 {formatRelevancePercent(result.score, maxScore)}
               </span>
@@ -120,13 +120,13 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
 
           {searchMode === 'hybrid' && (
             <div className="score-breakdown">
-              {result.bm25Score !== undefined && (
-                <span className="score-chip bm25" title="关键词检索原始分">
+              {result.bm25Score !== undefined && result.bm25Score !== null && (
+                <span className="score-chip bm25" title="关键词检索原始分；0 表示该路未命中">
                   BM25 {formatRawScoreChip(result.bm25Score)}
                 </span>
               )}
-              {result.vectorScore !== undefined && (
-                <span className="score-chip vector" title="向量检索原始分">
+              {result.vectorScore !== undefined && result.vectorScore !== null && (
+                <span className="score-chip vector" title="向量检索原始分；0 表示该路未命中">
                   向量 {formatRawScoreChip(result.vectorScore)}
                 </span>
               )}

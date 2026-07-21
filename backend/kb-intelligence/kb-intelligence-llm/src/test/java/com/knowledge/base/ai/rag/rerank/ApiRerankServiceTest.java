@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * {@link ApiRerankService} 响应解析单测。
+ * {@link ApiRerankService} / {@link RerankDocumentText} 单测。
  */
 class ApiRerankServiceTest {
 
@@ -42,5 +43,16 @@ class ApiRerankServiceTest {
         List<ApiRerankService.ScoredIndex> scored = ApiRerankService.parseResults(json);
         assertEquals(1, scored.size());
         assertEquals(0.88, scored.get(0).score());
+    }
+
+    @Test
+    void composeRerankDocumentPrefersTitlePlusContent() {
+        RagSearchResultVO vo = RagSearchResultVO.builder()
+                .documentTitle("React 18 + TypeScript 最佳实践")
+                .content("const App = () => null;")
+                .build();
+        String text = RerankDocumentText.compose(vo);
+        assertTrue(text.startsWith("标题：React 18 + TypeScript 最佳实践"));
+        assertTrue(text.contains("const App"));
     }
 }

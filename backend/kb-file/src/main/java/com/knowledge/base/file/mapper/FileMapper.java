@@ -11,4 +11,10 @@ import com.knowledge.base.file.entity.FileInfo;
  */
 public interface FileMapper extends BaseMapper<FileInfo> {
 
+    /**
+     * 统计未删除且有效文件总字节数。
+     *
+     * @return 总大小，无记录时为 0
+     */
+    Long sumTotalFileSize();
 }

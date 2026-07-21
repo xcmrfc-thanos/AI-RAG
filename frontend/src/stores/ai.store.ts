@@ -124,13 +124,17 @@ export const useAIStore = create<AIState>((set, get) => ({
   },
 
   sendMessage: async (message: string, _conversationId?: string) => {
+    const trimmed = (message || '').trim();
+    if (!trimmed) {
+      return;
+    }
     const { selectedModel, ragEnabled, kagEnabled } = get();
     set({ isLoading: true, isStreaming: true, currentResponse: '' });
 
     const userMessage: AIMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: message,
+      content: trimmed,
       timestamp: new Date().toISOString(),
     };
 
@@ -140,7 +144,7 @@ export const useAIStore = create<AIState>((set, get) => ({
       // 创建本地占位对话，id 暂空，等后端 done 事件返回真实 ID
       currentConv = {
         id: '',
-        title: message.slice(0, 30),
+        title: trimmed.slice(0, 30),
         messages: [userMessage],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -151,7 +155,7 @@ export const useAIStore = create<AIState>((set, get) => ({
       const existingMessages = currentConv.messages || [];
       // 如果是空对话的第一个消息，用消息内容更新标题
       const title = existingMessages.length === 0
-        ? message.slice(0, 30)
+        ? trimmed.slice(0, 30)
         : currentConv.title;
       currentConv = {
         ...currentConv,
@@ -175,7 +179,7 @@ export const useAIStore = create<AIState>((set, get) => ({
       // 使用流式API，传递选中的模型
       await aiService.askStream(
         {
-          question: message,
+          question: trimmed,
           conversationId: realId,
           model: selectedModel,
           context: {

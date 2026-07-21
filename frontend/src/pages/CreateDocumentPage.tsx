@@ -3774,7 +3774,7 @@ const CreateDocumentPage: React.FC = () => {
                   color: 'var(--text-secondary)',
                   lineHeight: '1.6',
                 }}>
-                  基于Claude 3.5 Opus的智能写作助手，帮助您快速创建专业文档。
+                  开启「AI 写作」后，可用下方快捷操作生成大纲或扩展内容；完整写作请使用「AI 写作」页面。
                 </div>
                 <div style={{
                   display: 'flex',

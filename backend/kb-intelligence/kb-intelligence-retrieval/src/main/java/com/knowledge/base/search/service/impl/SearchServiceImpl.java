@@ -115,6 +115,7 @@ public class SearchServiceImpl implements SearchService {
     /** {@inheritDoc} */
     @Override
     public PageResult<SearchResultVO> search(SearchRequestDTO dto) {
+        normalizeKeyword(dto);
         SearchAclContext acl = resolveSearchAclContext();
         //混合智能搜索
         if ("hybrid".equals(dto.getSearchMode())) {
@@ -591,7 +592,8 @@ public class SearchServiceImpl implements SearchService {
                 if (docMap.containsKey(docIdStr)) {
                     SearchResultVO existing = docMap.get(docIdStr);
                     existing.getChunks().add(chunk);
-                    // 文档级重排分取首个有效值（列表已按重排/融合分排序）
+                    // 文档级通道分取各 chunk 最大（首条重排 chunk 可能 vector=0，不能代表整篇）
+                    mergeChannelScores(existing, chunk.getBm25Score(), chunk.getVectorScore());
                     if (existing.getRerankScore() == null && item.getRerankScore() != null) {
                         existing.setRerankScore(item.getRerankScore());
                     }
@@ -648,6 +650,22 @@ public class SearchServiceImpl implements SearchService {
         } catch (Exception e) {
             log.error("混合智能搜索失败，回退到关键词搜索：{}", e.getMessage(), e);
             return searchKeyword(dto, acl);
+        }
+    }
+
+    /**
+     * 文档级 BM25/向量分取各 chunk 通道分的较大值。
+     *
+     * @param doc         文档结果
+     * @param bm25Score   当前 chunk BM25
+     * @param vectorScore 当前 chunk 向量分
+     */
+    private void mergeChannelScores(SearchResultVO doc, double bm25Score, double vectorScore) {
+        if (doc.getBm25Score() == null || bm25Score > doc.getBm25Score()) {
+            doc.setBm25Score(bm25Score);
+        }
+        if (doc.getVectorScore() == null || vectorScore > doc.getVectorScore()) {
+            doc.setVectorScore(vectorScore);
         }
     }
 
@@ -1107,6 +1125,18 @@ public class SearchServiceImpl implements SearchService {
     }
 
     // ==================== 高亮处理 ====================
+
+    /**
+     * 去掉搜索词前后空白，避免空格导致 BM25/向量/缓存 miss。
+     *
+     * @param dto 搜索请求
+     */
+    private void normalizeKeyword(SearchRequestDTO dto) {
+        if (dto == null || dto.getKeyword() == null) {
+            return;
+        }
+        dto.setKeyword(dto.getKeyword().trim());
+    }
 
     /**
      * 简单关键字高亮：用 {@code <em>} 标签包裹匹配文本（大小写不敏感）

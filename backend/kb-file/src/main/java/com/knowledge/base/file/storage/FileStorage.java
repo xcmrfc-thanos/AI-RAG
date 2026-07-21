@@ -65,6 +65,17 @@ public interface FileStorage {
     long getFileSize(String relativePath);
 
     /**
+     * 估算桶内对象总字节数（ListObjectsV2 分页累加）。
+     *
+     * <p>适用于 RustFS / MinIO / S3 兼容端；大桶可能较慢，调用方宜缓存。</p>
+     *
+     * @return 已用字节；不支持或失败返回 -1
+     */
+    default long estimateUsedBytes() {
+        return -1L;
+    }
+
+    /**
      * 获取存储类型
      *
      * @return 存储类型标识

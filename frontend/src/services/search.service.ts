@@ -30,7 +30,7 @@ export const searchService = {
   // 智能搜索 (keyword / hybrid)
   search: (params: SearchParams, signal?: AbortSignal) => {
     const body: Record<string, unknown> = {
-      keyword: params.keyword,
+      keyword: (params.keyword || '').trim(),
       searchMode: params.searchMode || 'keyword',
       topK: params.topK || 10,
       enableRerank: params.enableRerank ?? false,
@@ -47,7 +47,7 @@ export const searchService = {
   // 搜索建议（自动补全）
   suggestions: (keyword: string, signal?: AbortSignal) => {
     return http.get<SearchSuggestVO[]>('/search/suggest', {
-      params: { keyword, size: 8 },
+      params: { keyword: (keyword || '').trim(), size: 8 },
       ...(signal ? { signal } : {}),
     });
   },

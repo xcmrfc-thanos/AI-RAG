@@ -1405,6 +1405,34 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     }
 
     /**
+     * 对象存储用量：优先 S3 ListObjects，失败回退 kb_file 元数据求和。
+     *
+     * @return usedBytes / source / dbBytes
+     */
+    @Override
+    public Map<String, Object> getStorageUsage() {
+        Long dbBytes = fileMapper.sumTotalFileSize();
+        long dbUsed = dbBytes != null ? dbBytes : 0L;
+        Map<String, Object> result = new HashMap<>();
+        result.put("dbBytes", dbUsed);
+        try {
+            FileStorage storage = storageFactory.getStorage();
+            long s3Used = storage.estimateUsedBytes();
+            if (s3Used >= 0) {
+                result.put("usedBytes", s3Used);
+                result.put("source", "s3");
+                result.put("storageType", storage.getStorageType());
+                return result;
+            }
+        } catch (Exception e) {
+            log.warn("读取对象存储用量失败，回退 DB：{}", e.getMessage());
+        }
+        result.put("usedBytes", dbUsed);
+        result.put("source", "db");
+        return result;
+    }
+
+    /**
      * 判断是否为音视频文件
      */
     private boolean isMediaFile(FileInfo fileInfo) {

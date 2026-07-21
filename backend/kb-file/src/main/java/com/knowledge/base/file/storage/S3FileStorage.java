@@ -158,6 +158,41 @@ public class S3FileStorage implements ResumableFileStorage {
         }
     }
 
+    /**
+     * 通过 ListObjectsV2 累加桶内对象大小（RustFS / MinIO / S3 通用）。
+     *
+     * @return 已用字节；失败返回 -1
+     */
+    @Override
+    public long estimateUsedBytes() {
+        try {
+            String bucketName = getBucketName();
+            long total = 0L;
+            String continuation = null;
+            do {
+                ListObjectsV2Request.Builder builder = ListObjectsV2Request.builder()
+                        .bucket(bucketName)
+                        .maxKeys(1000);
+                if (continuation != null) {
+                    builder.continuationToken(continuation);
+                }
+                ListObjectsV2Response response = s3Client.listObjectsV2(builder.build());
+                for (S3Object obj : response.contents()) {
+                    if (obj.size() != null) {
+                        total += obj.size();
+                    }
+                }
+                continuation = Boolean.TRUE.equals(response.isTruncated())
+                        ? response.nextContinuationToken()
+                        : null;
+            } while (continuation != null);
+            return total;
+        } catch (Exception e) {
+            log.warn("S3 ListObjects 估算用量失败：{}", e.getMessage());
+            return -1L;
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public String getStorageType() {

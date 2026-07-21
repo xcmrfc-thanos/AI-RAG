@@ -683,6 +683,8 @@ export interface StorageSettings {
   allowedFileTypes: string;
   storageEndpoints: string;
   storageBucket: string;
+  /** 存储配额（字节），用于系统状态总容量，默认 100GiB */
+  storageQuotaBytes?: number;
 }
 
 export interface AISettings {

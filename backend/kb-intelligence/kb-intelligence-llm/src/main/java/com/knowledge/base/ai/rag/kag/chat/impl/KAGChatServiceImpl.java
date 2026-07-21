@@ -48,6 +48,9 @@ public class KAGChatServiceImpl implements KAGChatService
     /** {@inheritDoc} */
     @Override
     public ChatResponseVO chatWithKnowledgeGraph(ChatRequestDTO requestDTO, Long userId) {
+        if (requestDTO != null && requestDTO.getContent() != null) {
+            requestDTO.setContent(requestDTO.getContent().trim());
+        }
         log.info("KAG chat started: query='{}', userId={}", requestDTO.getContent(), userId);
 
         String query = requestDTO.getContent();
@@ -89,6 +92,9 @@ public class KAGChatServiceImpl implements KAGChatService
     /** {@inheritDoc} */
     @Override
     public SseEmitter chatWithKnowledgeGraphStream(ChatRequestDTO requestDTO, Long userId) {
+        if (requestDTO != null && requestDTO.getContent() != null) {
+            requestDTO.setContent(requestDTO.getContent().trim());
+        }
         SseEmitter emitter = new SseEmitter(30 * 60 * 1000L); // 30min timeout
 
         CompletableFuture.runAsync(() -> {

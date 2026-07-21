@@ -103,7 +103,7 @@ export const aiService = {
         'Authorization': tokenStorage.getAuthorizationHeader(),
       },
       body: JSON.stringify({
-        content: data.question,
+        content: (data.question || '').trim(),
         conversationId: data.conversationId,
         model: data.model,
         enableRag: data.context?.knowledgeBase === true,
@@ -441,9 +441,15 @@ export const aiService = {
    * @param taskId 任务 ID
    */
   getReindexProgress: (taskId: string) => {
-    return http.get<{ taskId?: string; status?: string; progress?: number; message?: string }>(
-      `/ai/rag/reindex/progress/${taskId}`,
-    );
+    return http.get<{
+      taskId?: string;
+      status?: string;
+      totalDocuments?: number;
+      completedDocuments?: number;
+      failedDocuments?: number;
+      startTime?: string;
+      endTime?: string;
+    }>(`/ai/rag/reindex/progress/${taskId}`);
   },
 };
 

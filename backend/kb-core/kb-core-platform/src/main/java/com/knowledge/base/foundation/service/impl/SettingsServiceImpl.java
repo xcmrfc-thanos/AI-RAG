@@ -14,12 +14,14 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.lang.management.ManagementFactory;
 import java.text.SimpleDateFormat;
@@ -66,6 +68,15 @@ public class SettingsServiceImpl implements SettingsService {
     @Qualifier("iamJdbcTemplate")
     private JdbcTemplate iamJdbcTemplate;
 
+    /** kb-file 根地址（直连，非网关） */
+    @Value("${kb-file.url:http://localhost:8084}")
+    private String fileServiceUrl;
+
+    private final RestTemplate restTemplate = new RestTemplate();
+
+    /** 默认存储配额 100GiB */
+    private static final long DEFAULT_STORAGE_QUOTA_BYTES = 107_374_182_400L;
+
     /**
      * 设置字段 → 数据库配置键 的映射
      * key: 前端settings字段名
@@ -101,6 +112,8 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("allowedFileTypes",     new String[]{"file.upload.allowed.types",      "string",  "pdf,doc,docx,xls,xlsx,ppt,pptx,txt,md,jpg,jpeg,png,gif,bmp,webp,svg,ico,mp4,avi,mov,wmv,flv,mkv,webm,mp3,wav,flac,aac,ogg,m4a,wma", "STORAGE"});
         FIELD_TO_CONFIG.put("storageEndpoints",     new String[]{"s3.endpoints",                 "string",  "http://localhost:8200",              "STORAGE"});
         FIELD_TO_CONFIG.put("storageBucket",        new String[]{"s3.bucket",                    "string",  "knowledge-docs",                     "STORAGE"});
+        /** 配额（字节）；用于系统状态「总存储空间」，默认 100GiB */
+        FIELD_TO_CONFIG.put("storageQuotaBytes",    new String[]{"s3.storage.quota.bytes",       "number",  "107374182400",                      "STORAGE"});
 
         // ===== 通知设置 =====
         FIELD_TO_CONFIG.put("emailEnabled",         new String[]{"email.enabled",                  "boolean", "true",                               "NOTIFICATION"});
@@ -233,7 +246,7 @@ public class SettingsServiceImpl implements SettingsService {
             "passwordMinLength", "requireSpecialChar", "loginMaxRetry"
     );
     private static final List<String> SETTINGS_STORAGE_FIELDS = List.of(
-            "maxFileSize", "allowedFileTypes", "storageEndpoints", "storageBucket"
+            "maxFileSize", "allowedFileTypes", "storageEndpoints", "storageBucket", "storageQuotaBytes"
     );
     private static final List<String> SETTINGS_NOTIFICATION_FIELDS = List.of(
             "emailEnabled", "emailHost", "emailPort", "websocketEnabled", "notificationRetentionDays"
@@ -408,18 +421,90 @@ public class SettingsServiceImpl implements SettingsService {
         Long userCount = countSoftDeleted(iamJdbcTemplate, "SELECT COUNT(*) FROM kb_user WHERE deleted = 0");
         boolean dbOk = documentCount != null || userCount != null || !allConfigs.isEmpty();
 
+        Long usedStorage = resolveUsedStorageBytes();
+        Long totalStorage = resolveQuotaBytes(configMap);
+
         return SystemStatusVO.builder()
                 .version(version)
                 .runStatus("running")
                 .dbStatus(dbOk ? "connected" : "disconnected")
-                // 存储/备份未接入真实计量，前端展示「—」
                 .lastBackupTime(null)
-                .totalStorage(null)
-                .usedStorage(null)
+                .totalStorage(totalStorage)
+                .usedStorage(usedStorage != null ? usedStorage : 0L)
                 .documentCount(documentCount != null ? documentCount : 0L)
                 .userCount(userCount != null ? userCount : 0L)
                 .startTime(startTime)
                 .build();
+    }
+
+    /**
+     * 解析已用容量：优先 kb-file S3 ListObjects / kb_file 表；失败回退 document 侧元数据。
+     *
+     * @return 已用字节，失败时尽量回退
+     */
+    @Nullable
+    private Long resolveUsedStorageBytes() {
+        Long fromFile = fetchFileServiceUsedBytes();
+        if (fromFile != null && fromFile >= 0) {
+            return fromFile;
+        }
+        return countSoftDeleted(documentJdbcTemplate,
+                "SELECT COALESCE(SUM(file_size), 0) FROM kb_file_metadata WHERE deleted = 0");
+    }
+
+    /**
+     * 调用 kb-file {@code GET /files/storage/usage}。
+     *
+     * @return usedBytes 或 null
+     */
+    @Nullable
+    @SuppressWarnings("unchecked")
+    private Long fetchFileServiceUsedBytes() {
+        if (!StringUtils.hasText(fileServiceUrl)) {
+            return null;
+        }
+        try {
+            String url = fileServiceUrl.replaceAll("/+$", "") + "/files/storage/usage";
+            Map<String, Object> body = restTemplate.getForObject(url, Map.class);
+            if (body == null) {
+                return null;
+            }
+            Object data = body.get("data");
+            if (data instanceof Map<?, ?> dataMap) {
+                Object used = dataMap.get("usedBytes");
+                if (used instanceof Number n) {
+                    return n.longValue();
+                }
+            }
+            Object used = body.get("usedBytes");
+            if (used instanceof Number n) {
+                return n.longValue();
+            }
+            return null;
+        } catch (Exception e) {
+            log.warn("拉取 kb-file 存储用量失败，将回退元数据：{}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 解析配额：配置 {@code s3.storage.quota.bytes}，默认 100GiB。
+     *
+     * @param configMap 配置表
+     * @return 配额字节
+     */
+    private long resolveQuotaBytes(Map<String, String> configMap) {
+        String raw = configMap.get("s3.storage.quota.bytes");
+        if (!StringUtils.hasText(raw)) {
+            return DEFAULT_STORAGE_QUOTA_BYTES;
+        }
+        try {
+            long v = Long.parseLong(raw.trim());
+            return v > 0 ? v : DEFAULT_STORAGE_QUOTA_BYTES;
+        } catch (NumberFormatException e) {
+            log.warn("非法存储配额 {}，使用默认 {}", raw, DEFAULT_STORAGE_QUOTA_BYTES);
+            return DEFAULT_STORAGE_QUOTA_BYTES;
+        }
     }
 
     /**

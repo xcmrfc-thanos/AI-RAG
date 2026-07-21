@@ -67,6 +67,7 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     /** {@inheritDoc} */
     @Override
     public ChatResponseVO chat(ChatRequestDTO requestDTO, Long userId) {
+        normalizeChatContent(requestDTO);
         // RAG路由：如果启用了知识库检索增强且RAG服务可用
         if (requestDTO.isEnableRag() && ragChatService != null) {
             try {
@@ -162,6 +163,7 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     /** {@inheritDoc} */
     @Override
     public SseEmitter chatStream(ChatRequestDTO requestDTO, Long userId) {
+        normalizeChatContent(requestDTO);
         // RAG路由：如果启用了知识库检索增强且RAG服务可用
         if (requestDTO.isEnableRag() && ragChatService != null) {
             try {
@@ -372,6 +374,18 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
             log.error("生成对话标题失败: {}", e.getMessage(), e);
             return "新对话";
         }
+    }
+
+    /**
+     * 去掉用户输入前后空白，避免空格影响检索/嵌入缓存与落库内容。
+     *
+     * @param requestDTO 聊天请求
+     */
+    private void normalizeChatContent(ChatRequestDTO requestDTO) {
+        if (requestDTO == null || requestDTO.getContent() == null) {
+            return;
+        }
+        requestDTO.setContent(requestDTO.getContent().trim());
     }
 
     /**

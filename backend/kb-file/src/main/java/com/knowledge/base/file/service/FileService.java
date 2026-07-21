@@ -218,4 +218,11 @@ public interface FileService extends IService<FileInfo> {
      * @param response HTTP响应
      */
     void getThumbnail(Long fileId, HttpServletResponse response) throws IOException;
+
+    /**
+     * 对象存储用量（优先 S3 ListObjects；失败回退 kb_file 表求和）。
+     *
+     * @return usedBytes / source / objectDbBytes 等
+     */
+    java.util.Map<String, Object> getStorageUsage();
 }
