@@ -3,6 +3,7 @@ package com.knowledge.base.agent.tool;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowledge.base.agent.config.AgentProperties;
+import com.knowledge.base.agent.config.AgentTimeoutResolver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -23,6 +24,8 @@ import java.util.Map;
 /**
  * 仅经 Gateway 出站的 HTTP 客户端（禁止直连 Core/Intelligence）
  *
+ * <p>工具读超时优先 {@link AgentTimeoutResolver} 热读，秒数变化时重建 RestTemplate。</p>
+ *
  * @author AI-RAG
  * @since 1.0.0
  */
@@ -31,44 +34,69 @@ import java.util.Map;
 public class GatewayToolHttpClient {
 
     private final AgentProperties agentProperties;
-    private final RestTemplate restTemplate;
+    private final AgentTimeoutResolver timeoutResolver;
+    private final RestTemplateBuilder restTemplateBuilder;
     private final ObjectMapper objectMapper;
 
+    private final Object restTemplateLock = new Object();
+    private volatile RestTemplate restTemplate;
+    private volatile int appliedToolSeconds = -1;
+
     /**
-     * 构造 Gateway 工具客户端
+     * 构造 Gateway 工具客户端。
      *
-     * @param agentProperties    Agent 配置
+     * @param agentProperties     Agent 配置（Gateway 基址等）
+     * @param timeoutResolver     超时热读
      * @param restTemplateBuilder RestTemplate 构建器
-     * @param objectMapper       JSON
+     * @param objectMapper        JSON
      */
     @Autowired
     public GatewayToolHttpClient(AgentProperties agentProperties,
+                                 AgentTimeoutResolver timeoutResolver,
                                  RestTemplateBuilder restTemplateBuilder,
                                  ObjectMapper objectMapper) {
         this.agentProperties = agentProperties;
+        this.timeoutResolver = timeoutResolver;
+        this.restTemplateBuilder = restTemplateBuilder;
         this.objectMapper = objectMapper;
-        int seconds = Math.max(1, agentProperties.getTimeouts().getToolSeconds());
-        this.restTemplate = restTemplateBuilder
-                .setConnectTimeout(Duration.ofSeconds(Math.min(3, seconds)))
-                .setReadTimeout(Duration.ofSeconds(seconds))
-                .build();
     }
 
     /**
-     * 供单测注入自定义 RestTemplate
+     * 供单测注入自定义 RestTemplate（无热读缓存，回退属性默认超时）。
      *
      * @param agentProperties 配置
      * @param restTemplate    客户端
      * @param objectMapper    JSON
      */
     GatewayToolHttpClient(AgentProperties agentProperties, RestTemplate restTemplate, ObjectMapper objectMapper) {
-        this.agentProperties = agentProperties;
-        this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
+        this(agentProperties,
+                AgentTimeoutResolver.forTest(agentProperties, null),
+                restTemplate,
+                objectMapper);
     }
 
     /**
-     * GET 经 Gateway
+     * 供单测注入自定义 RestTemplate 与超时解析器。
+     *
+     * @param agentProperties 配置
+     * @param timeoutResolver 超时解析
+     * @param restTemplate    客户端
+     * @param objectMapper    JSON
+     */
+    GatewayToolHttpClient(AgentProperties agentProperties,
+                          AgentTimeoutResolver timeoutResolver,
+                          RestTemplate restTemplate,
+                          ObjectMapper objectMapper) {
+        this.agentProperties = agentProperties;
+        this.timeoutResolver = timeoutResolver;
+        this.restTemplateBuilder = null;
+        this.objectMapper = objectMapper;
+        this.restTemplate = restTemplate;
+        this.appliedToolSeconds = timeoutResolver.resolveToolSeconds();
+    }
+
+    /**
+     * GET 经 Gateway。
      *
      * @param path    以 /api 开头的路径
      * @param context 工具上下文
@@ -80,7 +108,7 @@ public class GatewayToolHttpClient {
     }
 
     /**
-     * GET 经 Gateway，并安全编码查询参数
+     * GET 经 Gateway，并安全编码查询参数。
      *
      * @param path    固定 Gateway 路径
      * @param query   查询参数
@@ -101,7 +129,7 @@ public class GatewayToolHttpClient {
     }
 
     /**
-     * POST JSON 经 Gateway
+     * POST JSON 经 Gateway。
      *
      * @param path    路径
      * @param body    请求体
@@ -114,7 +142,34 @@ public class GatewayToolHttpClient {
     }
 
     /**
-     * 执行 HTTP 并统一错误码
+     * 按当前热读秒数获取（或重建）RestTemplate。
+     *
+     * @return HTTP 客户端
+     */
+    private RestTemplate client() {
+        int seconds = timeoutResolver.resolveToolSeconds();
+        RestTemplate current = restTemplate;
+        if (current != null && appliedToolSeconds == seconds) {
+            return current;
+        }
+        synchronized (restTemplateLock) {
+            if (restTemplate != null && appliedToolSeconds == seconds) {
+                return restTemplate;
+            }
+            if (restTemplateBuilder == null) {
+                return restTemplate;
+            }
+            restTemplate = restTemplateBuilder
+                    .setConnectTimeout(Duration.ofSeconds(Math.min(3, seconds)))
+                    .setReadTimeout(Duration.ofSeconds(seconds))
+                    .build();
+            appliedToolSeconds = seconds;
+            return restTemplate;
+        }
+    }
+
+    /**
+     * 执行 HTTP 并统一错误码。
      */
     private JsonNode exchange(HttpMethod method, String path, Object body, ToolContext context, String tool) {
         String bearer = context.bearerHeader();
@@ -132,9 +187,10 @@ public class GatewayToolHttpClient {
         if (body != null) {
             headers.setContentType(MediaType.APPLICATION_JSON);
         }
+        int toolSeconds = timeoutResolver.resolveToolSeconds();
         long start = System.currentTimeMillis();
         try {
-            ResponseEntity<String> resp = restTemplate.exchange(
+            ResponseEntity<String> resp = client().exchange(
                     url, method, new HttpEntity<>(body, headers), String.class);
             long cost = System.currentTimeMillis() - start;
             log.info("tool_audit tool={} runId={} stepId={} status={} durationMs={}",
@@ -153,8 +209,7 @@ public class GatewayToolHttpClient {
             long cost = System.currentTimeMillis() - start;
             log.warn("tool_audit tool={} runId={} stepId={} status=TIMEOUT durationMs={}",
                     tool, context.runId(), context.stepId(), cost);
-            throw new ToolException("TIMEOUT", tool, "工具调用超时（默认 "
-                    + agentProperties.getTimeouts().getToolSeconds() + "s）");
+            throw new ToolException("TIMEOUT", tool, "工具调用超时（默认 " + toolSeconds + "s）");
         } catch (HttpStatusCodeException e) {
             long cost = System.currentTimeMillis() - start;
             log.warn("tool_audit tool={} runId={} stepId={} status={} durationMs={}",
@@ -169,6 +224,12 @@ public class GatewayToolHttpClient {
         }
     }
 
+    /**
+     * 去掉 URL 末尾斜杠。
+     *
+     * @param url 原始 URL
+     * @return 规范化基址
+     */
     private String trimSlash(String url) {
         if (url == null) {
             return "";

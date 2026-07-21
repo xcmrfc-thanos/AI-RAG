@@ -107,12 +107,12 @@
 
 ### Tasks
 
-- [ ] **C3.1** 调研：`kb-agent` 当前有无 `StringRedisTemplate`；决定 Conditional 方案
-- [ ] **C3.2** 实现 `resolveRunSeconds` / `resolveToolSeconds`：优先 `SystemConfigCache.getConfig("agent.timeouts.*")`，否则回退 `AgentProperties`
-- [ ] **C3.3** 引擎与工具客户端改用 resolve 方法
-- [ ] **C3.4** 单测：无 Redis / 有缓存键 / 非法数字回退
-- [ ] **C3.5** 说明：Settings「Agent」Tab 已有提示；补充「热读需 Redis 与 kb-core 写缓存」
-- [ ] **C3.6** Commit：`feat(agent): 超时配置支持 SystemConfigCache 热读`
+- [x] **C3.1** 调研：`kb-agent` 当前有无 `StringRedisTemplate`；决定 Conditional 方案
+- [x] **C3.2** 实现 `resolveRunSeconds` / `resolveToolSeconds`：优先 `SystemConfigCache.getConfig("agent.timeouts.*")`，否则回退 `AgentProperties`
+- [x] **C3.3** 引擎与工具客户端改用 resolve 方法
+- [x] **C3.4** 单测：无 Redis / 有缓存键 / 非法数字回退
+- [x] **C3.5** 说明：Settings「Agent」Tab 已有提示；补充「热读需 Redis 与 kb-core 写缓存」
+- [x] **C3.6** Commit：`feat(agent): 超时配置支持 SystemConfigCache 热读`
 
 **验收：** 管理端改 Agent Run 超时并保存 →（Redis 已同步）新 Run 使用新值，无需重启 agent（或文档写明需短 TTL/即时读）。
 

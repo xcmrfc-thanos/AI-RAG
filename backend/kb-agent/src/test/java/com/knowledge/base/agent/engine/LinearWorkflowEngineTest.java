@@ -2,6 +2,7 @@ package com.knowledge.base.agent.engine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.knowledge.base.agent.config.AgentProperties;
+import com.knowledge.base.agent.config.AgentTimeoutResolver;
 import com.knowledge.base.agent.model.AgentModelClient;
 import com.knowledge.base.agent.model.AgentModelRequest;
 import com.knowledge.base.agent.model.AgentModelResponse;
@@ -75,7 +76,19 @@ class LinearWorkflowEngineTest {
             llmCalls.incrementAndGet();
             return new AgentModelResponse("answer:" + request.userPrompt(), "stub", true);
         };
-        engine = new LinearWorkflowEngine(registry, model, properties, persistence, objectMapper);
+        engine = newEngine(registry, model);
+    }
+
+    /**
+     * 构造使用属性默认超时（无 Redis 热读）的引擎。
+     *
+     * @param registry 工具注册表
+     * @param model    模型客户端
+     * @return 引擎实例
+     */
+    private LinearWorkflowEngine newEngine(AgentToolRegistry registry, AgentModelClient model) {
+        AgentTimeoutResolver timeouts = AgentTimeoutResolver.forTest(properties, null);
+        return new LinearWorkflowEngine(registry, model, timeouts, persistence, objectMapper);
     }
 
     /**
@@ -308,7 +321,7 @@ class LinearWorkflowEngineTest {
             llmCalls.incrementAndGet();
             return new AgentModelResponse("nope", "stub", true);
         };
-        engine = new LinearWorkflowEngine(registry, model, properties, persistence, objectMapper);
+        engine = newEngine(registry, model);
 
         String json = """
                 {

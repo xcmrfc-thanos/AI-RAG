@@ -16,6 +16,7 @@ import com.knowledge.base.agent.tool.ToolContext;
 import com.knowledge.base.agent.workflow.entity.AgentWorkflowVersionEntity;
 import com.knowledge.base.agent.workflow.service.AgentWorkflowService;
 import com.knowledge.base.agent.config.AgentProperties;
+import com.knowledge.base.agent.config.AgentTimeoutResolver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -72,8 +73,10 @@ class AgentRunServiceTest {
             }
         }));
         AgentModelClient model = req -> new AgentModelResponse("x", "stub", true);
+        AgentProperties props = new AgentProperties();
+        AgentTimeoutResolver timeouts = AgentTimeoutResolver.forTest(props, null);
         LinearWorkflowEngine engine = new LinearWorkflowEngine(
-                registry, model, new AgentProperties(), persistence, objectMapper);
+                registry, model, timeouts, persistence, objectMapper);
 
         // engine 会走 persistence.findRun/update — 用真实内存困难；此处仅测幂等短路
         service = new AgentRunService(sessionMapper, runMapper, stepMapper, workflowService,

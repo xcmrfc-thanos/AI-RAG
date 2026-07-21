@@ -1453,7 +1453,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="配置写入系统配置表（键名对齐 agent.*）；kb-agent 运行时仍以 application.yml / Nacos 为准，后续可接 Redis SystemConfigCache 热读。功能入口开关见「基本设置 → enableAgent」。"
+          message="配置写入系统配置表并同步 Redis（键名 agent.timeouts.* 等）。kb-agent 对 Run/工具超时优先热读 SystemConfigCache；无 Redis 或读失败时回退 application.yml / Nacos。功能入口开关见「基本设置 → enableAgent」。"
         />
         <Form
           form={agentForm}

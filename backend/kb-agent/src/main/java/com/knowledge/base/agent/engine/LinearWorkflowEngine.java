@@ -2,7 +2,7 @@ package com.knowledge.base.agent.engine;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.knowledge.base.agent.config.AgentProperties;
+import com.knowledge.base.agent.config.AgentTimeoutResolver;
 import com.knowledge.base.agent.model.AgentModelClient;
 import com.knowledge.base.agent.model.AgentModelRequest;
 import com.knowledge.base.agent.model.AgentModelResponse;
@@ -41,7 +41,7 @@ public class LinearWorkflowEngine {
 
     private final AgentToolRegistry toolRegistry;
     private final AgentModelClient modelClient;
-    private final AgentProperties agentProperties;
+    private final AgentTimeoutResolver timeoutResolver;
     private final AgentRunPersistence persistence;
     private final ObjectMapper objectMapper;
 
@@ -67,7 +67,7 @@ public class LinearWorkflowEngine {
             return run;
         }
         RunStatus.assertTransition(current, RunStatus.RUNNING);
-        Instant deadline = Instant.now().plusSeconds(Math.max(1, agentProperties.getTimeouts().getRunSeconds()));
+        Instant deadline = Instant.now().plusSeconds(timeoutResolver.resolveRunSeconds());
         transitionRun(run, RunStatus.RUNNING, null, null, null);
 
         try {
