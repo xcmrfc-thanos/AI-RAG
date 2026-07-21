@@ -254,7 +254,7 @@ public class RagChatServiceImpl implements RagChatService {
         try {
             return ragRetrievalService.retrieve(query,
                     ragRuntimeSettings.resolveDefaultTopK(),
-                    ragProperties.getRerank().isEnabled());
+                    ragRuntimeSettings.resolveRerankEnabled());
         } catch (Exception e) {
             log.warn("RAG检索失败，降级为纯LLM回答：{}", e.getMessage());
             return List.of();

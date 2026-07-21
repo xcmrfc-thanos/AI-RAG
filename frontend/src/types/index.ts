@@ -716,7 +716,7 @@ export interface ExportSettings {
   pdfWatermarkOpacity?: number;
 }
 
-/** 检索 / RAG 设置（落配置表；runtime 以 .env/Nacos 为准） */
+/** 检索 / RAG 设置（落配置表 + Redis 热读；密钥仍走 .env/Nacos，两通道不同步） */
 export interface RagSettings {
   ragEnabled: boolean;
   ragDefaultTopK: number;
@@ -724,7 +724,15 @@ export interface RagSettings {
   ragFinalTopK: number;
   ragHybridEnabled: boolean;
   ragRerankEnabled: boolean;
-  /** elasticsearch | qdrant | milvus */
+  /** off | api | llm */
+  ragRerankMode?: string;
+  /** auto | qwen | siliconflow | custom */
+  ragRerankProvider?: string;
+  /** 空则按 provider 默认模型 */
+  ragRerankModel?: string;
+  /** Qdrant 旁路（BM25 仍 ES）；非纯 Qdrant 主库 */
+  ragQdrantEnabled?: boolean;
+  /** elasticsearch | milvus（主向量库） */
   ragVectorStoreType: string;
 }
 
@@ -781,9 +789,11 @@ export interface SystemStatus {
   version: string;
   runStatus: 'running' | 'stopped' | 'maintenance';
   dbStatus: 'connected' | 'disconnected';
-  lastBackupTime: string;
-  totalStorage: number;
-  usedStorage: number;
+  /** 未接入备份时为 null/空 */
+  lastBackupTime?: string | null;
+  /** 未接入存储计量时为 null */
+  totalStorage?: number | null;
+  usedStorage?: number | null;
   documentCount: number;
   userCount: number;
   startTime: string;

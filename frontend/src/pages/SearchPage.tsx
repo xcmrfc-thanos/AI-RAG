@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Select, Pagination, Card, Typography, Button } from 'antd';
+import { Select, Pagination, Card, Typography, Button, Switch, Space } from 'antd';
 import {
   SearchOutlined,
   ClockCircleOutlined,
@@ -10,7 +10,7 @@ import {
 } from '@ant-design/icons';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import type { EntityId, SearchResult, DocumentCategory } from '@/types';
-import { searchService, categoryService } from '@/services';
+import { searchService, categoryService, settingsService } from '@/services';
 import { useAppStore } from '@/stores';
 import {
   SearchBox,
@@ -45,6 +45,8 @@ const SearchContent: React.FC = () => {
   // Search state
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [searchMode, setSearchMode] = useState<SearchMode>('keyword');
+  /** 混合检索是否请求重排；默认跟随系统设置 ragRerankEnabled */
+  const [enableRerank, setEnableRerank] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -76,6 +78,7 @@ const SearchContent: React.FC = () => {
     loadHotSearches();
     loadHistory();
     loadCategories();
+    loadRerankSetting();
 
     return () => {
       searchAbortRef.current?.abort();
@@ -85,6 +88,18 @@ const SearchContent: React.FC = () => {
       }
     };
   }, []);
+
+  /**
+   * 从系统设置读取默认重排开关（失败时保持关闭）。
+   */
+  const loadRerankSetting = async () => {
+    try {
+      const settings = await settingsService.getSettings();
+      setEnableRerank(Boolean(settings?.rag?.ragRerankEnabled));
+    } catch {
+      /* ignore：保持默认关闭 */
+    }
+  };
 
   /**
    * 加载文档分类列表，供搜索筛选使用。
@@ -145,11 +160,12 @@ const SearchContent: React.FC = () => {
 
     const runSearch = async () => {
       try {
+        const useRerank = searchMode === 'hybrid' && enableRerank;
         const response = await searchService.search({
           keyword: q,
           searchMode,
           topK: 10,
-          enableRerank: false,
+          enableRerank: useRerank,
           page: pageParam,
           pageSize,
           sortBy,
@@ -182,7 +198,7 @@ const SearchContent: React.FC = () => {
       cancelled = true;
       controller.abort();
     };
-  }, [searchParams, searchMode, sortBy, pageSize]);
+  }, [searchParams, searchMode, sortBy, pageSize, enableRerank]);
 
   // Debounced suggestions
   const fetchSuggestions = useCallback(async (keyword: string) => {
@@ -404,6 +420,21 @@ const SearchContent: React.FC = () => {
           onModeChange={setSearchMode}
         />
 
+        {searchMode === 'hybrid' && (
+          <Space className="rerank-toggle" style={{ marginTop: 12 }} size={8}>
+            <Switch
+              size="small"
+              checked={enableRerank}
+              onChange={setEnableRerank}
+              checkedChildren="精排"
+              unCheckedChildren="精排"
+            />
+            <Typography.Text type="secondary" style={{ fontSize: 13 }}>
+              开启后调用重排打分模型；关闭则不显示重排分
+            </Typography.Text>
+          </Space>
+        )}
+
         {loading && <PageLoading />}
 
         {!loading && searched && (
@@ -451,6 +482,7 @@ const SearchContent: React.FC = () => {
                     searchMode={searchMode}
                     query={query}
                     maxScore={pageMaxScore}
+                    enableRerank={searchMode === 'hybrid' && enableRerank}
                     expanded={expandedChunks.has(String(result.id))}
                     onToggleChunks={toggleChunks}
                     onClick={handleResultClick}

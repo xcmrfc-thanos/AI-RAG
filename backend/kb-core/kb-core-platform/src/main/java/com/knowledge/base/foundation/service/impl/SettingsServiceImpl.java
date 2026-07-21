@@ -12,7 +12,11 @@ import com.knowledge.base.foundation.vo.SettingsVO;
 import com.knowledge.base.foundation.vo.SystemStatusVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -49,6 +53,18 @@ public class SettingsServiceImpl implements SettingsService {
 
     @Resource
     private SystemConfigCache systemConfigCache;
+
+    /** 文档库 COUNT（多数据源；单测/缺 bean 时可为 null） */
+    @Nullable
+    @Autowired(required = false)
+    @Qualifier("documentJdbcTemplate")
+    private JdbcTemplate documentJdbcTemplate;
+
+    /** 用户库 COUNT（多数据源；单测/缺 bean 时可为 null） */
+    @Nullable
+    @Autowired(required = false)
+    @Qualifier("iamJdbcTemplate")
+    private JdbcTemplate iamJdbcTemplate;
 
     /**
      * 设置字段 → 数据库配置键 的映射
@@ -118,6 +134,10 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("ragFinalTopK",         new String[]{"rag.retrieval.final-top-k",      "number",  "5",                                  "RAG"});
         FIELD_TO_CONFIG.put("ragHybridEnabled",     new String[]{"rag.hybrid.enabled",             "boolean", "true",                               "RAG"});
         FIELD_TO_CONFIG.put("ragRerankEnabled",     new String[]{"rag.rerank.enabled",             "boolean", "true",                               "RAG"});
+        FIELD_TO_CONFIG.put("ragRerankMode",        new String[]{"rag.rerank.mode",                "string",  "api",                                "RAG"});
+        FIELD_TO_CONFIG.put("ragRerankProvider",    new String[]{"rag.rerank.provider",            "string",  "auto",                               "RAG"});
+        FIELD_TO_CONFIG.put("ragRerankModel",       new String[]{"rag.rerank.model",               "string",  "",                                   "RAG"});
+        FIELD_TO_CONFIG.put("ragQdrantEnabled",     new String[]{"rag.qdrant.enabled",             "boolean", "false",                              "RAG"});
         FIELD_TO_CONFIG.put("ragVectorStoreType",   new String[]{"rag.vector.store",               "string",  "elasticsearch",                      "RAG"});
 
         // ===== 知识图谱 / KAG =====
@@ -225,7 +245,9 @@ public class SettingsServiceImpl implements SettingsService {
     );
     private static final List<String> SETTINGS_RAG_FIELDS = List.of(
             "ragEnabled", "ragDefaultTopK", "ragHybridTopK", "ragFinalTopK",
-            "ragHybridEnabled", "ragRerankEnabled", "ragVectorStoreType"
+            "ragHybridEnabled", "ragRerankEnabled",
+            "ragRerankMode", "ragRerankProvider", "ragRerankModel",
+            "ragQdrantEnabled", "ragVectorStoreType"
     );
     private static final List<String> SETTINGS_GRAPH_FIELDS = List.of(
             "kagEnabled", "kagAutoExtract", "kagExtractionModel",
@@ -377,19 +399,44 @@ public class SettingsServiceImpl implements SettingsService {
 
         String version = configMap.getOrDefault("system.version", "v2.4.1");
         String startTime = getJvmStartTime();
+        Long documentCount = countSoftDeleted(documentJdbcTemplate, "SELECT COUNT(*) FROM kb_document WHERE deleted = 0");
+        Long userCount = countSoftDeleted(iamJdbcTemplate, "SELECT COUNT(*) FROM kb_user WHERE deleted = 0");
+        boolean dbOk = documentCount != null || userCount != null || !allConfigs.isEmpty();
 
         return SystemStatusVO.builder()
                 .version(version)
                 .runStatus("running")
-                .dbStatus("connected")
-                .lastBackupTime(LocalDateTime.now().minusDays(1)
-                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")))
-                .totalStorage(107374182400L)  // 100GB placeholder
-                .usedStorage(72796356608L)    // 67.8GB placeholder
-                .documentCount(2847L)
-                .userCount(128L)
+                .dbStatus(dbOk ? "connected" : "disconnected")
+                // 存储/备份未接入真实计量，前端展示「—」
+                .lastBackupTime(null)
+                .totalStorage(null)
+                .usedStorage(null)
+                .documentCount(documentCount != null ? documentCount : 0L)
+                .userCount(userCount != null ? userCount : 0L)
                 .startTime(startTime)
                 .build();
+    }
+
+    /**
+     * 对指定数据源执行 COUNT；失败返回 null 并打日志。
+     *
+     * @param jdbcTemplate 数据源模板（可为 null）
+     * @param sql          COUNT SQL
+     * @return 行数或 null
+     */
+    @Nullable
+    private Long countSoftDeleted(@Nullable JdbcTemplate jdbcTemplate, String sql) {
+        if (jdbcTemplate == null) {
+            log.warn("系统状态 COUNT 跳过：JdbcTemplate 未注入，sql={}", sql);
+            return null;
+        }
+        try {
+            Long count = jdbcTemplate.queryForObject(sql, Long.class);
+            return count != null ? count : 0L;
+        } catch (Exception e) {
+            log.warn("系统状态 COUNT 失败：{} — {}", sql, e.getMessage());
+            return null;
+        }
     }
 
     private String getJvmStartTime() {
@@ -410,9 +457,9 @@ public class SettingsServiceImpl implements SettingsService {
     /** {@inheritDoc} */
     @Override
     public String createBackup() {
-        log.info("创建系统备份");
-        // 备份逻辑需要集成具体的存储方案，此处为占位实现
-        return "备份已创建于 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        log.info("创建系统备份（占位未实际执行）");
+        return "备份请求已受理（占位未实际执行）: "
+                + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
     /** {@inheritDoc} */

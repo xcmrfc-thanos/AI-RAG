@@ -135,6 +135,7 @@ rag:
     hybrid-top-k: 20
     final-top-k: 5
     rrf-c: 60
+  # 进程兜底；Settings 页 rag.rerank.* 经 Redis 热读优先，密钥仍用下方 api-key（不与设置页双向同步）
   rerank:
     enabled: ${RAG_RERANK_ENABLED:true}
     mode: ${RAG_RERANK_MODE:api}

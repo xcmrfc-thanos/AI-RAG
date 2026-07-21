@@ -23,6 +23,8 @@ export interface SearchResultCardProps {
   query: string;
   /** 当前结果页最高相关分，用于相对归一避免 900%+ */
   maxScore?: number;
+  /** 本次请求是否启用重排；未启用时不展示重排芯片 */
+  enableRerank?: boolean;
   expanded: boolean;
   onToggleChunks: (resultId: string) => void;
   onClick: (e: React.MouseEvent, documentId: EntityId) => void;
@@ -52,6 +54,7 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
   searchMode,
   query,
   maxScore,
+  enableRerank = false,
   expanded,
   onToggleChunks,
   onClick,
@@ -130,9 +133,9 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
                   向量 {formatRawScoreChip(result.vectorScore)}
                 </span>
               )}
-              {result.rerankScore !== undefined && (
+              {enableRerank && Number.isFinite(result.rerankScore) && (
                 <span className="score-chip rerank" title="重排原始分">
-                  重排 {formatRawScoreChip(result.rerankScore)}
+                  重排 {formatRawScoreChip(result.rerankScore as number)}
                 </span>
               )}
             </div>

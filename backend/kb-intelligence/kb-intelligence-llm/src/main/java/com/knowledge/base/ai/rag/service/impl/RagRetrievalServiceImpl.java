@@ -78,7 +78,9 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
             candidates = candidates.subList(0, maxCand);
         }
 
-        String mode = enableRerank ? rerankProviderResolver.resolveMode() : RerankProviderResolver.MODE_OFF;
+        // 请求开关 AND 热读/配置 enabled 才进入重排；mode 由热读覆盖
+        boolean doRerank = enableRerank && ragRuntimeSettings.resolveRerankEnabled();
+        String mode = doRerank ? ragRuntimeSettings.resolveRerankMode() : RerankProviderResolver.MODE_OFF;
         long tRerank = System.currentTimeMillis();
         List<RagSearchResultVO> results = applyRerank(query, candidates, topK, mode);
         long rerankMs = System.currentTimeMillis() - tRerank;

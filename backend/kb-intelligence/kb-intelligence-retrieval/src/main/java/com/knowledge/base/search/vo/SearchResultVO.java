@@ -161,5 +161,8 @@ public class SearchResultVO implements Serializable {
 
         @Schema(description = "向量相似度得分")
         private double vectorScore;
+
+        @Schema(description = "重排序得分（未启用重排时为 null）")
+        private Double rerankScore;
     }
 }

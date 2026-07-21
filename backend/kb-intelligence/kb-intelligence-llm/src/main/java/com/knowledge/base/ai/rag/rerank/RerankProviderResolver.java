@@ -1,19 +1,22 @@
 package com.knowledge.base.ai.rag.rerank;
 
 import com.knowledge.base.ai.config.RagProperties;
-import lombok.RequiredArgsConstructor;
+import com.knowledge.base.ai.config.RagRuntimeSettings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 /**
  * 解析重排 provider / 模型 / 凭证（auto 跟随 embedding）。
  *
+ * <p>enabled/mode/provider/model 优先热读 {@link RagRuntimeSettings}，API 密钥仍走 yml/Nacos。</p>
+ *
  * @author knowledge-base-team
  * @since 1.0.0
  */
 @Component
-@RequiredArgsConstructor
 public class RerankProviderResolver {
 
     public static final String PROVIDER_QWEN = "qwen";
@@ -31,6 +34,8 @@ public class RerankProviderResolver {
     public static final String DEFAULT_SILICONFLOW_BASE = "https://api.siliconflow.cn/v1";
 
     private final RagProperties ragProperties;
+    @Nullable
+    private final RagRuntimeSettings runtimeSettings;
 
     @Value("${qwen.api-key:}")
     private String qwenApiKey;
@@ -42,16 +47,32 @@ public class RerankProviderResolver {
     private String siliconflowBaseUrl;
 
     /**
+     * Spring 构造（runtimeSettings 可选）。
+     *
+     * @param ragProperties   yml 兜底
+     * @param runtimeSettings 热读（可 null）
+     */
+    @Autowired
+    public RerankProviderResolver(RagProperties ragProperties,
+                                  @Autowired(required = false) RagRuntimeSettings runtimeSettings) {
+        this.ragProperties = ragProperties;
+        this.runtimeSettings = runtimeSettings;
+    }
+
+    /**
      * 解析当前有效重排配置。
      *
      * @return 解析结果；mode 非 api 或凭证不足时 usable=false
      */
     public ResolvedRerank resolve() {
         RagProperties.Rerank rerank = ragProperties.getRerank();
-        if (rerank == null || !rerank.isEnabled()) {
+        if (rerank == null) {
             return unusable();
         }
-        String mode = normalize(rerank.getMode(), MODE_API);
+        if (!isRerankEnabled(rerank)) {
+            return unusable();
+        }
+        String mode = normalize(resolveModeRaw(rerank), MODE_API);
         if (MODE_OFF.equals(mode) || MODE_LLM.equals(mode)) {
             return unusable(mode);
         }
@@ -59,9 +80,10 @@ public class RerankProviderResolver {
             return unusable();
         }
 
-        String provider = resolveProvider(rerank.getProvider());
-        String model = StringUtils.hasText(rerank.getModel())
-                ? rerank.getModel().trim()
+        String provider = resolveProvider(resolveProviderRaw(rerank));
+        String modelCfg = resolveModelRaw(rerank);
+        String model = StringUtils.hasText(modelCfg)
+                ? modelCfg.trim()
                 : defaultModel(provider);
         String apiKey = resolveApiKey(rerank, provider);
         String baseUrl = resolveBaseUrl(rerank, provider);
@@ -83,10 +105,10 @@ public class RerankProviderResolver {
      */
     public String resolveMode() {
         RagProperties.Rerank rerank = ragProperties.getRerank();
-        if (rerank == null || !rerank.isEnabled()) {
+        if (rerank == null || !isRerankEnabled(rerank)) {
             return MODE_OFF;
         }
-        return normalize(rerank.getMode(), MODE_API);
+        return normalize(resolveModeRaw(rerank), MODE_API);
     }
 
     /**
@@ -108,6 +130,40 @@ public class RerankProviderResolver {
             return PROVIDER_SILICONFLOW;
         }
         return PROVIDER_QWEN;
+    }
+
+    private boolean isRerankEnabled(RagProperties.Rerank rerank) {
+        if (runtimeSettings != null) {
+            return runtimeSettings.resolveRerankEnabled();
+        }
+        return rerank.isEnabled();
+    }
+
+    private String resolveModeRaw(RagProperties.Rerank rerank) {
+        if (runtimeSettings != null) {
+            return runtimeSettings.resolveRerankMode();
+        }
+        return rerank.getMode();
+    }
+
+    private String resolveProviderRaw(RagProperties.Rerank rerank) {
+        if (runtimeSettings != null) {
+            String hot = runtimeSettings.resolveRerankProvider();
+            if (StringUtils.hasText(hot)) {
+                return hot;
+            }
+        }
+        return rerank.getProvider();
+    }
+
+    private String resolveModelRaw(RagProperties.Rerank rerank) {
+        if (runtimeSettings != null) {
+            String hot = runtimeSettings.resolveRerankModel();
+            if (StringUtils.hasText(hot)) {
+                return hot;
+            }
+        }
+        return StringUtils.hasText(rerank.getModel()) ? rerank.getModel() : "";
     }
 
     private String defaultModel(String provider) {

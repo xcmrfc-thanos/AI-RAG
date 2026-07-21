@@ -5,6 +5,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,10 +38,14 @@ class RagRuntimeSettingsTest {
      */
     @Test
     void noCache_fallsBack() {
+        properties.getRerank().setEnabled(true);
+        properties.getRerank().setMode("api");
         RagRuntimeSettings settings = RagRuntimeSettings.forTest(properties, null);
         assertEquals(5, settings.resolveDefaultTopK());
         assertEquals(20, settings.resolveHybridTopK());
         assertEquals(5, settings.resolveFinalTopK());
+        assertTrue(settings.resolveRerankEnabled());
+        assertEquals("api", settings.resolveRerankMode());
     }
 
     /**
@@ -49,9 +55,14 @@ class RagRuntimeSettingsTest {
     void cacheHit_usesCached() {
         when(cache.getConfig(RagRuntimeSettings.KEY_DEFAULT_TOP_K)).thenReturn("8");
         when(cache.getConfig(RagRuntimeSettings.KEY_HYBRID_TOP_K)).thenReturn("30");
+        when(cache.getConfig(RagRuntimeSettings.KEY_RERANK_ENABLED)).thenReturn("false");
+        when(cache.getConfig(RagRuntimeSettings.KEY_RERANK_MODE)).thenReturn("llm");
+        properties.getRerank().setEnabled(true);
         RagRuntimeSettings settings = RagRuntimeSettings.forTest(properties, cache);
         assertEquals(8, settings.resolveDefaultTopK());
         assertEquals(30, settings.resolveHybridTopK());
+        assertFalse(settings.resolveRerankEnabled());
+        assertEquals("off", settings.resolveRerankMode());
     }
 
     /**

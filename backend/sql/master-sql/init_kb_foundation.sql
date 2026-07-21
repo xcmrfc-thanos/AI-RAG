@@ -56,6 +56,10 @@ INSERT INTO `kb_system_config` (`id`, `config_key`, `config_value`, `config_type
 (2000000000000000032, 'rag.hybrid.enabled', 'true', 'boolean', 'RAG', '默认混合检索', 1),
 (2000000000000000033, 'rag.rerank.enabled', 'true', 'boolean', 'RAG', '启用重排序', 1),
 (2000000000000000034, 'rag.vector.store', 'elasticsearch', 'string', 'RAG', '向量存储类型', 1),
+(2000000000000000055, 'rag.rerank.mode', 'api', 'string', 'RAG', '重排模式：off/api/llm', 1),
+(2000000000000000056, 'rag.rerank.provider', 'auto', 'string', 'RAG', '重排Provider：auto/qwen/siliconflow/custom', 1),
+(2000000000000000057, 'rag.rerank.model', '', 'string', 'RAG', '重排模型（空则按Provider默认）', 1),
+(2000000000000000058, 'rag.qdrant.enabled', 'false', 'boolean', 'RAG', 'Qdrant旁路（BM25仍ES）', 1),
 
 -- 知识图谱 / KAG（Settings GRAPH；热读 kag.extraction.auto-enabled）
 (2000000000000000035, 'kag.enabled', 'true', 'boolean', 'GRAPH', '是否启用KAG', 1),

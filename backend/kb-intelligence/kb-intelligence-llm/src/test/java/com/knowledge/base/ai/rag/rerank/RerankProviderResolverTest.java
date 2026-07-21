@@ -20,7 +20,7 @@ class RerankProviderResolverTest {
     @BeforeEach
     void setUp() {
         ragProperties = new RagProperties();
-        resolver = new RerankProviderResolver(ragProperties);
+        resolver = new RerankProviderResolver(ragProperties, null);
         ReflectionTestUtils.setField(resolver, "qwenApiKey", "qwen-key");
         ReflectionTestUtils.setField(resolver, "siliconflowApiKey", "sf-key");
         ReflectionTestUtils.setField(resolver, "siliconflowBaseUrl", "https://api.siliconflow.cn/v1");

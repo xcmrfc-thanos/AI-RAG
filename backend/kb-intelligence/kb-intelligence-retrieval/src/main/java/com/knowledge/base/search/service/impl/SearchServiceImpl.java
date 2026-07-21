@@ -561,6 +561,7 @@ public class SearchServiceImpl implements SearchService {
                         .score(item.getScore())
                         .bm25Score(item.getBm25Score())
                         .vectorScore(item.getVectorScore())
+                        .rerankScore(item.getRerankScore())
                         .build();
 
                 if (docId == null) {
@@ -576,6 +577,7 @@ public class SearchServiceImpl implements SearchService {
                             .score((float) chunk.getScore())
                             .bm25Score(chunk.getBm25Score())
                             .vectorScore(chunk.getVectorScore())
+                            .rerankScore(item.getRerankScore())
                             .chunks(new ArrayList<>(List.of(chunk)))
                             .build();
                     standaloneResults.add(vo);
@@ -585,7 +587,12 @@ public class SearchServiceImpl implements SearchService {
                 // 有 documentId：按 docId 聚合 chunk
                 String docIdStr = String.valueOf(docId);
                 if (docMap.containsKey(docIdStr)) {
-                    docMap.get(docIdStr).getChunks().add(chunk);
+                    SearchResultVO existing = docMap.get(docIdStr);
+                    existing.getChunks().add(chunk);
+                    // 文档级重排分取首个有效值（列表已按重排/融合分排序）
+                    if (existing.getRerankScore() == null && item.getRerankScore() != null) {
+                        existing.setRerankScore(item.getRerankScore());
+                    }
                 } else {
                     String publishTime = formatPublishTime(item.getPublishTime());
                     SearchResultVO vo = SearchResultVO.builder()
@@ -597,6 +604,7 @@ public class SearchServiceImpl implements SearchService {
                             .score((float) chunk.getScore())
                             .bm25Score(chunk.getBm25Score())
                             .vectorScore(chunk.getVectorScore())
+                            .rerankScore(item.getRerankScore())
                             .chunks(new ArrayList<>(List.of(chunk)))
                             .build();
                     docMap.put(docIdStr, vo);

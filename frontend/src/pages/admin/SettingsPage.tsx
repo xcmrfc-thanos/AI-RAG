@@ -85,8 +85,20 @@ const CHAT_PROVIDER_OPTIONS = [
 
 const VECTOR_STORE_OPTIONS = [
   { value: 'elasticsearch', label: 'Elasticsearch（推荐）' },
-  { value: 'qdrant', label: 'Qdrant' },
   { value: 'milvus', label: 'Milvus（兼容）' },
+];
+
+const RERANK_MODE_OPTIONS = [
+  { value: 'api', label: '专用 API 重排（推荐）' },
+  { value: 'llm', label: 'LLM 打分（慢）' },
+  { value: 'off', label: '关闭（仅融合截断）' },
+];
+
+const RERANK_PROVIDER_OPTIONS = [
+  { value: 'auto', label: '自动（跟随 Embedding）' },
+  { value: 'siliconflow', label: '硅基流动' },
+  { value: 'qwen', label: '通义千问' },
+  { value: 'custom', label: '自定义（Nacos base-url）' },
 ];
 
 const WATERMARK_TYPE_OPTIONS = [
@@ -227,6 +239,10 @@ export const SettingsPage: React.FC = () => {
           ragFinalTopK: 5,
           ragHybridEnabled: true,
           ragRerankEnabled: true,
+          ragRerankMode: 'api',
+          ragRerankProvider: 'auto',
+          ragRerankModel: '',
+          ragQdrantEnabled: false,
           ragVectorStoreType: 'elasticsearch',
           ...data.rag,
         });
@@ -238,6 +254,10 @@ export const SettingsPage: React.FC = () => {
           ragFinalTopK: 5,
           ragHybridEnabled: true,
           ragRerankEnabled: true,
+          ragRerankMode: 'api',
+          ragRerankProvider: 'auto',
+          ragRerankModel: '',
+          ragQdrantEnabled: false,
           ragVectorStoreType: (data.ai as any)?.vectorStoreType || 'elasticsearch',
         });
       }
@@ -792,7 +812,14 @@ export const SettingsPage: React.FC = () => {
   // ===================== STORAGE TAB =====================
   function renderStorageTab() {
     const status = settings?.status;
-    const usedPercent = status ? Math.round((status.usedStorage / status.totalStorage) * 100) : 0;
+    const hasStorageMetrics =
+      status != null
+      && status.totalStorage != null
+      && status.usedStorage != null
+      && Number(status.totalStorage) > 0;
+    const usedPercent = hasStorageMetrics
+      ? Math.round((Number(status!.usedStorage) / Number(status!.totalStorage)) * 100)
+      : 0;
 
     return (
       <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
@@ -810,7 +837,7 @@ export const SettingsPage: React.FC = () => {
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
                   title="总存储空间"
-                  value={formatBytes(status.totalStorage)}
+                  value={hasStorageMetrics ? formatBytes(Number(status.totalStorage)) : '—'}
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
                 />
               </Card>
@@ -819,8 +846,8 @@ export const SettingsPage: React.FC = () => {
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
                   title="已使用"
-                  value={formatBytes(status.usedStorage)}
-                  suffix={`(${usedPercent}%)`}
+                  value={hasStorageMetrics ? formatBytes(Number(status.usedStorage)) : '—'}
+                  suffix={hasStorageMetrics ? `(${usedPercent}%)` : undefined}
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
                 />
               </Card>
@@ -829,7 +856,7 @@ export const SettingsPage: React.FC = () => {
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
                   title="文档数量"
-                  value={status.documentCount}
+                  value={status.documentCount ?? 0}
                   suffix="个"
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
                 />
@@ -839,7 +866,7 @@ export const SettingsPage: React.FC = () => {
               <Card size="small" style={STAT_CARD_STYLE}>
                 <Statistic
                   title="用户数量"
-                  value={status.userCount}
+                  value={status.userCount ?? 0}
                   suffix="人"
                   valueStyle={{ fontSize: 16, fontWeight: 600 }}
                 />
@@ -848,7 +875,7 @@ export const SettingsPage: React.FC = () => {
           </Row>
         )}
 
-        {status && (
+        {status && hasStorageMetrics && (
           <div style={{ marginBottom: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
               <Text type="secondary">存储使用率</Text>
@@ -1175,14 +1202,14 @@ export const SettingsPage: React.FC = () => {
         {renderSectionHeader(
           <SearchOutlined />,
           '检索 / RAG',
-          'TopK、混合检索、重排序与向量库；重建索引走已有 /rag/reindex',
+          'TopK、混合检索、重排打分模型与向量库；重建索引走已有 /rag/reindex',
           handleSaveRag,
         )}
         <Alert
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="配置写入系统配置表并同步 Redis（rag.retrieval.* 等）。intelligence 对 default/hybrid Top-K 优先热读 SystemConfigCache；无 Redis 或读失败时回退 Nacos/yml。更换 Embedding/向量库后必须重建索引。"
+          message="本页写入 kb_system_config + Redis 热读（rag.retrieval.* / rag.rerank.*）。不写 Nacos / deploy/.env；API 密钥与进程级开关仍走部署通道（import-nacos）。两通道不会自动双向同步。更换 Embedding/向量库后必须重建索引。"
         />
         <Form
           form={ragForm}
@@ -1194,6 +1221,10 @@ export const SettingsPage: React.FC = () => {
             ragFinalTopK: 5,
             ragHybridEnabled: true,
             ragRerankEnabled: true,
+            ragRerankMode: 'api',
+            ragRerankProvider: 'auto',
+            ragRerankModel: '',
+            ragQdrantEnabled: false,
             ragVectorStoreType: 'elasticsearch',
           }}
         >
@@ -1210,7 +1241,8 @@ export const SettingsPage: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={8}>
-              <Form.Item label="启用重排序" name="ragRerankEnabled" valuePropName="checked">
+              <Form.Item label="启用重排序" name="ragRerankEnabled" valuePropName="checked"
+                extra="总开关；关闭后请求也不会进入重排">
                 <Switch checkedChildren="开" unCheckedChildren="关" />
               </Form.Item>
             </Col>
@@ -1233,15 +1265,46 @@ export const SettingsPage: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
+          <Divider style={{ margin: '8px 0 16px' }} />
+          <Text strong style={{ display: 'block', marginBottom: 12 }}>重排打分模型</Text>
+          <Row gutter={[24, 0]}>
+            <Col span={8}>
+              <Form.Item label="重排模式" name="ragRerankMode"
+                extra="推荐 api；密钥在 .env / Nacos">
+                <Select options={RERANK_MODE_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="重排 Provider" name="ragRerankProvider">
+                <Select options={RERANK_PROVIDER_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label="重排模型" name="ragRerankModel"
+                extra="可空：硅基默认 BAAI/bge-reranker-v2-m3，通义 qwen3-rerank">
+                <Input placeholder="留空使用 Provider 默认" allowClear />
+              </Form.Item>
+            </Col>
+          </Row>
           <Row gutter={[24, 0]}>
             <Col span={12}>
               <Form.Item
-                label="向量库"
+                label="向量库（主库）"
                 name="ragVectorStoreType"
                 rules={[{ required: true, message: '请选择向量库' }]}
-                extra="与 AI 设置中的向量库同源配置键 rag.vector.store"
+                extra="与 AI 设置同源键 rag.vector.store；非纯 Qdrant 主库"
               >
                 <Select options={VECTOR_STORE_OPTIONS} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label="Qdrant 旁路"
+                name="ragQdrantEnabled"
+                valuePropName="checked"
+                extra="开启后 dense 可走 Qdrant，BM25 仍 ES；进程级还需 RAG_QDRANT_ENABLED（.env）"
+              >
+                <Switch checkedChildren="旁路开" unCheckedChildren="关" />
               </Form.Item>
             </Col>
           </Row>
@@ -1929,7 +1992,7 @@ export const SettingsPage: React.FC = () => {
             <Card size="small" style={STAT_CARD_STYLE}>
               <Statistic
                 title="上次备份"
-                value={status.lastBackupTime || '暂无'}
+                value={status.lastBackupTime || '未接入'}
                 valueStyle={{ fontSize: 14, fontWeight: 600 }}
               />
             </Card>

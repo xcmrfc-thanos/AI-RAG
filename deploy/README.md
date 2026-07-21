@@ -47,6 +47,8 @@ copy env.example .env   # 首次：填入 QWEN_API_KEY / SILICONFLOW_API_KEY 等
 
 `import-nacos.ps1` 会读取 `deploy/.env`，把 `${QWEN_API_KEY:}` 等展开为实值再写入 Nacos（含 **kb-intelligence / kb-agent**）。仓库内 `.template` 仍保持占位符，不把密钥提交进 git。
 
+**配置边界：** Admin「系统设置」写 `kb_system_config` + Redis 热读（TopK / 重排 mode·provider·model 等），**不会**改 `.env` / Nacos；密钥与进程级开关（如 `RAG_QDRANT_ENABLED`、API Key）仍走本部署通道。两通道不同步。
+
 ```powershell
 cd deploy
 # 1. 编辑 .env（QWEN_API_KEY / SILICONFLOW_API_KEY / RAG_EMBEDDING_* / RAG_RERANK_* 等）
@@ -126,7 +128,8 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 ## 说明
 
 - 微服务 `application.yml` 与 `backend/nacos/*.template` 已同步上述端口
-- 业务服务端口不变：gateway 8080、core 8090、intelligence 8091、file 8084、statistics 8085、agent 8092
+- 业务服务端口：gateway **18080**、core 8090、intelligence 8091、file 8084、statistics 8085、agent 8092
+  （网关避开本机常见 8080 占用；可用环境变量 `GATEWAY_PORT` 覆盖）
 - Nacos 控制台：http://127.0.0.1:20848/nacos
 
 ## 切库检查清单（MySQL 默认 / PostgreSQL / Oracle）
