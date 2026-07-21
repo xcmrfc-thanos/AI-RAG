@@ -1,6 +1,6 @@
 # 本轮差距收尾 Implementation Plan
 
-> **状态：已完成并 push（2026-07-21，tip `e3a43b3`）。** 勿再对本文件发「按计划推进」；新工作请开新计划。
+> **状态：已完成并 push（2026-07-21）。** 勿再对本文件发「按计划推进」；新工作请开新计划。当前 tip 以 `origin/master` 为准。
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans 或 subagent-driven-development，按 Phase 顺序推进。Steps 用 checkbox（`- [ ]`）跟踪。
 

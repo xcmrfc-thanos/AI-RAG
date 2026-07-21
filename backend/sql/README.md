@@ -43,3 +43,8 @@ Docker 首次初始化挂载 `schema/mysql`（见 `deploy/docker-compose.yml`）
 ## data/（可选）
 
 默认管理员：**admin / admin123**
+
+| 文件 | 说明 |
+|------|------|
+| `init_kb_foundation.sql` | 含 Settings 热读相关 `kb_system_config` 种子（EXPORT/RAG/GRAPH/AGENT/COMPLIANCE） |
+| `patch_settings_hotread_seeds.sql` | **已有库**幂等补齐上述种子；导入后重启 kb-core 以刷 Redis |
