@@ -1,6 +1,9 @@
 # RAG 专用重排 + 检索提速 + Nacos 从 .env 展开密钥
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **状态：已完成**（commit `5beefd9`，2026-07-21）  
+> **For agentic workers:** 本计划已实现；勿再按「未完成」推进。后续仅做联调/Push/Settings 暴露等增量。
+
+> **For agentic workers (historical):** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 用专用 Rerank API（auto 跟 embedding / 可 custom 私有化）替换串行 LLM 重排，提速检索热路径，并让 `import-nacos.ps1` 从 `deploy/.env` 展开 API Key，本地重启无需手填 Nacos。
 
