@@ -37,7 +37,7 @@
         ORDER BY doc_count DESC
     </select>
 
-    <!-- 根据标签编码查询标签 -->
+    <!-- 根据标签编码查询标签（默认 MySQL/PG） -->
     <select id="selectByTagCode" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
@@ -45,6 +45,16 @@
         WHERE tag_code = #{tagCode}
         AND deleted = 0
         LIMIT 1
+    </select>
+
+    <!-- Oracle：LIMIT 改 FETCH FIRST -->
+    <select id="selectByTagCode" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_tag
+        WHERE tag_code = #{tagCode}
+        AND deleted = 0
+        FETCH FIRST 1 ROWS ONLY
     </select>
 
     <!-- 根据标签类型查询标签列表 -->
@@ -67,7 +77,7 @@
         ORDER BY doc_count DESC
     </select>
 
-    <!-- 查询热门标签 -->
+    <!-- 查询热门标签（默认 MySQL/PG） -->
     <select id="selectHotTags" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
@@ -76,6 +86,17 @@
         AND deleted = 0
         ORDER BY doc_count DESC
         LIMIT #{limit}
+    </select>
+
+    <!-- Oracle：LIMIT 改 FETCH FIRST -->
+    <select id="selectHotTags" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM kb_tag
+        WHERE status = 1
+        AND deleted = 0
+        ORDER BY doc_count DESC
+        FETCH FIRST #{limit} ROWS ONLY
     </select>
 
     <!-- 更新文档数量 -->

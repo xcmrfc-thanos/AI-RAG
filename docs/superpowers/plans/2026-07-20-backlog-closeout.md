@@ -155,6 +155,12 @@
 
 - 扫实体/Mapper 中 Oracle 保留字列；需要处加引号或改列名（改列名成本高，优先引号）
 
+### P2 — inventory LIMIT 补齐（2026-07-21 已做）
+
+- [x] `DocumentAccessMapper` 迁 XML + Oracle `FETCH FIRST`
+- [x] `TagMapper.selectByTagCode` / `selectHotTags` Oracle 分支
+- Commit：`fix(db): DocumentAccess/TagMapper Oracle LIMIT`
+
 ---
 
 ## 非目标（本收尾不做）

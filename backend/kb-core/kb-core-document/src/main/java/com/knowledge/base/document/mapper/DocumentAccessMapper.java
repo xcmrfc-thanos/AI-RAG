@@ -4,12 +4,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.knowledge.base.document.entity.DocumentAccess;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
 /**
  * 文档访问记录Mapper接口
+ *
+ * <p>{@code selectRecentAccessByUserId} 的方言 SQL 见
+ * {@code mapper/DocumentAccessMapper.xml}（含 Oracle {@code FETCH FIRST}）。</p>
  *
  * @author 苏三
  * @since 1.0.0
@@ -24,13 +26,6 @@ public interface DocumentAccessMapper extends BaseMapper<DocumentAccess> {
      * @param limit  查询数量限制
      * @return 访问记录列表
      */
-    @Select("SELECT da.*, d.summary, d.category_id, c.category_name, d.author_name, d.status " +
-            "FROM kb_document_access da " +
-            "LEFT JOIN kb_document d ON da.document_id = d.id " +
-            "LEFT JOIN kb_category c ON d.category_id = c.id " +
-            "WHERE da.user_id = #{userId} AND d.deleted = 0 " +
-            "ORDER BY da.access_time DESC " +
-            "LIMIT #{limit}")
     List<DocumentAccess> selectRecentAccessByUserId(@Param("userId") Long userId, @Param("limit") Integer limit);
 
     /**

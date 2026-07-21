@@ -20,6 +20,28 @@
         <result column="status" property="status" />
     </resultMap>
 
+    <!-- 最近访问（默认 MySQL/PG LIMIT） -->
+    <select id="selectRecentAccessByUserId" resultMap="BaseResultMap">
+        SELECT da.*, d.summary, d.category_id, c.category_name, d.author_name, d.status
+        FROM kb_document_access da
+        LEFT JOIN kb_document d ON da.document_id = d.id
+        LEFT JOIN kb_category c ON d.category_id = c.id
+        WHERE da.user_id = #{userId} AND d.deleted = 0
+        ORDER BY da.access_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- Oracle：LIMIT 改 FETCH FIRST -->
+    <select id="selectRecentAccessByUserId" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT da.*, d.summary, d.category_id, c.category_name, d.author_name, d.status
+        FROM kb_document_access da
+        LEFT JOIN kb_document d ON da.document_id = d.id
+        LEFT JOIN kb_category c ON d.category_id = c.id
+        WHERE da.user_id = #{userId} AND d.deleted = 0
+        ORDER BY da.access_time DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
     <delete id="deleteByUserIdAndDocumentId">
         DELETE FROM kb_document_access
         WHERE user_id = #{userId} AND document_id = #{documentId}
