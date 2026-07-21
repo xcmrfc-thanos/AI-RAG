@@ -1,4 +1,4 @@
-package com.knowledge.base.statistics.pg;
+package com.knowledge.base.statistics.oracle;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.knowledge.base.common.config.SqlDialectHelper;
@@ -13,17 +13,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * PostgreSQL 统计宽表 upsert + 读回（可选集成测试）。
+ * Oracle 统计宽表 upsert + 读回（可选集成测试）。
  *
- * <p>需自行准备 PG 并注入
- * {@code SMOKE_PG_JDBC_URL}/{@code SMOKE_PG_USER}/{@code SMOKE_PG_PASSWORD}；
- * 未设置环境变量时跳过，避免默认 CI 无 PG 失败。</p>
+ * <p>需自行准备 Oracle 并注入
+ * {@code SMOKE_ORACLE_JDBC_URL}/{@code SMOKE_ORACLE_USER}/{@code SMOKE_ORACLE_PASSWORD}；
+ * 未设置环境变量时跳过，避免默认 CI 无 Oracle 失败。</p>
+ *
+ * @author AI-RAG
+ * @since 1.0.0
  */
-class PgStatisticsJdbcIT {
+class OracleStatisticsJdbcIT {
 
-    private static final String ENV_URL = "SMOKE_PG_JDBC_URL";
-    private static final String ENV_USER = "SMOKE_PG_USER";
-    private static final String ENV_PASSWORD = "SMOKE_PG_PASSWORD";
+    private static final String ENV_URL = "SMOKE_ORACLE_JDBC_URL";
+    private static final String ENV_USER = "SMOKE_ORACLE_USER";
+    private static final String ENV_PASSWORD = "SMOKE_ORACLE_PASSWORD";
 
     private JdbcTemplate jdbcTemplate;
     private StatDocumentRepository repository;
@@ -35,13 +38,13 @@ class PgStatisticsJdbcIT {
     void setUp() {
         String url = System.getenv(ENV_URL);
         Assumptions.assumeTrue(url != null && !url.isBlank(),
-                "skip: set SMOKE_PG_JDBC_URL to a live PostgreSQL JDBC URL");
+                "skip: set SMOKE_ORACLE_JDBC_URL to a live Oracle JDBC URL");
 
-        String user = System.getenv().getOrDefault(ENV_USER, "postgres");
-        String password = System.getenv().getOrDefault(ENV_PASSWORD, "pg_smoke_pass");
+        String user = System.getenv().getOrDefault(ENV_USER, "kb_statistics");
+        String password = System.getenv().getOrDefault(ENV_PASSWORD, "OracleSmoke_1");
 
         DriverManagerDataSource ds = new DriverManagerDataSource();
-        ds.setDriverClassName("org.postgresql.Driver");
+        ds.setDriverClassName("oracle.jdbc.OracleDriver");
         ds.setUrl(url);
         ds.setUsername(user);
         ds.setPassword(password);
@@ -50,21 +53,21 @@ class PgStatisticsJdbcIT {
             ds.getConnection().close();
         } catch (Exception e) {
             Assumptions.assumeTrue(false,
-                    "skip: cannot connect to SMOKE_PG_JDBC_URL: " + e.getMessage());
+                    "skip: cannot connect to SMOKE_ORACLE_JDBC_URL: " + e.getMessage());
         }
 
         jdbcTemplate = new JdbcTemplate(ds);
         SqlDialectHelper helper = new SqlDialectHelper();
-        helper.setDbTypeForTest(DbType.POSTGRE_SQL);
+        helper.setDbTypeForTest(DbType.ORACLE);
         repository = new StatDocumentRepository(jdbcTemplate, helper);
     }
 
     /**
-     * 健康探测：stat_document 表可查询。
+     * 健康探测：可执行查询且 stat_document 存在。
      */
     @Test
     void health_statDocumentTableExists() {
-        Integer one = jdbcTemplate.queryForObject("SELECT 1", Integer.class);
+        Integer one = jdbcTemplate.queryForObject("SELECT 1 FROM dual", Integer.class);
         assertEquals(1, one);
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM stat_document", Long.class);
@@ -72,24 +75,24 @@ class PgStatisticsJdbcIT {
     }
 
     /**
-     * 写入冒烟：PostgreSQL ON CONFLICT upsert 后可读回。
+     * 写入冒烟：Oracle MERGE upsert 后可读回。
      */
     @Test
     void upsert_thenReadBack() {
-        long id = 9_001_001L;
-        repository.upsert(id, "pg-smoke-doc", 2L, 3L, 1, 7L, 1L, 0L, "summary", 0, 1, 9L);
+        long id = 9_001_002L;
+        repository.upsert(id, "ora-smoke-doc", 2L, 3L, 1, 7L, 1L, 0L, "summary", 0, 1, 9L);
 
         String title = jdbcTemplate.queryForObject(
                 "SELECT title FROM stat_document WHERE id = ?", String.class, id);
-        assertEquals("pg-smoke-doc", title);
+        assertEquals("ora-smoke-doc", title);
 
         Long views = jdbcTemplate.queryForObject(
                 "SELECT view_count FROM stat_document WHERE id = ?", Long.class, id);
         assertEquals(7L, views);
 
-        repository.upsert(id, "pg-smoke-doc-v2", 2L, 3L, 1, 8L, 1L, 0L, "summary2", 0, 1, 9L);
+        repository.upsert(id, "ora-smoke-doc-v2", 2L, 3L, 1, 8L, 1L, 0L, "summary2", 0, 1, 9L);
         String title2 = jdbcTemplate.queryForObject(
                 "SELECT title FROM stat_document WHERE id = ?", String.class, id);
-        assertEquals("pg-smoke-doc-v2", title2);
+        assertEquals("ora-smoke-doc-v2", title2);
     }
 }

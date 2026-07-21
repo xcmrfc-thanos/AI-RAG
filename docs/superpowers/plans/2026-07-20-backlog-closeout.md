@@ -148,12 +148,15 @@
 
 ### O1 — PG/Oracle 最小 JVM 冒烟
 
-- 单服务（如 `kb-statistics`）+ 自备库 + profile；不强制常驻 compose
-- 产出：脚本或 IT + 文档门禁（无环境 SKIP）
+- [x] `OracleStatisticsJdbcIT`（`SMOKE_ORACLE_*`，无环境 SKIP）
+- [x] `deploy/scripts/verify-dialect-jvm-smoke.ps1` 门禁（无 URL 仍 exit 0）
+- [x] CI 矩阵 / deploy README 对齐
 
 ### O2 — `"level"` 等保留字全库确认
 
-- 扫实体/Mapper 中 Oracle 保留字列；需要处加引号或改列名（改列名成本高，优先引号）
+- [x] 扫活跃 Mapper：`TeamMapper` / `CategoryMapper`（kb-file）
+- [x] Oracle 分支列清单 `"level"` + WHERE/ORDER 引号
+- [x] 清单文档 `backend/sql/schema/oracle-reserved-columns.md`
 
 ### P2 — inventory LIMIT 补齐（2026-07-21 已做）
 

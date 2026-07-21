@@ -22,9 +22,15 @@
         <result column="update_by" property="updateBy" />
     </resultMap>
 
-    <!-- 通用查询结果列 -->
+    <!-- 通用查询结果列（MySQL/PG；level 非保留字） -->
     <sql id="Base_Column_List">
         id, team_name, team_code, description, parent_id, level, path, member_count, doc_count, leader_id, status,
+        deleted, created_at, updated_at, create_by, update_by
+    </sql>
+
+    <!-- Oracle：LEVEL 为保留字，列名须双引号 -->
+    <sql id="Base_Column_List_Oracle">
+        id, team_name, team_code, description, parent_id, "level", path, member_count, doc_count, leader_id, status,
         deleted, created_at, updated_at, create_by, update_by
     </sql>
 
@@ -32,6 +38,14 @@
     <select id="selectByParentId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
+        FROM kb_team
+        WHERE parent_id = #{parentId}
+        AND deleted = 0
+        ORDER BY id ASC
+    </select>
+    <select id="selectByParentId" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
         FROM kb_team
         WHERE parent_id = #{parentId}
         AND deleted = 0
@@ -47,11 +61,27 @@
         AND deleted = 0
         LIMIT 1
     </select>
+    <select id="selectByTeamCode" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
+        FROM kb_team
+        WHERE team_code = #{teamCode}
+        AND deleted = 0
+        FETCH FIRST 1 ROWS ONLY
+    </select>
 
     <!-- 根据状态查询团队列表 -->
     <select id="selectByStatus" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
+        FROM kb_team
+        WHERE status = #{status}
+        AND deleted = 0
+        ORDER BY id ASC
+    </select>
+    <select id="selectByStatus" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
         FROM kb_team
         WHERE status = #{status}
         AND deleted = 0
@@ -67,11 +97,27 @@
         AND deleted = 0
         ORDER BY id ASC
     </select>
+    <select id="selectByLevel" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
+        FROM kb_team
+        WHERE "level" = #{level}
+        AND deleted = 0
+        ORDER BY id ASC
+    </select>
 
     <!-- 查询所有根团队 -->
     <select id="selectRootTeams" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
+        FROM kb_team
+        WHERE parent_id = 0
+        AND deleted = 0
+        ORDER BY id ASC
+    </select>
+    <select id="selectRootTeams" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
         FROM kb_team
         WHERE parent_id = 0
         AND deleted = 0
@@ -87,8 +133,16 @@
         AND deleted = 0
         ORDER BY id ASC
     </select>
+    <select id="selectByLeaderId" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
+        FROM kb_team
+        WHERE leader_id = #{leaderId}
+        AND deleted = 0
+        ORDER BY id ASC
+    </select>
 
-    <!-- 根据路径前缀查询团队列表（查询所有子团队；默认 MySQL/PG CONCAT） -->
+    <!-- 根据路径前缀查询团队列表（默认 MySQL/PG CONCAT） -->
     <select id="selectByPathPrefix" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List" />
@@ -97,11 +151,9 @@
         AND deleted = 0
         ORDER BY level ASC, id ASC
     </select>
-
-    <!-- Oracle：CONCAT 多参数改用 || -->
     <select id="selectByPathPrefix" databaseId="oracle" resultMap="BaseResultMap">
         SELECT
-        <include refid="Base_Column_List" />
+        <include refid="Base_Column_List_Oracle" />
         FROM kb_team
         WHERE path LIKE #{path} || '%'
         AND deleted = 0
@@ -115,6 +167,13 @@
         FROM kb_team
         WHERE deleted = 0
         ORDER BY level ASC, id ASC
+    </select>
+    <select id="selectTeamTree" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle" />
+        FROM kb_team
+        WHERE deleted = 0
+        ORDER BY "level" ASC, id ASC
     </select>
 
     <!-- 更新成员数量 -->

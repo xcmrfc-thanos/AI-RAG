@@ -69,8 +69,8 @@
 
 ### 仍属差距（真实剩余）
 
-- 未拉起完整 JVM 微服务连 PG/Oracle（附录 O1；统计 JDBC 路径已证明）
-- Oracle 列名 `"level"` 等保留字全库确认（附录 O2；TeamMapper Oracle 分支 ORDER BY 已加引号）
+- ~~未拉起完整 JVM 微服务连 PG/Oracle~~ → 最小路径：`verify-dialect-jvm-smoke.ps1` + `PgStatisticsJdbcIT` / `OracleStatisticsJdbcIT`（无 `SMOKE_*` 则 SKIP）
+- ~~Oracle 列名 `"level"` 全库确认~~ → 见 `backend/sql/schema/oracle-reserved-columns.md`（Team/Category Mapper 已引号）
 - ~~P2 inventory DocumentAccess / TagMapper LIMIT~~ ✅ 已补 Oracle `FETCH FIRST`
 
 ## 一部署一方言

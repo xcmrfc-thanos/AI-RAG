@@ -120,3 +120,14 @@ Docker 编排 `restart: "no"`，容器**不会**在 Docker Desktop 重启或异�
 一部署一方言，勿混用。
 
 DDL 冒烟可用 `.\scripts\verify-pg-schema.ps1`（临时容器，跑完即删）；日常默认 MySQL，无需常驻 Postgres 容器。
+
+JVM 最小 upsert 冒烟（自备库，无环境 SKIP）：
+
+```powershell
+.\scripts\verify-dialect-jvm-smoke.ps1
+# 真跑示例：
+# $env:SMOKE_PG_JDBC_URL = "jdbc:postgresql://127.0.0.1:5432/postgres"
+# $env:SMOKE_ORACLE_JDBC_URL = "jdbc:oracle:thin:@//127.0.0.1:1522/XEPDB1"
+```
+
+Oracle 保留字列说明见 `backend/sql/schema/oracle-reserved-columns.md`。

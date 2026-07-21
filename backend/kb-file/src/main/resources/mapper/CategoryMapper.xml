@@ -22,9 +22,22 @@
         id, name, parent_id, level, sort_order, icon, description, status, deleted, created_at, updated_at, create_by, update_by
     </sql>
 
+    <!-- Oracle：LEVEL 保留字 -->
+    <sql id="Base_Column_List_Oracle">
+        id, name, parent_id, "level", sort_order, icon, description, status, deleted, created_at, updated_at, create_by, update_by
+    </sql>
+
     <select id="selectByParentId" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
+        FROM tb_category
+        WHERE parent_id = #{parentId}
+          AND deleted = 0
+        ORDER BY sort_order ASC
+    </select>
+    <select id="selectByParentId" databaseId="oracle" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle"/>
         FROM tb_category
         WHERE parent_id = #{parentId}
           AND deleted = 0
@@ -34,6 +47,14 @@
     <select id="selectAllEnabled" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
+        FROM tb_category
+        WHERE status = 1
+          AND deleted = 0
+        ORDER BY parent_id ASC, sort_order ASC
+    </select>
+    <select id="selectAllEnabled" databaseId="oracle" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List_Oracle"/>
         FROM tb_category
         WHERE status = 1
           AND deleted = 0
