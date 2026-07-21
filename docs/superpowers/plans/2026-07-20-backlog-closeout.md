@@ -1,5 +1,7 @@
 # 本轮差距收尾 Implementation Plan
 
+> **状态：已完成并 push（2026-07-21，tip `e3a43b3`）。** 勿再对本文件发「按计划推进」；新工作请开新计划。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans 或 subagent-driven-development，按 Phase 顺序推进。Steps 用 checkbox（`- [ ]`）跟踪。
 
 **Goal:** 在设置增强 / 三库交付已合入 Gitee `master` 的前提下，把「半成品尾巴」与「清单噪音」收成可勾选的完成态：真接线、清单去伪、文档对齐；不扩散到无关大 backlog。
