@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Select, Pagination, Card, Typography, Button } from 'antd';
 import {
   SearchOutlined,
@@ -366,6 +366,12 @@ const SearchContent: React.FC = () => {
     handleSearch(text);
   };
 
+  /** 本页最高检索分，用于相关度相对归一 */
+  const pageMaxScore = useMemo(
+    () => Math.max(0, ...results.map((r) => (typeof r.score === 'number' ? r.score : 0))),
+    [results],
+  );
+
   return (
     <div className="search-page">
       <div className="search-container">
@@ -444,6 +450,7 @@ const SearchContent: React.FC = () => {
                     result={result}
                     searchMode={searchMode}
                     query={query}
+                    maxScore={pageMaxScore}
                     expanded={expandedChunks.has(String(result.id))}
                     onToggleChunks={toggleChunks}
                     onClick={handleResultClick}

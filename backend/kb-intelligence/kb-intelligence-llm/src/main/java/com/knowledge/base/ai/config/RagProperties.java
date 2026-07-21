@@ -109,12 +109,32 @@ public class RagProperties {
         private int rrfC = 60;
     }
 
+    /**
+     * 重排序配置。
+     *
+     * <p>{@code mode=api} 走专用 Rerank HTTP；{@code llm} 为旧串行对话打分（不推荐）；
+     * {@code provider=auto} 跟随 {@link Embedding#provider}。</p>
+     */
     @Data
     public static class Rerank {
-        /** 是否启用重排序 */
+        /** false 时等价 mode=off */
         private boolean enabled = true;
-        /** 重排序使用的模型 */
-        private String model = "qwen";
+        /** off | api | llm；默认 api */
+        private String mode = "api";
+        /** auto | qwen | siliconflow | custom */
+        private String provider = "auto";
+        /** 空则按 resolver 默认模型 */
+        private String model = "";
+        /** 可选覆盖；空则回退硅基/通义根节点凭证 */
+        private String apiKey = "";
+        /** 可选覆盖；custom 时必填 */
+        private String baseUrl = "";
+        /** 0 表示使用请求 topK */
+        private int topN = 0;
+        /** 送入 rerank 的候选上限 */
+        private int maxCandidates = 20;
+        /** HTTP 超时（毫秒） */
+        private long timeoutMs = 8000;
     }
 
     @Data

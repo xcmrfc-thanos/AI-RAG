@@ -137,7 +137,14 @@ rag:
     rrf-c: 60
   rerank:
     enabled: ${RAG_RERANK_ENABLED:true}
-    model: qwen
+    mode: ${RAG_RERANK_MODE:api}
+    provider: ${RAG_RERANK_PROVIDER:auto}
+    model: ${RAG_RERANK_MODEL:}
+    api-key: ${RAG_RERANK_API_KEY:}
+    base-url: ${RAG_RERANK_BASE_URL:}
+    top-n: ${RAG_RERANK_TOP_N:0}
+    max-candidates: ${RAG_RERANK_MAX_CANDIDATES:20}
+    timeout-ms: ${RAG_RERANK_TIMEOUT_MS:8000}
   index:
     chunk-index-name: kb_chunk
   async:

@@ -36,6 +36,7 @@ import { EmptyState } from '@/components/common';
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
 import { AIQuickQuestion, Citation, openCitationDocument } from '@/types';
 import type { GraphContext } from '@/types';
+import { formatRelevancePercent } from '@/components/search';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -1610,7 +1611,14 @@ const AIAssistantContent: React.FC = () => {
                             引用来源
                           </Text>
                           <Space wrap size={[4, 4]}>
-                            {message.citations.map((citation) => (
+                            {(() => {
+                              const citationMax = Math.max(
+                                0,
+                                ...message.citations.map((c) =>
+                                  typeof c.relevanceScore === 'number' ? c.relevanceScore : 0,
+                                ),
+                              );
+                              return message.citations.map((citation) => (
                               <Tooltip
                                 key={citation.index}
                                 title={
@@ -1624,7 +1632,7 @@ const AIAssistantContent: React.FC = () => {
                                         : citation.excerpt}
                                     </div>
                                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>
-                                      相关度: {(citation.relevanceScore * 100).toFixed(0)}% · 点击打开文档
+                                      相关度: {formatRelevancePercent(citation.relevanceScore, citationMax)} · 点击打开文档
                                     </div>
                                   </div>
                                 }
@@ -1642,7 +1650,8 @@ const AIAssistantContent: React.FC = () => {
                                   [{citation.index}] {truncateTitle(citation.documentTitle, 12)}
                                 </Tag>
                               </Tooltip>
-                            ))}
+                              ));
+                            })()}
                           </Space>
                         </div>
                       )}

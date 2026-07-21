@@ -39,6 +39,28 @@ docker compose --env-file .env up -d qdrant
 
 ```powershell
 cd deploy
+copy env.example .env   # 首次：填入 QWEN_API_KEY / SILICONFLOW_API_KEY 等
+.\setup.ps1
+```
+
+### 本地改密钥后重启（无需手填 Nacos）
+
+`import-nacos.ps1` 会读取 `deploy/.env`，把 `${QWEN_API_KEY:}` 等展开为实值再写入 Nacos（含 **kb-intelligence / kb-agent**）。仓库内 `.template` 仍保持占位符，不把密钥提交进 git。
+
+```powershell
+cd deploy
+# 1. 编辑 .env（QWEN_API_KEY / SILICONFLOW_API_KEY / RAG_EMBEDDING_* / RAG_RERANK_* 等）
+.\scripts\import-nacos.ps1
+.\stop-services.ps1 -IncludeFrontend
+.\start-services.ps1
+# 或一步：.\start-services.ps1 -ImportNacos
+# 前端：cd ..\frontend; npm run dev
+```
+
+## 一键部署（完整）
+
+```powershell
+cd deploy
 .\setup.ps1
 ```
 

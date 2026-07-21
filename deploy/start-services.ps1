@@ -13,7 +13,8 @@ param(
     [string]$IntelligenceJvmXms = "",
     [string]$IntelligenceJvmXmx = "",
     [int]$WaitPortSec = 120,
-    [switch]$ValidateJavaOnly
+    [switch]$ValidateJavaOnly,
+    [switch]$ImportNacos
 )
 
 $ErrorActionPreference = "Stop"
@@ -26,6 +27,14 @@ New-Item -ItemType Directory -Force -Path $LogDir | Out-Null
 Get-Content (Join-Path $DeployDir ".env") -Encoding UTF8 | ForEach-Object {
     if ($_ -match '^\s*([^#=]+?)=(.*)$') {
         [Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process')
+    }
+}
+
+if ($ImportNacos) {
+    Write-Host "ImportNacos: running scripts\import-nacos.ps1 ..." -ForegroundColor Cyan
+    & (Join-Path $DeployDir "scripts\import-nacos.ps1")
+    if ($LASTEXITCODE -ne 0 -and $null -ne $LASTEXITCODE) {
+        throw "import-nacos.ps1 failed with exit $LASTEXITCODE"
     }
 }
 

@@ -9,12 +9,20 @@ import {
 import type { EntityId, SearchResult } from '@/types';
 import { ChunkHighlightList } from './ChunkHighlightList';
 import type { SearchMode } from './SearchModeToggle';
-import { getScoreColor, getTypeColor, resolveSearchHighlight } from './search-utils';
+import {
+  formatRawScoreChip,
+  formatRelevancePercent,
+  getScoreColor,
+  getTypeColor,
+  resolveSearchHighlight,
+} from './search-utils';
 
 export interface SearchResultCardProps {
   result: SearchResult;
   searchMode: SearchMode;
   query: string;
+  /** 当前结果页最高相关分，用于相对归一避免 900%+ */
+  maxScore?: number;
   expanded: boolean;
   onToggleChunks: (resultId: string) => void;
   onClick: (e: React.MouseEvent, documentId: EntityId) => void;
@@ -43,6 +51,7 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
   result,
   searchMode,
   query,
+  maxScore,
   expanded,
   onToggleChunks,
   onClick,
@@ -66,9 +75,10 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
             {result.score !== undefined && (
               <span
                 className="result-score-badge"
-                style={{ color: getScoreColor(result.score) }}
+                style={{ color: getScoreColor(result.score, maxScore) }}
+                title="相对本页结果的相关度（非绝对命中率）"
               >
-                {(result.score * 100).toFixed(0)}%
+                {formatRelevancePercent(result.score, maxScore)}
               </span>
             )}
           </div>
@@ -111,13 +121,19 @@ export const SearchResultCard: React.FC<SearchResultCardProps> = ({
           {searchMode === 'hybrid' && (
             <div className="score-breakdown">
               {result.bm25Score !== undefined && (
-                <span className="score-chip bm25">BM25 {(result.bm25Score * 100).toFixed(0)}</span>
+                <span className="score-chip bm25" title="关键词检索原始分">
+                  BM25 {formatRawScoreChip(result.bm25Score)}
+                </span>
               )}
               {result.vectorScore !== undefined && (
-                <span className="score-chip vector">向量 {(result.vectorScore * 100).toFixed(0)}</span>
+                <span className="score-chip vector" title="向量检索原始分">
+                  向量 {formatRawScoreChip(result.vectorScore)}
+                </span>
               )}
               {result.rerankScore !== undefined && (
-                <span className="score-chip rerank">重排 {(result.rerankScore * 100).toFixed(0)}</span>
+                <span className="score-chip rerank" title="重排原始分">
+                  重排 {formatRawScoreChip(result.rerankScore)}
+                </span>
               )}
             </div>
           )}

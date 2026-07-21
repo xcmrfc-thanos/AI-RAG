@@ -43,6 +43,9 @@ public class RagSearchResultVO {
     @Schema(description = "向量相似度得分")
     private double vectorScore;
 
+    @Schema(description = "专用重排得分（可选）")
+    private Double rerankScore;
+
     @Schema(description = "文档发布时间")
     private String publishTime;
 

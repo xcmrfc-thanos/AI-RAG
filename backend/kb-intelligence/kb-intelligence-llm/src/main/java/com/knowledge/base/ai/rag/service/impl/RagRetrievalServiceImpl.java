@@ -1,33 +1,26 @@
 package com.knowledge.base.ai.rag.service.impl;
 
-import com.knowledge.base.ai.config.ModelProvider;
 import com.knowledge.base.ai.config.RagProperties;
 import com.knowledge.base.ai.config.RagRuntimeSettings;
+import com.knowledge.base.ai.rag.rerank.ApiRerankService;
+import com.knowledge.base.ai.rag.rerank.LlmRerankService;
+import com.knowledge.base.ai.rag.rerank.RerankProviderResolver;
+import com.knowledge.base.ai.rag.rerank.ResolvedRerank;
 import com.knowledge.base.ai.rag.service.EmbeddingService;
 import com.knowledge.base.ai.rag.service.RagRetrievalService;
 import com.knowledge.base.ai.rag.service.VectorIndexService;
 import com.knowledge.base.ai.rag.support.RagAclFilter;
 import com.knowledge.base.ai.vo.RagSearchResultVO;
-import dev.langchain4j.model.chat.ChatLanguageModel;
-import dev.langchain4j.model.output.Response;
-import dev.langchain4j.data.message.AiMessage;
-import dev.langchain4j.data.message.UserMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 /**
  * RAG检索服务实现
  *
- * <p>编排完整的检索流水线：
- * Query Embedding → Hybrid Search (BM25 + kNN + RRF) → LLM Reranking</p>
+ * <p>编排：Query Embedding → Hybrid Search → ACL → Rerank（api/llm/off）。</p>
  *
  * @author 苏三
  * @since 1.0.0
@@ -39,123 +32,109 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
 
     private final EmbeddingService embeddingService;
     private final VectorIndexService vectorIndexService;
-    private final ModelProvider modelProvider;
     private final RagProperties ragProperties;
     private final RagRuntimeSettings ragRuntimeSettings;
     private final RagAclFilter ragAclFilter;
-
-    private static final Pattern RERANK_SCORE_PATTERN = Pattern.compile("\\b([1-9]|10)\\b");
-    private static final int PER_CHUNK_RERANK_TIMEOUT = 10;
+    private final RerankProviderResolver rerankProviderResolver;
+    private final ApiRerankService apiRerankService;
+    private final LlmRerankService llmRerankService;
 
     /** {@inheritDoc} */
     @Override
     public List<RagSearchResultVO> retrieve(String query, int topK, boolean enableRerank) {
-        // 1. 创建索引（如果不存在）
-        vectorIndexService.createIndexIfNotExists();
+        long t0 = System.currentTimeMillis();
 
-        // 2. 生成查询向量（失败时降级为BM25-only搜索）
+        // 索引创建留在写入/searchHybrid 路径，避免每次检索打 ES
         float[] queryEmbedding = null;
         try {
             queryEmbedding = embeddingService.embed(query);
         } catch (Exception e) {
             log.warn("查询嵌入失败，降级为BM25-only搜索：{}", e.getMessage());
         }
+        long embedMs = System.currentTimeMillis() - t0;
 
-        // 3. 混合搜索（BM25 + kNN + RRF融合），多取候选以便 ACL 过滤后仍够 topK
         int hybridTopK = ragRuntimeSettings.resolveHybridTopK();
         int rrfC = ragProperties.getRetrieval().getRrfC();
         int candidateK = Math.max(topK * 4, hybridTopK);
 
+        long tHybrid = System.currentTimeMillis();
         List<RagSearchResultVO> candidates = vectorIndexService.searchHybrid(
                 query, queryEmbedding, candidateK, hybridTopK, rrfC);
+        long hybridMs = System.currentTimeMillis() - tHybrid;
 
         if (candidates.isEmpty()) {
             log.info("RAG检索无结果：query={}", query);
             return List.of();
         }
 
-        // 3.5 终端用户 ACL：在重排/进 Prompt 前剔除不可见文档
         candidates = ragAclFilter.filterVisible(candidates);
         if (candidates.isEmpty()) {
             log.info("RAG检索 ACL 过滤后无结果：query={}", query);
             return List.of();
         }
 
-        // 4. LLM重排序
-        if (enableRerank && ragProperties.getRerank().isEnabled() && candidates.size() > topK) {
-            candidates = rerank(candidates, query, topK);
-        } else if (candidates.size() > topK) {
-            candidates = candidates.subList(0, topK);
+        int maxCand = Math.max(topK, ragProperties.getRerank().getMaxCandidates());
+        if (candidates.size() > maxCand) {
+            candidates = candidates.subList(0, maxCand);
         }
 
-        log.info("RAG检索完成：query={}, results={}", query, candidates.size());
-        return candidates;
+        String mode = enableRerank ? rerankProviderResolver.resolveMode() : RerankProviderResolver.MODE_OFF;
+        long tRerank = System.currentTimeMillis();
+        List<RagSearchResultVO> results = applyRerank(query, candidates, topK, mode);
+        long rerankMs = System.currentTimeMillis() - tRerank;
+
+        log.info("RAG retrieve done: embedMs={}, hybridMs={}, rerankMs={}, mode={}, results={}",
+                embedMs, hybridMs, rerankMs, mode, results.size());
+        return results;
     }
 
     /**
-     * LLM重排序
+     * 按 mode 执行重排或截断。
      *
-     * <p>对每个候选块调用LLM打分（1-10），按得分降序排列。</p>
+     * @param query      查询
+     * @param candidates 候选
+     * @param topK       条数
+     * @param mode       off|api|llm
+     * @return 结果
      */
-    private List<RagSearchResultVO> rerank(List<RagSearchResultVO> candidates, String query, int topK) {
-        try {
-            ChatLanguageModel model = modelProvider.getDefaultModel();
-
-            List<ScoredChunk> scored = new ArrayList<>();
-            for (RagSearchResultVO candidate : candidates) {
-                String prompt = buildRerankPrompt(query, candidate.getContent());
+    private List<RagSearchResultVO> applyRerank(String query, List<RagSearchResultVO> candidates,
+                                                int topK, String mode) {
+        if (candidates.size() <= topK && !RerankProviderResolver.MODE_API.equals(mode)
+                && !RerankProviderResolver.MODE_LLM.equals(mode)) {
+            return candidates;
+        }
+        if (RerankProviderResolver.MODE_API.equals(mode)) {
+            ResolvedRerank cfg = rerankProviderResolver.resolve();
+            if (cfg.usable()) {
                 try {
-                    String response = model.generate(UserMessage.from(prompt)).content().text();
-                    int score = parseRelevanceScore(response);
-                    scored.add(new ScoredChunk(candidate, score));
+                    log.info("RAG rerank api: provider={}, model={}, baseUrl={}",
+                            cfg.provider(), cfg.model(), cfg.baseUrl());
+                    return apiRerankService.rerank(query, candidates, topK);
                 } catch (Exception e) {
-                    log.warn("重排序评分失败：chunkId={}, error={}", candidate.getChunkId(), e.getMessage());
-                    // 失败时保留原RRF得分
-                    scored.add(new ScoredChunk(candidate, (int) (candidate.getScore() * 10)));
+                    log.warn("API 重排失败，降级为融合分截断：{}", e.getMessage());
                 }
+            } else {
+                log.warn("API 重排不可用（缺凭证或配置），降级为融合分截断");
             }
-
-            scored.sort(Comparator.comparingInt(ScoredChunk::score).reversed());
-            return scored.stream().limit(topK).map(sc -> {
-                sc.result.setScore(sc.score);
-                return sc.result;
-            }).collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("LLM重排序失败，降级为RRF排序：{}", e.getMessage());
-            return candidates.stream().limit(topK).collect(Collectors.toList());
+            return truncate(candidates, topK);
         }
-    }
-
-    private String buildRerankPrompt(String query, String chunkContent) {
-        return String.format("""
-                你是一个搜索相关性评估专家。
-                请根据以下"用户查询"和"文档片段"，评估该文档片段对回答用户查询的相关程度。
-
-                用户查询：%s
-
-                文档片段：
-                %s
-
-                请仅返回一个整数评分（1-10分），不要返回其他内容。
-                10 - 直接完美回答 | 7-9 - 高度相关 | 4-6 - 部分相关 | 1-3 - 基本无关
-                """, query, truncateForRerank(chunkContent));
-    }
-
-    private String truncateForRerank(String content) {
-        int maxLen = 1000;
-        if (content == null) return "";
-        return content.length() > maxLen ? content.substring(0, maxLen) : content;
-    }
-
-    private int parseRelevanceScore(String scoreText) {
-        if (scoreText == null) return 5;
-        Matcher m = RERANK_SCORE_PATTERN.matcher(scoreText.trim());
-        if (m.find()) {
-            return Integer.parseInt(m.group(1));
+        if (RerankProviderResolver.MODE_LLM.equals(mode)) {
+            return llmRerankService.rerank(query, candidates, topK);
         }
-        return 5; // 默认中等相关
+        return truncate(candidates, topK);
     }
 
-    private record ScoredChunk(RagSearchResultVO result, int score) {}
+    /**
+     * 按融合分截断。
+     *
+     * @param candidates 候选
+     * @param topK       条数
+     * @return 截断列表
+     */
+    private List<RagSearchResultVO> truncate(List<RagSearchResultVO> candidates, int topK) {
+        if (candidates.size() <= topK) {
+            return candidates;
+        }
+        return candidates.subList(0, topK);
+    }
 }
