@@ -1,32 +1,20 @@
 # 方言 SQL 风险清单（活跃代码，排除 _archive）
-> 生成自扫描；生产交付计划 Task 1。
+
+> 生成自扫描；生产交付计划 Task 1。  
+> **2026-07-20 C1 复核**：对「待改」逐文件对照 `databaseId=oracle` / helper；去伪后仅保留真实缺口。
+
 ## 汇总
-| 状态 | 模式 | 文件数 |
-|------|------|--------|
-| 已Oracle分支 | FETCH_FIRST | 1 |
-| 已PG分支 | ON_CONFLICT | 1 |
-| 已helper | IFNULL | 1 |
-| 已helper | LIMIT_HELPER | 14 |
-| 已helper定义 | DATE_FUNC | 1 |
-| 已helper定义 | DATE_SUB | 1 |
-| 已helper定义 | FETCH_FIRST | 1 |
-| 已helper定义 | IFNULL | 1 |
-| 已helper定义 | LIMIT_HELPER | 1 |
-| 已helper定义 | ON_CONFLICT | 1 |
-| 已helper定义 | ON_DUPLICATE | 1 |
-| 待改 | CONCAT | 1 |
-| 已Oracle分支 | CONCAT | 3 |
-| 待改 | DATE_FUNC | 5 |
-| 待改 | LIMIT_ANNOT | 9 |
-| 待改 | LIMIT_XML | 9 |
-| 待改 | ON_DUPLICATE | 1 |
-| 测试 | DATE_FUNC | 1 |
-| 测试 | DATE_SUB | 1 |
-| 测试 | FETCH_FIRST | 1 |
-| 测试 | IFNULL | 1 |
-| 测试 | LIMIT_HELPER | 1 |
-| 测试 | ON_CONFLICT | 1 |
-| 测试 | ON_DUPLICATE | 2 |
+
+| 状态 | 模式 | 文件数（去重） | 说明 |
+|------|------|----------------|------|
+| 待改 | LIMIT_ANNOT | 1 | `DocumentAccessMapper` 注解 SQL 无 Oracle 分支 |
+| 待改 | LIMIT_XML | 1 | `TagMapper` `selectHotTags` / `selectByTagCode` 缺 Oracle |
+| 已Oracle分支 | ON_DUPLICATE / LIMIT / DATE / CONCAT / FETCH | 见明细 | 默认句仍含 MySQL 语法，但已有 `databaseId=oracle` |
+| 已helper | LIMIT_HELPER / IFNULL | 14+ | 运行时走 `SqlDialectHelper` |
+| 已helper定义 | * | 1 | `SqlDialectHelper` 本身 |
+| 已PG分支 | ON_CONFLICT | 1 | SearchHistory upsert |
+| 误报 | DATE_FUNC | 1 | `OperationType.UPDATE` 枚举名，非 SQL |
+| 测试 | * | 若干 | 单测 / IT，非生产路径 |
 
 ## 优先级约定
 
@@ -36,98 +24,83 @@
 
 ## 明细（按状态）
 
-### 待改
+### 待改（真实缺口，C1 复核后）
 
-| 优先级 | 模式 | 文件 | 行 |
-|--------|------|------|----|
-| P2 | DATE_FUNC | `backend/kb-common/src/main/java/com/knowledge/base/common/enums/OperationType.java` | 29 |
-| P2 | LIMIT_XML | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/mapper/DocumentAccessMapper.java` | 33 |
-| P2 | LIMIT_ANNOT | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/mapper/DocumentAccessMapper.java` | 33 |
-| P2 | LIMIT_XML | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 78 |
-| P2 | LIMIT_ANNOT | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 78 |
-| P0 | ON_DUPLICATE | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 60 |
-| P0 | LIMIT_XML | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 35 |
-| P1 | LIMIT_ANNOT | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 35 |
-| P1 | DATE_FUNC | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 42,46 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 65,74 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/CommentStatisticsMapper.xml` | 65,74 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsAggMapper.xml` | 29 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsAggMapper.xml` | 29 |
-| P1 | DATE_FUNC | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsMapper.xml` | 71,76 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsMapper.xml` | 98,117,136,155 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsMapper.xml` | 98,117,136,155 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/UserStatisticsAggMapper.xml` | 15 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/UserStatisticsAggMapper.xml` | 15 |
-| P1 | DATE_FUNC | `backend/kb-statistics/src/main/resources/mapper/UserStatisticsMapper.xml` | 55,60,106,107 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/UserStatisticsMapper.xml` | 73 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/UserStatisticsMapper.xml` | 73 |
-| P1 | DATE_FUNC | `backend/kb-statistics/src/main/resources/mapper/ViewStatisticsMapper.xml` | 57,61 |
-| P1 | LIMIT_XML | `backend/kb-statistics/src/main/resources/mapper/ViewStatisticsMapper.xml` | 80,89,99,118 |
-| P1 | LIMIT_ANNOT | `backend/kb-statistics/src/main/resources/mapper/ViewStatisticsMapper.xml` | 80,89,99,118 |
+| 优先级 | 模式 | 文件 | 行 | 说明 |
+|--------|------|------|----|------|
+| P2 | LIMIT_ANNOT | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/mapper/DocumentAccessMapper.java` | 33 | `@Select` 含 `LIMIT`，无 `databaseId`/XML Oracle 副本 |
+| P2 | LIMIT_XML | `backend/kb-core/kb-core-document/src/main/resources/mapper/TagMapper.xml` | 47, 78 | `selectByTagCode`（`LIMIT 1`）、`selectHotTags`（`LIMIT #{limit}`）缺 Oracle `FETCH FIRST` |
+
+> 说明：`searchByName` 的 CONCAT 已有 `databaseId=oracle`，不在待改。
+
+### 误报（扫描命中，非 SQL / 非缺口）
+
+| 原模式 | 文件 | 行 | 原因 |
+|--------|------|----|------|
+| DATE_FUNC | `backend/kb-common/.../enums/OperationType.java` | 29 | 枚举常量名 `UPDATE`，非 `DATE()` 函数 |
+
+### 已Oracle分支（默认 MySQL 句仍会被扫描命中，已有副本）
+
+| 优先级 | 模式 | 文件 | Oracle 证据 |
+|--------|------|------|-------------|
+| P0 | ON_DUPLICATE / LIMIT / CONCAT | `.../search/SearchHistoryMapper.xml` | `insertOrUpdate` MERGE；热词/精确查 `FETCH FIRST`；`searchByKeyword` `\|\|` |
+| P1 | DATE_FUNC / LIMIT | `.../CommentStatisticsMapper.xml` | `countDailyComments` TRUNC；Top 系列 FETCH FIRST |
+| P1 | LIMIT | `.../DocumentStatisticsAggMapper.xml` | `selectTopDocumentsByViews` FETCH FIRST |
+| P1 | DATE_FUNC / LIMIT | `.../DocumentStatisticsMapper.xml` | `countDailyDocuments` TRUNC；Most* / TopAuthors FETCH FIRST |
+| P1 | LIMIT | `.../UserStatisticsAggMapper.xml` | `selectTopActiveUsers` FETCH FIRST |
+| P1 | DATE_FUNC / LIMIT | `.../UserStatisticsMapper.xml` | `countDailyUsers` / `countUserViews` TRUNC；`selectMostActiveUsers` FETCH FIRST |
+| P1 | DATE_FUNC / LIMIT | `.../ViewStatisticsMapper.xml` | `countDailyViews` TRUNC；多条 FETCH FIRST |
+| P2 | CONCAT | `.../TagMapper.xml` `searchByName` | `databaseId=oracle` 用 `\|\|` |
+| P2 | CONCAT | `.../TeamMapper.xml` `selectByPathPrefix` | `databaseId=oracle` 用 `\|\|` |
+| P1 | FETCH_FIRST | `.../DocumentStatisticsMapper.xml` | 与上表 LIMIT 行同源 |
 
 ### 已helper
 
 | 优先级 | 模式 | 文件 | 行 |
 |--------|------|------|----|
-| P2 | LIMIT_HELPER | `backend/kb-agent/src/main/java/com/knowledge/base/agent/engine/MybatisAgentRunPersistence.java` | 80 |
-| P2 | LIMIT_HELPER | `backend/kb-agent/src/main/java/com/knowledge/base/agent/run/AgentRunRetentionCleaner.java` | 54 |
-| P0 | IFNULL | `backend/kb-agent/src/main/java/com/knowledge/base/agent/security/AgentJwtAuthenticationFilter.java` | 86,104 |
-| P0 | LIMIT_HELPER | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/service/impl/DocumentServiceImpl.java` | 354 |
-| P2 | LIMIT_HELPER | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/service/impl/DocumentVersionServiceImpl.java` | 79 |
-| P2 | LIMIT_HELPER | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/service/impl/FileManagementServiceImpl.java` | 290 |
-| P2 | LIMIT_HELPER | `backend/kb-core/kb-core-document/src/main/java/com/knowledge/base/document/service/impl/TagServiceImpl.java` | 225 |
-| P0 | LIMIT_HELPER | `backend/kb-core/kb-core-iam/src/main/java/com/knowledge/base/userauth/service/impl/UserServiceImpl.java` | 629 |
-| P0 | LIMIT_HELPER | `backend/kb-file/src/main/java/com/knowledge/base/file/service/impl/FileServiceImpl.java` | 457,484 |
-| P1 | LIMIT_HELPER | `backend/kb-intelligence/kb-intelligence-llm/src/main/java/com/knowledge/base/ai/rag/service/impl/RagChatServiceImpl.java` | 344 |
-| P1 | LIMIT_HELPER | `backend/kb-intelligence/kb-intelligence-llm/src/main/java/com/knowledge/base/ai/service/impl/AiChatServiceImpl.java` | 399 |
-| P1 | LIMIT_HELPER | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/java/com/knowledge/base/search/service/impl/SearchHistoryServiceImpl.java` | 98 |
-| P1 | LIMIT_HELPER | `backend/kb-statistics/src/main/java/com/knowledge/base/statistics/service/impl/StatisticsServiceImpl.java` | 528,631 |
-| P1 | LIMIT_HELPER | `backend/kb-statistics/src/main/java/com/knowledge/base/statistics/task/HotDocumentsCacheTask.java` | 126 |
-| P1 | LIMIT_HELPER | `backend/kb-statistics/src/main/java/com/knowledge/base/statistics/task/LatestDocumentsCacheTask.java` | 115 |
+| P2 | LIMIT_HELPER | `backend/kb-agent/.../MybatisAgentRunPersistence.java` | 80 |
+| P2 | LIMIT_HELPER | `backend/kb-agent/.../AgentRunRetentionCleaner.java` | 54 |
+| P0 | IFNULL | `backend/kb-agent/.../AgentJwtAuthenticationFilter.java` | 86,104 |
+| P0 | LIMIT_HELPER | `backend/kb-core/.../DocumentServiceImpl.java` | 354 |
+| P2 | LIMIT_HELPER | `backend/kb-core/.../DocumentVersionServiceImpl.java` | 79 |
+| P2 | LIMIT_HELPER | `backend/kb-core/.../FileManagementServiceImpl.java` | 290 |
+| P2 | LIMIT_HELPER | `backend/kb-core/.../TagServiceImpl.java` | 225 |
+| P0 | LIMIT_HELPER | `backend/kb-core/.../UserServiceImpl.java` | 629 |
+| P0 | LIMIT_HELPER | `backend/kb-file/.../FileServiceImpl.java` | 457,484 |
+| P1 | LIMIT_HELPER | `backend/kb-intelligence/.../RagChatServiceImpl.java` | 344 |
+| P1 | LIMIT_HELPER | `backend/kb-intelligence/.../AiChatServiceImpl.java` | 399 |
+| P1 | LIMIT_HELPER | `backend/kb-intelligence/.../SearchHistoryServiceImpl.java` | 98 |
+| P1 | LIMIT_HELPER | `backend/kb-statistics/.../StatisticsServiceImpl.java` | 528,631 |
+| P1 | LIMIT_HELPER | `backend/kb-statistics/.../HotDocumentsCacheTask.java` | 126 |
+| P1 | LIMIT_HELPER | `backend/kb-statistics/.../LatestDocumentsCacheTask.java` | 115 |
 
 ### 已helper定义
 
 | 优先级 | 模式 | 文件 | 行 |
 |--------|------|------|----|
-| P2 | IFNULL | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 18,67,73,75 |
-| P2 | ON_DUPLICATE | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 152,165,178 |
-| P2 | ON_CONFLICT | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 19,153,170 |
-| P2 | DATE_SUB | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 97,104,107 |
-| P2 | DATE_FUNC | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 112,123,126 |
-| P2 | LIMIT_HELPER | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 139 |
-| P2 | FETCH_FIRST | `backend/kb-common/src/main/java/com/knowledge/base/common/config/SqlDialectHelper.java` | 133,144 |
+| P2 | IFNULL / ON_DUPLICATE / ON_CONFLICT / DATE_* / LIMIT / FETCH / likeContains / likePrefix | `.../SqlDialectHelper.java` | 见源码 |
 
 ### 已PG分支
 
 | 优先级 | 模式 | 文件 | 行 |
 |--------|------|------|----|
-| P1 | ON_CONFLICT | `backend/kb-intelligence/kb-intelligence-retrieval/src/main/resources/mapper/search/SearchHistoryMapper.xml` | 70 |
-
-### 已Oracle分支
-
-| 优先级 | 模式 | 文件 | 行 |
-|--------|------|------|----|
-| P1 | FETCH_FIRST | `backend/kb-statistics/src/main/resources/mapper/DocumentStatisticsMapper.xml` | 107,126,145,165 |
+| P1 | ON_CONFLICT | `.../search/SearchHistoryMapper.xml` | `insertOrUpdate` postgresql |
 
 ### 测试
 
 | 优先级 | 模式 | 文件 | 行 |
 |--------|------|------|----|
-| P2 | IFNULL | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 23,25,27,32,34,39,41 |
-| P2 | ON_DUPLICATE | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 60 |
-| P2 | ON_CONFLICT | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 64,69 |
-| P2 | DATE_SUB | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 48 |
-| P2 | DATE_FUNC | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 101 |
-| P2 | LIMIT_HELPER | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 112,114,116,117 |
-| P2 | FETCH_FIRST | `backend/kb-common/src/test/java/com/knowledge/base/common/config/SqlDialectHelperTest.java` | 108,116 |
-| P1 | ON_DUPLICATE | `backend/kb-statistics/src/test/java/com/knowledge/base/statistics/repository/StatDocumentRepositoryTest.java` | 52 |
+| P2 | * | `.../SqlDialectHelperTest.java` | 多处 |
+| P1 | ON_DUPLICATE | `.../StatDocumentRepositoryTest.java` | 52 |
 
-## 下一步（对应计划）
+## 下一步
 
-- Task 2～7：✅（含 PG DDL 冒烟 `verify-pg-schema.ps1`；常驻 `kb-postgres` compose 已移除）
-- Task 8：MySQL 默认路径回归
-- Task 9：文档收口与合入
-- P2：`TeamMapper`/`TagMapper`/`DocumentReview` 的 `CONCAT` 在 Oracle 验证
+- **无 P0/P1 阻塞待改**（统计 / SearchHistory / CONCAT 均已有 Oracle 分支或 helper）
+- **P2 真实剩余**（可选，非本收尾 C1～C4 必做）：
+  1. `DocumentAccessMapper.selectRecentAccessByUserId` → 迁 XML 并加 `databaseId=oracle`，或改用 helper + Provider
+  2. `TagMapper.selectByTagCode` / `selectHotTags` → 增加 Oracle `FETCH FIRST` 分支
+- 附录 O1/O2（全栈冒烟、`level` 全扫）见 `docs/superpowers/plans/2026-07-20-backlog-closeout.md`，默认不做
+- 收尾下一 Phase：**C2** 导出 / 删日志二次确认接到业务页
 
 ## Task 3 人工对照（MySQL 默认 vs Oracle）
 

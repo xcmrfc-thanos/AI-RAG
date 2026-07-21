@@ -8,6 +8,8 @@
 
 **Tech Stack:** React/Ant Design 设置页、kb-core Settings/Document、kb-intelligence AI/Graph/RAG、PDFBox、可选证书
 
+> **收尾：** 半成品尾巴与清单噪音见 [`2026-07-20-backlog-closeout.md`](./2026-07-20-backlog-closeout.md)（C1 inventory / C2 确认接线 / C3 热读 / C4 文档）。
+
 ---
 
 ## 范围对照（产品建议 vs 计划）
