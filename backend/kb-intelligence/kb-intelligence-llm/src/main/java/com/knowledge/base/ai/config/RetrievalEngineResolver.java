@@ -10,6 +10,8 @@ import org.springframework.util.StringUtils;
 /**
  * 解析当前检索部署形态（白名单），并回写兼容字段便于旧 {@code @ConditionalOnProperty}。
  *
+ * <p>装配条件仍以 Environment（Nacos/env）为准；此处同步 {@link RagProperties} 便于运行时读取。</p>
+ *
  * @author AI-RAG
  * @since 1.0.0
  */
@@ -65,9 +67,7 @@ public class RetrievalEngineResolver {
     }
 
     /**
-     * 将 profile 同步到旧键，保持现有 Conditional 装配可用。
-     *
-     * <p>尚未完成 sparse 单库 / es-milvus 双写前，部分形态会降级到最近可运行组合并打 warn。</p>
+     * 将 profile 同步到旧键，保持现有 Conditional 与运行时读取一致。
      *
      * @param p profile
      */
@@ -78,12 +78,10 @@ public class RetrievalEngineResolver {
                 setQdrantEnabled(true);
             }
             case QDRANT_QDRANT -> {
-                log.warn("profile=qdrant-qdrant（sparse 单库）装配未完成，运行时暂降级为 es-qdrant");
-                ragProperties.setVectorStore("elasticsearch");
+                ragProperties.setVectorStore("qdrant");
                 setQdrantEnabled(true);
             }
             case ES_MILVUS -> {
-                log.warn("profile=es-milvus（ES BM25+Milvus dense）装配未完成，运行时暂降级为 es-es");
                 ragProperties.setVectorStore("elasticsearch");
                 setQdrantEnabled(false);
             }

@@ -7,10 +7,10 @@ import com.knowledge.base.ai.vo.RagSearchResultVO;
 import java.util.List;
 
 /**
- * 关键词检索器（ES BM25 / Milvus like 近似）
+ * 关键词检索器（ES BM25 / Qdrant·Milvus sparse）
  *
  * <p>与存储 CRUD 解耦，供 {@link com.knowledge.base.ai.rag.service.VectorIndexService} 与
- * {@link HybridRetriever} 复用。Milvus 实现为 VARCHAR like 降级，非真 BM25。</p>
+ * {@link HybridRetriever} 复用。单库向量库关键词腿为 Hashing BM25-lite sparse，禁止 VARCHAR like。</p>
  */
 public interface KeywordRetriever {
 

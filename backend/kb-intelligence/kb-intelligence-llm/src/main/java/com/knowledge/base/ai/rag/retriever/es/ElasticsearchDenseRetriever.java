@@ -28,7 +28,10 @@ import java.util.Map;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnExpression("'${rag.vector-store:elasticsearch}'.equalsIgnoreCase('elasticsearch') && !${rag.qdrant.enabled:false}")
+@ConditionalOnExpression("'${rag.vector-store:elasticsearch}'.equalsIgnoreCase('elasticsearch') "
+        + "&& !${rag.qdrant.enabled:false} "
+        + "&& !'${rag.retrieval.dense-engine:}'.equalsIgnoreCase('milvus') "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('es-milvus')")
 public class ElasticsearchDenseRetriever implements DenseRetriever {
 
     private final ElasticsearchClient esClient;

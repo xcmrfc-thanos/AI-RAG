@@ -1,5 +1,7 @@
 package com.knowledge.base.ai.rag.sparse;
 
+import com.knowledge.base.ai.config.RagProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -25,10 +27,15 @@ public class HashingBm25SparseEmbedder {
     private final int dimension;
 
     /**
-     * 使用默认维度构造。
+     * 使用配置维度构造（无配置则默认）。
+     *
+     * @param ragProperties RAG 配置（可选）
      */
-    public HashingBm25SparseEmbedder() {
-        this(DEFAULT_DIMENSION);
+    @Autowired
+    public HashingBm25SparseEmbedder(RagProperties ragProperties) {
+        this(ragProperties != null && ragProperties.getSparse() != null
+                ? ragProperties.getSparse().getDimension()
+                : DEFAULT_DIMENSION);
     }
 
     /**
@@ -58,7 +65,6 @@ public class HashingBm25SparseEmbedder {
             if (isTokenChar(c)) {
                 token.append(c);
                 if (isCjk(c)) {
-                    // CJK：单字立即吐出，并与下一字组成 bigram（若存在）
                     flushToken(tf, token.toString());
                     token.setLength(0);
                     if (i + 1 < normalized.length() && isCjk(normalized.charAt(i + 1))) {
@@ -75,7 +81,6 @@ public class HashingBm25SparseEmbedder {
         if (token.length() > 0) {
             flushToken(tf, token.toString());
         }
-        // log(1+tf) + L2
         double sumSq = 0;
         for (Map.Entry<Integer, Float> e : tf.entrySet()) {
             float w = (float) Math.log1p(e.getValue());
@@ -105,7 +110,6 @@ public class HashingBm25SparseEmbedder {
         if (!StringUtils.hasText(raw)) {
             return;
         }
-        // 跳过过短拉丁噪声；CJK 单字保留
         if (raw.length() == 1 && !isCjk(raw.charAt(0))) {
             return;
         }

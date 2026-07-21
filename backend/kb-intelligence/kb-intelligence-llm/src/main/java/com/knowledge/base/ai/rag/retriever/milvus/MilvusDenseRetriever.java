@@ -7,13 +7,13 @@ import io.milvus.client.MilvusServiceClient;
 import io.milvus.grpc.SearchResults;
 import io.milvus.param.MetricType;
 import io.milvus.param.R;
-import io.milvus.param.collection.LoadCollectionParam;
 import io.milvus.param.dml.SearchParam;
 import io.milvus.response.QueryResultsWrapper;
 import io.milvus.response.SearchResultsWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import com.knowledge.base.ai.rag.milvus.MilvusCollectionSupport;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -22,16 +22,20 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Milvus 稠密向量检索器
+ * Milvus 稠密向量检索器（milvus-milvus / es-milvus）。
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "rag.vector-store", havingValue = "milvus")
+@ConditionalOnExpression("'${rag.vector-store:}'.equalsIgnoreCase('milvus') "
+        + "|| '${rag.retrieval.dense-engine:}'.equalsIgnoreCase('milvus') "
+        + "|| '${rag.retrieval.profile:}'.equalsIgnoreCase('es-milvus') "
+        + "|| '${rag.retrieval.profile:}'.equalsIgnoreCase('milvus-milvus')")
 public class MilvusDenseRetriever implements DenseRetriever {
 
     private final MilvusServiceClient milvusClient;
     private final RagProperties ragProperties;
+    private final MilvusCollectionSupport collectionSupport;
 
     /** {@inheritDoc} */
     @Override
@@ -39,15 +43,19 @@ public class MilvusDenseRetriever implements DenseRetriever {
         if (queryEmbedding == null || topK <= 0) {
             return List.of();
         }
-        loadCollection();
+        // es-milvus 仅 dense；milvus-milvus 含 sparse 字段，但 dense 检索不强制重建
+        boolean includeSparse = "milvus".equalsIgnoreCase(ragProperties.getVectorStore())
+                || "milvus-milvus".equalsIgnoreCase(
+                ragProperties.getRetrieval() != null ? ragProperties.getRetrieval().getProfile() : "");
+        collectionSupport.ensureCollection(includeSparse);
         List<List<Float>> vectors = Collections.singletonList(toFloatList(queryEmbedding));
 
         SearchParam searchParam = SearchParam.newBuilder()
-                .withCollectionName(collectionName())
+                .withCollectionName(collectionSupport.collectionName())
                 .withMetricType(MetricType.COSINE)
                 .withTopK(topK)
                 .withVectors(vectors)
-                .withVectorFieldName("embedding")
+                .withVectorFieldName(MilvusCollectionSupport.FIELD_DENSE)
                 .withOutFields(Arrays.asList("chunk_id", "document_id", "document_title", "content", "heading", "publish_time"))
                 .build();
 
@@ -69,19 +77,6 @@ public class MilvusDenseRetriever implements DenseRetriever {
             results.add(toCandidate(record, score));
         }
         return results;
-    }
-
-    /**
-     * 加载集合到内存
-     */
-    private void loadCollection() {
-        milvusClient.loadCollection(LoadCollectionParam.newBuilder()
-                .withCollectionName(collectionName())
-                .build());
-    }
-
-    private String collectionName() {
-        return ragProperties.getMilvus().getCollection();
     }
 
     private HybridSearchFusion.FusionCandidate toCandidate(QueryResultsWrapper.RowRecord record, double score) {

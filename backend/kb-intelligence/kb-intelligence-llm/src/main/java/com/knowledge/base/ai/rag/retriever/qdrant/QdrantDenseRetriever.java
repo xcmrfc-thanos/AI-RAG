@@ -12,7 +12,7 @@ import io.qdrant.client.grpc.Points.ScoredPoint;
 import io.qdrant.client.grpc.Points.SearchPoints;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -27,7 +27,10 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "rag.qdrant.enabled", havingValue = "true")
+@ConditionalOnExpression("${rag.qdrant.enabled:false} "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('es-es') "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('es-milvus') "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('milvus-milvus')")
 public class QdrantDenseRetriever implements DenseRetriever {
 
     private final QdrantClient qdrantClient;
@@ -43,14 +46,16 @@ public class QdrantDenseRetriever implements DenseRetriever {
         }
         try {
             qdrantChunkWriter.ensureCollection();
-            SearchPoints request = SearchPoints.newBuilder()
+            SearchPoints.Builder builder = SearchPoints.newBuilder()
                     .setCollectionName(collectionName())
                     .addAllVector(toFloatList(queryEmbedding))
                     .setLimit(topK)
                     .setFilter(RagAclQuerySupport.buildQdrantChunkAclFilter(aclContextResolver.resolve()))
-                    .setWithPayload(WithPayloadSelectorFactory.enable(true))
-                    .build();
-            List<ScoredPoint> points = qdrantClient.searchAsync(request)
+                    .setWithPayload(WithPayloadSelectorFactory.enable(true));
+            if (qdrantChunkWriter.isHybridSparseMode()) {
+                builder.setVectorName(QdrantChunkWriter.VECTOR_DENSE);
+            }
+            List<ScoredPoint> points = qdrantClient.searchAsync(builder.build())
                     .get(ragProperties.getQdrant().getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
             List<HybridSearchFusion.FusionCandidate> results = new ArrayList<>(points.size());
             for (ScoredPoint point : points) {

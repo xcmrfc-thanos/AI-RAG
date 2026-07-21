@@ -1,18 +1,13 @@
 package com.knowledge.base.ai.rag.service.impl;
 
-import com.knowledge.base.ai.config.RagProperties;
 import com.knowledge.base.ai.rag.entity.DocumentChunk;
-import com.knowledge.base.ai.rag.milvus.MilvusChunkWriter;
-import com.knowledge.base.ai.rag.milvus.MilvusCollectionSupport;
+import com.knowledge.base.ai.rag.qdrant.QdrantChunkWriter;
 import com.knowledge.base.ai.rag.retriever.HybridRetriever;
 import com.knowledge.base.ai.rag.retriever.KeywordRetriever;
 import com.knowledge.base.ai.rag.service.VectorIndexService;
 import com.knowledge.base.ai.vo.Bm25CollapsePageVO;
 import com.knowledge.base.ai.vo.RagSearchResultVO;
-import io.milvus.client.MilvusServiceClient;
-import io.milvus.param.R;
-import io.milvus.param.RpcStatus;
-import io.milvus.param.collection.DropCollectionParam;
+import io.qdrant.client.QdrantClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -20,11 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
- * Milvus 向量索引服务实现（milvus-milvus 单库主路径）。
- *
- * <p>索引写入委托 {@link MilvusChunkWriter}（sparse+dense）；检索委托 Keyword/Hybrid Retriever。</p>
+ * Qdrant 单库索引门面（{@code qdrant-qdrant}）。
  *
  * @author AI-RAG
  * @since 1.0.0
@@ -32,29 +26,25 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "rag.vector-store", havingValue = "milvus")
-public class MilvusVectorIndexServiceImpl implements VectorIndexService {
+@ConditionalOnProperty(name = "rag.vector-store", havingValue = "qdrant")
+public class QdrantVectorIndexServiceImpl implements VectorIndexService {
 
-    private final MilvusServiceClient milvusClient;
-    private final RagProperties ragProperties;
+    private final QdrantClient qdrantClient;
+    private final QdrantChunkWriter qdrantChunkWriter;
     private final KeywordRetriever keywordRetriever;
     private final HybridRetriever hybridRetriever;
-    private final MilvusChunkWriter milvusChunkWriter;
-    private final MilvusCollectionSupport collectionSupport;
+    private final com.knowledge.base.ai.config.RagProperties ragProperties;
 
     /** {@inheritDoc} */
     @Override
     public void indexChunks(List<DocumentChunk> chunks) {
-        if (chunks == null || chunks.isEmpty()) {
-            return;
-        }
-        milvusChunkWriter.upsert(chunks);
+        qdrantChunkWriter.upsert(chunks);
     }
 
     /** {@inheritDoc} */
     @Override
     public void deleteByDocId(Long documentId) {
-        milvusChunkWriter.deleteByDocId(documentId);
+        qdrantChunkWriter.deleteByDocId(documentId);
     }
 
     /** {@inheritDoc} */
@@ -86,13 +76,20 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     /** {@inheritDoc} */
     @Override
     public boolean indexExists() {
-        return collectionSupport.collectionExists();
+        try {
+            Boolean exists = qdrantClient.collectionExistsAsync(ragProperties.getQdrant().getCollection())
+                    .get(ragProperties.getQdrant().getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
+            return Boolean.TRUE.equals(exists);
+        } catch (Exception e) {
+            log.warn("检查 Qdrant 集合失败：{}", e.getMessage());
+            return false;
+        }
     }
 
     /** {@inheritDoc} */
     @Override
     public void createIndexIfNotExists() {
-        collectionSupport.ensureCollection(true);
+        qdrantChunkWriter.ensureCollection();
     }
 
     /** {@inheritDoc} */
@@ -101,13 +98,12 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
         if (!indexExists()) {
             return;
         }
-        R<RpcStatus> response = milvusClient.dropCollection(DropCollectionParam.newBuilder()
-                .withCollectionName(ragProperties.getMilvus().getCollection())
-                .build());
-        if (response.getStatus() == R.Status.Success.getCode()) {
-            log.info("Milvus 集合已删除：collection={}", ragProperties.getMilvus().getCollection());
-        } else {
-            log.warn("Milvus 集合删除失败：{}", response.getMessage());
+        try {
+            qdrantClient.deleteCollectionAsync(ragProperties.getQdrant().getCollection())
+                    .get(ragProperties.getQdrant().getConnectTimeoutMs(), TimeUnit.MILLISECONDS);
+            log.info("Qdrant 集合已删除：{}", ragProperties.getQdrant().getCollection());
+        } catch (Exception e) {
+            log.warn("Qdrant 集合删除失败：{}", e.getMessage());
         }
     }
 }

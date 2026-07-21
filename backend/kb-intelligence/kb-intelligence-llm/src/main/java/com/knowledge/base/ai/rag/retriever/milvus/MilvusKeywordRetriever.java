@@ -1,47 +1,59 @@
 package com.knowledge.base.ai.rag.retriever.milvus;
 
 import com.knowledge.base.ai.config.RagProperties;
+import com.knowledge.base.ai.rag.milvus.MilvusCollectionSupport;
 import com.knowledge.base.ai.rag.retriever.KeywordRetriever;
+import com.knowledge.base.ai.rag.sparse.HashingBm25SparseEmbedder;
+import com.knowledge.base.ai.rag.sparse.SparseVectorSupport;
 import com.knowledge.base.ai.rag.support.HybridSearchFusion;
 import com.knowledge.base.ai.vo.Bm25CollapsePageVO;
 import com.knowledge.base.ai.vo.Bm25CollapsedDocumentVO;
 import com.knowledge.base.ai.vo.RagSearchResultVO;
 import io.milvus.client.MilvusServiceClient;
+import io.milvus.grpc.SearchResults;
+import io.milvus.param.MetricType;
 import io.milvus.param.R;
-import io.milvus.param.collection.LoadCollectionParam;
-import io.milvus.param.dml.QueryParam;
+import io.milvus.param.dml.SearchParam;
 import io.milvus.response.QueryResultsWrapper;
+import io.milvus.response.SearchResultsWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.stream.Collectors;
 
 /**
- * Milvus 关键词检索器（VARCHAR like 近似，非真 BM25）
+ * Milvus 关键词检索器（Hashing BM25-lite sparse，禁止 VARCHAR like）。
  *
- * <p>降级完整度：无分词打分、collapse 为内存聚合；与 ES BM25 指标不可直接对比。</p>
+ * @author AI-RAG
+ * @since 1.0.0
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(name = "rag.vector-store", havingValue = "milvus")
+@ConditionalOnExpression("'${rag.vector-store:}'.equalsIgnoreCase('milvus') "
+        + "|| '${rag.retrieval.keyword-engine:}'.equalsIgnoreCase('milvus') "
+        + "|| '${rag.retrieval.profile:}'.equalsIgnoreCase('milvus-milvus')")
 public class MilvusKeywordRetriever implements KeywordRetriever {
 
     private final MilvusServiceClient milvusClient;
     private final RagProperties ragProperties;
+    private final MilvusCollectionSupport collectionSupport;
+    private final HashingBm25SparseEmbedder sparseEmbedder;
 
     /** {@inheritDoc} */
     @Override
     public List<HybridSearchFusion.FusionCandidate> retrieveCandidates(String queryText, int topK) {
-        return keywordSearch(queryText, topK);
+        return sparseSearch(queryText, topK);
     }
 
     /** {@inheritDoc} */
@@ -50,7 +62,7 @@ public class MilvusKeywordRetriever implements KeywordRetriever {
         if (!StringUtils.hasText(queryText) || topK <= 0) {
             return List.of();
         }
-        return keywordSearch(queryText, topK).stream()
+        return sparseSearch(queryText, topK).stream()
                 .map(candidate -> RagSearchResultVO.builder()
                         .chunkId(candidate.getChunkId())
                         .documentId(candidate.getDocumentId())
@@ -71,7 +83,7 @@ public class MilvusKeywordRetriever implements KeywordRetriever {
         if (!StringUtils.hasText(queryText) || size <= 0) {
             return Bm25CollapsePageVO.builder().total(0L).documents(List.of()).build();
         }
-        int fetchSize = Math.min((from + size) * innerHitsPerDoc, 500);
+        int fetchSize = Math.min((from + size) * Math.max(1, innerHitsPerDoc), 500);
         List<RagSearchResultVO> chunks = retrieve(queryText, fetchSize);
         Map<Long, Bm25CollapsedDocumentVO> docMap = new LinkedHashMap<>();
 
@@ -107,48 +119,58 @@ public class MilvusKeywordRetriever implements KeywordRetriever {
     }
 
     /**
-     * 关键词检索（Milvus VARCHAR like）
+     * sparse ANN 检索（IP）。
+     *
+     * @param queryText 查询
+     * @param topK      条数
+     * @return 候选
      */
-    private List<HybridSearchFusion.FusionCandidate> keywordSearch(String queryText, int topK) {
-        if (!StringUtils.hasText(queryText)) {
+    private List<HybridSearchFusion.FusionCandidate> sparseSearch(String queryText, int topK) {
+        if (!StringUtils.hasText(queryText) || topK <= 0) {
             return List.of();
         }
-        loadCollection();
-        String keyword = escapeExprValue(queryText.trim());
-        String expr = String.format("content like \"%%%s%%\" || document_title like \"%%%s%%\"", keyword, keyword);
-
-        QueryParam queryParam = QueryParam.newBuilder()
-                .withCollectionName(collectionName())
-                .withExpr(expr)
-                .withOutFields(Arrays.asList("chunk_id", "document_id", "document_title", "content", "heading", "publish_time"))
-                .withLimit((long) topK)
-                .build();
-
-        R<io.milvus.grpc.QueryResults> response = milvusClient.query(queryParam);
-        if (response.getStatus() != R.Status.Success.getCode() || response.getData() == null) {
-            log.warn("Milvus 关键词检索失败：{}", response.getMessage());
+        Map<Integer, Float> sparse = sparseEmbedder.embed(queryText);
+        SortedMap<Long, Float> querySparse = SparseVectorSupport.toMilvusSortedMap(sparse);
+        if (querySparse.isEmpty()) {
             return List.of();
         }
+        try {
+            collectionSupport.ensureCollection(true);
+            SearchParam searchParam = SearchParam.newBuilder()
+                    .withCollectionName(collectionSupport.collectionName())
+                    .withMetricType(MetricType.IP)
+                    .withTopK(topK)
+                    .withSparseFloatVectors(Collections.singletonList(querySparse))
+                    .withVectorFieldName(MilvusCollectionSupport.FIELD_SPARSE)
+                    .withOutFields(Arrays.asList(
+                            "chunk_id", "document_id", "document_title", "content", "heading", "publish_time",
+                            "author_id", "team_id"))
+                    .withParams("{\"drop_ratio_search\":0.2}")
+                    .build();
 
-        QueryResultsWrapper wrapper = new QueryResultsWrapper(response.getData());
-        List<HybridSearchFusion.FusionCandidate> results = new ArrayList<>();
-        for (QueryResultsWrapper.RowRecord record : wrapper.getRowRecords()) {
-            results.add(toCandidate(record, 1.0));
+            R<SearchResults> response = milvusClient.search(searchParam);
+            if (response.getStatus() != R.Status.Success.getCode() || response.getData() == null) {
+                log.warn("Milvus sparse 关键词检索失败：{}", response.getMessage());
+                return List.of();
+            }
+
+            SearchResultsWrapper wrapper = new SearchResultsWrapper(response.getData().getResults());
+            List<HybridSearchFusion.FusionCandidate> results = new ArrayList<>();
+            if (wrapper.getRowRecords(0) == null) {
+                return results;
+            }
+            List<SearchResultsWrapper.IDScore> scores = wrapper.getIDScore(0);
+            for (int i = 0; i < wrapper.getRowRecords(0).size(); i++) {
+                QueryResultsWrapper.RowRecord record = wrapper.getRowRecords(0).get(i);
+                float score = scores != null && scores.size() > i ? scores.get(i).getScore() : 0f;
+                results.add(toCandidate(record, score));
+            }
+            log.debug("Milvus sparse 检索命中 {} 条", results.size());
+            return results;
+        } catch (Exception e) {
+            log.warn("Milvus sparse 关键词检索异常：{}", e.getMessage());
+            return List.of();
         }
-        return results;
-    }
-
-    /**
-     * 加载集合到内存
-     */
-    private void loadCollection() {
-        milvusClient.loadCollection(LoadCollectionParam.newBuilder()
-                .withCollectionName(collectionName())
-                .build());
-    }
-
-    private String collectionName() {
-        return ragProperties.getMilvus().getCollection();
     }
 
     private HybridSearchFusion.FusionCandidate toCandidate(QueryResultsWrapper.RowRecord record, double score) {
@@ -198,9 +220,5 @@ public class MilvusKeywordRetriever implements KeywordRetriever {
             return number.longValue();
         }
         return Long.parseLong(value.toString());
-    }
-
-    private static String escapeExprValue(String value) {
-        return value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 }

@@ -156,6 +156,11 @@ rag:
     hybrid-top-k: 20
     final-top-k: 5
     rrf-c: 60
+    profile: ${RAG_RETRIEVAL_PROFILE:}
+    keyword-engine: ${RAG_KEYWORD_ENGINE:}
+    dense-engine: ${RAG_DENSE_ENGINE:}
+  sparse:
+    dimension: ${RAG_SPARSE_DIMENSION:30000}
   rerank:
     enabled: ${RAG_RERANK_ENABLED:true}
     mode: ${RAG_RERANK_MODE:api}

@@ -35,6 +35,20 @@ docker compose --env-file .env up -d qdrant
 # 然后 import-nacos + 重启 kb-intelligence，并重建索引以补齐 Qdrant 向量
 ```
 
+### 检索部署形态（白名单）
+
+进程级装配仍读 Nacos/`.env`（设置页写库/Redis **不会**改装配）。可选：
+
+| 形态 | 关键环境变量 |
+|------|----------------|
+| `es-es` | `RAG_RETRIEVAL_PROFILE=es-es`（或关 Qdrant） |
+| `es-qdrant` | `RAG_QDRANT_ENABLED=true` + `RAG_VECTOR_STORE=elasticsearch` |
+| `qdrant-qdrant` | `RAG_VECTOR_STORE=qdrant` + `RAG_QDRANT_ENABLED=true`（需重建 named dense+sparse） |
+| `es-milvus` | `RAG_RETRIEVAL_PROFILE=es-milvus` + Milvus 可达（建议关 Qdrant） |
+| `milvus-milvus` | `RAG_VECTOR_STORE=milvus`（sparse+dense，须重建 collection） |
+
+切换形态后须重建索引。Sparse 为 Hashing BM25-lite，与 ES 真 BM25 质量不对等。
+
 ## 一键部署
 
 ```powershell

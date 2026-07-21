@@ -185,6 +185,8 @@ public class RagProperties {
         private String database = "default";
         /** 连接超时（毫秒） */
         private long connectTimeoutMs = 10000;
+        /** true=双写失败不阻断 ES 索引（es-milvus） */
+        private boolean failOpen = true;
     }
 
     /**

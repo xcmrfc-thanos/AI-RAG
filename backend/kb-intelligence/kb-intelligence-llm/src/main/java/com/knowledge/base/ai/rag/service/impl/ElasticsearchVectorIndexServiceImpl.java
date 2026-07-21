@@ -9,6 +9,7 @@ import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
 import co.elastic.clients.elasticsearch.indices.ExistsRequest;
 import com.knowledge.base.ai.config.RagProperties;
 import com.knowledge.base.ai.rag.entity.DocumentChunk;
+import com.knowledge.base.ai.rag.milvus.MilvusChunkWriter;
 import com.knowledge.base.ai.rag.qdrant.QdrantChunkWriter;
 import com.knowledge.base.ai.rag.retriever.HybridRetriever;
 import com.knowledge.base.ai.rag.retriever.KeywordRetriever;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  *
  * <p>索引 CRUD 留在本类；关键词 / 稠密 / 混合检索委托
  * {@link KeywordRetriever} 与 {@link HybridRetriever}（任务 61 分层）。
- * 开启 {@code rag.qdrant.enabled} 时在成功写入 ES 后旁路双写 Qdrant。</p>
+ * {@code es-qdrant} 旁路双写 Qdrant；{@code es-milvus} 旁路双写 Milvus dense。</p>
  */
 @Slf4j
 @Service
@@ -49,6 +50,7 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     private final KeywordRetriever keywordRetriever;
     private final HybridRetriever hybridRetriever;
     private final ObjectProvider<QdrantChunkWriter> qdrantChunkWriter;
+    private final ObjectProvider<MilvusChunkWriter> milvusChunkWriter;
 
     /** {@inheritDoc} */
     @Override
@@ -79,7 +81,7 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
                 log.error("ES批量索引部分失败：{}", String.join(", ", failedIds));
             } else {
                 log.info("ES批量索引成功：{} chunks", chunks.size());
-                dualWriteQdrant(chunks);
+                dualWriteSecondary(chunks);
             }
         } catch (Exception e) {
             log.error("ES批量索引失败：{}", e.getMessage(), e);
@@ -96,9 +98,13 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
                     .query(q -> q.term(t -> t.field("document_id").value(documentId))));
             esClient.deleteByQuery(request);
             log.info("已从ES删除文档块：documentId={}", documentId);
-            QdrantChunkWriter writer = qdrantChunkWriter.getIfAvailable();
-            if (writer != null) {
-                writer.deleteByDocId(documentId);
+            QdrantChunkWriter qWriter = qdrantChunkWriter.getIfAvailable();
+            if (qWriter != null) {
+                qWriter.deleteByDocId(documentId);
+            }
+            MilvusChunkWriter mWriter = milvusChunkWriter.getIfAvailable();
+            if (mWriter != null) {
+                mWriter.deleteByDocId(documentId);
             }
         } catch (Exception e) {
             log.error("ES删除文档块失败：documentId={}, error={}", documentId, e.getMessage());
@@ -106,14 +112,18 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /**
-     * ES 写入成功后旁路双写 Qdrant（未启用时跳过）
+     * ES 写入成功后双写 Qdrant / Milvus（未装配时跳过）。
      *
      * @param chunks 分块列表
      */
-    private void dualWriteQdrant(List<DocumentChunk> chunks) {
-        QdrantChunkWriter writer = qdrantChunkWriter.getIfAvailable();
-        if (writer != null) {
-            writer.upsert(chunks);
+    private void dualWriteSecondary(List<DocumentChunk> chunks) {
+        QdrantChunkWriter qWriter = qdrantChunkWriter.getIfAvailable();
+        if (qWriter != null) {
+            qWriter.upsert(chunks);
+        }
+        MilvusChunkWriter mWriter = milvusChunkWriter.getIfAvailable();
+        if (mWriter != null) {
+            mWriter.upsert(chunks);
         }
     }
 

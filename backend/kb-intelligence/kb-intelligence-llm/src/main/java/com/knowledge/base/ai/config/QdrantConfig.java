@@ -3,17 +3,20 @@ package com.knowledge.base.ai.config;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.QdrantGrpcClient;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 /**
- * Qdrant 客户端装配（仅 rag.qdrant.enabled=true）
+ * Qdrant 客户端装配（es-qdrant / qdrant-qdrant；显式 es-es / es-milvus / milvus-milvus 时不装配）。
  */
 @Slf4j
 @Configuration
-@ConditionalOnProperty(name = "rag.qdrant.enabled", havingValue = "true")
+@ConditionalOnExpression("${rag.qdrant.enabled:false} "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('es-es') "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('es-milvus') "
+        + "&& !'${rag.retrieval.profile:}'.equalsIgnoreCase('milvus-milvus')")
 public class QdrantConfig {
 
     /**
