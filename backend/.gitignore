@@ -63,6 +63,14 @@ application-prod.yml
 # Upload files
 uploads/
 data/
+# 样例种子需入库（勿被上一行 data/ 误伤）
+!sql/data/
+!sql/data/**
+sql/data/generated/
+
+# SQL 历史归档（本地可留，不入库）
+sql/_archive/**
+!sql/_archive/README.md
 
 # Temporary files
 *.tmp

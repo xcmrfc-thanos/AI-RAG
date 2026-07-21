@@ -1,4 +1,5 @@
 #Requires -Version 5.1
+# [DEPRECATED / 历史阶段门禁] 非日常冒烟入口；日常请用 verify-all.ps1。保留供契约回归偶发使用。
 <#
 .SYNOPSIS
   验证服务启动脚本会将 Java 运行时收口到 Java 21。

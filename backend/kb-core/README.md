@@ -41,7 +41,7 @@ Druid 监控：`/druid/*`（admin/admin）
 | P2-3 iam | ✅（59 类，双库 kb_foundation + kb_user） |
 | P2-4 document | ✅（136 类 + 8 Mapper；三数据源 + DocumentUserLocalClient） |
 | P2-5 file Feign | ✅（FileServiceFeignClient + multipart + fallback） |
-| P2-6 网关切流 | ✅（kb-core-*-main order=1 + switch-core-primary.ps1） |
+| P2-6 网关切流 | ✅（历史脚本见 `kb-gateway/scripts/_archive/`） |
 | P2-7 废弃旧服务 | ✅（`_archive/` + 移出 pom） |
 
 Phase 2 已完成。

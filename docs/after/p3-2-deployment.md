@@ -178,7 +178,6 @@ kb-file(8084) → kb-core(8090) → kb-intelligence(8091) → kb-statistics(8085
 
 - [deploy/README.md](../../deploy/README.md) — Docker 端口与脚本
 - [p3-3-operations.md](./p3-3-operations.md) — 运行手册与监控
-- `backend/kb-gateway/GATEWAY_CORE_CUTOVER.md`
-- `backend/kb-gateway/GATEWAY_INTELLIGENCE_CUTOVER.md`
+- `backend/kb-gateway/scripts/_archive/`（切流历史，本地归档）
 - `docs/after/p2-7-legacy-offline.md`
 - `docs/after/p1-7-legacy-offline.md`

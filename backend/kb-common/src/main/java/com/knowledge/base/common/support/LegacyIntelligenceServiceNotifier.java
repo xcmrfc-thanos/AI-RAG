@@ -11,7 +11,7 @@ public final class LegacyIntelligenceServiceNotifier {
 
     private static final Logger log = LoggerFactory.getLogger(LegacyIntelligenceServiceNotifier.class);
 
-    private static final String CUTOVER_DOC = "backend/kb-gateway/GATEWAY_INTELLIGENCE_CUTOVER.md";
+    private static final String CUTOVER_DOC = "backend/kb-gateway/scripts/_archive/README.md";
 
     private LegacyIntelligenceServiceNotifier() {
     }

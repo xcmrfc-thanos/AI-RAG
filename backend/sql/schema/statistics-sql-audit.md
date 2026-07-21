@@ -1,9 +1,10 @@
 # kb-statistics SQL 审计报告（任务 32）
 
+> **状态：历史审计快照（已收口）** — 非运维入口；现行 DDL 见 `schema/mysql/kb_statistics.sql`。  
 > **审计日期**：2026-07-11  
 > **审计范围**：`backend/kb-statistics` 全部 Mapper XML、JdbcTemplate 内联 SQL、Entity `@TableName`、定时任务 SQL  
-> **权威 Schema**：`backend/sql/schema/kb_statistics.sql`  
-> **下一任务**：任务 33 — 按本表「待改造项」执行去 VIEW 改造并标注废弃 SQL
+> **权威 Schema（现行）**：`backend/sql/schema/mysql/kb_statistics.sql`  
+> **下一任务**：任务 33 — 按本表「待改造项」执行去 VIEW 改造并标注废弃 SQL（已完成，本文仅留档）
 
 ---
 
@@ -20,7 +21,7 @@
 
 ## 2. 跨库 VIEW 清单（历史债务，运行时不应依赖）
 
-来源文件：`sql/master-sql/12_kb_statistics_views.sql`、`14_kb_statistics_ai_views.sql`、旧 export `knowledge_base_export_2026-06-17.sql`
+来源文件（已归档，仅本地）：`sql/_archive/master-sql/12_kb_statistics_views.sql`、`14_kb_statistics_ai_views.sql`、旧 export
 
 | VIEW 名 | 跨库来源 | 运行时 Java/SQL 是否引用 | 替代方案（已落地） |
 |---------|----------|--------------------------|-------------------|
@@ -150,7 +151,7 @@ rg "stat_document|stat_user|stat_comment|stat_category|stat_operation_log|stat_a
 | 路径 | 说明 |
 |------|------|
 | `backend/sql/schema/kb_statistics.sql` | 权威 schema（无 VIEW） |
-| `backend/sql/master-sql/12_kb_statistics_views.sql` | 待废弃跨库 VIEW |
-| `backend/sql/master-sql/14_kb_statistics_ai_views.sql` | 待废弃 AI VIEW |
+| `backend/sql/_archive/master-sql/12_kb_statistics_views.sql` | 已归档跨库 VIEW |
+| `backend/sql/_archive/master-sql/14_kb_statistics_ai_views.sql` | 已归档 AI VIEW |
 | `backend/kb-statistics/src/main/java/.../StatisticsServiceImpl.java` | 唯一运行时回退点 |
 | `遗留治理计划.md` | 任务 32/33 定义 |

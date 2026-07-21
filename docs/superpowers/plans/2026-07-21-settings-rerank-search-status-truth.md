@@ -22,7 +22,7 @@
 | `SettingsServiceImpl.java` FIELD_TO_CONFIG + getSystemStatus | 新键 + 真 COUNT |
 | `RagRuntimeSettings.java` | 热读 rerank enabled/mode |
 | `RerankProviderResolver` / `RagRetrievalServiceImpl` | 优先热读 |
-| `patch_settings_*.sql` / master-sql | 种子 |
+| `patch_settings_*.sql` / `sql/data/init_kb_foundation.sql` | 种子 |
 | `kb-intelligence-dev.yaml.template` | 注释默认（不双向同步） |
 
 ---

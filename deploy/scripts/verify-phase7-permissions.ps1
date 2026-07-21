@@ -1,4 +1,5 @@
 #Requires -Version 5.1
+# [DEPRECATED / 历史阶段门禁] 非日常冒烟入口；日常请用 verify-all.ps1。保留供契约回归偶发使用。
 <#
 .SYNOPSIS
   验证 Phase 7 所需的文档与 Agent 角色权限矩阵。

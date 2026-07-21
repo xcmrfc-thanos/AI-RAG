@@ -91,6 +91,8 @@ docker compose --env-file .env up -d
 .\scripts\rebuild-es-indices.ps1   # 删建双索引 + 可选业务回填
 ```
 
+> SQL 权威：`backend/sql/schema/mysql/` + `data/` + `patch/`。历史 `master-sql` / `migration` / `import-master-export.ps1` 已挪至各目录 `_archive/`（git 忽略）。日常冒烟用 `verify-all.ps1`；带 `[DEPRECATED]` 头的 `verify-*-contract*.ps1` 仅为阶段门禁留档。
+
 ## 停止
 
 ```powershell

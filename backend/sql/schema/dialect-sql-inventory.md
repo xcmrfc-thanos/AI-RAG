@@ -1,5 +1,6 @@
 # 方言 SQL 风险清单（活跃代码，排除 _archive）
 
+> **状态：历史审计快照（C1 已收口）** — 非日常运维入口；方言指南见 `DIALECT_CONVERSION.md`。  
 > 生成自扫描；生产交付计划 Task 1。  
 > **2026-07-20 C1 复核**：对「待改」逐文件对照 `databaseId=oracle` / helper；去伪后仅保留真实缺口。
 

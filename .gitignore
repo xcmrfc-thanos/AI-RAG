@@ -30,6 +30,16 @@
 /deploy/**/*.dump
 /deploy/docker-compose.override.yml
 /deploy/**/.DS_Store
+/deploy/scripts/_archive/**
+!/deploy/scripts/_archive/README.md
+
+# ---------- 网关切流历史脚本（本地归档，勿提交） ----------
+/backend/kb-gateway/scripts/_archive/**
+!/backend/kb-gateway/scripts/_archive/README.md
+
+# ---------- SQL：历史 master-sql / migration 本地归档（勿提交） ----------
+/backend/sql/_archive/**
+!/backend/sql/_archive/README.md
 
 # ---------- docs：本地草稿 / 实验 / 评测人工产物（勿提交） ----------
 /docs/feat/
