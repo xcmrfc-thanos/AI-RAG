@@ -135,10 +135,10 @@
 
 ### Tasks
 
-- [ ] **C4.1** 更新设计「仍属差距」：删过时合入句；保留真实剩余（全栈冒烟、level、LIMIT 若 C1 后仍有）
-- [ ] **C4.2** 设置计划文首增加「收尾见 `2026-07-20-backlog-closeout.md`」
-- [ ] **C4.3** `readme_plan` 记 C1～C4 结果与未做项
-- [ ] **C4.4** Commit + `git push origin master`（Gitee；无 gh PR）
+- [x] **C4.1** 更新设计「仍属差距」：删过时合入句；保留真实剩余（全栈冒烟、level、LIMIT 若 C1 后仍有）
+- [x] **C4.2** 设置计划文首增加「收尾见 `2026-07-20-backlog-closeout.md`」
+- [x] **C4.3** `readme_plan` 记 C1～C4 结果与未做项
+- [x] **C4.4** Commit + `git push origin master`（Gitee；无 gh PR）
 
 **验收：** 新人读设计/计划不会以为代码还在未合入分支。
 

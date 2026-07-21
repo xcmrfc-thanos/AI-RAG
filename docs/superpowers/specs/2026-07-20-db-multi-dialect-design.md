@@ -1,8 +1,9 @@
 # 多数据库方言地基设计
 
 **日期：** 2026-07-20  
-**分支：** `feat/db-multi-dialect`  
-**计划：** [plans/2026-07-20-db-multi-dialect-foundation.md](../plans/2026-07-20-db-multi-dialect-foundation.md)
+**分支：** 已合入 Gitee `master`（原 `feat/db-multi-dialect`）  
+**计划：** [plans/2026-07-20-db-multi-dialect-foundation.md](../plans/2026-07-20-db-multi-dialect-foundation.md)  
+**收尾：** [plans/2026-07-20-backlog-closeout.md](../plans/2026-07-20-backlog-closeout.md)（inventory 去伪等）
 
 ## 目标（本阶段）
 
@@ -52,11 +53,11 @@
 计划：[plans/2026-07-20-db-tri-dialect-prod-delivery.md](../plans/2026-07-20-db-tri-dialect-prod-delivery.md)  
 设计：[2026-07-20-db-tri-dialect-prod-design.md](./2026-07-20-db-tri-dialect-prod-design.md)
 
-### 交付结果（Task 0～8，分支 `feat/db-multi-dialect`）
+### 交付结果（Task 0～8，已合入 Gitee `master`）
 
 | 项 | 状态 |
 |----|------|
-| 字段/函数公约 + 方言 SQL 清单 | ✅ |
+| 字段/函数公约 + 方言 SQL 清单 | ✅（C1 已复核去伪，见 `dialect-sql-inventory.md`） |
 | Oracle `upsertSql` / `mergeInto` + 统计 JDBC | ✅ |
 | 统计/检索 Mapper `databaseId=oracle` | ✅ |
 | PostgreSQL DDL 校对 + `verify-pg-schema.ps1` | ✅ |
@@ -64,14 +65,13 @@
 | 三库 Profile + 切库清单 | ✅ |
 | PG DDL 冒烟：`verify-pg-schema.ps1`；可选 `PgStatisticsJdbcIT`（自备 PG） | ✅ PASS（常驻 `kb-postgres` compose 已移除） |
 | MySQL 默认路径：`import-schema.ps1` + 方言单测 | ✅ 确认无回退 |
+| Oracle CONCAT（Team/Tag/Review） | ✅ |
 
-### 仍属差距
+### 仍属差距（真实剩余）
 
-- 未拉起完整 JVM 微服务连 PG/Oracle（免 Nacos/Redis/MQ 全栈）；统计 JDBC 路径已证明
-- Oracle 列名 `"level"` 等保留字需确认 ORM 映射（TeamMapper Oracle 分支 ORDER BY 已加引号）
-- Team/Tag/DocumentReview 模糊查询 CONCAT 已补 Oracle 分支 / helper
-- inventory 仍有 LIMIT_XML/ANNOT、部分 DATE_FUNC 待改
-- 待合入 `master` / 开 PR（按团队流程，本文件不自动 merge）
+- 未拉起完整 JVM 微服务连 PG/Oracle（附录 O1；统计 JDBC 路径已证明）
+- Oracle 列名 `"level"` 等保留字全库确认（附录 O2；TeamMapper Oracle 分支 ORDER BY 已加引号）
+- P2 inventory 真实缺口：`DocumentAccessMapper` 注解 LIMIT、`TagMapper` `selectByTagCode`/`selectHotTags` 缺 Oracle `FETCH FIRST`（非阻塞）
 
 ## 一部署一方言
 
