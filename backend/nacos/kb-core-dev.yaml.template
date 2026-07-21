@@ -7,11 +7,11 @@ spring:
     platform:
       type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://127.0.0.1:20006/kb_foundation?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:20006}/kb_foundation?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
       # postgresql: jdbc:postgresql://127.0.0.1:5432/postgres?currentSchema=kb_foundation
       # oracle: jdbc:oracle:thin:@//127.0.0.1:1521/XEPDB1 + user kb_foundation
-      username: root
-      password: 123456
+      username: ${MYSQL_USER:root}
+      password: ${MYSQL_ROOT_PASSWORD:123456}
       druid:
         initial-size: 5
         min-idle: 5
@@ -30,9 +30,9 @@ spring:
     iam:
       type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://127.0.0.1:20006/kb_user?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+      url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:20006}/kb_user?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: ${MYSQL_USER:root}
+      password: ${MYSQL_ROOT_PASSWORD:123456}
       druid:
         initial-size: 5
         min-idle: 5
@@ -51,9 +51,9 @@ spring:
     document:
       type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: com.mysql.cj.jdbc.Driver
-      url: jdbc:mysql://127.0.0.1:20006/kb_document?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      username: root
-      password: 123456
+      url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:20006}/kb_document?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      username: ${MYSQL_USER:root}
+      password: ${MYSQL_ROOT_PASSWORD:123456}
       druid:
         initial-size: 20
         min-idle: 10
@@ -90,7 +90,7 @@ spring:
       location: ${java.io.tmpdir}/kb-core-multipart
 
   elasticsearch:
-    uris: http://127.0.0.1:20920
+    uris: ${ES_URL:http://127.0.0.1:20920}
     username: elastic
     password: susan123
     connection-timeout: 10s
@@ -98,8 +98,8 @@ spring:
 
   data:
     mongodb:
-      host: 127.0.0.1
-      port: 20017
+      host: ${MONGO_HOST:127.0.0.1}
+      port: ${MONGO_PORT:20017}
       auto-index-creation: true
       database: knowledge_base
       username: mongodb
@@ -184,10 +184,10 @@ file:
   server:
     rustfs:
       enabled: false
-      base-url: http://localhost:18080
+      base-url: ${GATEWAY_BASE_URL:http://localhost:18080}
 
 kb-file:
-  url: http://localhost:8084
+  url: ${KB_FILE_URL:http://localhost:8084}
 
 feign:
   client:

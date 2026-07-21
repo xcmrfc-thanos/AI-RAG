@@ -1,0 +1,245 @@
+# AI-RAG 全栈：中间件（include）+ 业务 + 前端 + 首次 init
+# 用法：
+#   cd deploy
+#   copy env.example .env   # 填写密码与 QWEN_API_KEY 等
+#   docker compose -f docker-compose.full.yml --env-file .env up -d --build
+#
+# 勿与「仅中间件 + 宿主机 JVM」同时占用同一端口。
+
+name: ai-rag
+
+include:
+  - path: docker-compose.yml
+
+x-app-env: &app-env
+  NACOS_SERVER_ADDR: nacos:8848
+  TZ: Asia/Shanghai
+
+x-fullstack-hosts: &fullstack-hosts
+  MYSQL_HOST: mysql
+  MYSQL_PORT: "3306"
+  MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-susan123}
+  RABBITMQ_HOST: rabbitmq
+  RABBITMQ_PORT: "5672"
+  RABBITMQ_USER: ${RABBITMQ_USER:-admin}
+  RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-susan123}
+  MONGO_HOST: mongodb
+  MONGO_PORT: "27017"
+  ES_URL: http://elasticsearch:9200
+  ES_HOST: elasticsearch
+  ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-susan123}
+  NEO4J_URI: bolt://neo4j:7687
+  RUSTFS_ENDPOINT: rustfs
+  RUSTFS_PORT: "9000"
+  RUSTFS_ACCESS_KEY: ${RUSTFS_ACCESS_KEY:-rustfsadmin}
+  RUSTFS_SECRET_KEY: ${RUSTFS_SECRET_KEY:-rustfsadmin}
+  RUSTFS_BUCKET: ${RUSTFS_BUCKET:-kb-files}
+  KB_CORE_URL: http://kb-core:8090
+  KB_FILE_URL: http://kb-file:8084
+  GATEWAY_BASE_URL: http://kb-gateway:18080
+  APP_FRONTEND_URL: ${APP_FRONTEND_URL:-http://localhost:3002}
+  QDRANT_HOST: qdrant
+  NACOS_ADDR: nacos:8848
+  NACOS_USER: ${NACOS_USER:-nacos}
+  NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
+  NACOS_NAMESPACE: ${NACOS_NAMESPACE:-knowledge}
+  NACOS_GROUP: ${NACOS_GROUP:-KNOWLEDGE_BASE}
+  QWEN_API_KEY: ${QWEN_API_KEY:-}
+  QWEN_BASE_URL: ${QWEN_BASE_URL:-}
+  QWEN_MODEL: ${QWEN_MODEL:-}
+  DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+  SILICONFLOW_API_KEY: ${SILICONFLOW_API_KEY:-}
+  RAG_EMBEDDING_API_KEY: ${RAG_EMBEDDING_API_KEY:-}
+  RAG_EMBEDDING_BASE_URL: ${RAG_EMBEDDING_BASE_URL:-}
+  RAG_EMBEDDING_MODEL: ${RAG_EMBEDDING_MODEL:-}
+  RAG_RERANK_API_KEY: ${RAG_RERANK_API_KEY:-}
+  KB_INTERNAL_HMAC_SECRET: ${KB_INTERNAL_HMAC_SECRET:-ai-rag-local-dev-hmac-secret-key!!}
+  KB_DB_TYPE: ${KB_DB_TYPE:-mysql}
+
+services:
+  kb-init:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.init
+    container_name: kb-init
+    restart: "no"
+    environment:
+      <<: *fullstack-hosts
+      FORCE_NACOS_IMPORT: ${FORCE_NACOS_IMPORT:-false}
+      SKIP_SAMPLE_DATA: ${SKIP_SAMPLE_DATA:-false}
+      BOOTSTRAP_FLAG_DIR: /bootstrap
+    volumes:
+      - ../backend/nacos:/nacos-templates:ro
+      - ../backend/sql/data:/sql-data:ro
+      - ../backend/sql/es:/es-schema:ro
+      - init_bootstrap:/bootstrap
+    depends_on:
+      mysql:
+        condition: service_healthy
+      nacos:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      rustfs:
+        condition: service_healthy
+
+  kb-file:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-file
+        JAR_FILE: kb-file-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-file:local
+    container_name: kb-file
+    restart: "no"
+    ports:
+      - "${FILE_PORT:-8084}:8084"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-file
+      SERVER_PORT: "8084"
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      nacos:
+        condition: service_healthy
+
+  kb-core:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-core/kb-core-app
+        JAR_FILE: kb-core-app-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-core:local
+    container_name: kb-core
+    restart: "no"
+    ports:
+      - "${CORE_PORT:-8090}:8090"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-core
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      nacos:
+        condition: service_healthy
+
+  kb-intelligence:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-intelligence/kb-intelligence-app
+        JAR_FILE: kb-intelligence-app-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-intelligence:local
+    container_name: kb-intelligence
+    restart: "no"
+    ports:
+      - "${INTELLIGENCE_PORT:-8091}:8091"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-intelligence
+      JAVA_OPTS: "-Xms512m -Xmx1024m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      nacos:
+        condition: service_healthy
+
+  kb-statistics:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-statistics
+        JAR_FILE: kb-statistics-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-statistics:local
+    container_name: kb-statistics
+    restart: "no"
+    ports:
+      - "${STATISTICS_PORT:-8085}:8085"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-statistics
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      nacos:
+        condition: service_healthy
+
+  kb-agent:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-agent
+        JAR_FILE: kb-agent-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-agent:local
+    container_name: kb-agent
+    restart: "no"
+    ports:
+      - "${AGENT_PORT:-8092}:8092"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-agent
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      nacos:
+        condition: service_healthy
+
+  kb-gateway:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.backend
+      args:
+        MODULE_PATH: kb-gateway
+        JAR_FILE: kb-gateway-1.0.0-SNAPSHOT.jar
+    image: ai-rag/kb-gateway:local
+    container_name: kb-gateway
+    restart: "no"
+    ports:
+      - "${GATEWAY_PORT:-18080}:18080"
+    environment:
+      <<: [*app-env, *fullstack-hosts]
+      NACOS_DISCOVERY_IP: kb-gateway
+      JAVA_OPTS: "-Xms256m -Xmx512m"
+    depends_on:
+      kb-init:
+        condition: service_completed_successfully
+      kb-core:
+        condition: service_started
+      kb-file:
+        condition: service_started
+      kb-intelligence:
+        condition: service_started
+      kb-statistics:
+        condition: service_started
+      kb-agent:
+        condition: service_started
+
+  kb-web:
+    build:
+      context: ..
+      dockerfile: deploy/docker/Dockerfile.frontend
+      args:
+        VITE_API_BASE_URL: /api
+    image: ai-rag/kb-web:local
+    container_name: kb-web
+    restart: "no"
+    ports:
+      - "${WEB_PORT:-3002}:80"
+    depends_on:
+      - kb-gateway
+
+volumes:
+  init_bootstrap:

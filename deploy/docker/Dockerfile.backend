@@ -1,0 +1,25 @@
+# 构建上下文：仓库根目录
+# 用法: docker build -f deploy/docker/Dockerfile.backend --build-arg MODULE_PATH=kb-gateway --build-arg JAR_FILE=kb-gateway-1.0.0-SNAPSHOT.jar -t ai-rag/kb-gateway:local .
+
+FROM maven:3.9.9-eclipse-temurin-21 AS build
+WORKDIR /src
+COPY backend/pom.xml backend/pom.xml
+COPY backend/kb-common backend/kb-common
+COPY backend/kb-gateway backend/kb-gateway
+COPY backend/kb-file backend/kb-file
+COPY backend/kb-statistics backend/kb-statistics
+COPY backend/kb-agent backend/kb-agent
+COPY backend/kb-core backend/kb-core
+COPY backend/kb-intelligence backend/kb-intelligence
+
+ARG MODULE_PATH=kb-gateway
+RUN mvn -f backend/pom.xml -pl ${MODULE_PATH} -am package -DskipTests -q
+
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+ARG JAR_FILE=kb-gateway-1.0.0-SNAPSHOT.jar
+ARG MODULE_PATH=kb-gateway
+COPY --from=build /src/backend/${MODULE_PATH}/target/${JAR_FILE} /app/app.jar
+ENV JAVA_OPTS="-Xms256m -Xmx512m"
+EXPOSE 8080
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

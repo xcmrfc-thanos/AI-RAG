@@ -1,0 +1,19 @@
+# 降低 Docker 构建上下文体积（context = 仓库根）
+.git
+**/.git
+**/node_modules
+**/target
+**/dist
+**/.idea
+**/.vscode
+**/logs
+deploy/.env
+deploy/logs
+deploy/tmp
+*.md
+!backend/nacos/**
+docs
+readme_plan.md
+frontend/docs
+**/*.iml
+**/.DS_Store

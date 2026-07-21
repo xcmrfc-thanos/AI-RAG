@@ -1,0 +1,7 @@
+# kb-init：bash + curl + mysql client + python3（RustFS 初始化可选，见 entrypoint）
+FROM alpine:3.20
+RUN apk add --no-cache bash curl mysql-client ca-certificates python3
+COPY deploy/docker/init/ /init/
+RUN chmod +x /init/*.sh
+WORKDIR /init
+ENTRYPOINT ["/init/entrypoint.sh"]

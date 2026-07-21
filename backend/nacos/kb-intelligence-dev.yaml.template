@@ -5,9 +5,9 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:20006/kb_intelligence?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:20006}/kb_intelligence?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_ROOT_PASSWORD:123456}
     druid:
       initial-size: 5
       min-idle: 5
@@ -24,8 +24,8 @@ spring:
       password: ${NEO4J_PASSWORD:susan123}
 
   elasticsearch:
-    uris: http://127.0.0.1:20920
-    host: 127.0.0.1
+    uris: ${ES_URL:http://127.0.0.1:20920}
+    host: ${ES_HOST:127.0.0.1}
     port: 20920
     username: elastic
     password: susan123
@@ -38,7 +38,7 @@ spring:
         acknowledge-mode: manual
 
 kb-core:
-  url: http://localhost:8090
+  url: ${KB_CORE_URL:http://localhost:8090}
   internal:
     service: kb-intelligence
     secret: ${KB_INTERNAL_HMAC_SECRET:ai-rag-local-dev-hmac-secret-key!!}

@@ -60,6 +60,8 @@ npm run dev
 | Nacos | http://127.0.0.1:20848 |
 | 默认账号 | admin / admin123 |
 
+**全栈 Docker**（演示/交付，无需本机 JDK/Node）：见 [deploy/README.md](deploy/README.md) 与 `docker-compose.full.yml`。
+
 ### 停止（不关 Docker 中间件）
 
 ```powershell

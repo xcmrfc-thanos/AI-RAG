@@ -11,15 +11,15 @@ spring:
     nacos:
       config:
         namespace: knowledge
-        server-addr: 127.0.0.1:20848
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:20848}
         file-extension: yaml
         group: KNOWLEDGE_BASE
         enabled: true
       discovery:
-        server-addr: 127.0.0.1:20848
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:20848}
         namespace: knowledge
         group: ${COMPUTER_ID:${USER:default}}
-        ip: 127.0.0.1
+        ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
   config:
     import:
       - optional:nacos:application-dev.yaml

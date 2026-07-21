@@ -2,6 +2,30 @@
 
 > 宿主机端口统一在 **20000-21000** 段，定义见 `.env`
 
+## 两套 Compose
+
+| 文件 | 用途 |
+|------|------|
+| `docker-compose.yml` | **仅中间件**；业务用本机 `start-services.ps1` + 前端 `npm run dev` |
+| `docker-compose.full.yml` | **全栈**（中间件 + 6 业务镜像 + 前端 + `kb-init`）；无需本机 JDK/Node |
+
+勿两套同时抢同一宿主机端口；切换前先 `docker compose down`。
+
+### 全栈一键（演示/交付）
+
+```powershell
+cd deploy
+copy env.example .env
+# 编辑 .env：中间件密码 + QWEN_API_KEY / DEEPSEEK_API_KEY / SILICONFLOW_API_KEY 等
+docker compose -f docker-compose.full.yml --env-file .env up -d --build
+# 浏览器：http://127.0.0.1:3002 ；Nacos：http://127.0.0.1:20848/nacos
+# 默认账号（导入样例后）：admin / admin123
+```
+
+- `kb-init` **首次**把 `.env` 中的 Key 展开进 Nacos，并导入样例 SQL / ES 索引 / RustFS bucket
+- 事后改 Key：改 `.env` 后设 `FORCE_NACOS_IMPORT=true` 再跑一次 `kb-init`，或 Nacos 控制台改完后 `docker compose -f docker-compose.full.yml restart kb-intelligence kb-agent`
+- 镜像定义：`deploy/docker/Dockerfile.*`
+
 ## 端口映射
 
 | 服务 | 宿主机端口 | 账号 |
