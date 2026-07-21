@@ -41,6 +41,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/zh-cn';
 import type { Dayjs } from 'dayjs';
 import { PERMISSIONS, hasPermission } from '@/utils/permission';
+import { useComplianceConfirm } from '@/hooks';
 
 // 扩展 dayjs 插件
 dayjs.extend(relativeTime);
@@ -183,6 +184,7 @@ const styles = {
 
 export const DocumentDetailPage: React.FC = () => {
   const { message } = App.useApp();
+  const { runWithConfirm } = useComplianceConfirm();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuthStore();
@@ -618,20 +620,33 @@ export const DocumentDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * 下载当前文档 PDF；尊重合规「导出二次确认」开关。
+   */
   const handleDownload = async () => {
     if (!id) return;
 
-    try {
-      message.loading({ content: '正在生成PDF...', key: 'pdf-download' });
+    /**
+     * 执行 PDF 生成与下载。
+     */
+    const doDownload = async () => {
+      try {
+        message.loading({ content: '正在生成PDF...', key: 'pdf-download' });
+        await documentService.downloadDocumentPdf(id);
+        message.success({ content: 'PDF下载成功', key: 'pdf-download' });
+      } catch (error) {
+        console.error('PDF下载失败:', error);
+        const errorMessage = error instanceof Error ? error.message : 'PDF下载失败，请重试';
+        message.error({ content: errorMessage, key: 'pdf-download' });
+      }
+    };
 
-      await documentService.downloadDocumentPdf(id);
-
-      message.success({ content: 'PDF下载成功', key: 'pdf-download' });
-    } catch (error) {
-      console.error('PDF下载失败:', error);
-      const errorMessage = error instanceof Error ? error.message : 'PDF下载失败，请重试';
-      message.error({ content: errorMessage, key: 'pdf-download' });
-    }
+    await runWithConfirm('confirmSensitiveExport', {
+      title: '确认导出 PDF？',
+      content: '将根据当前文档内容生成 PDF 并下载，可能包含水印等合规信息。',
+      okText: '确认导出',
+      action: doDownload,
+    });
   };
 
   const handleCreateShare = async (values: {

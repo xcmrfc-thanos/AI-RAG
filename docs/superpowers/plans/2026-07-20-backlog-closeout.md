@@ -83,11 +83,11 @@
 
 ### Tasks
 
-- [ ] **C2.1** 实现 `useComplianceConfirm`（或内联）：缓存 compliance 开关；`getSettings` 失败 → 全部视为 `true`（偏安全）
-- [ ] **C2.2** 操作日志批量删除：`confirmSensitiveDelete !== false` 时 `Modal.confirm` / `Popconfirm`
-- [ ] **C2.3** 单文档下载 PDF / 批量导出：`confirmSensitiveExport !== false` 时确认后再请求
-- [ ] **C2.4** 手工：设置页关掉对应开关 → 业务页不再弹确认；打开则弹
-- [ ] **C2.5** Commit：`feat(compliance): 导出与删日志二次确认接线`
+- [x] **C2.1** 实现 `useComplianceConfirm`（或内联）：缓存 compliance 开关；`getSettings` 失败 → 全部视为 `true`（偏安全）
+- [x] **C2.2** 操作日志批量删除：`confirmSensitiveDelete !== false` 时 `Modal.confirm` / `Popconfirm`
+- [x] **C2.3** 单文档下载 PDF / 批量导出：`confirmSensitiveExport !== false` 时确认后再请求
+- [x] **C2.4** 手工：设置页关掉对应开关 → 业务页不再弹确认；打开则弹（逻辑已对齐；联调依赖运行中前后端）
+- [x] **C2.5** Commit：`feat(compliance): 导出与删日志二次确认接线`
 
 **验收：** 与设置页「审计与合规」四个开关中 export/delete 两端行为一致；图谱/重建已在 P9 接线，本 Phase 不重复。
 

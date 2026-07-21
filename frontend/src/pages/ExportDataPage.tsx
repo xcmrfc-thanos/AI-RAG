@@ -14,6 +14,7 @@ import {
   Tag,
 } from 'antd';
 import { App } from 'antd';
+import { useComplianceConfirm } from '@/hooks';
 import {
   FileTextOutlined,
   FilePdfOutlined,
@@ -32,6 +33,7 @@ const { Title, Text } = Typography;
 
 const ExportDataPage: React.FC = () => {
   const { message } = App.useApp();
+  const { runWithConfirm } = useComplianceConfirm();
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -66,21 +68,39 @@ const ExportDataPage: React.FC = () => {
     fetchDocuments();
   }, [fetchDocuments]);
 
+  /**
+   * 批量导出选中文档；尊重合规「导出二次确认」开关。
+   */
   const handleExport = async () => {
     if (selectedRowKeys.length === 0) {
       message.warning('请先选择要导出的文档');
       return;
     }
-    setExporting(true);
-    try {
-      const ids = selectedRowKeys.map(String);
-      await documentService.batchExportDocuments(ids, exportFormat);
-      message.success(`成功导出 ${ids.length} 个文档`);
-    } catch {
-      message.error('导出失败，请重试');
-    } finally {
-      setExporting(false);
-    }
+
+    const ids = selectedRowKeys.map(String);
+    const formatLabel = exportFormat === 'pdf' ? 'PDF' : 'Markdown';
+
+    /**
+     * 执行批量导出请求。
+     */
+    const doExport = async () => {
+      setExporting(true);
+      try {
+        await documentService.batchExportDocuments(ids, exportFormat);
+        message.success(`成功导出 ${ids.length} 个文档`);
+      } catch {
+        message.error('导出失败，请重试');
+      } finally {
+        setExporting(false);
+      }
+    };
+
+    await runWithConfirm('confirmSensitiveExport', {
+      title: `确认批量导出 ${formatLabel}？`,
+      content: `将导出已选中的 ${ids.length} 个文档为 ${formatLabel}。`,
+      okText: '确认导出',
+      action: doExport,
+    });
   };
 
   const handleClearSelection = () => {

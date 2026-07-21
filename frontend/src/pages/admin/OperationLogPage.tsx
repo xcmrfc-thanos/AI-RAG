@@ -33,6 +33,7 @@ import { foundationService } from '@/services';
 import type { OperationLog, LogStatistics } from '@/services/foundation.service';
 import dayjs from 'dayjs';
 import { LazyECharts } from '@/components/common/LazyECharts';
+import { useComplianceConfirm } from '@/hooks';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -63,6 +64,7 @@ const OPERATION_TYPES = [
 
 export const OperationLogPage: React.FC = () => {
   const { message } = App.useApp();
+  const { runWithConfirm } = useComplianceConfirm();
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<OperationLog[]>([]);
   const [statistics, setStatistics] = useState<LogStatistics | null>(null);
@@ -153,25 +155,31 @@ export const OperationLogPage: React.FC = () => {
     setIsDetailModalVisible(true);
   };
 
+  /**
+   * 按筛选条件批量删除日志；尊重合规「删除二次确认」开关。
+   */
   const handleBatchDelete = async () => {
-    Modal.confirm({
+    /**
+     * 执行按日期清理操作日志。
+     */
+    const doDelete = async () => {
+      try {
+        const beforeDate = filters.endTime?.format('YYYY-MM-DD') || dayjs().format('YYYY-MM-DD');
+        await foundationService.log.deleteBeforeDate(beforeDate);
+        message.success('删除成功');
+        fetchLogs();
+        fetchStatistics();
+      } catch {
+        message.error('删除失败');
+      }
+    };
+
+    await runWithConfirm('confirmSensitiveDelete', {
       title: '确认删除',
       content: '确定要删除当前筛选条件下的所有日志吗？此操作不可恢复。',
       okText: '确定',
-      cancelText: '取消',
       okButtonProps: { danger: true },
-      onOk: async () => {
-        try {
-          // 使用当前筛选条件的结束时间或当前时间
-          const beforeDate = filters.endTime?.format('YYYY-MM-DD') || dayjs().format('YYYY-MM-DD');
-          await foundationService.log.deleteBeforeDate(beforeDate);
-          message.success('删除成功');
-          fetchLogs();
-          fetchStatistics();
-        } catch (error) {
-          message.error('删除失败');
-        }
-      },
+      action: doDelete,
     });
   };
 
