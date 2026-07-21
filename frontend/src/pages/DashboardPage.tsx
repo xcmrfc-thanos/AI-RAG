@@ -88,7 +88,7 @@ const DashboardPage: React.FC = () => {
     { name: 'MySQL 8.0', version: '关系型数据库', icon: 'M', gradient: 'linear-gradient(135deg, #4479A1, #274C77)' },
     { name: 'PostgreSQL 16', version: '高级数据库', icon: 'PG', gradient: 'linear-gradient(135deg, #336791, #205E75)' },
     { name: 'Elasticsearch 8', version: '搜索引擎', icon: 'ES', gradient: 'linear-gradient(135deg, #F29111, #D66D18)' },
-    { name: 'Claude 3.5 Opus', version: 'AI模型', icon: 'AI', gradient: 'linear-gradient(135deg, #CD6799, #A020F0)' },
+    { name: 'Qwen3-Max', version: '对话模型', icon: 'AI', gradient: 'linear-gradient(135deg, #6366f1, #0ea5e9)' },
     { name: 'React 18', version: '前端框架', icon: 'Re', gradient: 'linear-gradient(135deg, #61DAFB, #21A4C7)' },
   ];
 

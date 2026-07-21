@@ -3898,7 +3898,7 @@ const EditDocumentPage: React.FC = () => {
                   color: 'var(--text-secondary)',
                   lineHeight: '1.6',
                 }}>
-                  基于Claude 3.5 Opus的智能写作助手，帮助您编辑和完善专业文档。
+                  本地编辑辅助（非大模型对话）；知识问答请使用「AI 助手」。
                 </div>
                 <div style={{
                   display: 'flex',

@@ -20,6 +20,8 @@ import { resolveNotificationTarget } from '@/utils/notification-link';
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
 import { canShowAgentAdminNav, canShowAgentNav } from '@/utils/agent-access';
 import { PERMISSIONS, getPrimaryRoleLabel, hasAdminAccess, hasAnyPermission, hasPermission } from '@/utils/permission';
+import dashboardService from '@/services/dashboard.service';
+import favoriteService from '@/services/favorite.service';
 
 const MAIN_SIDEBAR_STORAGE_KEY = 'main-sidebar-collapsed';
 
@@ -78,6 +80,8 @@ const MainLayout: React.FC = () => {
   const [showAdminMenu, setShowAdminMenu] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(readMainSidebarCollapsed);
+  const [sidebarDocTotal, setSidebarDocTotal] = useState<number | null>(null);
+  const [sidebarFavTotal, setSidebarFavTotal] = useState<number | null>(null);
   const currentRoles = user?.roles || (user?.role ? [user.role] : []);
   const canViewFiles = hasAnyPermission(user, [PERMISSIONS.documentList, PERMISSIONS.fileList]);
   const canManageCategories = hasAnyPermission(user, [PERMISSIONS.documentCategory, PERMISSIONS.documentCategoryQuery]);
@@ -216,6 +220,38 @@ const MainLayout: React.FC = () => {
     fetchCategoryTree().catch(() => {});
     fetchTeamTree().catch(() => {});
   }, [fetchCategoryTree, fetchTeamTree]);
+
+  /**
+   * 侧栏「全部文档 / 我的收藏」角标：拉真实统计，失败则不展示假数。
+   */
+  useEffect(() => {
+    if (!token) {
+      setSidebarDocTotal(null);
+      setSidebarFavTotal(null);
+      return;
+    }
+    let cancelled = false;
+    dashboardService.getStats()
+      .then((res: any) => {
+        if (cancelled) return;
+        const total = res?.overview?.totalDocuments;
+        setSidebarDocTotal(typeof total === 'number' ? total : null);
+      })
+      .catch(() => {
+        if (!cancelled) setSidebarDocTotal(null);
+      });
+    favoriteService.getFavorites()
+      .then((list) => {
+        if (cancelled) return;
+        setSidebarFavTotal(Array.isArray(list) ? list.length : 0);
+      })
+      .catch(() => {
+        if (!cancelled) setSidebarFavTotal(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, location.pathname]);
 
   // WebSocket 连接生命周期
   useEffect(() => {
@@ -710,7 +746,9 @@ const MainLayout: React.FC = () => {
                     <rect x="3" y="14" width="7" height="7"></rect>
                   </svg>
                   <span className="sidebar-link-text">全部文档</span>
-                  <span className="badge">1,234</span>
+                  {sidebarDocTotal != null && (
+                    <span className="badge">{sidebarDocTotal.toLocaleString('zh-CN')}</span>
+                  )}
                 </a>
               </li>
               <li className={`sidebar-item ${location.pathname === '/my-documents' ? 'active' : ''}`}>
@@ -739,7 +777,9 @@ const MainLayout: React.FC = () => {
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                   <span className="sidebar-link-text">我的收藏</span>
-                  <span className="badge">56</span>
+                  {sidebarFavTotal != null && sidebarFavTotal > 0 && (
+                    <span className="badge">{sidebarFavTotal.toLocaleString('zh-CN')}</span>
+                  )}
                 </a>
               </li>
               <li className={`sidebar-item ${location.pathname === '/recent-access' ? 'active' : ''}`}>
