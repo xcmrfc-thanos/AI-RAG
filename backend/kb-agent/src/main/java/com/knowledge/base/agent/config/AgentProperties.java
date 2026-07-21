@@ -24,7 +24,7 @@ public class AgentProperties {
     private String defaultModel = "qwen";
 
     /** 工具出站 Gateway 基址（禁止直连业务端口） */
-    private String gatewayBaseUrl = "http://127.0.0.1:8080";
+    private String gatewayBaseUrl = "http://127.0.0.1:18080";
 
     /** Run/Step 保留天数 */
     private int runRetentionDays = 30;

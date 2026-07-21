@@ -2,7 +2,7 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-const gatewayUrl = process.env.AI_RAG_GATEWAY_URL || 'http://localhost:8080'
+const gatewayUrl = process.env.AI_RAG_GATEWAY_URL || 'http://localhost:18080'
 
 // https://vitejs.dev/config/
 export default defineConfig({

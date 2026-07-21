@@ -22,7 +22,7 @@ npm run build
 npm run lint
 ```
 
-网关代理：`/api` → `http://127.0.0.1:8080`（见 [docs/archive/PROXY-EXPLANATION.md](docs/archive/PROXY-EXPLANATION.md)）。
+网关代理：`/api` → `http://127.0.0.1:18080`（见 [docs/archive/PROXY-EXPLANATION.md](docs/archive/PROXY-EXPLANATION.md)）。
 
 ## 文档
 
@@ -47,6 +47,6 @@ src/
 ## 环境变量
 
 ```env
-VITE_API_BASE_URL=http://127.0.0.1:8080/api
+VITE_API_BASE_URL=http://127.0.0.1:18080/api
 ```
 

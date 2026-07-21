@@ -95,7 +95,7 @@ $services = @(
     @{ Id = "intelligence"; Name = "kb-intelligence"; Module = "kb-intelligence/kb-intelligence-app"; Pom = "kb-intelligence/kb-intelligence-app/pom.xml"; Port = 8091; Xms = $IntelligenceJvmXms; Xmx = $IntelligenceJvmXmx }
     @{ Id = "statistics";   Name = "kb-statistics";   Module = "kb-statistics";                    Pom = "kb-statistics/pom.xml";                    Port = 8085; Xms = $JvmXms; Xmx = $JvmXmx }
     @{ Id = "agent";        Name = "kb-agent";        Module = "kb-agent";                         Pom = "kb-agent/pom.xml";                         Port = 8092; Xms = $JvmXms; Xmx = $JvmXmx }
-    @{ Id = "gateway";      Name = "kb-gateway";      Module = "kb-gateway";                       Pom = "kb-gateway/pom.xml";                       Port = 8080; Xms = $JvmXms; Xmx = $JvmXmx }
+    @{ Id = "gateway";      Name = "kb-gateway";      Module = "kb-gateway";                       Pom = "kb-gateway/pom.xml";                       Port = 18080; Xms = $JvmXms; Xmx = $JvmXmx }
 )
 
 function Test-PortOpen {
@@ -183,4 +183,4 @@ foreach ($svc in $services) {
     Start-KbService -Svc $svc
 }
 
-Write-Host "`nDone. Gateway: http://127.0.0.1:8080" -ForegroundColor Green
+Write-Host "`nDone. Gateway: http://127.0.0.1:18080" -ForegroundColor Green

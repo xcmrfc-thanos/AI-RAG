@@ -22,7 +22,7 @@ param(
 $ErrorActionPreference = "Continue"
 $DeployDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$ports = @(8080, 8084, 8090, 8091, 8085, 8092)
+$ports = @(18080, 8084, 8090, 8091, 8085, 8092)
 if ($IncludeFrontend) {
     $ports += 3002
 }

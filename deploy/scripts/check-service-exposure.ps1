@@ -15,7 +15,7 @@
 param(
     [string]$PublicHost = "127.0.0.1",
     [switch]$ExpectGatewayOnly,
-    [int]$GatewayPort = 8080,
+    [int]$GatewayPort = 18080,
     [int[]]$InternalPorts = @(8090, 8091, 8084, 8085, 8092)
 )
 

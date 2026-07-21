@@ -8,7 +8,7 @@
   .\verify-phase7-gates.ps1 -WriteGoldenBaseline
 #>
 param(
-    [string]$GatewayUrl = "http://127.0.0.1:8080",
+    [string]$GatewayUrl = "http://127.0.0.1:18080",
     [switch]$WriteGoldenBaseline,
     [ValidateSet("keyword", "hybrid")]
     [string]$GoldenSearchMode = "keyword",

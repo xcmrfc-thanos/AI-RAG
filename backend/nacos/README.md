@@ -18,7 +18,7 @@
 | DataId | 模板文件 | 服务 |
 |--------|----------|------|
 | `application-dev.yaml` | [application-dev.yaml.template](./application-dev.yaml.template) | 全部微服务（公共） |
-| `kb-gateway-dev.yaml` | [kb-gateway-dev.yaml.template](./kb-gateway-dev.yaml.template) | kb-gateway :8080 |
+| `kb-gateway-dev.yaml` | [kb-gateway-dev.yaml.template](./kb-gateway-dev.yaml.template) | kb-gateway :18080 |
 | `kb-core-dev.yaml` | [kb-core-dev.yaml.template](./kb-core-dev.yaml.template) | kb-core :8090 |
 | `kb-intelligence-dev.yaml` | [kb-intelligence-dev.yaml.template](./kb-intelligence-dev.yaml.template) | kb-intelligence :8091 |
 | `kb-file-dev.yaml` | [kb-file-dev.yaml.template](./kb-file-dev.yaml.template) | kb-file :8084 |

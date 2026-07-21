@@ -25,7 +25,7 @@
 
 | 模块 | 端口 | 说明 |
 |-----|------|------|
-| kb-gateway | 8080 | API 网关（4 条领域路由） |
+| kb-gateway | 18080 | API 网关（4 条领域路由） |
 | kb-core | 8090 | Core BC：auth + document + foundation |
 | kb-intelligence | 8091 | Intelligence BC：ai + search + graph |
 | kb-file | 8084 | 文件存储（S3/MinIO） |
@@ -74,7 +74,7 @@ install_dev_data.bat         # 可选：样例数据
 2. CoreApplication / kb-core-app (8090)
 3. IntelligenceApplication / kb-intelligence-app (8091)
 4. kb-statistics (8085)
-5. GatewayApplication (8080)
+5. GatewayApplication (18080)
 
 #### 方式二：命令行编译
 
@@ -86,7 +86,7 @@ mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-a
 
 ### 访问 API 文档
 
-- **网关入口**: http://localhost:8080
+- **网关入口**: http://localhost:18080
 - **Core**: http://localhost:8090/doc.html（若启用 Knife4j）
 
 ## 项目结构
@@ -94,7 +94,7 @@ mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-a
 ```
 backend/
 ├── kb-common/              # 公共模块
-├── kb-gateway/             # API 网关 :8080
+├── kb-gateway/             # API 网关 :18080
 ├── kb-core/                # Core BC :8090
 │   ├── kb-core-app/
 │   ├── kb-core-iam/

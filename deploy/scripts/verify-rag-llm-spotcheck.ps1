@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
   Real LLM spotcheck: RAG chat citations / fromKnowledgeBase / refuse structure.
@@ -8,7 +8,7 @@
   .\verify-rag-llm-spotcheck.ps1 -WriteJudgementSheet
 #>
 param(
-    [string]$GatewayUrl = "http://127.0.0.1:8080",
+    [string]$GatewayUrl = "http://127.0.0.1:18080",
     [string]$Username = "admin",
     [string]$Password = "admin123",
     [switch]$OfflineOnly,

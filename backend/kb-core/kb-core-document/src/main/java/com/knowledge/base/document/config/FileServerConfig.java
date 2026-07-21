@@ -20,7 +20,7 @@ public class FileServerConfig {
     /**
      * 文件服务器地址
      */
-    private String baseUrl = "http://localhost:8080";
+    private String baseUrl = "http://localhost:18080";
 
     /**
      * 上传接口路径

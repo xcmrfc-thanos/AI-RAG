@@ -18,7 +18,7 @@ public class GatewayApplication {
         SpringApplication.run(GatewayApplication.class, args);
         System.out.println("========================================");
         System.out.println("API网关服务启动成功！");
-        System.out.println("网关地址: http://localhost:8080");
+        System.out.println("网关地址: http://localhost:18080");
         System.out.println("========================================");
     }
 }

@@ -41,7 +41,7 @@ mybatis-plus:
 # Nacos 未刷新时的同值兜底（与模板一致）
 agent:
   default-model: qwen
-  gateway-base-url: http://127.0.0.1:8080
+  gateway-base-url: http://127.0.0.1:18080
   run-retention-days: 30
 
 management:

@@ -14,7 +14,7 @@
   Elasticsearch 地址，默认 http://127.0.0.1:20920
 
 .PARAMETER GatewayUrl
-  网关地址，默认 http://localhost:8080
+  网关地址，默认 http://localhost:18080
 
 .PARAMETER Token
   可选 JWT，用于触发 rebuild / reindex API
@@ -35,7 +35,7 @@ param(
     [string]$EsHost = $(if ($env:ES_URL) { $env:ES_URL } else { "http://127.0.0.1:20920" }),
     [string]$EsUser = "elastic",
     [string]$EsPass = $(if ($env:ELASTIC_PASSWORD) { $env:ELASTIC_PASSWORD } else { "susan123" }),
-    [string]$GatewayUrl = "http://localhost:8080",
+    [string]$GatewayUrl = "http://localhost:18080",
     [string]$Token = "",
     [long]$DocumentId = 0,
     [string]$QdrantUrl = $(if ($env:QDRANT_HTTP_URL) { $env:QDRANT_HTTP_URL } else { "http://127.0.0.1:26333" }),

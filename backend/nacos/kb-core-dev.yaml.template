@@ -184,7 +184,7 @@ file:
   server:
     rustfs:
       enabled: false
-      base-url: http://localhost:8080
+      base-url: http://localhost:18080
 
 kb-file:
   url: http://localhost:8084

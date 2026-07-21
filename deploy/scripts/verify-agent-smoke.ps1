@@ -8,7 +8,7 @@
   .\verify-agent-smoke.ps1 -SearchAclStatus FAIL
 #>
 param(
-    [string]$GatewayUrl = "http://127.0.0.1:8080",
+    [string]$GatewayUrl = "http://127.0.0.1:18080",
     [string]$AdminUser = "admin",
     [string]$AdminPassword = "admin123",
     [string]$NormalUser = "tester",

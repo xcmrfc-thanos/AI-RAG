@@ -1,6 +1,6 @@
 # kb-gateway 本地兜底：路由/中间件见 Nacos kb-gateway-dev
 server:
-  port: 8080
+  port: ${GATEWAY_PORT:18080}
 
 spring:
   profiles:

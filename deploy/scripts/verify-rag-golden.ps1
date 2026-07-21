@@ -8,7 +8,7 @@
   .\verify-rag-golden.ps1 -SearchMode keyword -WriteBaseline
 #>
 param(
-    [string]$GatewayUrl = "http://127.0.0.1:8080",
+    [string]$GatewayUrl = "http://127.0.0.1:18080",
     [string]$Username = "admin",
     [string]$Password = "admin123",
     [ValidateSet("keyword", "hybrid")]

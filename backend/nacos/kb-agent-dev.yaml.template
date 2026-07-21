@@ -26,7 +26,7 @@ knife4j:
 # 内网：QWEN_BASE_URL=http://127.0.0.1:11434/v1，QWEN_MODEL=qwen2.5:7b，QWEN_API_KEY=ollama
 agent:
   default-model: qwen
-  gateway-base-url: http://127.0.0.1:8080
+  gateway-base-url: http://127.0.0.1:18080
   run-retention-days: 30
   llm:
     qwen:

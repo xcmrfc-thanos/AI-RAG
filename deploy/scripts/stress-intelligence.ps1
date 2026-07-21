@@ -3,7 +3,7 @@
 .SYNOPSIS
   Intelligence 搜索 + RAG 混合压测，用于 JVM 调优验收（任务 35）。
 .PARAMETER BaseUrl
-  网关或 intelligence 基址，默认 http://127.0.0.1:8080
+  网关或 intelligence 基址，默认 http://127.0.0.1:18080
 .PARAMETER Direct
   直连 intelligence :8091（不经网关 StripPrefix）
 .PARAMETER Iterations
@@ -12,7 +12,7 @@
   并发 Job 数（PowerShell 7+ 推荐；5.1 下串行执行）
 #>
 param(
-    [string]$BaseUrl = "http://127.0.0.1:8080",
+    [string]$BaseUrl = "http://127.0.0.1:18080",
     [switch]$Direct,
     [int]$Iterations = 30,
     [int]$Concurrent = 4

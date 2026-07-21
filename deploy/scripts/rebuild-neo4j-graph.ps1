@@ -9,7 +9,7 @@
   3. 轮询 Neo4j HTTP，打印 KnowledgeDocument / KnowledgeEntity / 关系数
 
 .PARAMETER GatewayUrl
-  网关地址，默认 http://127.0.0.1:8080
+  网关地址，默认 http://127.0.0.1:18080
 
 .PARAMETER Token
   可选 JWT；未提供时用 Username/Password 登录
@@ -24,7 +24,7 @@
   .\rebuild-neo4j-graph.ps1 -Token "eyJ..." -WaitSec 600
 #>
 param(
-    [string]$GatewayUrl = "http://127.0.0.1:8080",
+    [string]$GatewayUrl = "http://127.0.0.1:18080",
     [string]$Token = "",
     [string]$Username = "admin",
     [string]$Password = "admin123",
