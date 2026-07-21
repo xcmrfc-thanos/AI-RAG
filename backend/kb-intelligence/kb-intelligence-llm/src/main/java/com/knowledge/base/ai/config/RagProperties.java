@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 /**
  * RAG配置属性
  *
- * <p>集中管理所有RAG相关配置参数，支持通过 application.yml 或环境变量覆盖。</p>
+ * <p>集中管理所有RAG相关配置参数，支持通过 application.yml 或环境变量覆盖。
+ * Top-K 等检索参数运行时优先经 {@link RagRuntimeSettings} 热读 SystemConfigCache。</p>
  *
  * @author 苏三
  * @since 1.0.0

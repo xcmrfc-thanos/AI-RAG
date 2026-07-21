@@ -2,6 +2,7 @@ package com.knowledge.base.ai.rag.service.impl;
 
 import com.knowledge.base.ai.config.ModelProvider;
 import com.knowledge.base.ai.config.RagProperties;
+import com.knowledge.base.ai.config.RagRuntimeSettings;
 import com.knowledge.base.ai.rag.service.EmbeddingService;
 import com.knowledge.base.ai.rag.service.RagRetrievalService;
 import com.knowledge.base.ai.rag.service.VectorIndexService;
@@ -40,6 +41,7 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
     private final VectorIndexService vectorIndexService;
     private final ModelProvider modelProvider;
     private final RagProperties ragProperties;
+    private final RagRuntimeSettings ragRuntimeSettings;
     private final RagAclFilter ragAclFilter;
 
     private static final Pattern RERANK_SCORE_PATTERN = Pattern.compile("\\b([1-9]|10)\\b");
@@ -60,7 +62,7 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
         }
 
         // 3. 混合搜索（BM25 + kNN + RRF融合），多取候选以便 ACL 过滤后仍够 topK
-        int hybridTopK = ragProperties.getRetrieval().getHybridTopK();
+        int hybridTopK = ragRuntimeSettings.resolveHybridTopK();
         int rrfC = ragProperties.getRetrieval().getRrfC();
         int candidateK = Math.max(topK * 4, hybridTopK);
 

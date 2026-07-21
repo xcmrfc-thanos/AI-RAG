@@ -1,5 +1,6 @@
 package com.knowledge.base.ai.mq;
 
+import com.knowledge.base.ai.config.KagRuntimeSettings;
 import com.knowledge.base.ai.rag.kag.graph.GraphBuildService;
 import com.knowledge.base.ai.rag.service.ReindexService;
 import com.knowledge.base.common.event.DocumentLifecycleEventDTO;
@@ -28,6 +29,9 @@ class DocumentLifecycleListenerTest {
     @Mock
     private GraphBuildService graphBuildService;
 
+    @Mock
+    private KagRuntimeSettings kagRuntimeSettings;
+
     @InjectMocks
     private DocumentLifecycleListener listener;
 
@@ -51,6 +55,7 @@ class DocumentLifecycleListenerTest {
      */
     @Test
     void publishedShouldReindexAndBuildGraph() {
+        when(kagRuntimeSettings.isAutoExtractEnabled()).thenReturn(true);
         when(reindexService.reindexByDocId(2002L)).thenReturn("task-reindex");
         when(graphBuildService.publishBuildTask(2002L)).thenReturn("task-graph");
 
@@ -58,6 +63,20 @@ class DocumentLifecycleListenerTest {
 
         verify(reindexService).reindexByDocId(2002L);
         verify(graphBuildService).publishBuildTask(2002L);
+    }
+
+    /**
+     * 自动抽取关闭时仍重建向量，但不触发图谱构建。
+     */
+    @Test
+    void publishedWhenAutoExtractOff_skipsGraph() {
+        when(kagRuntimeSettings.isAutoExtractEnabled()).thenReturn(false);
+        when(reindexService.reindexByDocId(2002L)).thenReturn("task-reindex");
+
+        listener.onDocumentLifecycle(publishedEvent);
+
+        verify(reindexService).reindexByDocId(2002L);
+        verify(graphBuildService, never()).publishBuildTask(2002L);
     }
 
     /**

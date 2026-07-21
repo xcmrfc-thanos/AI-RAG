@@ -1182,7 +1182,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="此处写入系统配置表，供管理与审计对齐；运行时检索仍以 deploy/.env 与 Nacos（rag.*）为准，变更后通常需重启 intelligence。更换 Embedding/向量库后必须重建索引。"
+          message="配置写入系统配置表并同步 Redis（rag.retrieval.* 等）。intelligence 对 default/hybrid Top-K 优先热读 SystemConfigCache；无 Redis 或读失败时回退 Nacos/yml。更换 Embedding/向量库后必须重建索引。"
         />
         <Form
           form={ragForm}
@@ -1294,7 +1294,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="此处写入系统配置表；运行时 KAG 仍以 deploy/.env 与 Nacos（kag.*）为准。重建/清理调用与「知识图谱」页相同的 document/graph 接口。"
+          message="配置写入系统配置表并同步 Redis。文档发布后的自动抽实体开关（kag.extraction.auto-enabled）由 intelligence 热读；关闭后仍可手动重建/清理。重建/清理接口与「知识图谱」页相同。"
         />
         <Form
           form={graphForm}

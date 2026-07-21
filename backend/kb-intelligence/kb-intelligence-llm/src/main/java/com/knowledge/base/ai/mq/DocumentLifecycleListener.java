@@ -1,6 +1,7 @@
 package com.knowledge.base.ai.mq;
 
 import com.knowledge.base.ai.config.DocumentLifecycleMQConfig;
+import com.knowledge.base.ai.config.KagRuntimeSettings;
 import com.knowledge.base.ai.rag.kag.graph.GraphBuildService;
 import com.knowledge.base.ai.rag.service.ReindexService;
 import com.knowledge.base.common.event.DocumentLifecycleEventDTO;
@@ -27,6 +28,7 @@ public class DocumentLifecycleListener {
 
     private final ReindexService reindexService;
     private final GraphBuildService graphBuildService;
+    private final KagRuntimeSettings kagRuntimeSettings;
 
     /**
      * 消费文档生命周期事件并触发 RAG/KAG 索引
@@ -59,8 +61,17 @@ public class DocumentLifecycleListener {
         }
     }
 
+    /**
+     * 发布：始终重建向量；图谱构建尊重 KAG 自动抽取热读开关。
+     *
+     * @param documentId 文档 ID
+     */
     private void handlePublished(Long documentId) {
         reindexService.reindexByDocId(documentId);
+        if (!kagRuntimeSettings.isAutoExtractEnabled()) {
+            log.info("KAG 自动抽取已关闭，跳过图谱构建：documentId={}", documentId);
+            return;
+        }
         graphBuildService.publishBuildTask(documentId);
     }
 

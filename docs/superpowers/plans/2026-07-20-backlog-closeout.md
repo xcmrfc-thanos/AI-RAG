@@ -120,8 +120,8 @@
 
 ### 可选 C3b（同一收尾周期有余力再开）
 
-- [ ] RAG：`RagProperties` 或检索入口读 `rag.retrieval.*`
-- [ ] KAG：`kag.extraction.auto-enabled` 在生命周期监听处读取
+- [x] RAG：`RagProperties` 或检索入口读 `rag.retrieval.*`
+- [x] KAG：`kag.extraction.auto-enabled` 在生命周期监听处读取
 
 ---
 
@@ -179,8 +179,9 @@
 
 ## Definition of Done
 
-- [ ] inventory「待改」仅为真实缺口（或为零阻塞项）  
-- [ ] 导出 PDF + 操作日志批量删除服从合规开关  
-- [ ] Agent 超时至少一条热读竖切可演示（或文档写明 Redis 前提且代码已接）  
-- [ ] 设计/计划文档不再写「待合入 master」  
-- [ ] 变更已 push Gitee  
+- [x] inventory「待改」仅为真实缺口（或为零阻塞项）  
+- [x] 导出 PDF + 操作日志批量删除服从合规开关  
+- [x] Agent 超时至少一条热读竖切可演示（或文档写明 Redis 前提且代码已接）  
+- [x] 设计/计划文档不再写「待合入 master」  
+- [x] 变更已 push Gitee  
+- [x] 可选 C3b：RAG TopK / KAG 自动抽取热读  

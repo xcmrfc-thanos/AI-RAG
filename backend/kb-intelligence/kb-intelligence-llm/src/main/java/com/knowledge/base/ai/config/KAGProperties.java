@@ -37,6 +37,11 @@ public class KAGProperties {
 
     @Data
     public static class Extraction {
+        /**
+         * 文档发布后是否自动抽实体/构图（可被 SystemConfigCache
+         * {@code kag.extraction.auto-enabled} 热读覆盖）
+         */
+        private boolean autoEnabled = true;
         /** 每批处理的文本块数 */
         private int batchSize = 5;
         /** 每个文本块最多抽取的实体数 */

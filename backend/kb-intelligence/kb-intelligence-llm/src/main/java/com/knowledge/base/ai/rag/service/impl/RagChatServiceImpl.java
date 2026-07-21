@@ -9,6 +9,7 @@ import com.knowledge.base.ai.entity.Message;
 import com.knowledge.base.ai.event.AiStatisticsEventPublisher;
 import com.knowledge.base.ai.mapper.MessageMapper;
 import com.knowledge.base.ai.config.RagProperties;
+import com.knowledge.base.ai.config.RagRuntimeSettings;
 import com.knowledge.base.ai.rag.service.RagChatService;
 import com.knowledge.base.ai.rag.service.RagRetrievalService;
 import com.knowledge.base.ai.vo.CitationVO;
@@ -62,6 +63,7 @@ public class RagChatServiceImpl implements RagChatService {
     private final RagRetrievalService ragRetrievalService;
     private final ModelProvider modelProvider;
     private final RagProperties ragProperties;
+    private final RagRuntimeSettings ragRuntimeSettings;
     private final MessageMapper messageMapper;
     private final AiConversationService conversationService;
     private final AiStatisticsEventPublisher aiStatisticsEventPublisher;
@@ -251,7 +253,7 @@ public class RagChatServiceImpl implements RagChatService {
     private List<RagSearchResultVO> safeRetrieve(String query) {
         try {
             return ragRetrievalService.retrieve(query,
-                    ragProperties.getRetrieval().getDefaultTopK(),
+                    ragRuntimeSettings.resolveDefaultTopK(),
                     ragProperties.getRerank().isEnabled());
         } catch (Exception e) {
             log.warn("RAG检索失败，降级为纯LLM回答：{}", e.getMessage());
