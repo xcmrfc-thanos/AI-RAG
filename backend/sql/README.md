@@ -40,11 +40,22 @@ Docker 首次初始化挂载 `schema/mysql`（见 `deploy/docker-compose.yml`）
 | `kb_intelligence.sql` | kb_intelligence |
 | `kb_agent.sql` | kb_agent |
 
-## data/（可选）
+## data/（可选，本地目录常被 backend/.gitignore 的 `data/` 忽略）
 
 默认管理员：**admin / admin123**
 
+入库种子以 **`master-sql/init_kb_foundation.sql`** 为准（含 Settings 热读相关配置）。
+
 | 文件 | 说明 |
 |------|------|
-| `init_kb_foundation.sql` | 含 Settings 热读相关 `kb_system_config` 种子（EXPORT/RAG/GRAPH/AGENT/COMPLIANCE） |
-| `patch_settings_hotread_seeds.sql` | **已有库**幂等补齐上述种子；导入后重启 kb-core 以刷 Redis |
+| `master-sql/init_kb_foundation.sql` | 全新库 / 对照源：EXPORT/RAG/GRAPH/AGENT/COMPLIANCE 种子 |
+| `patch/patch_settings_hotread_seeds.sql` | **已有库**幂等补齐（`INSERT IGNORE`）；导入后重启 kb-core 刷 Redis |
+
+已有库示例：
+
+```powershell
+# 在 deploy 目录，按本机 MySQL 密码调整
+Get-Content ..\backend\sql\patch\patch_settings_hotread_seeds.sql -Raw |
+  docker exec -i <mysql容器名> mysql -uroot -p123456
+# 然后重启 kb-core
+```
