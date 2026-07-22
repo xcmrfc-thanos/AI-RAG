@@ -18,6 +18,48 @@
 | **可交付工程** | 微服务拆分、Nacos、全栈 Compose、冒烟与 Golden 评测 |
 | **Agent 工作流** | 节点编排、试跑与发布（进阶能力） |
 
+## 核心技术
+
+设计与大模型调用、检索链路、配置边界、工程底座中落地较扎实的部分：
+
+### 大模型调用
+
+| 能力 | 说明 |
+|------|------|
+| **OpenAI 兼容** | LangChain4j `OpenAiChatModel` / 流式模型，对接通义兼容端点与 DeepSeek |
+| **多 Provider** | 对话：`qwen` + `deepseek`；向量：`qwen` / `siliconflow` / `ollama` / `local`，凭证按层回退 |
+| **公网 / 内网** | 公网 Key 调云端；内网把 `QWEN_*` / `RAG_EMBEDDING_*` 指到 Ollama 兼容口 |
+| **Dev Stub** | `AI_DEV_STUB=true` 时本地 Stub Chat + 确定性 Embedding，无 Key 可联调 |
+| **密钥通道** | `.env` → 环境变量 → Nacos 模板；**设置页不存 API Key** |
+
+### RAG 与检索
+
+| 能力 | 说明 |
+|------|------|
+| **段落感知切片** | Markdown 标题分章 → 分段 → token 合并/重叠，块带最近标题上下文 |
+| **Embedding 缓存** | Redis 按文本哈希缓存向量（默认 TTL 24h），降低重复调用 |
+| **混合检索** | BM25 + dense 并行；默认 RRF 融合，可选加权 |
+| **重排** | `api` 专用 Rerank HTTP，或 `llm` 用对话模型精排；`auto` / 通义 / 硅基等 |
+| **引用出处** | 回答回传文档 ID、标题、片段摘要与相关度（Citation） |
+| **形态白名单** | 仅 `es-es` / `es-qdrant` / `qdrant-qdrant` / `es-milvus` / `milvus-milvus` |
+
+### 配置与运行时
+
+| 能力 | 说明 |
+|------|------|
+| **热读 vs 部署** | TopK / 重排开关等写库 + Redis 热读；连接地址、Key、进程级开关走 `.env`/Nacos，两通道不同步 |
+| **入口边界** | `/search` 只检索；`/ai` 问答带引用；`/ai-writing` 生成文稿；`/agent` 跑已发布流程 |
+
+### 工程底座
+
+| 能力 | 说明 |
+|------|------|
+| **Gateway** | 统一入口 JWT；注入可信用户头，剥离外部伪造的内部信任头 |
+| **内部 HMAC** | Intelligence→Core 白名单 + 时间窗签名；Agent 工具不走系统 HMAC，须用户身份经网关 |
+| **多数据源** | Core 拆 foundation / user / document 三库；`kb.db.type` 支持 MySQL / PG / Oracle |
+| **统计投影** | 事件经 RabbitMQ 投影到 statistics 宽表，避免跨库直连 |
+| **前端 SSE** | `fetch` + ReadableStream 消费对话 / 写作 / 摘要流式接口 |
+
 ## 架构一览
 
 | 进程 | 端口 | 职责 |
