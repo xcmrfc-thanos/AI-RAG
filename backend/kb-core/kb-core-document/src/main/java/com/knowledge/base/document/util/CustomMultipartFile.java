@@ -33,41 +33,65 @@ public class CustomMultipartFile implements MultipartFile {
         this(content, "file", originalFilename, contentType);
     }
 
+    /**
+     * 获取Name。
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * 获取OriginalFilename。
+     */
     @Override
     public String getOriginalFilename() {
         return originalFilename;
     }
 
+    /**
+     * 获取ContentType。
+     */
     @Override
     public String getContentType() {
         return contentType;
     }
 
+    /**
+     * 判断是否Empty。
+     */
     @Override
     public boolean isEmpty() {
         return content == null || content.length == 0;
     }
 
+    /**
+     * 获取Size。
+     */
     @Override
     public long getSize() {
         return content != null ? content.length : 0;
     }
 
+    /**
+     * 获取Bytes。
+     */
     @Override
     public byte[] getBytes() throws IOException {
         return content;
     }
 
+    /**
+     * 获取InputStream。
+     */
     @Override
     public InputStream getInputStream() throws IOException {
         return new ByteArrayInputStream(content);
     }
 
+    /**
+     * transferTo 方法。
+     */
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
         throw new UnsupportedOperationException("transferTo not supported");

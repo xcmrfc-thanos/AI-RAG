@@ -33,6 +33,9 @@ public class DocumentLifecycleMQConfig {
     /**
      * 文档生命周期交换机
      */
+    /**
+     * documentLifecycleExchange 方法。
+     */
     @Bean
     public TopicExchange documentLifecycleExchange() {
         return new TopicExchange(DocumentLifecycleMQConstants.EXCHANGE, true, false);
@@ -41,6 +44,9 @@ public class DocumentLifecycleMQConfig {
     /**
      * Intelligence 图谱子模块文档生命周期队列
      */
+    /**
+     * graphDocumentLifecycleQueue 方法。
+     */
     @Bean
     public Queue graphDocumentLifecycleQueue() {
         return QueueBuilder.durable(graphDocumentLifecycleQueueName()).build();
@@ -48,6 +54,9 @@ public class DocumentLifecycleMQConfig {
 
     /**
      * 绑定文档生命周期事件
+     */
+    /**
+     * graphDocumentLifecycleBinding 方法。
      */
     @Bean
     public Binding graphDocumentLifecycleBinding() {
@@ -65,6 +74,9 @@ public class DocumentLifecycleMQConfig {
 
     /**
      * JSON 消息转换器
+     */
+    /**
+     * documentLifecycleMessageConverter 方法。
      */
     @Bean
     public Jackson2JsonMessageConverter documentLifecycleMessageConverter() {
@@ -84,6 +96,9 @@ public class DocumentLifecycleMQConfig {
 
     /**
      * 文档生命周期监听容器
+     */
+    /**
+     * documentLifecycleListenerContainerFactory 方法。
      */
     @Bean
     public SimpleRabbitListenerContainerFactory documentLifecycleListenerContainerFactory(

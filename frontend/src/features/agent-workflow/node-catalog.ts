@@ -122,10 +122,16 @@ export const AGENT_NODE_CATALOG: AgentNodeCatalogItem[] = [
   },
 ];
 
+/**
+ * 获取CatalogItem。
+ */
 export function getCatalogItem(kind: AgentNodeKind): AgentNodeCatalogItem {
   return AGENT_NODE_CATALOG.find((item) => item.kind === kind) || AGENT_NODE_CATALOG[0];
 }
 
+/**
+ * defaultInputFor 方法。
+ */
 export function defaultInputFor(kind: AgentNodeKind): Record<string, unknown> {
   switch (kind) {
     case 'hybrid_search': return { query: '${input.query}', mode: 'hybrid', topK: 5 };
@@ -145,6 +151,9 @@ export function defaultInputFor(kind: AgentNodeKind): Record<string, unknown> {
   }
 }
 
+/**
+ * displayTitle 方法。
+ */
 export function displayTitle(
   schemaType: 'tool' | 'llm' | 'condition' | 'virtual',
   tool?: string,

@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+/**
+ * OperationLogServiceImpl 类。
+ */
 @Slf4j
 @Service
 public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, OperationLog> implements OperationLogService {
@@ -27,6 +30,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     /** {@inheritDoc} */
+    /**
+     * 分页查询Logs。
+     */
     @Override
     public IPage<OperationLog> pageLogs(Long current, Long size, String module, String operationType, String username, LocalDateTime startTime, LocalDateTime endTime) {
         log.info("分页查询操作日志：current={}, size={}, module={}, operationType={}, username={}", current, size, module, operationType, username);
@@ -56,6 +62,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取LogById。
+     */
     @Override
     public OperationLog getLogById(Long id) {
         log.info("查询操作日志详情：id={}", id);
@@ -70,6 +79,9 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除LogsBeforeDate。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer deleteLogsBeforeDate(LocalDateTime beforeDate) {

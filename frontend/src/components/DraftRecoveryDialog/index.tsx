@@ -1,3 +1,6 @@
+/**
+ * DraftRecoveryDialog 模块导出入口。
+ */
 import React from 'react';
 import { Modal, Button } from 'antd';
 import { ExclamationCircleOutlined } from '@ant-design/icons';

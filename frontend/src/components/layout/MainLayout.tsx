@@ -1,3 +1,6 @@
+/**
+ * UI 组件：MainLayout。
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { Dropdown, Badge, App, Tooltip, Button } from 'antd';
@@ -20,8 +23,7 @@ import { resolveNotificationTarget } from '@/utils/notification-link';
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
 import { canShowAgentAdminNav, canShowAgentNav } from '@/utils/agent-access';
 import { PERMISSIONS, getPrimaryRoleLabel, hasAdminAccess, hasAnyPermission, hasPermission } from '@/utils/permission';
-import dashboardService from '@/services/dashboard.service';
-import favoriteService from '@/services/favorite.service';
+import documentService from '@/services/document.service';
 
 const MAIN_SIDEBAR_STORAGE_KEY = 'main-sidebar-collapsed';
 
@@ -69,6 +71,9 @@ function resolveReviewKey(notif: { title?: string; type?: string }): string {
   return 'review-submitted';
 }
 
+/**
+ * MainLayout 组件。
+ */
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,7 +86,7 @@ const MainLayout: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(readMainSidebarCollapsed);
   const [sidebarDocTotal, setSidebarDocTotal] = useState<number | null>(null);
-  const [sidebarFavTotal, setSidebarFavTotal] = useState<number | null>(null);
+  const [sidebarMyDocTotal, setSidebarMyDocTotal] = useState<number | null>(null);
   const currentRoles = user?.roles || (user?.role ? [user.role] : []);
   const canViewFiles = hasAnyPermission(user, [PERMISSIONS.documentList, PERMISSIONS.fileList]);
   const canManageCategories = hasAnyPermission(user, [PERMISSIONS.documentCategory, PERMISSIONS.documentCategoryQuery]);
@@ -106,6 +111,9 @@ const MainLayout: React.FC = () => {
   // 判断用户是否为审核员（根据角色判断）
   const isReviewer = canReviewDocuments || currentRoles.some((role) => role.toUpperCase().includes('REVIEWER'));
 
+  /**
+   * openNotificationTarget。
+   */
   const openNotificationTarget = useCallback((notif: SystemNotification) => {
     const target = resolveNotificationTarget(notif);
     if (!target.url) {
@@ -222,36 +230,45 @@ const MainLayout: React.FC = () => {
   }, [fetchCategoryTree, fetchTeamTree]);
 
   /**
-   * 侧栏「全部文档 / 我的收藏」角标：拉真实统计，失败则不展示假数。
+   * 侧栏知识空间角标：仅「全部文档 / 我的文档」两处，避免密集。
    */
   useEffect(() => {
     if (!token) {
       setSidebarDocTotal(null);
-      setSidebarFavTotal(null);
+      setSidebarMyDocTotal(null);
       return;
     }
     let cancelled = false;
-    dashboardService.getStats()
-      .then((res: any) => {
+    const authorId = user?.id ? String(user.id) : '';
+
+    documentService.getDocuments({ status: 1, page: 1, pageSize: 1 })
+      .then((res) => {
         if (cancelled) return;
-        const total = res?.overview?.totalDocuments;
-        setSidebarDocTotal(typeof total === 'number' ? total : null);
+        const total = Number(res?.total);
+        setSidebarDocTotal(Number.isFinite(total) ? total : null);
       })
       .catch(() => {
         if (!cancelled) setSidebarDocTotal(null);
       });
-    favoriteService.getFavorites()
-      .then((list) => {
-        if (cancelled) return;
-        setSidebarFavTotal(Array.isArray(list) ? list.length : 0);
-      })
-      .catch(() => {
-        if (!cancelled) setSidebarFavTotal(null);
-      });
+
+    if (authorId) {
+      documentService.getDocuments({ authorId, page: 1, pageSize: 1 } as any)
+        .then((mine) => {
+          if (cancelled) return;
+          const myTotal = Number(mine?.total);
+          setSidebarMyDocTotal(Number.isFinite(myTotal) ? myTotal : null);
+        })
+        .catch(() => {
+          if (!cancelled) setSidebarMyDocTotal(null);
+        });
+    } else {
+      setSidebarMyDocTotal(null);
+    }
+
     return () => {
       cancelled = true;
     };
-  }, [token, location.pathname]);
+  }, [token, location.pathname, user?.id]);
 
   // WebSocket 连接生命周期
   useEffect(() => {
@@ -737,8 +754,8 @@ const MainLayout: React.FC = () => {
           <div className="sidebar-section">
             <div className="sidebar-title">知识空间</div>
             <ul className="sidebar-menu">
-              <li className={`sidebar-item ${location.pathname === '/' ? 'active' : ''}`}>
-                <a href="/" className="sidebar-link" title={sidebarCollapsed ? '全部文档' : undefined} onClick={(e) => handleSidebarClick(e, '/')}>
+              <li className={`sidebar-item ${location.pathname === '/documents' && !location.search.includes('category=') && !location.search.includes('team=') ? 'active' : ''}`}>
+                <a href="/documents" className="sidebar-link" title={sidebarCollapsed ? '全部文档' : undefined} onClick={(e) => handleSidebarClick(e, '/documents')}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <rect x="3" y="3" width="7" height="7"></rect>
                     <rect x="14" y="3" width="7" height="7"></rect>
@@ -747,7 +764,7 @@ const MainLayout: React.FC = () => {
                   </svg>
                   <span className="sidebar-link-text">全部文档</span>
                   {sidebarDocTotal != null && (
-                    <span className="badge">{sidebarDocTotal.toLocaleString('zh-CN')}</span>
+                    <span className="badge badge--all">{sidebarDocTotal.toLocaleString('zh-CN')}</span>
                   )}
                 </a>
               </li>
@@ -761,6 +778,9 @@ const MainLayout: React.FC = () => {
                     <line x1="3" y1="7" x2="8" y2="7"></line>
                   </svg>
                   <span className="sidebar-link-text">我的文档</span>
+                  {sidebarMyDocTotal != null && (
+                    <span className="badge badge--mine">{sidebarMyDocTotal.toLocaleString('zh-CN')}</span>
+                  )}
                 </a>
               </li>
               <li className={`sidebar-item ${location.pathname === '/drafts' ? 'active' : ''}`}>
@@ -777,9 +797,6 @@ const MainLayout: React.FC = () => {
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                   <span className="sidebar-link-text">我的收藏</span>
-                  {sidebarFavTotal != null && sidebarFavTotal > 0 && (
-                    <span className="badge">{sidebarFavTotal.toLocaleString('zh-CN')}</span>
-                  )}
                 </a>
               </li>
               <li className={`sidebar-item ${location.pathname === '/recent-access' ? 'active' : ''}`}>

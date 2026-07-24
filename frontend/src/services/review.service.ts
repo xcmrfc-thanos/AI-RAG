@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：review.service。
+ */
 import { http } from './request';
 import { EntityId, ReviewTask, User } from '@/types';
 

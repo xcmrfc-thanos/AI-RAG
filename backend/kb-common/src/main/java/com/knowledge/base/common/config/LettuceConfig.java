@@ -24,6 +24,9 @@ import java.time.Duration;
 @ConditionalOnClass(LettuceConnectionFactory.class)
 public class LettuceConfig {
 
+    /**
+     * lettuceClientConfigurationBuilderCustomizer 方法。
+     */
     @Bean
     public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
         return builder -> {

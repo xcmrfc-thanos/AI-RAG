@@ -16,6 +16,9 @@ public class HealthController {
     /**
      * 健康检查
      */
+    /**
+     * ping 方法。
+     */
     @GetMapping("/ping")
     public Result<String> ping() {
         return Result.success("kb-intelligence pong");

@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：file-management.service。
+ */
 import { http } from './request';
 import { tokenStorage } from '@/utils/token-storage';
 import { EntityId } from '@/types';

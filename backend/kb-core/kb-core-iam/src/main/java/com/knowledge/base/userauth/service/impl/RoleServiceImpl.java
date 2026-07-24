@@ -46,6 +46,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Resource
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
 
+    /**
+     * 创建Role。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createRole(RoleDTO roleDTO) {
@@ -90,6 +93,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return role.getId();
     }
 
+    /**
+     * 更新Role。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateRole(RoleDTO roleDTO) {
@@ -147,6 +153,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return count > 0;
     }
 
+    /**
+     * 删除Role。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteRole(Long roleId) {
@@ -181,6 +190,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return count > 0;
     }
 
+    /**
+     * 获取RoleById。
+     */
     @Override
     public RoleVO getRoleById(Long roleId) {
         if (roleId == null) {
@@ -195,6 +207,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return buildRoleVO(role, true);
     }
 
+    /**
+     * 分页查询Roles。
+     */
     @Override
     public IPage<RoleVO> pageRoles(Long current, Long size, String keyword) {
         // 构建查询条件
@@ -213,6 +228,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return rolePage.convert(role -> buildRoleVO(role, true));
     }
 
+    /**
+     * 获取AllRoles。
+     */
     @Override
     public List<RoleVO> getAllRoles() {
         List<Role> roles = roleMapper.selectList(
@@ -226,6 +244,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 分配Permissions。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean assignPermissions(Long roleId, List<Long> permissionIds) {
@@ -255,6 +276,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         return true;
     }
 
+    /**
+     * 获取RolePermissions。
+     */
     @Override
     public List<Long> getRolePermissions(Long roleId) {
         if (roleId == null) {

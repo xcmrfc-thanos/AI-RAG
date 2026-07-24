@@ -1,3 +1,6 @@
+/**
+ * 功能模块：run-debug。
+ */
 export interface RunStepState {
   nodeId: string;
   status: string;
@@ -7,6 +10,9 @@ export interface RunStepState {
 
 const TERMINAL_RUN_STATUSES = new Set(['SUCCEEDED', 'FAILED', 'TIMED_OUT', 'CANCELLED']);
 
+/**
+ * 判断是否TerminalRunStatus。
+ */
 export function isTerminalRunStatus(status: string): boolean {
   return TERMINAL_RUN_STATUSES.has(status);
 }
@@ -37,6 +43,9 @@ export function decorateNodesWithRunState<T extends { id: string; data: Record<s
   });
 }
 
+/**
+ * parseSnapshot 方法。
+ */
 export function parseSnapshot(snapshot?: string | null): string {
   if (!snapshot) return '';
   try {

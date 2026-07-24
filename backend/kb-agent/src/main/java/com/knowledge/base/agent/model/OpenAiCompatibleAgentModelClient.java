@@ -40,6 +40,9 @@ public class OpenAiCompatibleAgentModelClient implements AgentModelClient {
     /**
      * {@inheritDoc}
      */
+    /**
+     * complete 方法。
+     */
     @Override
     public AgentModelResponse complete(AgentModelRequest request) {
         if (devStubEnabled) {

@@ -21,10 +21,16 @@ public enum StorageType {
         this.beanName = beanName;
     }
 
+    /**
+     * 获取Code。
+     */
     public String getCode() {
         return code;
     }
 
+    /**
+     * 获取BeanName。
+     */
     public String getBeanName() {
         return beanName;
     }

@@ -1,3 +1,6 @@
+/**
+ * UI 组件：TeamIcon。
+ */
 import React from 'react';
 
 interface TeamIconProps {

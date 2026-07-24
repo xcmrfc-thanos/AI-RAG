@@ -53,6 +53,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     private final ObjectProvider<MilvusChunkWriter> milvusChunkWriter;
 
     /** {@inheritDoc} */
+    /**
+     * indexChunks 方法。
+     */
     @Override
     public void indexChunks(List<DocumentChunk> chunks) {
         if (chunks == null || chunks.isEmpty()) {
@@ -90,6 +93,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ByDocId。
+     */
     @Override
     public void deleteByDocId(Long documentId) {
         try {
@@ -128,6 +134,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25Collapsed。
+     */
     @Override
     public Bm25CollapsePageVO searchBm25Collapsed(String queryText, int from, int size,
                                                   int innerHitsPerDoc, List<Long> categoryIds) {
@@ -139,6 +148,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25。
+     */
     @Override
     public List<RagSearchResultVO> searchBm25(String queryText, int topK) {
         if (!StringUtils.hasText(queryText) || topK <= 0) {
@@ -149,6 +161,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Hybrid。
+     */
     @Override
     public List<RagSearchResultVO> searchHybrid(String queryText, float[] queryEmbedding,
                                                 int topK, int hybridTopK, int rrfC) {
@@ -157,6 +172,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * indexExists 方法。
+     */
     @Override
     public boolean indexExists() {
         try {
@@ -167,6 +185,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建IndexIfNotExists。
+     */
     @Override
     public void createIndexIfNotExists() {
         try {
@@ -206,6 +227,9 @@ public class ElasticsearchVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * dropIndex 方法。
+     */
     @Override
     public void dropIndex() {
         try {

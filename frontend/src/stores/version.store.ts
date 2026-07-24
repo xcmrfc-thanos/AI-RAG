@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：version.store。
+ */
 import { create } from 'zustand';
 import { DocumentVersion } from '@/types';
 import { versionService } from '@/services';

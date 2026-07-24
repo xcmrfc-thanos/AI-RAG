@@ -12,6 +12,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @author AI-RAG
  * @since 1.0.0
  */
+/**
+ * AgentApplication：服务启动入口。
+ */
 @SpringBootApplication(scanBasePackages = "com.knowledge.base")
 @EnableDiscoveryClient
 @EnableScheduling

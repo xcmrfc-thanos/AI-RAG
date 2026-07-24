@@ -46,6 +46,9 @@ public class KAGChatServiceImpl implements KAGChatService
     private ThreadPoolTaskExecutor ragTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * chatWithKnowledgeGraph 方法。
+     */
     @Override
     public ChatResponseVO chatWithKnowledgeGraph(ChatRequestDTO requestDTO, Long userId) {
         if (requestDTO != null && requestDTO.getContent() != null) {
@@ -90,6 +93,9 @@ public class KAGChatServiceImpl implements KAGChatService
     }
 
     /** {@inheritDoc} */
+    /**
+     * chatWithKnowledgeGraphStream 方法。
+     */
     @Override
     public SseEmitter chatWithKnowledgeGraphStream(ChatRequestDTO requestDTO, Long userId) {
         if (requestDTO != null && requestDTO.getContent() != null) {

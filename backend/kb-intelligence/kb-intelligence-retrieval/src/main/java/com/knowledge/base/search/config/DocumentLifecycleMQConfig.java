@@ -29,6 +29,9 @@ public class DocumentLifecycleMQConfig {
     /**
      * Intelligence 检索子模块文档生命周期队列
      */
+    /**
+     * 搜索DocumentLifecycleQueue。
+     */
     @Bean
     public Queue searchDocumentLifecycleQueue() {
         return QueueBuilder.durable(searchDocumentLifecycleQueueName()).build();
@@ -36,6 +39,9 @@ public class DocumentLifecycleMQConfig {
 
     /**
      * 绑定文档生命周期事件
+     */
+    /**
+     * 搜索DocumentLifecycleBinding。
      */
     @Bean
     public Binding searchDocumentLifecycleBinding(TopicExchange documentLifecycleExchange) {

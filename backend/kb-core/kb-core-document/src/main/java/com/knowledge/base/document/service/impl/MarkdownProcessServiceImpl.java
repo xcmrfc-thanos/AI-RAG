@@ -42,6 +42,9 @@ public class MarkdownProcessServiceImpl implements MarkdownProcessService {
             "<img[^>]+src=[\"']([^\"']+)[\"'][^>]*>"
     );
 
+    /**
+     * 处理Images。
+     */
     @Override
     public MarkdownProcessResult processImages(String content) {
         if (!StringUtils.hasText(content)) {
@@ -86,6 +89,9 @@ public class MarkdownProcessServiceImpl implements MarkdownProcessService {
         return new MarkdownProcessResult(processedContent, urlMappings, successCount, failureCount);
     }
 
+    /**
+     * 提取ImageUrls。
+     */
     @Override
     public List<String> extractImageUrls(String content) {
         if (!StringUtils.hasText(content)) {
@@ -116,6 +122,9 @@ public class MarkdownProcessServiceImpl implements MarkdownProcessService {
         return new ArrayList<>(urls);
     }
 
+    /**
+     * 替换ImageUrls。
+     */
     @Override
     public String replaceImageUrls(String content, Map<String, String> urlMappings) {
         if (urlMappings == null || urlMappings.isEmpty()) {
@@ -148,6 +157,9 @@ public class MarkdownProcessServiceImpl implements MarkdownProcessService {
         return result;
     }
 
+    /**
+     * 生成Summary。
+     */
     @Override
     public String generateSummary(String content, int maxLength) {
         if (!StringUtils.hasText(content)) {

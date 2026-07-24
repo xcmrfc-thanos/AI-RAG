@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：team.store。
+ */
 import { create } from 'zustand';
 import { Team } from '@/types';
 import { teamService } from '@/services/team.service';

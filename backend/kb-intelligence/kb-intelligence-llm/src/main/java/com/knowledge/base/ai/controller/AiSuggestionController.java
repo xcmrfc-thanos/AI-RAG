@@ -32,6 +32,9 @@ public class AiSuggestionController {
      *
      * @return 建议问题列表
      */
+    /**
+     * 获取Suggestions。
+     */
     @GetMapping
     @Operation(summary = "获取AI建议", description = "获取AI快捷问题和建议")
     public Result<List<String>> getSuggestions() {

@@ -30,6 +30,9 @@ public class OperationLogRetentionCleaner {
     /**
      * 每天凌晨 4:00 清理过期操作日志。
      */
+    /**
+     * 清理Expired。
+     */
     @Scheduled(cron = "0 0 4 * * ?")
     public void cleanupExpired() {
         int days = resolveRetentionDays();

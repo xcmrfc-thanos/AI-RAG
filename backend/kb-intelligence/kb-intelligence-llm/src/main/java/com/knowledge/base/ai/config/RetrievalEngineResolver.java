@@ -28,6 +28,9 @@ public class RetrievalEngineResolver {
     /**
      * 启动时解析 profile；非法配置快速失败。
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         this.profile = resolve();

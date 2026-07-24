@@ -1,3 +1,6 @@
+/**
+ * 业务页面：ProfilePage。
+ */
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -48,6 +51,9 @@ export const ProfilePage: React.FC = () => {
   const allowedFileTypes = useAppStore((s) => s.allowedFileTypes);
 
   useEffect(() => {
+    /**
+     * fetchStats。
+     */
     const fetchStats = async () => {
       try {
         const result = await userService.getUserStats();
@@ -63,6 +69,9 @@ export const ProfilePage: React.FC = () => {
     }
   }, [user]);
 
+  /**
+   * handleProfileUpdate。
+   */
   const handleProfileUpdate = async (values: Record<string, unknown>) => {
     setLoading(true);
     try {
@@ -89,6 +98,9 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  /**
+   * handlePasswordChange。
+   */
   const handlePasswordChange = async (values: { currentPassword: string; newPassword: string }) => {
     setPasswordLoading(true);
     try {
@@ -110,6 +122,9 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  /**
+   * handleAvatarChange。
+   */
   const handleAvatarChange = async (info: UploadChangeParam<UploadFile>) => {
     setFileList(info.fileList);
     if (info.file.status === 'done') {

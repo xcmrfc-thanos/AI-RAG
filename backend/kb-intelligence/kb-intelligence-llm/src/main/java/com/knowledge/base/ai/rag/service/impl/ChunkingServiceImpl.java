@@ -42,6 +42,9 @@ public class ChunkingServiceImpl implements ChunkingService {
     private static final double CHARS_PER_TOKEN = 2.0;
 
     /** {@inheritDoc} */
+    /**
+     * chunk 方法。
+     */
     @Override
     public List<DocumentChunk> chunk(String content, Long documentId, String documentTitle,
                                       Long categoryId, Long authorId, Long teamId, Integer docStatus,

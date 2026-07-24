@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：websocket.service。
+ */
 import { Client, IFrame, IMessage } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { WS_BASE_URL, WS_CONFIG } from '@/config';

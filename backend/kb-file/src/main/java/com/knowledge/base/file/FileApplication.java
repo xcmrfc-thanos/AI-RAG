@@ -14,6 +14,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @MapperScan("com.knowledge.base.file.mapper")
 public class FileApplication {
 
+    /**
+     * 应用入口。
+     */
     public static void main(String[] args) {
         SpringApplication.run(FileApplication.class, args);
         System.out.println("""

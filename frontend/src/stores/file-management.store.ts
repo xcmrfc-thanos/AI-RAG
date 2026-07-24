@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：file-management.store。
+ */
 import { create } from 'zustand';
 import { fileManagementService, FileMetadata, FileStatistics } from '@/services/file-management.service';
 import type { UploadProgress } from '@/services/resumable-upload';

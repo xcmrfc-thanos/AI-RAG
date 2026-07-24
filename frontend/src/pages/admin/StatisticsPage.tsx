@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：StatisticsPage。
+ */
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
@@ -51,6 +54,9 @@ export const StatisticsPage: React.FC = () => {
   const [activeUsers, setActiveUsers] = useState<any[]>([]);
   const [trendPeriod, setTrendPeriod] = useState<'week' | 'month' | 'year'>('month');
 
+  /**
+   * fetchAllData。
+   */
   const fetchAllData = useCallback(async () => {
     setLoading(true);
     try {

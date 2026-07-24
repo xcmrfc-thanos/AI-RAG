@@ -40,6 +40,9 @@ public class DocumentVersionController {
      * @param size       每页大小
      * @return 版本分页信息
      */
+    /**
+     * 获取Versions。
+     */
     @GetMapping
     @Operation(summary = "获取文档版本列表", description = "分页查询文档版本列表")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_VERSION)")
@@ -60,6 +63,9 @@ public class DocumentVersionController {
      * @param documentId 文档ID
      * @param versionId  版本ID
      * @return 版本详情
+     */
+    /**
+     * 获取VersionDetail。
      */
     @GetMapping("/{versionId}")
     @Operation(summary = "获取文档版本详情", description = "根据版本ID获取版本详情")
@@ -82,6 +88,9 @@ public class DocumentVersionController {
      * @param dto        恢复版本DTO
      * @return 是否成功
      */
+    /**
+     * 恢复Version。
+     */
     @PostMapping("/restore")
     @Operation(summary = "恢复文档版本", description = "将文档恢复到指定版本")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_VERSION)")
@@ -103,6 +112,9 @@ public class DocumentVersionController {
      * @param versionId1 版本1 ID
      * @param versionId2 版本2 ID
      * @return 对比结果
+     */
+    /**
+     * 对比Versions。
      */
     @GetMapping("/compare")
     @Operation(summary = "对比文档版本", description = "对比两个文档版本的差异")

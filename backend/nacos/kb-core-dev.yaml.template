@@ -236,6 +236,7 @@ kb-core:
       - /documents/*
       - /internal/users/*/team-ids
       - /internal/documents/visible-ids
+      - /internal/sensitive/check
 logging:
   level:
     com.knowledge.base: debug

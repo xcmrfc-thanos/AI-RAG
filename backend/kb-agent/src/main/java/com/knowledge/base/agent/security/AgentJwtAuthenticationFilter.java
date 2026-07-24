@@ -43,6 +43,9 @@ public class AgentJwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 解析并校验 JWT，写入 Security / UserContext
      */
+    /**
+     * doFilterInternal 方法。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

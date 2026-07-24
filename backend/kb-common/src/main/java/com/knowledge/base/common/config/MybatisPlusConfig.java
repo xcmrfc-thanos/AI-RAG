@@ -45,6 +45,9 @@ public class MybatisPlusConfig {
      *
      * @return MybatisPlusInterceptor
      */
+    /**
+     * mybatisPlusInterceptor 方法。
+     */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
@@ -65,9 +68,15 @@ public class MybatisPlusConfig {
      *
      * @return IdentifierGenerator
      */
+    /**
+     * customIdGenerator 方法。
+     */
     @Bean
     public IdentifierGenerator customIdGenerator() {
         return new IdentifierGenerator() {
+            /**
+             * nextId 方法。
+             */
             @Override
             public Number nextId(Object entity) {
                 return SnowflakeIdGenerator.getInstance().nextId();
@@ -79,6 +88,9 @@ public class MybatisPlusConfig {
      * MyBatis databaseId：供 Mapper XML 按方言分支（如 upsert）。
      *
      * @return DatabaseIdProvider
+     */
+    /**
+     * databaseIdProvider 方法。
      */
     @Bean
     public DatabaseIdProvider databaseIdProvider() {

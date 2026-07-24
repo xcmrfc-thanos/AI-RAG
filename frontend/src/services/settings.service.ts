@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：settings.service。
+ */
 import { http } from './request';
 import type { SystemSettings, SystemStatus } from '@/types';
 

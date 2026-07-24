@@ -1,3 +1,6 @@
+/**
+ * UI 组件：AuthLayout。
+ */
 import React, { useEffect } from 'react';
 import { Layout } from 'antd';
 import { Logo } from '@/components/common';

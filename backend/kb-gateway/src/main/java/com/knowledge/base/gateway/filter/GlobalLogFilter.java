@@ -21,6 +21,9 @@ import reactor.core.publisher.Mono;
 @Component
 public class GlobalLogFilter implements GlobalFilter, Ordered {
 
+    /**
+     * filter 方法。
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -41,6 +44,9 @@ public class GlobalLogFilter implements GlobalFilter, Ordered {
         }));
     }
 
+    /**
+     * 获取Order。
+     */
     @Override
     public int getOrder() {
         return -100;

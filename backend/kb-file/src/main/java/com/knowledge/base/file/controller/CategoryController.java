@@ -33,6 +33,9 @@ public class CategoryController {
     /**
      * 创建分类
      */
+    /**
+     * 创建。
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "创建分类", description = "创建新的文件分类")
@@ -45,6 +48,9 @@ public class CategoryController {
     /**
      * 更新分类
      */
+    /**
+     * 更新。
+     */
     @PutMapping
     @Operation(summary = "更新分类", description = "更新指定分类的信息")
     public Result<CategoryVO> update(@Valid @RequestBody CategoryDTO dto) {
@@ -55,6 +61,9 @@ public class CategoryController {
 
     /**
      * 删除分类
+     */
+    /**
+     * 删除。
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除分类", description = "删除指定的分类（需要先删除子分类）")
@@ -67,6 +76,9 @@ public class CategoryController {
     /**
      * 根据ID获取分类详情
      */
+    /**
+     * 获取ById。
+     */
     @GetMapping("/{id}")
     @Operation(summary = "获取分类详情", description = "根据ID获取分类的详细信息")
     public Result<CategoryVO> getById(@Parameter(description = "分类ID") @PathVariable Long id) {
@@ -76,6 +88,9 @@ public class CategoryController {
 
     /**
      * 获取所有分类（平铺列表）
+     */
+    /**
+     * 列表查询All。
      */
     @GetMapping
     @Operation(summary = "获取所有分类", description = "获取所有分类的平铺列表")
@@ -87,6 +102,9 @@ public class CategoryController {
     /**
      * 获取分类树结构
      */
+    /**
+     * 获取Tree。
+     */
     @GetMapping("/tree")
     @Operation(summary = "获取分类树", description = "获取分类的树形结构")
     public Result<List<CategoryVO>> getTree() {
@@ -96,6 +114,9 @@ public class CategoryController {
 
     /**
      * 根据父分类ID获取子分类列表
+     */
+    /**
+     * 列表查询ByParentId。
      */
     @GetMapping("/children/{parentId}")
     @Operation(summary = "获取子分类", description = "根据父分类ID获取子分类列表")
@@ -108,6 +129,9 @@ public class CategoryController {
     /**
      * 启用分类
      */
+    /**
+     * enable 方法。
+     */
     @PutMapping("/{id}/enable")
     @Operation(summary = "启用分类", description = "将指定分类设置为启用状态")
     public Result<CategoryVO> enable(@Parameter(description = "分类ID") @PathVariable Long id) {
@@ -118,6 +142,9 @@ public class CategoryController {
 
     /**
      * 禁用分类
+     */
+    /**
+     * disable 方法。
      */
     @PutMapping("/{id}/disable")
     @Operation(summary = "禁用分类", description = "将指定分类设置为禁用状态")

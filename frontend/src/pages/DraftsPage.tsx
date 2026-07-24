@@ -1,3 +1,6 @@
+/**
+ * 业务页面：DraftsPage。
+ */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -103,6 +106,9 @@ export const DraftsPage: React.FC = () => {
 
   // 加载分类数据
   useEffect(() => {
+    /**
+     * loadCategories。
+     */
     const loadCategories = async () => {
       try {
         const data = await categoryService.getCategoryTree();
@@ -141,6 +147,9 @@ export const DraftsPage: React.FC = () => {
     return result;
   };
 
+  /**
+   * getCategoryDisplayStyle。
+   */
   const getCategoryDisplayStyle = (categoryName: string): { bg: string; color: string; borderColor: string } => {
     const name = categoryName.toLowerCase();
     if (name.includes('技术') || name.includes('开发')) {

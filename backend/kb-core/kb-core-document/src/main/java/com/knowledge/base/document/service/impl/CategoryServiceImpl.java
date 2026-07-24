@@ -42,6 +42,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
     @Resource
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
 
+    /**
+     * 创建Category。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:categories", allEntries = true)
@@ -94,6 +97,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return category.getId();
     }
 
+    /**
+     * 更新Category。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:categories", allEntries = true)
@@ -163,6 +169,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return count > 0;
     }
 
+    /**
+     * 删除Category。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:categories", allEntries = true)
@@ -198,6 +207,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return count > 0;
     }
 
+    /**
+     * 获取CategoryById。
+     */
     @Override
     public CategoryVO getCategoryById(Long categoryId) {
         if (categoryId == null) {
@@ -212,6 +224,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return convertToVO(category);
     }
 
+    /**
+     * 获取CategoryTree。
+     */
     @Override
     @Cacheable(value = "categoryTree", key = "'tree'", cacheManager = "caffeineCacheManager")
     public List<CategoryVO> getCategoryTree() {
@@ -231,6 +246,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return buildCategoryTree(categoryVOs, 0L);
     }
 
+    /**
+     * 获取Children。
+     */
     @Override
     public List<CategoryVO> getChildren(Long parentId) {
         if (parentId == null) {
@@ -249,6 +267,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 移动Category。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:categories", allEntries = true)
@@ -292,6 +313,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return count > 0;
     }
 
+    /**
+     * 获取AllCategories。
+     */
     @Override
     public List<CategoryVO> getAllCategories() {
         List<Category> categories = categoryMapper.selectList(

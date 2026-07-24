@@ -36,6 +36,9 @@ public class CacheConfig {
     /** 搜索结果缓存过期时间：10 分钟 */
     private static final Duration SEARCH_TTL = Duration.ofMinutes(10);
 
+    /**
+     * graphCacheManager 方法。
+     */
     @Bean
     @Primary
     public RedisCacheManager graphCacheManager(RedisConnectionFactory connectionFactory) {

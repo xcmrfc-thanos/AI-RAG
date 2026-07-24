@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：file-hash。
+ */
 import { createSHA256 } from 'hash-wasm';
 
 /** 哈希分片读取大小（2MB），增量更新摘要，避免整文件进内存 */

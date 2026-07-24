@@ -52,6 +52,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 上传。
+     */
     @Override
     public boolean upload(InputStream inputStream, String relativePath, long fileSize) {
         try {
@@ -71,6 +74,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 下载。
+     */
     @Override
     public long download(String relativePath, OutputStream outputStream) {
         try {
@@ -89,6 +95,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取InputStream。
+     */
     @Override
     public InputStream getInputStream(String relativePath) {
         try {
@@ -106,6 +115,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除。
+     */
     @Override
     public boolean delete(String relativePath) {
         try {
@@ -124,6 +136,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * exists 方法。
+     */
     @Override
     public boolean exists(String relativePath) {
         try {
@@ -143,6 +158,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取FileSize。
+     */
     @Override
     public long getFileSize(String relativePath) {
         try {
@@ -162,6 +180,9 @@ public class S3FileStorage implements ResumableFileStorage {
      * 通过 ListObjectsV2 累加桶内对象大小（RustFS / MinIO / S3 通用）。
      *
      * @return 已用字节；失败返回 -1
+     */
+    /**
+     * estimateUsedBytes 方法。
      */
     @Override
     public long estimateUsedBytes() {
@@ -194,12 +215,18 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取StorageType。
+     */
     @Override
     public String getStorageType() {
         return "s3";
     }
 
     /** {@inheritDoc} */
+    /**
+     * 初始化ResumableUpload。
+     */
     @Override
     public void initResumableUpload(String sessionId, String relativePath, long totalSize, int chunkCount,
                                     String fileHash, String fileName, String contentType) {
@@ -240,6 +267,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取UploadSession。
+     */
     @Override
     public ResumableUploadSession getUploadSession(String sessionId) {
         UploadSession session = requireSession(sessionId);
@@ -256,6 +286,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 上传Chunk。
+     */
     @Override
     public boolean uploadChunk(String sessionId, int chunkIndex, InputStream inputStream, long chunkSize) {
         UploadSession session = requireSession(sessionId);
@@ -281,6 +314,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取UploadedChunks。
+     */
     @Override
     public int[] getUploadedChunks(String sessionId) {
         UploadSession session = requireSession(sessionId);
@@ -314,6 +350,9 @@ public class S3FileStorage implements ResumableFileStorage {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 合并Chunks。
+     */
     @Override
     public boolean mergeChunks(String sessionId) {
         UploadSession session = requireSession(sessionId);
@@ -367,66 +406,114 @@ public class S3FileStorage implements ResumableFileStorage {
         private Set<Integer> uploadedParts = new HashSet<>();
         private Map<Integer, String> partEtags = new HashMap<>();
 
+        /**
+         * 获取UploadId。
+         */
         public String getUploadId() {
             return uploadId;
         }
 
+        /**
+         * setUploadId 方法。
+         */
         public void setUploadId(String uploadId) {
             this.uploadId = uploadId;
         }
 
+        /**
+         * 获取RelativePath。
+         */
         public String getRelativePath() {
             return relativePath;
         }
 
+        /**
+         * setRelativePath 方法。
+         */
         public void setRelativePath(String relativePath) {
             this.relativePath = relativePath;
         }
 
+        /**
+         * 获取TotalSize。
+         */
         public long getTotalSize() {
             return totalSize;
         }
 
+        /**
+         * setTotalSize 方法。
+         */
         public void setTotalSize(long totalSize) {
             this.totalSize = totalSize;
         }
 
+        /**
+         * 获取ChunkCount。
+         */
         public int getChunkCount() {
             return chunkCount;
         }
 
+        /**
+         * setChunkCount 方法。
+         */
         public void setChunkCount(int chunkCount) {
             this.chunkCount = chunkCount;
         }
 
+        /**
+         * 获取FileHash。
+         */
         public String getFileHash() {
             return fileHash;
         }
 
+        /**
+         * setFileHash 方法。
+         */
         public void setFileHash(String fileHash) {
             this.fileHash = fileHash;
         }
 
+        /**
+         * 获取FileName。
+         */
         public String getFileName() {
             return fileName;
         }
 
+        /**
+         * setFileName 方法。
+         */
         public void setFileName(String fileName) {
             this.fileName = fileName;
         }
 
+        /**
+         * 获取ContentType。
+         */
         public String getContentType() {
             return contentType;
         }
 
+        /**
+         * setContentType 方法。
+         */
         public void setContentType(String contentType) {
             this.contentType = contentType;
         }
 
+        /**
+         * 获取UploadedParts。
+         */
         public Set<Integer> getUploadedParts() {
             return uploadedParts;
         }
 
+        /**
+         * setUploadedParts 方法。
+         */
         public void setUploadedParts(Set<Integer> uploadedParts) {
             this.uploadedParts = uploadedParts;
         }
@@ -435,6 +522,9 @@ public class S3FileStorage implements ResumableFileStorage {
             return partEtags;
         }
 
+        /**
+         * setPartEtags 方法。
+         */
         public void setPartEtags(Map<Integer, String> partEtags) {
             this.partEtags = partEtags;
         }

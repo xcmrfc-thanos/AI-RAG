@@ -1,3 +1,6 @@
+/**
+ * 业务页面：ImportDocumentPage。
+ */
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -212,6 +215,9 @@ export const ImportDocumentPage: React.FC = () => {
     return iconMap[ext || ''] || { icon: <FileTextOutlined />, color: '#1890FF' };
   };
 
+  /**
+   * handleUpload。
+   */
   const handleUpload = async () => {
     const pendingFiles = fileList.filter((item) => item.status === 'pending');
     if (pendingFiles.length === 0) {
@@ -256,10 +262,16 @@ export const ImportDocumentPage: React.FC = () => {
     setIsUploading(false);
   };
 
+  /**
+   * handleViewDocument。
+   */
   const handleViewDocument = (documentId: string) => {
     navigate(`/documents/${documentId}`);
   };
 
+  /**
+   * handleViewDrafts。
+   */
   const handleViewDrafts = () => {
     navigate('/drafts');
   };

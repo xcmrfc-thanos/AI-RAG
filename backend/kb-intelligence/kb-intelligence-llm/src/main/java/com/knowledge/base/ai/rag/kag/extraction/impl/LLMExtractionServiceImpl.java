@@ -81,6 +81,9 @@ public class LLMExtractionServiceImpl implements ExtractionService {
             """;
 
     /** {@inheritDoc} */
+    /**
+     * 提取。
+     */
     @Override
     public ExtractionResult extract(String content, String heading, Long docId, String documentTitle) {
         if (content == null || content.isBlank()) {
@@ -128,6 +131,9 @@ public class LLMExtractionServiceImpl implements ExtractionService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 提取Batch。
+     */
     @Override
     public List<ExtractionResult> extractBatch(List<ExtractionInput> inputs) {
         if (inputs == null || inputs.isEmpty()) {

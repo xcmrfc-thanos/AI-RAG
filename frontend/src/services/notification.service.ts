@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：notification.service。
+ */
 import { http } from './request';
 import { SystemNotification } from '@/types';
 

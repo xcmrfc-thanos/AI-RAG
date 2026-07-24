@@ -1,3 +1,6 @@
+/**
+ * UI 组件：EmptyState。
+ */
 import React from 'react';
 import { Empty, Button } from 'antd';
 import { PlusOutlined, FileTextOutlined } from '@ant-design/icons';

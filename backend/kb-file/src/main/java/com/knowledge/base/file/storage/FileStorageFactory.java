@@ -26,6 +26,9 @@ public class FileStorageFactory {
     
     private FileStorage currentStorage;
 
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         StorageType storageType = StorageType.fromCode(storageProperties.getType());

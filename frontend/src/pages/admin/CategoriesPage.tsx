@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：CategoriesPage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Tree,
@@ -70,6 +73,9 @@ export const CategoriesPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categories]);
 
+  /**
+   * fetchCategories。
+   */
   const fetchCategories = async () => {
     try {
       const data = await categoryService.getCategoryTree();
@@ -102,6 +108,9 @@ export const CategoriesPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleEdit。
+   */
   const handleEdit = (category: CategoryTree) => {
     setEditingCategory(category);
     setParentCategory(category.parentId || '0');
@@ -109,6 +118,9 @@ export const CategoriesPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = async (categoryId: string) => {
     try {
       // 检查是否有子分类
@@ -126,6 +138,9 @@ export const CategoriesPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleModalOk。
+   */
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();

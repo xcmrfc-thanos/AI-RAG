@@ -1,3 +1,6 @@
+/**
+ * 业务页面：LoginPage。
+ */
 import React from 'react';
 import { Form, Input, Button, Typography, Tabs, Spin, Select } from 'antd';
 import { App } from 'antd';
@@ -133,6 +136,9 @@ export const LoginPage: React.FC = () => {
     return () => { cancelled = true; };
   }, []);
 
+  /**
+   * handleTabChange。
+   */
   const handleTabChange = (key: string) => {
     setActiveTab(key);
     if (key === 'register') {
@@ -147,6 +153,9 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleLogin。
+   */
   const handleLogin = async (values: any) => {
     setLoading(true);
     try {
@@ -160,6 +169,9 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleRegister。
+   */
   const handleRegister = async (values: any) => {
     setLoading(true);
     try {

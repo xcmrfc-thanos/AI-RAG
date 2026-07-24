@@ -41,6 +41,9 @@ public class FileManagementController {
      * @param isPublic 是否公开
      * @return 文件元数据
      */
+    /**
+     * 上传File。
+     */
     @PostMapping("/upload")
     @Operation(summary = "上传文件", description = "上传文件并保存元数据")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -65,6 +68,9 @@ public class FileManagementController {
      * @param dto 登记参数
      * @return 文件元数据
      */
+    /**
+     * 用户注册Stored。
+     */
     @PostMapping("/register-stored")
     @Operation(summary = "登记已存文件", description = "按 SHA-256 向 kb-file 解析 URL 后写入或复用 FileMetadata")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -86,6 +92,9 @@ public class FileManagementController {
      *
      * @return 文件列表
      */
+    /**
+     * 获取FileList。
+     */
     @GetMapping("/list")
     @Operation(summary = "获取文件列表", description = "获取当前用户的文件列表")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -106,6 +115,9 @@ public class FileManagementController {
      *
      * @param category 文件分类
      * @return 文件列表
+     */
+    /**
+     * 获取FileListByCategory。
      */
     @GetMapping("/list/{category}")
     @Operation(summary = "按分类获取文件列表", description = "按文件分类获取文件列表")
@@ -131,6 +143,9 @@ public class FileManagementController {
      * @param fileId 文件ID
      * @return 文件详情
      */
+    /**
+     * 获取FileDetail。
+     */
     @GetMapping("/detail/{fileId}")
     @Operation(summary = "获取文件详情", description = "获取文件详细信息")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -149,6 +164,9 @@ public class FileManagementController {
      * @param fileId     文件ID
      * @param newFileName 新文件名
      * @return 是否成功
+     */
+    /**
+     * 重命名File。
      */
     @PutMapping("/rename/{fileId}")
     @Operation(summary = "重命名文件", description = "重命名文件")
@@ -172,6 +190,9 @@ public class FileManagementController {
      * @param fileId 文件ID
      * @return 是否成功
      */
+    /**
+     * 删除File。
+     */
     @DeleteMapping("/delete/{fileId}")
     @Operation(summary = "删除文件", description = "删除文件")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -191,6 +212,9 @@ public class FileManagementController {
      *
      * @param fileIds 文件ID列表
      * @return 删除数量
+     */
+    /**
+     * 批量DeleteFiles。
      */
     @DeleteMapping("/batch-delete")
     @Operation(summary = "批量删除文件", description = "批量删除文件")
@@ -213,6 +237,9 @@ public class FileManagementController {
      * @param isPublic 是否公开
      * @return 是否成功
      */
+    /**
+     * 更新FilePermission。
+     */
     @PutMapping("/permission/{fileId}")
     @Operation(summary = "更新文件权限", description = "更新文件访问权限")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -234,6 +261,9 @@ public class FileManagementController {
      *
      * @param fileId 文件ID
      * @return 是否成功
+     */
+    /**
+     * 下载File。
      */
     @PostMapping("/download/{fileId}")
     @Operation(summary = "下载文件", description = "下载文件并增加下载次数")
@@ -269,6 +299,9 @@ public class FileManagementController {
      * @param fileId 文件ID
      * @return 新的文件元数据
      */
+    /**
+     * 复制File。
+     */
     @PostMapping("/copy/{fileId}")
     @Operation(summary = "复制文件", description = "复制文件")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -289,6 +322,9 @@ public class FileManagementController {
      * @param keyword 搜索关键词
      * @return 文件列表
      */
+    /**
+     * streamFile 方法。
+     */
     @GetMapping("/stream/{fileId}")
     @Operation(summary = "流式播放/下载文件", description = "经 kb-file 代理传输文件内容，支持 HTTP Range；download=true 时附件下载")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -304,6 +340,9 @@ public class FileManagementController {
         fileManagementService.streamFile(fileId, request, response, download);
     }
 
+    /**
+     * 获取PptxSlideImages。
+     */
     @GetMapping("/preview/{fileId}/slides")
     @Operation(summary = "获取 PPTX 幻灯片图片", description = "将 PPTX 文件渲染为每页幻灯片的 PNG 图片（Base64）")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -316,6 +355,9 @@ public class FileManagementController {
         return Result.success(slideImages);
     }
 
+    /**
+     * 搜索Files。
+     */
     @GetMapping("/search")
     @Operation(summary = "搜索文件", description = "根据关键词搜索文件")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")

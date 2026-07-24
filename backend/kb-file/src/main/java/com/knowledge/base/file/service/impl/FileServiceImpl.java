@@ -94,6 +94,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param dto  上传参数
      * @return 文件信息
      */
+    /**
+     * 上传File。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FileInfoVO uploadFile(MultipartFile file, FileUploadDTO dto) {
@@ -186,6 +189,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param dto   上传参数
      * @return 文件信息列表
      */
+    /**
+     * 上传Files。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<FileInfoVO> uploadFiles(MultipartFile[] files, FileUploadDTO dto) {
@@ -216,6 +222,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      *
      * @param fileId     文件ID
      * @param response   HTTP响应
+     */
+    /**
+     * 下载File。
      */
     @Override
     public void downloadFile(Long fileId, HttpServletResponse response) throws IOException {
@@ -269,6 +278,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param fileId 文件ID
      * @return 文件流
      */
+    /**
+     * 获取FileStream。
+     */
     @Override
     public InputStream getFileStream(Long fileId) throws IOException {
         log.info("获取文件流：fileId={}", fileId);
@@ -291,6 +303,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      *
      * @param fileId 文件ID
      * @return 是否成功
+     */
+    /**
+     * 删除File。
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -333,6 +348,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param fileIds 文件ID列表
      * @return 是否成功
      */
+    /**
+     * 批量DeleteFiles。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean batchDeleteFiles(List<Long> fileIds) {
@@ -361,6 +379,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param fileId 文件ID
      * @return 文件信息
      */
+    /**
+     * 获取FileInfo。
+     */
     @Override
     public FileInfoVO getFileInfo(Long fileId) {
         if (fileId == null) {
@@ -380,6 +401,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      *
      * @param dto 查询参数
      * @return 分页结果
+     */
+    /**
+     * 分页查询Files。
      */
     @Override
     public PageResult<FileInfoVO> pageFiles(FileQueryDTO dto) {
@@ -420,6 +444,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param fileId 文件ID
      * @return 预览URL
      */
+    /**
+     * 获取PreviewUrl。
+     */
     @Override
     public String getPreviewUrl(Long fileId) {
         if (fileId == null) {
@@ -439,6 +466,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      *
      * @param hashWithExt 哈希值，可带扩展名
      * @return 文件 ID
+     */
+    /**
+     * 解析FileIdByHash。
      */
     @Override
     public Long resolveFileIdByHash(String hashWithExt) {
@@ -470,6 +500,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param fileHash 文件内容 SHA-256 十六进制摘要
      * @return 可秒传文件 VO；不存在则为 empty
      */
+    /**
+     * 查找ByHash。
+     */
     @Override
     public Optional<FileInfoVO> findByHash(String fileHash) {
         if (!StringUtils.hasText(fileHash)) {
@@ -494,6 +527,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      *
      * @param fileId 文件ID
      * @param response HTTP响应
+     */
+    /**
+     * previewFile 方法。
      */
     @Override
     public void previewFile(Long fileId, HttpServletResponse response) throws IOException {
@@ -550,6 +586,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param targetFormat 目标格式
      * @return 转换后的文件ID
      */
+    /**
+     * 转换FileFormat。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long convertFileFormat(Long fileId, String targetFormat) {
@@ -595,6 +634,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param chunkCount  分片总数
      * @param contentType MIME 类型（可为 null）
      * @return 会话 ID
+     */
+    /**
+     * 初始化ResumableUpload。
      */
     @Override
     public String initResumableUpload(String fileHash, String fileName, long totalSize, int chunkCount,
@@ -645,6 +687,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param chunkFile  分片数据
      * @return 是否成功
      */
+    /**
+     * 上传Chunk。
+     */
     @Override
     public Boolean uploadChunk(String sessionId, int chunkIndex, MultipartFile chunkFile) {
         log.debug("上传分块：sessionId={}, chunkIndex={}, size={}",
@@ -687,6 +732,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param sessionId 会话 ID
      * @return 已上传分片索引数组
      */
+    /**
+     * 获取UploadedChunks。
+     */
     @Override
     public int[] getUploadedChunks(String sessionId) {
         return requireResumableStorage().getUploadedChunks(sessionId);
@@ -698,6 +746,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
      * @param sessionId 会话 ID
      * @param dto       合并参数（可选 fileHash/fileName 冗余校验）
      * @return 文件信息
+     */
+    /**
+     * 合并Chunks。
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -1235,6 +1286,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     /**
      * 从URL转换图片（下载并上传到系统）
      */
+    /**
+     * 转换FromUrl。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UrlConvertResponse convertFromUrl(String imageUrl) {
@@ -1301,6 +1355,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     /**
      * 批量转换图片URL（并发处理）
      */
+    /**
+     * 批量ConvertUrls。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public BatchConvertResponse batchConvertUrls(List<String> imageUrls) {
@@ -1347,6 +1404,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     /**
      * 流式播放HLS master播放列表
      */
+    /**
+     * streamMasterPlaylist 方法。
+     */
     @Override
     public void streamMasterPlaylist(Long fileId, HttpServletResponse response) throws IOException {
         FileInfo fileInfo = fileMapper.selectById(fileId);
@@ -1366,6 +1426,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
 
     /**
      * 流式播放HLS TS分片
+     */
+    /**
+     * streamSegment 方法。
      */
     @Override
     public void streamSegment(Long fileId, String segment, HttpServletResponse response) throws IOException {
@@ -1387,6 +1450,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
 
     /**
      * 获取缩略图
+     */
+    /**
+     * 获取Thumbnail。
      */
     @Override
     public void getThumbnail(Long fileId, HttpServletResponse response) throws IOException {
@@ -1474,41 +1540,65 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
             this.content = inputStream.readAllBytes();
         }
 
+        /**
+         * 获取Name。
+         */
         @Override
         public String getName() {
             return name;
         }
 
+        /**
+         * 获取OriginalFilename。
+         */
         @Override
         public String getOriginalFilename() {
             return originalFilename;
         }
 
+        /**
+         * 获取ContentType。
+         */
         @Override
         public String getContentType() {
             return contentType;
         }
 
+        /**
+         * 判断是否Empty。
+         */
         @Override
         public boolean isEmpty() {
             return content.length == 0;
         }
 
+        /**
+         * 获取Size。
+         */
         @Override
         public long getSize() {
             return content.length;
         }
 
+        /**
+         * 获取Bytes。
+         */
         @Override
         public byte[] getBytes() throws IOException {
             return content;
         }
 
+        /**
+         * 获取InputStream。
+         */
         @Override
         public InputStream getInputStream() throws IOException {
             return new ByteArrayInputStream(content);
         }
 
+        /**
+         * transferTo 方法。
+         */
         @Override
         public void transferTo(File dest) throws IOException, IllegalStateException {
             Files.write(dest.toPath(), content);

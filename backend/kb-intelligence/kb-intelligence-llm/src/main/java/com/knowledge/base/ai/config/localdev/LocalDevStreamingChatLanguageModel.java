@@ -20,6 +20,9 @@ public class LocalDevStreamingChatLanguageModel implements StreamingChatLanguage
     /**
      * 流式生成 stub 回答（单 token 推送完整文本）。
      */
+    /**
+     * 生成。
+     */
     @Override
     public void generate(List<ChatMessage> messages, StreamingResponseHandler<AiMessage> handler) {
         String answer = LocalDevResponseSynthesizer.synthesize(extractLastUserText(messages));

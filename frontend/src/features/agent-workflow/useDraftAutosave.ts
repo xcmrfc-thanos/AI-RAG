@@ -1,9 +1,15 @@
+/**
+ * 功能模块：useDraftAutosave。
+ */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { agentService } from '@/services/agent.service';
 import { createRevisionGate } from './draft-autosave';
 
 export type DraftSaveStatus = 'idle' | 'unsaved' | 'saving' | 'saved' | 'failed';
 
+/**
+ * useDraftAutosave 方法。
+ */
 export function useDraftAutosave(workflowId: number | null, initialValue: string) {
   const [draftJson, setDraftJson] = useState(initialValue);
   const [saveStatus, setSaveStatus] = useState<DraftSaveStatus>('idle');

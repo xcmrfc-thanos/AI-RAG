@@ -48,6 +48,9 @@ public enum DocumentStatus {
         this.name = name;
     }
 
+    /**
+     * 获取ByCode。
+     */
     public static DocumentStatus getByCode(Integer code) {
         for (DocumentStatus status : values()) {
             if (status.getCode().equals(code)) {

@@ -1,3 +1,6 @@
+/**
+ * 业务页面：AIAssistantPage。
+ */
 import React, { useCallback, useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import {
   Card,
@@ -365,6 +368,9 @@ const CodeBlock: React.FC<{
   const [copied, setCopied] = useState(false);
   const lang = language || 'text';
 
+  /**
+   * handleCopy。
+   */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(value);
@@ -508,12 +514,18 @@ const ChatInput = forwardRef<ChatInputHandle, ChatInputProps>(({ onSend, isLoadi
     },
   }));
 
+  /**
+   * handleSend。
+   */
   const handleSend = useCallback(() => {
     if (!inputValue.trim()) return;
     onSend(inputValue.trim());
     setInputValue('');
   }, [inputValue, onSend]);
 
+  /**
+   * handleKeyPress。
+   */
   const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -1033,6 +1045,9 @@ const AIAssistantContent: React.FC = () => {
   const sidebarListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    /**
+     * init。
+     */
     const init = async () => {
       try {
         await fetchConversations();
@@ -1071,6 +1086,9 @@ const AIAssistantContent: React.FC = () => {
     scrollToBottom();
   }, [currentConversation?.messages, currentResponse, scrollToBottom]);
 
+  /**
+   * fetchQuickQuestions。
+   */
   const fetchQuickQuestions = async () => {
     try {
       const questions = await aiService.getSuggestions();
@@ -1092,6 +1110,9 @@ const AIAssistantContent: React.FC = () => {
     }
   };
 
+  /**
+   * handleSend。
+   */
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
     setIsTyping(true);
@@ -1102,10 +1123,16 @@ const AIAssistantContent: React.FC = () => {
     }
   }, [sendMessage, currentConversation?.id]);
 
+  /**
+   * handleQuickQuestion。
+   */
   const handleQuickQuestion = useCallback((question: string) => {
     chatInputRef.current?.submitWithText(question);
   }, []);
 
+  /**
+   * handleNewConversation。
+   */
   const handleNewConversation = async () => {
     try {
       await createConversation(`新对话 ${conversations.length + 1}`);
@@ -1114,6 +1141,9 @@ const AIAssistantContent: React.FC = () => {
     }
   };
 
+  /**
+   * handleDeleteConversation。
+   */
   const handleDeleteConversation = async (id: string) => {
     try {
       await deleteConversation(id);
@@ -1122,6 +1152,9 @@ const AIAssistantContent: React.FC = () => {
     }
   };
 
+  /**
+   * handleFeedback。
+   */
   const handleFeedback = useCallback(async (messageId: string, type: 'like' | 'dislike') => {
     if (!currentConversation) return;
     try {
@@ -1167,6 +1200,9 @@ const AIAssistantContent: React.FC = () => {
     }
   }, [currentConversation, isStreaming, isTyping, sendMessage, setCurrentConversation]);
 
+  /**
+   * formatTime。
+   */
   const formatTime = (dateStr?: string) => {
     if (!dateStr) return '';
     try {

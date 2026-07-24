@@ -11,16 +11,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 知识图谱服务Feign客户端
+ * 知识图谱 Feign 客户端（同步备份路径；主路径为 RabbitMQ 异步）。
  *
- * <p>调用 kb-graph 服务的图谱删除接口，直接在 Neo4j 中删除文档图谱数据，
- * 作为 KAG RabbitMQ 异步删除的同步备份路径。</p>
- *
- * @author 苏三
- * @since 1.0.0
+ * <p>注册名已切到 kb-intelligence（原独立服务 kb-graph 已归档）。</p>
  */
 @FeignClient(
-        name = "kb-graph",
+        name = "kb-intelligence",
         path = "/graph",
         contextId = "graphFeignClient"
 )

@@ -72,6 +72,9 @@ public class PageResult<T> implements Serializable {
     /**
      * 空分页结果
      */
+    /**
+     * empty 方法。
+     */
     @SuppressWarnings("unchecked")
     public static <T> PageResult<T> empty() {
         return PageResult.<T>builder()

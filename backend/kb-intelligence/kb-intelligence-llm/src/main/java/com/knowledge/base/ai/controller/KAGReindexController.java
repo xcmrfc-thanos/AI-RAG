@@ -36,6 +36,9 @@ public class KAGReindexController {
      * @param docId 文档ID
      * @return 任务ID
      */
+    /**
+     * 构建ByDoc。
+     */
     @PostMapping("/{docId}")
     @Operation(summary = "构建单个文档图谱")
     public Result<String> buildByDoc(@PathVariable Long docId) {
@@ -51,6 +54,9 @@ public class KAGReindexController {
      * @param docIds 文档ID列表
      * @return 任务ID
      */
+    /**
+     * 构建Batch。
+     */
     @PostMapping("/batch")
     @Operation(summary = "批量构建文档图谱")
     public Result<String> buildBatch(@RequestBody List<Long> docIds) {
@@ -64,6 +70,9 @@ public class KAGReindexController {
      * <p>发布异步全量构建任务到 RabbitMQ，若 MQ 不可用则同步执行。</p>
      *
      * @return 任务ID
+     */
+    /**
+     * 构建All。
      */
     @PostMapping("/all")
     @Operation(summary = "全量构建所有已发布文档图谱")
@@ -79,6 +88,9 @@ public class KAGReindexController {
      *
      * @param docId 文档ID
      * @return 任务ID
+     */
+    /**
+     * 删除ByDoc。
      */
     @DeleteMapping("/{docId}")
     @Operation(summary = "删除文档图谱")

@@ -28,27 +28,45 @@ public class KAGRabbitConfig {
 
     public static final String EXCHANGE = "kag.graph.exchange";
 
+    /**
+     * kagGraphBuildQueueName 方法。
+     */
     public String kagGraphBuildQueueName() {
         return "kag.graph.build.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * kagGraphBuildRoutingKeyAll 方法。
+     */
     public String kagGraphBuildRoutingKeyAll() {
         return "kag.graph.build." + instanceIdentifier.getId() + ".all";
     }
 
+    /**
+     * kagGraphBuildRoutingKeyByIds 方法。
+     */
     public String kagGraphBuildRoutingKeyByIds() {
         return "kag.graph.build." + instanceIdentifier.getId() + ".by_ids";
     }
 
+    /**
+     * kagGraphDeleteRoutingKey 方法。
+     */
     public String kagGraphDeleteRoutingKey() {
         return "kag.graph.delete." + instanceIdentifier.getId();
     }
 
+    /**
+     * kagGraphExchange 方法。
+     */
     @Bean
     public TopicExchange kagGraphExchange() {
         return new TopicExchange(EXCHANGE);
     }
 
+    /**
+     * kagGraphBuildQueue 方法。
+     */
     @Bean
     public Queue kagGraphBuildQueue() {
         return QueueBuilder.durable(kagGraphBuildQueueName())
@@ -56,6 +74,9 @@ public class KAGRabbitConfig {
                 .build();
     }
 
+    /**
+     * kagGraphBuildAllBinding 方法。
+     */
     @Bean
     public Binding kagGraphBuildAllBinding() {
         return BindingBuilder.bind(kagGraphBuildQueue())
@@ -63,6 +84,9 @@ public class KAGRabbitConfig {
                 .with(kagGraphBuildRoutingKeyAll());
     }
 
+    /**
+     * kagGraphBuildByIdsBinding 方法。
+     */
     @Bean
     public Binding kagGraphBuildByIdsBinding() {
         return BindingBuilder.bind(kagGraphBuildQueue())
@@ -70,6 +94,9 @@ public class KAGRabbitConfig {
                 .with(kagGraphBuildRoutingKeyByIds());
     }
 
+    /**
+     * kagGraphDeleteBinding 方法。
+     */
     @Bean
     public Binding kagGraphDeleteBinding() {
         return BindingBuilder.bind(kagGraphBuildQueue())

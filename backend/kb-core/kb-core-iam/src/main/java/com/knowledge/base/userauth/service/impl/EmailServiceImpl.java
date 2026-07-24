@@ -47,6 +47,9 @@ public class EmailServiceImpl implements EmailService {
         return "知识库系统";
     }
 
+    /**
+     * 发送ActivationEmail。
+     */
     @Override
     public void sendActivationEmail(String to, String username, String token) {
         String activationUrl = frontendUrl + "/activate?token=" + token;
@@ -58,6 +61,9 @@ public class EmailServiceImpl implements EmailService {
         sendHtmlEmail(to, subject, htmlContent);
     }
 
+    /**
+     * 发送ResetCodeEmail。
+     */
     @Override
     public void sendResetCodeEmail(String to, String code) {
         String systemName = getSystemName();

@@ -64,6 +64,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     private static final int PAGE_SIZE = 20;
 
     /** {@inheritDoc} */
+    /**
+     * 构建ForDocument。
+     */
     @Override
     public int buildForDocument(Long docId) {
         log.info("KAG graph build started for documentId={}", docId);
@@ -78,6 +81,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ForDocument。
+     */
     @Override
     public void deleteForDocument(Long docId) {
         log.info("KAG graph delete for documentId={}", docId);
@@ -105,6 +111,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
         }
     }
 
+    /**
+     * 构建All。
+     */
     @Override
     @SuppressWarnings("unchecked")
     public int buildAll() {
@@ -149,6 +158,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 构建Batch。
+     */
     @Override
     public int buildBatch(List<Long> docIds) {
         if (docIds == null || docIds.isEmpty()) return 0;
@@ -172,6 +184,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     // ==================== 异步任务发布 ====================
 
     /** {@inheritDoc} */
+    /**
+     * publishBuildTask 方法。
+     */
     @Override
     public String publishBuildTask(Long docId) {
         String taskId = UUID.randomUUID().toString();
@@ -194,6 +209,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * publishBuildBatchTask 方法。
+     */
     @Override
     public String publishBuildBatchTask(List<Long> docIds) {
         String taskId = UUID.randomUUID().toString();
@@ -216,6 +234,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * publishBuildAllTask 方法。
+     */
     @Override
     public String publishBuildAllTask() {
         String taskId = UUID.randomUUID().toString();
@@ -237,6 +258,9 @@ public class GraphBuildServiceImpl implements GraphBuildService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * publishDeleteTask 方法。
+     */
     @Override
     public String publishDeleteTask(Long docId) {
         String taskId = UUID.randomUUID().toString();

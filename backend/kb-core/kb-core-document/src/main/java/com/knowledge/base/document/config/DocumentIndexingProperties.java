@@ -39,6 +39,9 @@ public class DocumentIndexingProperties {
     /**
      * legacy-feign 模式启动时输出醒目 WARN
      */
+    /**
+     * warnIfLegacy 方法。
+     */
     @PostConstruct
     public void warnIfLegacy() {
         if (mode == DocumentIndexingMode.LEGACY_FEIGN) {

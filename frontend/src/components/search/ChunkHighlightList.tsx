@@ -1,3 +1,6 @@
+/**
+ * UI 组件：ChunkHighlightList。
+ */
 import React from 'react';
 import type { SearchResult } from '@/types';
 import { resolveSearchHighlight } from './search-utils';

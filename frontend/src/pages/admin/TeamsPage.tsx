@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：TeamsPage。
+ */
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Card,
@@ -66,6 +69,9 @@ export const TeamsPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * fetchUsers。
+   */
   const fetchUsers = async () => {
     try {
       const data = await userService.getUsers({ page: 1, pageSize: 1000 });
@@ -75,6 +81,9 @@ export const TeamsPage: React.FC = () => {
     }
   };
 
+  /**
+   * fetchTeams。
+   */
   const fetchTeams = useCallback(async (page = 1, pageSize = 10) => {
     setLoading(true);
     try {
@@ -92,6 +101,9 @@ export const TeamsPage: React.FC = () => {
     }
   }, []);
 
+  /**
+   * fetchTeamMembers。
+   */
   const fetchTeamMembers = async (teamId: string) => {
     try {
       const members = await teamService.getTeamMembers(teamId);
@@ -107,6 +119,9 @@ export const TeamsPage: React.FC = () => {
     setModalVisible(true);
   };
 
+  /**
+   * handleEdit。
+   */
   const handleEdit = (team: Team) => {
     setEditingTeam(team);
     form.setFieldsValue({
@@ -120,6 +135,9 @@ export const TeamsPage: React.FC = () => {
     setModalVisible(true);
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = async (id: string) => {
     try {
       await teamService.deleteTeam(id);
@@ -135,6 +153,9 @@ export const TeamsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleSubmit。
+   */
   const handleSubmit = async (values: any) => {
     try {
       if (editingTeam) {
@@ -167,11 +188,17 @@ export const TeamsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleShowMembers。
+   */
   const handleShowMembers = (team: Team) => {
     setSelectedTeam(team);
     fetchTeamMembers(team.id);
   };
 
+  /**
+   * handleRemoveMember。
+   */
   const handleRemoveMember = async (userId: string) => {
     if (!selectedTeam) return;
     try {
@@ -184,6 +211,9 @@ export const TeamsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleAddMembers。
+   */
   const handleAddMembers = async () => {
     if (!selectedTeam || selectedUserIds.length === 0) return;
     try {

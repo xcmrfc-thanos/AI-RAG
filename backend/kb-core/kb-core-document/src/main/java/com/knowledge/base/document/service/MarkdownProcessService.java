@@ -80,10 +80,16 @@ public interface MarkdownProcessService {
             this.failureCount = failureCount;
         }
 
+        /**
+         * 获取ProcessedContent。
+         */
         public String getProcessedContent() {
             return processedContent;
         }
 
+        /**
+         * setProcessedContent 方法。
+         */
         public void setProcessedContent(String processedContent) {
             this.processedContent = processedContent;
         }
@@ -92,22 +98,37 @@ public interface MarkdownProcessService {
             return urlMappings;
         }
 
+        /**
+         * setUrlMappings 方法。
+         */
         public void setUrlMappings(Map<String, String> urlMappings) {
             this.urlMappings = urlMappings;
         }
 
+        /**
+         * 获取SuccessCount。
+         */
         public Integer getSuccessCount() {
             return successCount;
         }
 
+        /**
+         * setSuccessCount 方法。
+         */
         public void setSuccessCount(Integer successCount) {
             this.successCount = successCount;
         }
 
+        /**
+         * 获取FailureCount。
+         */
         public Integer getFailureCount() {
             return failureCount;
         }
 
+        /**
+         * setFailureCount 方法。
+         */
         public void setFailureCount(Integer failureCount) {
             this.failureCount = failureCount;
         }

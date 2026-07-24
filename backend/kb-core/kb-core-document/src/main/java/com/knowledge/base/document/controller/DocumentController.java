@@ -67,6 +67,9 @@ public class DocumentController {
      * @param documentDTO 文档信息
      * @return 文档ID
      */
+    /**
+     * 创建Document。
+     */
     @PostMapping
     @Operation(summary = "创建文档", description = "创建新文档")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE)")
@@ -82,6 +85,9 @@ public class DocumentController {
      *
      * @param documentDTO 文档信息
      * @return 是否成功
+     */
+    /**
+     * 更新Document。
      */
     @PutMapping
     @Operation(summary = "更新文档", description = "更新文档信息")
@@ -99,6 +105,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @param body       请求体，包含summary字段
      * @return 是否成功
+     */
+    /**
+     * 更新Summary。
      */
     @PatchMapping("/{documentId}/summary")
     @Operation(summary = "更新文档摘要", description = "仅更新文档的summary字段")
@@ -128,6 +137,9 @@ public class DocumentController {
      * @param autoSaveDTO 自动保存数据
      * @return 文档ID
      */
+    /**
+     * autoSaveDocument 方法。
+     */
     @PostMapping("/autosave")
     @Operation(summary = "自动保存文档", description = "自动保存草稿，允许空标题，不触发索引")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -145,6 +157,9 @@ public class DocumentController {
      *
      * @return 是否成功
      */
+    /**
+     * dismissAutoSaveDrafts 方法。
+     */
     @PutMapping("/autosave/dismiss")
     @Operation(summary = "放弃自动保存草稿", description = "将当前用户所有草稿标记为已确认，不再弹出恢复提示")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -159,6 +174,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @return 是否成功
+     */
+    /**
+     * 删除Document。
      */
     @DeleteMapping("/{documentId}")
     @Operation(summary = "删除文档", description = "根据文档ID删除文档")
@@ -178,6 +196,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 文档信息
      */
+    /**
+     * 获取DocumentById。
+     */
     @GetMapping("/{documentId}")
     @Operation(summary = "查询文档", description = "根据文档ID查询文档详情")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -195,6 +216,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @return 文档信息
+     */
+    /**
+     * 浏览Document。
      */
     @GetMapping("/{documentId}/view")
     @Operation(summary = "浏览文档", description = "浏览文档并增加浏览次数")
@@ -219,6 +243,9 @@ public class DocumentController {
      * @param sortBy     排序字段
      * @param sortOrder  排序方向
      * @return 文档分页信息
+     */
+    /**
+     * 分页查询Documents。
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询文档", description = "分页查询文档列表")
@@ -246,6 +273,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 相邻文档信息
      */
+    /**
+     * 获取DocumentNeighbors。
+     */
     @GetMapping("/{documentId}/neighbors")
     @Operation(summary = "查询相邻文档", description = "查询文档的上一篇和下一篇，用于详情页导航")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -262,6 +292,9 @@ public class DocumentController {
      *
      * @param file 文件
      * @return 文件路径
+     */
+    /**
+     * 上传DocumentFile。
      */
     @PostMapping("/upload")
     @Operation(summary = "上传文档文件", description = "上传文档文件并返回文件路径")
@@ -321,6 +354,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 是否成功
      */
+    /**
+     * 点赞Document。
+     */
     @PostMapping("/{documentId}/like")
     @Operation(summary = "点赞文档", description = "用户点赞文档")
     public Result<Boolean> likeDocument(
@@ -337,6 +373,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @return 是否成功
+     */
+    /**
+     * 取消点赞Document。
      */
     @DeleteMapping("/{documentId}/like")
     @Operation(summary = "取消点赞文档", description = "用户取消点赞文档")
@@ -355,6 +394,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 是否成功
      */
+    /**
+     * favoriteDocument 方法。
+     */
     @PostMapping("/{documentId}/favorite")
     @Operation(summary = "收藏文档", description = "用户收藏文档")
     public Result<Boolean> favoriteDocument(
@@ -371,6 +413,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @return 是否成功
+     */
+    /**
+     * publishDocument 方法。
      */
     @PutMapping("/{documentId}/publish")
     @Operation(summary = "发布文档", description = "根据系统配置直接发布或提交审核流程")
@@ -390,6 +435,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 是否成功
      */
+    /**
+     * archiveDocument 方法。
+     */
     @PutMapping("/{documentId}/archive")
     @Operation(summary = "归档文档", description = "归档文档")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -407,6 +455,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @return PDF下载URL
+     */
+    /**
+     * 导出DocumentToPdf。
      */
     @GetMapping("/{documentId}/export-pdf")
     @Operation(summary = "导出PDF", description = "导出文档为PDF并返回下载链接")
@@ -426,6 +477,9 @@ public class DocumentController {
      *
      * @param documentId 文档ID
      * @param response HTTP响应
+     */
+    /**
+     * 下载DocumentPdf。
      */
     @GetMapping("/{documentId}/download-pdf")
     @Operation(summary = "下载PDF", description = "直接下载文档PDF文件")
@@ -464,6 +518,9 @@ public class DocumentController {
      *
      * @param request 批量导出请求
      * @param response HTTP响应
+     */
+    /**
+     * 批量ExportDocuments。
      */
     @PostMapping("/batch-export")
     @Operation(summary = "批量导出", description = "批量导出选中文档为PDF或Markdown格式的ZIP文件")
@@ -504,6 +561,9 @@ public class DocumentController {
      * @param shareDTO 分享参数
      * @return 分享信息
      */
+    /**
+     * 创建Share。
+     */
     @PostMapping("/share")
     @Operation(summary = "创建分享", description = "创建文档分享链接")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -519,6 +579,9 @@ public class DocumentController {
      *
      * @param shareId 分享ID
      * @return 分享信息
+     */
+    /**
+     * 获取ShareInfo。
      */
     @GetMapping("/share/{shareId}")
     @Operation(summary = "获取分享信息", description = "通过分享ID获取分享信息")
@@ -538,6 +601,9 @@ public class DocumentController {
      * @param shareId 分享ID
      * @param password 访问密码（可选）
      * @return 文档ID
+     */
+    /**
+     * 访问Share。
      */
     @PostMapping("/share/{shareId}/access")
     @Operation(summary = "访问分享", description = "访问分享链接并返回文档ID")
@@ -559,6 +625,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @return 分享列表
      */
+    /**
+     * 获取DocumentShares。
+     */
     @GetMapping("/{documentId}/shares")
     @Operation(summary = "获取文档分享列表", description = "获取文档的所有分享链接")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -576,6 +645,9 @@ public class DocumentController {
      *
      * @return 分享列表
      */
+    /**
+     * 获取MyShares。
+     */
     @GetMapping("/share/my")
     @Operation(summary = "获取我的分享", description = "获取当前用户的分享列表")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_LIST)")
@@ -591,6 +663,9 @@ public class DocumentController {
      *
      * @param shareId 分享ID
      * @return 是否成功
+     */
+    /**
+     * 删除Share。
      */
     @DeleteMapping("/share/{shareId}")
     @Operation(summary = "删除分享", description = "删除分享链接")
@@ -610,6 +685,9 @@ public class DocumentController {
      * @param shareId 分享ID
      * @param shareDTO 更新参数
      * @return 是否成功
+     */
+    /**
+     * 更新Share。
      */
     @PutMapping("/share/{shareId}")
     @Operation(summary = "更新分享设置", description = "更新分享链接的设置")
@@ -631,6 +709,9 @@ public class DocumentController {
      *
      * @return 操作结果
      */
+    /**
+     * 清理GraphGhostNodes。
+     */
     @PostMapping("/graph/cleanup")
     @Operation(summary = "清理知识图谱脏节点", description = "删除MySQL中已删除但Neo4j中残留的文档图谱节点")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -646,6 +727,9 @@ public class DocumentController {
      * <p>遍历所有已发布文档，触发 KAG 图谱构建，用于首次建图或全量重建。</p>
      *
      * @return 操作结果
+     */
+    /**
+     * rebuildAllGraphs 方法。
      */
     @PostMapping("/graph/rebuild")
     @Operation(summary = "批量重建知识图谱", description = "重建所有已发布文档的知识图谱")
@@ -663,6 +747,9 @@ public class DocumentController {
      * @param current    当前页
      * @param size       每页大小
      * @return 分页历史快照
+     */
+    /**
+     * 获取AutoSaveHistory。
      */
     @GetMapping("/{documentId}/autosave-history")
     @Operation(summary = "获取自动保存历史", description = "分页查询指定文档的自动保存快照历史")
@@ -689,6 +776,9 @@ public class DocumentController {
      * @param documentId 文档ID
      * @param snapshotId 快照ID（MongoDB _id）
      * @return 快照详情
+     */
+    /**
+     * 获取AutoSaveSnapshot。
      */
     @GetMapping("/{documentId}/autosave-history/{snapshotId}")
     @Operation(summary = "获取自动保存快照详情", description = "根据快照ID获取完整Markdown内容")

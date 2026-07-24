@@ -35,6 +35,9 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
 
     // ==================== 配置读取 ====================
 
+    /**
+     * 获取PasswordMinLength。
+     */
     @Override
     public int getPasswordMinLength() {
         String val = getConfig("auth.password.min.length");
@@ -47,18 +50,27 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
         return DEFAULT_PASSWORD_MIN_LENGTH;
     }
 
+    /**
+     * 判断是否RequireSpecialChar。
+     */
     @Override
     public boolean isRequireSpecialChar() {
         String val = getConfig("auth.password.require.special");
         return "true".equalsIgnoreCase(val) || "1".equals(val);
     }
 
+    /**
+     * 获取PasswordPolicy。
+     */
     @Override
     public String getPasswordPolicy() {
         String val = getConfig("system.passwordPolicy");
         return (val != null && !val.isEmpty()) ? val : "medium";
     }
 
+    /**
+     * 获取SessionTimeout。
+     */
     @Override
     public long getSessionTimeout() {
         String val = getConfig("auth.session.timeout");
@@ -71,6 +83,9 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
         return DEFAULT_SESSION_TIMEOUT;
     }
 
+    /**
+     * 获取LoginMaxRetry。
+     */
     @Override
     public int getLoginMaxRetry() {
         String val = getConfig("auth.login.max.retry");
@@ -83,18 +98,27 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
         return DEFAULT_LOGIN_MAX_RETRY;
     }
 
+    /**
+     * 判断是否IpRestrictionEnabled。
+     */
     @Override
     public boolean isIpRestrictionEnabled() {
         String val = getConfig("system.ipRestriction");
         return "true".equalsIgnoreCase(val) || "1".equals(val);
     }
 
+    /**
+     * 判断是否2FAEnabled。
+     */
     @Override
     public boolean is2FAEnabled() {
         String val = getConfig("system.enable2FA");
         return "true".equalsIgnoreCase(val) || "1".equals(val);
     }
 
+    /**
+     * 获取Config。
+     */
     @Override
     public String getConfig(String configKey) {
         return systemConfigCache.getConfig(configKey);
@@ -102,6 +126,9 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
 
     // ==================== 密码策略验证 ====================
 
+    /**
+     * 校验Password。
+     */
     @Override
     public void validatePassword(String password) {
         if (password == null || password.isEmpty()) {
@@ -180,6 +207,9 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
 
     // ==================== 登录失败计数 ====================
 
+    /**
+     * 记录LoginFailure。
+     */
     @Override
     public int recordLoginFailure(String username) {
         int maxRetry = getLoginMaxRetry();
@@ -198,11 +228,17 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
         return Math.max(0, remaining);
     }
 
+    /**
+     * 清空LoginFailure。
+     */
     @Override
     public void clearLoginFailure(String username) {
         failMap.remove(username);
     }
 
+    /**
+     * 判断是否AccountLocked。
+     */
     @Override
     public boolean isAccountLocked(String username) {
         LoginFailRecord record = failMap.get(username);
@@ -226,6 +262,9 @@ public class SecurityConfigServiceImpl implements SecurityConfigService {
 
     /**
      * 每小时清理过期的登录失败记录
+     */
+    /**
+     * cleanExpiredFailRecords 方法。
      */
     @Scheduled(fixedRate = 3600000)
     public void cleanExpiredFailRecords() {

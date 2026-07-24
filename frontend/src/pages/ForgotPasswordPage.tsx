@@ -1,3 +1,6 @@
+/**
+ * 业务页面：ForgotPasswordPage。
+ */
 import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Typography, Card, Result } from 'antd';
 import { App } from 'antd';

@@ -24,6 +24,9 @@ public class SecurityConfig {
      * @param http ServerHttpSecurity
      * @return SecurityWebFilterChain
      */
+    /**
+     * securityWebFilterChain 方法。
+     */
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         // 禁用 CSRF

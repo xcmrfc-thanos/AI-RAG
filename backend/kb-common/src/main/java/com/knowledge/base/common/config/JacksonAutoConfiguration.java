@@ -31,6 +31,9 @@ import java.text.SimpleDateFormat;
 @Configuration
 public class JacksonAutoConfiguration {
 
+    /**
+     * jackson2ObjectMapperBuilder 方法。
+     */
     @Bean
     @ConditionalOnMissingBean
     public Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder() {

@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：permission。
+ */
 import type { User } from '@/types';
 
 /**
@@ -26,6 +29,7 @@ export const PERMISSIONS = {
   systemTeam: 'system:team',
   systemStatistics: 'system:statistics',
   systemSettings: 'system:settings',
+  systemSensitiveWord: 'system:sensitive-word',
   agentWorkflowView: 'agent:workflow:view',
   agentRun: 'agent:run',
   agentWorkflowEdit: 'agent:workflow:edit',
@@ -59,6 +63,7 @@ export const ADMIN_PERMISSION_CODES = [
   PERMISSIONS.systemTeam,
   PERMISSIONS.systemStatistics,
   PERMISSIONS.systemSettings,
+  PERMISSIONS.systemSensitiveWord,
   PERMISSIONS.documentCategory,
   PERMISSIONS.documentCategoryQuery,
   PERMISSIONS.documentReview,

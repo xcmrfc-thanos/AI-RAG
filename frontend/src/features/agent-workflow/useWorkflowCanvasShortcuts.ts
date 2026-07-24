@@ -1,3 +1,6 @@
+/**
+ * 功能模块：useWorkflowCanvasShortcuts。
+ */
 import { useEffect } from 'react';
 
 interface WorkflowCanvasShortcutActions {
@@ -8,6 +11,9 @@ interface WorkflowCanvasShortcutActions {
   onEscape: () => void;
 }
 
+/**
+ * useWorkflowCanvasShortcuts 方法。
+ */
 export function useWorkflowCanvasShortcuts(actions: WorkflowCanvasShortcutActions): void {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -29,6 +35,9 @@ export function useWorkflowCanvasShortcuts(actions: WorkflowCanvasShortcutAction
   }, [actions]);
 }
 
+/**
+ * 判断是否EditableTarget。
+ */
 export function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;
   return Boolean(target.closest('input, textarea, select, [contenteditable="true"]'));

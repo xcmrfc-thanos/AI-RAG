@@ -21,6 +21,9 @@ public class InternalFeignConfig {
      * @param internalProperties 内部调用密钥与服务名
      * @return 请求拦截器
      */
+    /**
+     * internalAuthInterceptor 方法。
+     */
     @Bean
     public RequestInterceptor internalAuthInterceptor(KbCoreInternalProperties internalProperties) {
         return (RequestTemplate template) -> {

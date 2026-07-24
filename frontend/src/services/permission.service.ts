@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：permission.service。
+ */
 import { http } from './request';
 
 export interface PermissionVO {

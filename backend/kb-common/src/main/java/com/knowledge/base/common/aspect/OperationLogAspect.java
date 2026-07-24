@@ -50,6 +50,9 @@ public class OperationLogAspect {
     @Resource
     private InstanceIdentifier instanceIdentifier;
 
+    /**
+     * around 方法。
+     */
     @Around("@annotation(operationLog)")
     public Object around(ProceedingJoinPoint joinPoint, OperationLog operationLog) throws Throwable {
         long startTime = System.currentTimeMillis();

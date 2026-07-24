@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：agent-access。
+ */
 import type { User } from '@/types';
 import { AGENT_PERMISSIONS } from '@/constants/ai-entry';
 import { hasAdminAccess, hasAnyPermission, hasPermission } from '@/utils/permission';

@@ -1,3 +1,6 @@
+/**
+ * 业务页面：DocumentReviewWorkspacePage。
+ */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
@@ -104,6 +107,9 @@ const statusMeta: Record<ReviewTask['status'], { text: string; color: string; ic
   rejected: { text: '已驳回', color: 'red', icon: <CloseCircleOutlined /> },
 };
 
+/**
+ * documentStatusText。
+ */
 const documentStatusText = (status: Document['status']) => {
   if (status === 'draft' || status === 0) return '草稿';
   if (status === 'pending_review' || status === 3) return '待审核';
@@ -112,12 +118,18 @@ const documentStatusText = (status: Document['status']) => {
   return '未知';
 };
 
+/**
+ * canReviewByRoles。
+ */
 const canReviewByRoles = (roles: string[]) =>
   roles.some((role) => {
     const upperRole = role.toUpperCase();
     return upperRole.includes('REVIEWER') || upperRole.includes('ADMIN');
   });
 
+/**
+ * toTimelineColor。
+ */
 const toTimelineColor = (status: ReviewTask['status']) => {
   if (status === 'approved') return 'green';
   if (status === 'rejected') return 'red';
@@ -142,6 +154,9 @@ export const DocumentReviewWorkspacePage: React.FC = () => {
   const canReview = canReviewByRoles(currentRoles);
   const pendingTask = currentTask?.status === 'pending' ? currentTask : null;
 
+  /**
+   * loadData。
+   */
   const loadData = useCallback(async () => {
     if (!documentId) {
       return;
@@ -167,6 +182,9 @@ export const DocumentReviewWorkspacePage: React.FC = () => {
     loadData();
   }, [loadData]);
 
+  /**
+   * submitReview。
+   */
   const submitReview = async (status: 'approved' | 'rejected', comment?: string) => {
     if (!pendingTask) {
       message.warning('当前文档没有待处理的审核任务');

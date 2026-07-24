@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：search.service。
+ */
 import { EntityId } from '@/types';
 import { http } from './request';
 import { SearchResponse } from '@/types';

@@ -1,3 +1,6 @@
+/**
+ * 功能模块：AgentWorkbench。
+ */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Background,
@@ -58,6 +61,9 @@ interface AgentWorkbenchProps {
 const nodeTypes = { agentNode: WorkflowNode };
 const edgeTypes = { insertable: WorkflowEdge };
 
+/**
+ * AgentWorkbench 组件。
+ */
 const AgentWorkbench: React.FC<AgentWorkbenchProps> = ({
   value,
   onChange,
@@ -79,6 +85,9 @@ const AgentWorkbench: React.FC<AgentWorkbenchProps> = ({
   const lastOutputRef = useRef(value);
   const canvasWrapRef = useRef<HTMLElement | null>(null);
 
+  /**
+   * syncHistoryState。
+   */
   const syncHistoryState = useCallback(() => {
     setHistoryState({
       canUndo: Boolean(historyRef.current?.canUndo()),

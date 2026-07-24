@@ -38,6 +38,9 @@ public class PermissionController {
      * @param permissionDTO 权限信息
      * @return 权限ID
      */
+    /**
+     * 创建Permission。
+     */
     @PostMapping
     @Operation(summary = "创建权限", description = "创建新权限")
     public Result<Long> createPermission(@Valid @RequestBody PermissionDTO permissionDTO) {
@@ -53,6 +56,9 @@ public class PermissionController {
      * @param permissionDTO 权限信息
      * @return 是否成功
      */
+    /**
+     * 更新Permission。
+     */
     @PutMapping
     @Operation(summary = "更新权限", description = "更新权限信息")
     public Result<Boolean> updatePermission(@Valid @RequestBody PermissionDTO permissionDTO) {
@@ -67,6 +73,9 @@ public class PermissionController {
      *
      * @param permissionId 权限ID
      * @return 是否成功
+     */
+    /**
+     * 删除Permission。
      */
     @DeleteMapping("/{permissionId}")
     @Operation(summary = "删除权限", description = "根据权限ID删除权限")
@@ -85,6 +94,9 @@ public class PermissionController {
      * @param permissionId 权限ID
      * @return 权限信息
      */
+    /**
+     * 获取PermissionById。
+     */
     @GetMapping("/{permissionId}")
     @Operation(summary = "查询权限", description = "根据权限ID查询权限详情")
     public Result<PermissionVO> getPermissionById(
@@ -101,6 +113,9 @@ public class PermissionController {
      *
      * @param permissionId 父权限ID
      * @return 子权限列表
+     */
+    /**
+     * 获取PermissionsByParentId。
      */
     @GetMapping("/{permissionId}/children")
     @Operation(summary = "查询下级资源", description = "根据父权限ID查询直属子权限")
@@ -121,6 +136,9 @@ public class PermissionController {
      * @param keyword 搜索关键词
      * @return 权限分页信息
      */
+    /**
+     * 分页查询Permissions。
+     */
     @GetMapping("/page")
     @Operation(summary = "分页查询权限", description = "分页查询权限列表")
     public Result<IPage<PermissionVO>> pagePermissions(
@@ -138,6 +156,9 @@ public class PermissionController {
      *
      * @return 权限树
      */
+    /**
+     * 获取PermissionTree。
+     */
     @GetMapping("/tree")
     @Operation(summary = "获取权限树", description = "获取完整的权限树结构")
     public Result<List<PermissionVO>> getPermissionTree() {
@@ -152,6 +173,9 @@ public class PermissionController {
      *
      * @return 权限列表
      */
+    /**
+     * 获取AllPermissions。
+     */
     @GetMapping("/list")
     @Operation(summary = "获取所有权限", description = "获取所有权限列表")
     public Result<List<PermissionVO>> getAllPermissions() {
@@ -165,6 +189,9 @@ public class PermissionController {
      * 获取所有权限（简化版，用于下拉选择等场景）
      *
      * @return 权限列表
+     */
+    /**
+     * 列表查询Permissions。
      */
     @GetMapping
     @Operation(summary = "获取所有权限", description = "获取所有权限列表（简化版）")

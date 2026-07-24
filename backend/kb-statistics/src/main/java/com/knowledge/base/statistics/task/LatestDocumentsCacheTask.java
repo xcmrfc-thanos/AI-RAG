@@ -64,6 +64,9 @@ public class LatestDocumentsCacheTask {
     /**
      * 服务启动后立即执行一次刷新
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         log.info("LatestDocumentsCacheTask 初始化，开始首次最新文档缓存刷新...");
@@ -72,6 +75,9 @@ public class LatestDocumentsCacheTask {
 
     /**
      * 每5分钟刷新最新文档缓存
+     */
+    /**
+     * refreshLatestDocuments 方法。
      */
     @Scheduled(fixedRate = 300000)
     public void refreshLatestDocuments() {

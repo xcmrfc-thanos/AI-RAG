@@ -1,3 +1,6 @@
+/**
+ * 功能模块：EdgeActionPopover。
+ */
 import React, { useMemo, useState } from 'react';
 import { DisconnectOutlined, SearchOutlined } from '@ant-design/icons';
 import { AGENT_NODE_CATALOG, type AgentNodeKind } from './node-catalog';
@@ -7,6 +10,9 @@ interface EdgeActionPopoverProps {
   onDisconnect: () => void;
 }
 
+/**
+ * EdgeActionPopover 组件。
+ */
 const EdgeActionPopover: React.FC<EdgeActionPopoverProps> = ({ onInsert, onDisconnect }) => {
   const [query, setQuery] = useState('');
   const options = useMemo(() => {

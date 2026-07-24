@@ -25,6 +25,9 @@ public class HybridSearchTool implements AgentTool {
     /**
      * {@inheritDoc}
      */
+    /**
+     * name 方法。
+     */
     @Override
     public String name() {
         return "hybrid_search";

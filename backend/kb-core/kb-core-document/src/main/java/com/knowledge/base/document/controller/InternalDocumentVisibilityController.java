@@ -44,6 +44,9 @@ public class InternalDocumentVisibilityController {
      * @param request 用户与候选文档
      * @return 可见 ID 列表
      */
+    /**
+     * filterVisibleIds 方法。
+     */
     @PostMapping("/visible-ids")
     public Result<List<Long>> filterVisibleIds(@RequestBody VisibleIdsRequest request) {
         if (request == null || CollectionUtils.isEmpty(request.getDocumentIds())) {

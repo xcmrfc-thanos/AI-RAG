@@ -1,3 +1,6 @@
+/**
+ * UI 组件：DocumentCard。
+ */
 import React from 'react';
 import './DocumentCard.css';
 

@@ -40,6 +40,9 @@ public class UserController {
      * @param userDTO 用户信息
      * @return 用户ID
      */
+    /**
+     * 创建User。
+     */
     @PostMapping
     @Operation(summary = "创建用户", description = "创建新用户")
     public Result<Long> createUser(@Valid @RequestBody UserDTO userDTO) {
@@ -55,6 +58,9 @@ public class UserController {
      * @param userDTO 用户信息
      * @return 是否成功
      */
+    /**
+     * 更新User。
+     */
     @PutMapping
     @Operation(summary = "更新用户", description = "更新用户信息")
     public Result<Boolean> updateUser(@Valid @RequestBody UserDTO userDTO) {
@@ -69,6 +75,9 @@ public class UserController {
      *
      * @param body 含 ids
      * @return 是否成功
+     */
+    /**
+     * 批量DeleteUsers。
      */
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除用户", description = "按 ID 列表批量删除用户")
@@ -90,6 +99,9 @@ public class UserController {
      * @param keyword 关键词
      * @return 用户列表
      */
+    /**
+     * 搜索Users。
+     */
     @GetMapping("/search")
     @Operation(summary = "搜索用户", description = "按关键词搜索用户")
     public Result<List<UserVO>> searchUsers(
@@ -104,6 +116,9 @@ public class UserController {
      *
      * @return 在线用户
      */
+    /**
+     * 获取OnlineUsers。
+     */
     @GetMapping("/online")
     @Operation(summary = "在线用户", description = "获取当前在线用户列表（占位）")
     public Result<List<UserVO>> getOnlineUsers() {
@@ -116,6 +131,9 @@ public class UserController {
      *
      * @param userId 用户ID
      * @return 是否成功
+     */
+    /**
+     * 删除User。
      */
     @DeleteMapping("/{userId}")
     @Operation(summary = "删除用户", description = "根据用户ID删除用户")
@@ -133,6 +151,9 @@ public class UserController {
      *
      * @param userId 用户ID
      * @return 用户信息
+     */
+    /**
+     * 获取UserById。
      */
     @GetMapping("/{userId}")
     @Operation(summary = "查询用户", description = "根据用户ID查询用户信息")
@@ -155,6 +176,9 @@ public class UserController {
      * @param status  状态筛选
      * @return 用户分页信息
      */
+    /**
+     * 分页查询Users。
+     */
     @GetMapping("/page")
     @Operation(summary = "分页查询用户", description = "分页查询用户列表")
     public Result<IPage<UserVO>> pageUsers(
@@ -176,6 +200,9 @@ public class UserController {
      * @param newPassword 新密码
      * @return 是否成功
      */
+    /**
+     * 重置Password。
+     */
     @PutMapping("/{userId}/password/reset")
     @Operation(summary = "重置密码", description = "管理员重置用户密码")
     public Result<Boolean> resetPassword(
@@ -195,6 +222,9 @@ public class UserController {
      * @param oldPassword 旧密码
      * @param newPassword 新密码
      * @return 是否成功
+     */
+    /**
+     * 修改Password。
      */
     @PutMapping("/password/change")
     @Operation(summary = "修改密码", description = "用户修改自己的密码")
@@ -216,6 +246,9 @@ public class UserController {
      * @param roleIds 角色ID列表
      * @return 是否成功
      */
+    /**
+     * 分配Roles。
+     */
     @PostMapping("/{userId}/roles")
     @Operation(summary = "分配角色", description = "为用户分配角色")
     public Result<Boolean> assignRoles(
@@ -235,6 +268,9 @@ public class UserController {
      * @param userId 用户ID
      * @return 角色ID列表
      */
+    /**
+     * 获取UserRoles。
+     */
     @GetMapping("/{userId}/roles")
     @Operation(summary = "获取用户角色", description = "获取用户已分配的角色列表")
     public Result<List<Long>> getUserRoles(
@@ -252,6 +288,9 @@ public class UserController {
      * @param userId        用户ID
      * @param permissionIds 权限ID列表
      * @return 是否成功
+     */
+    /**
+     * 分配Permissions。
      */
     @PostMapping("/{userId}/permissions")
     @Operation(summary = "分配权限", description = "直接为用户分配权限（非通过角色）")
@@ -272,6 +311,9 @@ public class UserController {
      * @param userId 用户ID
      * @return 权限编码列表
      */
+    /**
+     * 获取UserPermissions。
+     */
     @GetMapping("/{userId}/permissions")
     @Operation(summary = "获取用户权限", description = "获取用户所有权限（包括角色权限和直接分配的权限）")
     public Result<List<String>> getUserPermissions(
@@ -287,6 +329,9 @@ public class UserController {
      * 获取当前登录用户的统计数据（文档数、浏览量、点赞数、评论数）
      *
      * @return 用户统计数据
+     */
+    /**
+     * 获取MyStatistics。
      */
     @GetMapping("/me/stats")
     @Operation(summary = "获取当前用户统计数据", description = "获取当前登录用户的文档数、浏览量、点赞数、评论数")

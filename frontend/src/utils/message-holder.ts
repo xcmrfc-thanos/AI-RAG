@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：message-holder。
+ */
 import type { MessageInstance } from 'antd/es/message/interface';
 import { message as antMessage } from 'antd';
 
@@ -14,10 +17,16 @@ import { message as antMessage } from 'antd';
  */
 let messageApi: MessageInstance | null = null;
 
+/**
+ * setMessageApi 方法。
+ */
 export function setMessageApi(api: MessageInstance) {
   messageApi = api;
 }
 
+/**
+ * 判断是否有MessageApi。
+ */
 export function hasMessageApi(): boolean {
   return messageApi !== null;
 }

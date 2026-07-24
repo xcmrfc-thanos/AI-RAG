@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowCanvasEditor。
+ */
 import React from 'react';
 import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -16,6 +19,9 @@ export interface WorkflowCanvasEditorProps {
   onApplyTemplate?: (key: WorkflowTemplateKey) => void;
 }
 
+/**
+ * WorkflowCanvasEditor 组件。
+ */
 const WorkflowCanvasEditor: React.FC<WorkflowCanvasEditorProps> = (props) => (
   <ReactFlowProvider>
     <AgentWorkbench {...props} />

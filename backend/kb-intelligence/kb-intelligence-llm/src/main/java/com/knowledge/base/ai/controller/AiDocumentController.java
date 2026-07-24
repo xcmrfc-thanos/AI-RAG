@@ -37,6 +37,9 @@ public class AiDocumentController {
      * @param request HTTP请求
      * @return 摘要结果
      */
+    /**
+     * 生成Summary。
+     */
     @PostMapping("/summary")
     @Operation(summary = "生成文档摘要", description = "使用AI生成文档摘要")
     public Result<DocumentProcessVO> generateSummary(
@@ -53,6 +56,9 @@ public class AiDocumentController {
      * @param file    文档文件
      * @param request HTTP请求
      * @return 大纲结果
+     */
+    /**
+     * 生成Outline。
      */
     @PostMapping("/outline")
     @Operation(summary = "生成文档大纲", description = "使用AI生成文档大纲")
@@ -71,6 +77,9 @@ public class AiDocumentController {
      * @param request HTTP请求
      * @return 扩展结果
      */
+    /**
+     * expandContent 方法。
+     */
     @PostMapping("/expand")
     @Operation(summary = "内容扩展", description = "使用AI扩展文档内容")
     public Result<DocumentProcessVO> expandContent(
@@ -87,6 +96,9 @@ public class AiDocumentController {
      * @param dto     处理请求
      * @param request HTTP请求
      * @return 优化结果
+     */
+    /**
+     * optimizeContent 方法。
      */
     @PostMapping("/optimize")
     @Operation(summary = "表达优化", description = "使用AI优化文档表达")
@@ -105,6 +117,9 @@ public class AiDocumentController {
      * @param request HTTP请求
      * @return SSE事件流
      */
+    /**
+     * 生成SummaryStream。
+     */
     @PostMapping("/summary/stream")
     @Operation(summary = "流式生成摘要", description = "使用AI流式生成文档摘要")
     public SseEmitter generateSummaryStream(
@@ -120,6 +135,9 @@ public class AiDocumentController {
      * @param file    文档文件
      * @param request HTTP请求
      * @return SSE事件流
+     */
+    /**
+     * 生成OutlineStream。
      */
     @PostMapping("/outline/stream")
     @Operation(summary = "流式生成大纲", description = "使用AI流式生成文档大纲")
@@ -137,6 +155,9 @@ public class AiDocumentController {
      * @param request HTTP请求
      * @return 摘要结果
      */
+    /**
+     * 生成SummaryByContent。
+     */
     @PostMapping("/summary/content")
     @Operation(summary = "基于内容生成摘要", description = "传入文档内容，使用AI生成摘要")
     public Result<DocumentProcessVO> generateSummaryByContent(
@@ -153,6 +174,9 @@ public class AiDocumentController {
      * @param dto     包含文档内容的处理请求
      * @param request HTTP请求
      * @return SSE事件流
+     */
+    /**
+     * 生成SummaryByContentStream。
      */
     @PostMapping("/summary/content/stream")
     @Operation(summary = "基于内容流式生成摘要", description = "传入文档内容，使用AI流式生成摘要")

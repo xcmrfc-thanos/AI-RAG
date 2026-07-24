@@ -1,10 +1,11 @@
+/**
+ * common 模块导出入口。
+ */
 export { PageHeader } from './PageHeader';
 export { AdminPageHeader } from './AdminPageHeader';
 export type { AdminPageHeaderProps } from './AdminPageHeader';
-export { LoadingCard } from './LoadingCard';
 export { PageLoading } from './PageLoading';
 export { EmptyState } from './EmptyState';
-export { StatCard } from './StatCard';
 export {
   DocumentCard,
   DocumentsGrid,
@@ -16,5 +17,4 @@ export type { DocumentCardProps, DocumentCategoryType, DocumentsGridProps } from
 export { DocumentListCard } from './DocumentListCard';
 export type { DocumentListCardProps } from './DocumentListCard';
 export { MarkdownEditor } from './MarkdownEditor';
-export { AIWritingAssistant } from './AIWritingAssistant';
 export { Logo } from './Logo';

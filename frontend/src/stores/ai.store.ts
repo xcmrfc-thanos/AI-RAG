@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：ai.store。
+ */
 import { create } from 'zustand';
 import { AIConversation, AIMessage, AIModelOption } from '@/types';
 import { aiService } from '@/services';

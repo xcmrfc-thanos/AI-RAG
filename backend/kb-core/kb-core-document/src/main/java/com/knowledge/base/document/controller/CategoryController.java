@@ -38,6 +38,9 @@ public class CategoryController {
      * @param categoryDTO 分类信息
      * @return 分类ID
      */
+    /**
+     * 创建Category。
+     */
     @PostMapping
     @Operation(summary = "创建分类", description = "创建新分类")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CATEGORY)")
@@ -54,6 +57,9 @@ public class CategoryController {
      * @param categoryDTO 分类信息
      * @return 是否成功
      */
+    /**
+     * 更新Category。
+     */
     @PutMapping
     @Operation(summary = "更新分类", description = "更新分类信息")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CATEGORY)")
@@ -69,6 +75,9 @@ public class CategoryController {
      *
      * @param body 含 ids 列表
      * @return 是否成功
+     */
+    /**
+     * 批量DeleteCategories。
      */
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除分类", description = "按 ID 列表批量删除分类")
@@ -90,6 +99,9 @@ public class CategoryController {
      *
      * @param keyword 关键词
      * @return 匹配列表
+     */
+    /**
+     * 搜索Categories。
      */
     @GetMapping("/search")
     @Operation(summary = "搜索分类", description = "按名称关键词搜索分类")
@@ -135,6 +147,9 @@ public class CategoryController {
      * @param categoryId 分类ID
      * @return 是否成功
      */
+    /**
+     * 删除Category。
+     */
     @DeleteMapping("/{categoryId}")
     @Operation(summary = "删除分类", description = "根据分类ID删除分类")
     @PreAuthorize("hasAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CATEGORY)")
@@ -153,6 +168,9 @@ public class CategoryController {
      * @param categoryId 分类ID
      * @return 分类信息
      */
+    /**
+     * 获取CategoryById。
+     */
     @GetMapping("/{categoryId}")
     @Operation(summary = "查询分类", description = "根据分类ID查询分类详情")
     public Result<CategoryVO> getCategoryById(
@@ -169,6 +187,9 @@ public class CategoryController {
      *
      * @return 分类树
      */
+    /**
+     * 获取CategoryTree。
+     */
     @GetMapping("/tree")
     @Operation(summary = "获取分类树", description = "获取完整的分类树结构")
     public Result<List<CategoryVO>> getCategoryTree() {
@@ -183,6 +204,9 @@ public class CategoryController {
      *
      * @param parentId 父分类ID
      * @return 子分类列表
+     */
+    /**
+     * 获取Children。
      */
     @GetMapping("/children/{parentId}")
     @Operation(summary = "获取子分类", description = "获取指定父分类的子分类列表")
@@ -201,6 +225,9 @@ public class CategoryController {
      * @param categoryId    分类ID
      * @param newParentId 新父分类ID
      * @return 是否成功
+     */
+    /**
+     * 移动Category。
      */
     @PutMapping("/{categoryId}/move")
     @Operation(summary = "移动分类", description = "移动分类到新的父分类下")
@@ -221,6 +248,9 @@ public class CategoryController {
      *
      * @return 分类列表
      */
+    /**
+     * 获取Categories。
+     */
     @GetMapping
     @Operation(summary = "获取所有分类", description = "获取所有分类列表（平铺）")
     public Result<List<CategoryVO>> getCategories() {
@@ -234,6 +264,9 @@ public class CategoryController {
      * 获取所有分类（平铺）
      *
      * @return 分类列表
+     */
+    /**
+     * 获取AllCategories。
      */
     @GetMapping("/list")
     @Operation(summary = "获取所有分类", description = "获取所有分类列表（平铺）")

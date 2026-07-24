@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：dashboard.service。
+ */
 import { http } from './request';
 import { DashboardStats } from '@/types';
 

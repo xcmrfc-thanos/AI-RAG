@@ -42,6 +42,9 @@ public class ElasticsearchConfig {
     @Value("${spring.elasticsearch.password:}")
     private String password;
 
+    /**
+     * restClient 方法。
+     */
     @Bean
     public RestClient restClient() {
         String resolvedHost = host;
@@ -73,11 +76,17 @@ public class ElasticsearchConfig {
         return builder.build();
     }
 
+    /**
+     * elasticsearchTransport 方法。
+     */
     @Bean
     public ElasticsearchTransport elasticsearchTransport(RestClient restClient) {
         return new RestClientTransport(restClient, new JacksonJsonpMapper());
     }
 
+    /**
+     * elasticsearchClient 方法。
+     */
     @Bean
     public ElasticsearchClient elasticsearchClient(ElasticsearchTransport transport) {
         return new ElasticsearchClient(transport);

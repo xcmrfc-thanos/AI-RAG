@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：notification.store。
+ */
 import { create } from 'zustand';
 import { SystemNotification } from '@/types';
 import { notificationService } from '@/services';

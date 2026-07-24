@@ -21,6 +21,9 @@ public class UserAuthLocalClient implements UserAuthClient {
     /**
      * 验证 JWT Token 并映射为 foundation DTO
      */
+    /**
+     * 校验Token。
+     */
     @Override
     public Result<TokenValidateVO> validateToken(String authorization, String token) {
         com.knowledge.base.userauth.vo.TokenValidateVO iamVo =
@@ -30,6 +33,9 @@ public class UserAuthLocalClient implements UserAuthClient {
 
     /**
      * 按角色编码查询用户 ID
+     */
+    /**
+     * 获取UserIdsByRole。
      */
     @Override
     public Result<List<Long>> getUserIdsByRole(String roleCode) {

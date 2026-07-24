@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：SystemConfigPage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -82,6 +85,9 @@ export const SystemConfigPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configs, searchValue, activeCategory]);
 
+  /**
+   * fetchConfigs。
+   */
   const fetchConfigs = async () => {
     setLoading(true);
     try {
@@ -140,6 +146,9 @@ export const SystemConfigPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = async (key: string) => {
     try {
       await foundationService.config.delete(key);
@@ -150,6 +159,9 @@ export const SystemConfigPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleModalOk。
+   */
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();

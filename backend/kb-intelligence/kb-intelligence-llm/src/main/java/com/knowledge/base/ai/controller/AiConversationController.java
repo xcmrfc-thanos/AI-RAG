@@ -36,6 +36,9 @@ public class AiConversationController {
      * @param request HTTP请求
      * @return 新创建的对话
      */
+    /**
+     * 创建Conversation。
+     */
     @PostMapping
     @Operation(summary = "创建新对话", description = "创建新的AI对话")
     public Result<ConversationVO> createConversation(@RequestBody Map<String, String> body,
@@ -55,6 +58,9 @@ public class AiConversationController {
      * @param request HTTP请求
      * @return 对话列表
      */
+    /**
+     * 列表查询Conversations。
+     */
     @GetMapping("/list")
     @Operation(summary = "获取对话列表", description = "获取当前用户的对话列表")
     public Result<IPage<ConversationVO>> listConversations(
@@ -73,6 +79,9 @@ public class AiConversationController {
      * @param request HTTP请求
      * @return 对话详情
      */
+    /**
+     * 获取Conversation。
+     */
     @GetMapping("/{id}")
     @Operation(summary = "获取对话详情", description = "获取对话详细信息")
     public Result<ConversationVO> getConversation(@PathVariable Long id,
@@ -88,6 +97,9 @@ public class AiConversationController {
      * @param id      对话ID
      * @param request HTTP请求
      * @return 是否成功
+     */
+    /**
+     * 删除Conversation。
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除对话", description = "删除指定对话")

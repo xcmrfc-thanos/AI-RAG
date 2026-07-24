@@ -15,6 +15,9 @@ public class HealthController {
     /**
      * 健康检查
      */
+    /**
+     * ping 方法。
+     */
     @GetMapping("/ping")
     public Result<String> ping() {
         return Result.success("kb-core pong");
@@ -22,6 +25,9 @@ public class HealthController {
 
     /**
      * 返回已挂载子模块列表
+     */
+    /**
+     * modules 方法。
      */
     @GetMapping("/modules")
     public Result<List<String>> modules() {

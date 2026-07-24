@@ -29,6 +29,9 @@ public class DocumentLifecycleMQConfig {
     /**
      * Intelligence LLM 子模块文档生命周期队列（实例隔离）
      */
+    /**
+     * aiDocumentLifecycleQueue 方法。
+     */
     @Bean
     public Queue aiDocumentLifecycleQueue() {
         return QueueBuilder.durable(aiDocumentLifecycleQueueName()).build();
@@ -36,6 +39,9 @@ public class DocumentLifecycleMQConfig {
 
     /**
      * 绑定所有文档生命周期事件
+     */
+    /**
+     * aiDocumentLifecycleBinding 方法。
      */
     @Bean
     public Binding aiDocumentLifecycleBinding(TopicExchange documentLifecycleExchange) {

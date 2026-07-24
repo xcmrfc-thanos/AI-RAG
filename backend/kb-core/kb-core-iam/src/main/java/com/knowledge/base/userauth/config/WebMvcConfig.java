@@ -36,6 +36,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
     }
 
+    /**
+     * configureMessageConverters 方法。
+     */
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         // 字符串消息转换器，设置UTF-8编码
@@ -51,6 +54,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
         converters.add(jacksonConverter);
     }
 
+    /**
+     * configureContentNegotiation 方法。
+     */
     @Override
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         configurer.defaultContentType(org.springframework.http.MediaType.APPLICATION_JSON);

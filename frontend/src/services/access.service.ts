@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：access.service。
+ */
 import { http } from './request';
 
 /**

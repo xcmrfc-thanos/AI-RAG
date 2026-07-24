@@ -25,6 +25,9 @@ public class AiFeedbackServiceImpl implements AiFeedbackService {
     @Resource
     private AiFeedbackMapper feedbackMapper;
 
+    /**
+     * 提交Feedback。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean submitFeedback(FeedbackDTO feedbackDTO, Long userId) {
@@ -35,6 +38,9 @@ public class AiFeedbackServiceImpl implements AiFeedbackService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取UserFeedbacks。
+     */
     @Override
     public List<AiFeedback> getUserFeedbacks(Long userId) {
         return feedbackMapper.selectList(

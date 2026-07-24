@@ -1,3 +1,6 @@
+/**
+ * stores 模块导出入口。
+ */
 export { useAppStore } from './app.store';
 export { useAuthStore } from './auth.store';
 export { useDocumentStore } from './document.store';

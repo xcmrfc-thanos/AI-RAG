@@ -25,6 +25,9 @@ public class FeignMultipartSupportConfig {
         this.messageConverters = messageConverters;
     }
 
+    /**
+     * feignFormEncoder 方法。
+     */
     @Bean
     public Encoder feignFormEncoder() {
         return new SpringFormEncoder(new SpringEncoder(messageConverters));

@@ -1,3 +1,6 @@
+/**
+ * 业务页面：ShareViewerPage。
+ */
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Input, Typography } from 'antd';
@@ -363,6 +366,9 @@ const ShareViewerPage: React.FC = () => {
   const [verifying, setVerifying] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  /**
+   * loadDocument。
+   */
   const loadDocument = useCallback(async (pwd: string) => {
     if (!shareId) return;
     setVerifying(true);
@@ -385,6 +391,9 @@ const ShareViewerPage: React.FC = () => {
     }
   }, [shareId]);
 
+  /**
+   * loadShareInfo。
+   */
   const loadShareInfo = useCallback(async () => {
     if (!shareId) return;
     setViewState('loading');
@@ -411,6 +420,9 @@ const ShareViewerPage: React.FC = () => {
     loadShareInfo();
   }, [loadShareInfo]);
 
+  /**
+   * handleVerifyPassword。
+   */
   const handleVerifyPassword = async () => {
     if (!password.trim()) {
       message.warning('请输入访问密码');

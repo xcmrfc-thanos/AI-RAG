@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：AdminCenterPage。
+ */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, Row, Col, Button, Typography, Progress, Dropdown, App } from 'antd';
 import type { MenuProps } from 'antd';
@@ -80,6 +83,9 @@ export const AdminCenterPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<AdminCenterStats>(DEFAULT_ADMIN_STATS);
 
+  /**
+   * fetchOverview。
+   */
   const fetchOverview = useCallback(async () => {
     setLoading(true);
     try {

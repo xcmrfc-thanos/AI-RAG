@@ -31,6 +31,9 @@ import org.springframework.data.neo4j.repository.config.EnableNeo4jRepositories;
         type = FilterType.ASSIGNABLE_TYPE,
         classes = AsyncTaskConfig.class
 ))
+/**
+ * IntelligenceApplication：服务启动入口。
+ */
 @EnableNeo4jRepositories(basePackages = "com.knowledge.base.graph.repository")
 public class IntelligenceApplication {
 

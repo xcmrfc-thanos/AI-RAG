@@ -23,6 +23,9 @@ public class LikeServiceImpl implements LikeService {
     @Resource
     private LikeMapper likeMapper;
 
+    /**
+     * 点赞。
+     */
     @Override
     public void like(Long targetId, Long userId, Integer targetType) {
         Like like = new Like();
@@ -37,6 +40,9 @@ public class LikeServiceImpl implements LikeService {
         }
     }
 
+    /**
+     * 取消点赞。
+     */
     @Override
     public void unlike(Long targetId, Long userId, Integer targetType) {
         int count = likeMapper.deleteByTargetAndUser(targetId, userId, targetType);
@@ -45,6 +51,9 @@ public class LikeServiceImpl implements LikeService {
         }
     }
 
+    /**
+     * 判断是否Liked。
+     */
     @Override
     public boolean isLiked(Long targetId, Long userId, Integer targetType) {
         LambdaQueryWrapper<Like> wrapper = new LambdaQueryWrapper<>();

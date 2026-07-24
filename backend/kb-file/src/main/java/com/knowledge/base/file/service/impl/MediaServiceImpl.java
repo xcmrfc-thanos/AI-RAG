@@ -40,6 +40,9 @@ public class MediaServiceImpl extends ServiceImpl<FileMapper, FileInfo> implemen
     private final FileStorageFactory storageFactory;
     private final FileStorageProperties storageProperties;
 
+    /**
+     * probeMediaInfo 方法。
+     */
     @Override
     public MediaMetadata probeMediaInfo(Long fileId) {
         FileInfo fileInfo = fileMapper.selectById(fileId);
@@ -92,6 +95,9 @@ public class MediaServiceImpl extends ServiceImpl<FileMapper, FileInfo> implemen
         }
     }
 
+    /**
+     * transcodeToHls 方法。
+     */
     @Override
     public String transcodeToHls(Long fileId) {
         FileInfo fileInfo = fileMapper.selectById(fileId);
@@ -158,6 +164,9 @@ public class MediaServiceImpl extends ServiceImpl<FileMapper, FileInfo> implemen
         }
     }
 
+    /**
+     * 生成Thumbnail。
+     */
     @Override
     public String generateThumbnail(Long fileId) {
         FileInfo fileInfo = fileMapper.selectById(fileId);
@@ -227,6 +236,9 @@ public class MediaServiceImpl extends ServiceImpl<FileMapper, FileInfo> implemen
         }
     }
 
+    /**
+     * 更新TranscodeStatus。
+     */
     @Override
     public void updateTranscodeStatus(Long fileId, String status) {
         FileInfo fileInfo = fileMapper.selectById(fileId);

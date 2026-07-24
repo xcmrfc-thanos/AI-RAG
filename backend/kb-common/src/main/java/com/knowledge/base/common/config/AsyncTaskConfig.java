@@ -20,6 +20,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Configuration
 public class AsyncTaskConfig {
 
+    /**
+     * asyncTaskExecutor 方法。
+     */
     @Bean(name = "asyncTaskExecutor")
     public ThreadPoolTaskExecutor asyncTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

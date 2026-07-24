@@ -32,6 +32,9 @@ public class NotificationTemplateController {
     /**
      * 分页查询模板列表
      */
+    /**
+     * 列表查询Templates。
+     */
     @GetMapping
     @Operation(summary = "查询模板列表", description = "分页查询通知模板列表")
     public Result<PageResult<NotificationTemplate>> listTemplates(
@@ -55,6 +58,9 @@ public class NotificationTemplateController {
     /**
      * 获取所有启用的模板
      */
+    /**
+     * 列表查询ActiveTemplates。
+     */
     @GetMapping("/active")
     @Operation(summary = "获取启用的模板", description = "获取所有启用状态的模板列表")
     public Result<List<NotificationTemplate>> listActiveTemplates() {
@@ -66,6 +72,9 @@ public class NotificationTemplateController {
 
     /**
      * 根据ID获取模板详情
+     */
+    /**
+     * 获取Template。
      */
     @GetMapping("/{id}")
     @Operation(summary = "获取模板详情", description = "根据ID获取通知模板详情")
@@ -81,6 +90,9 @@ public class NotificationTemplateController {
     /**
      * 创建模板
      */
+    /**
+     * 创建Template。
+     */
     @PostMapping
     @Operation(summary = "创建模板", description = "创建新的通知模板")
     public Result<Boolean> createTemplate(
@@ -94,6 +106,9 @@ public class NotificationTemplateController {
 
     /**
      * 更新模板
+     */
+    /**
+     * 更新Template。
      */
     @PutMapping("/{id}")
     @Operation(summary = "更新模板", description = "更新通知模板信息")
@@ -112,6 +127,9 @@ public class NotificationTemplateController {
     /**
      * 删除模板
      */
+    /**
+     * 删除Template。
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除模板", description = "删除指定的通知模板")
     public Result<Boolean> deleteTemplate(
@@ -125,6 +143,9 @@ public class NotificationTemplateController {
 
     /**
      * 测试发送
+     */
+    /**
+     * testTemplate 方法。
      */
     @PostMapping("/{id}/test")
     @Operation(summary = "测试发送", description = "测试发送通知模板")

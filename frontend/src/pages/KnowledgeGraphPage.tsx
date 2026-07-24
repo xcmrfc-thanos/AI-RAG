@@ -1,3 +1,6 @@
+/**
+ * 业务页面：KnowledgeGraphPage。
+ */
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { Input, Button, message, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -75,6 +78,9 @@ const HIDDEN_PROPERTY_KEYS = new Set([
   'authorId', 'categoryId', 'status', 'createdAt', 'updatedAt',
 ]);
 
+/**
+ * formatPropertyValue。
+ */
 const formatPropertyValue = (key: string, value: any): string => {
   if (value == null) return '';
   if (typeof value === 'object') return JSON.stringify(value);
@@ -189,6 +195,9 @@ const DEFAULT_GRAPH_DATA: KnowledgeGraphData = {
   ],
 };
 
+/**
+ * buildStats。
+ */
 const buildStats = (data: KnowledgeGraphData) => {
   const initialStats = {
     totalNodes: data.nodes.length,
@@ -354,6 +363,9 @@ export const KnowledgeGraphPage: React.FC = () => {
 
   // ── Resize ──────────────────────────────────────────────────
   useEffect(() => {
+    /**
+     * handleResize。
+     */
     const handleResize = () => {
       if (chartInstance.current) chartInstance.current.resize();
     };
@@ -361,6 +373,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  /**
+   * fetchGraphData。
+   */
   const fetchGraphData = async () => {
     setLoading(true);
     try {
@@ -384,6 +399,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  /**
+   * getVisibleGraphData。
+   */
   const getVisibleGraphData = useCallback(() => {
     const keyword = searchTerm.trim().toLowerCase();
     const visibleNodes = graphData.nodes.filter((node) => {
@@ -408,6 +426,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     return { visibleNodes, visibleLinks };
   }, [graphData, nodeTypes, searchTerm]);
 
+  /**
+   * loadECharts。
+   */
   const loadECharts = useCallback(async (): Promise<EChartsModule | null> => {
     if (echartsModuleRef.current) {
       return echartsModuleRef.current;
@@ -657,6 +678,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     [],
   );
 
+  /**
+   * handleZoomIn。
+   */
   const handleZoomIn = () => {
     if (chartInstance.current) {
       const op = chartInstance.current.getOption() as any;
@@ -667,6 +691,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleZoomOut。
+   */
   const handleZoomOut = () => {
     if (chartInstance.current) {
       const op = chartInstance.current.getOption() as any;
@@ -677,6 +704,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleReset。
+   */
   const handleReset = () => {
     if (chartInstance.current) {
       chartInstance.current.dispatchAction({ type: 'restore' });
@@ -685,6 +715,9 @@ export const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleFit。
+   */
   const handleFit = () => {
     if (chartInstance.current) {
       chartInstance.current.dispatchAction({ type: 'restore' });
@@ -692,11 +725,17 @@ export const KnowledgeGraphPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleSearch。
+   */
   const handleSearch = (value: string) => {
     setSearchTerm(value.trim());
     setSelectedNode(null);
   };
 
+  /**
+   * handleRebuild。
+   */
   const handleRebuild = async () => {
     if (rebuilding) return;
 

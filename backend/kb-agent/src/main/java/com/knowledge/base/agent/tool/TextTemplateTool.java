@@ -11,6 +11,9 @@ import java.util.Map;
 @Component
 public class TextTemplateTool implements AgentTool {
 
+    /**
+     * name 方法。
+     */
     @Override
     public String name() {
         return "text_template";

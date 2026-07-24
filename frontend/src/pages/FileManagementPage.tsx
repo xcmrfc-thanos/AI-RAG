@@ -1,3 +1,6 @@
+/**
+ * 业务页面：FileManagementPage。
+ */
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import {
   Card,
@@ -202,6 +205,9 @@ export const FileManagementPage: React.FC = () => {
 
   // 初始化加载数据（合并调用，避免重复请求）
   useEffect(() => {
+    /**
+     * initFileManagement。
+     */
     const initFileManagement = async () => {
       try {
         // 并行加载数据，但只发起一次请求
@@ -237,6 +243,9 @@ export const FileManagementPage: React.FC = () => {
 
     let cancelled = false;
 
+    /**
+     * fetchContent。
+     */
     const fetchContent = async () => {
       const authHeaders = fileManagementService.getAuthHeaders();
       if (ext === 'txt') {
@@ -300,6 +309,9 @@ export const FileManagementPage: React.FC = () => {
   React.useLayoutEffect(() => {
     const container = pptMainRef.current;
     if (!container || !pptSlideImages) return;
+    /**
+     * applySize。
+     */
     const applySize = () => {
       const img = container.querySelector<HTMLImageElement>('img');
       if (!img) return;

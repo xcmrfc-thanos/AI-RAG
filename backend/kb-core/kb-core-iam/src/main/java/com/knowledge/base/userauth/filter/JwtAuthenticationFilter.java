@@ -91,6 +91,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @param response HTTP响应
      * @param filterChain 过滤器链
      */
+    /**
+     * doFilterInternal 方法。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -390,6 +393,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      *
      * @param request HTTP请求
      * @return true-跳过过滤，false-执行过滤
+     */
+    /**
+     * shouldNotFilter 方法。
      */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {

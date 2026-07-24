@@ -42,6 +42,9 @@ public class WebSocketAuthInterceptor implements ChannelInterceptor {
                         Long userId = jwtUtil.getUserId(token);
                         if (userId != null) {
                             accessor.setUser(new Principal() {
+                                /**
+                                 * 获取Name。
+                                 */
                                 @Override
                                 public String getName() {
                                     return String.valueOf(userId);

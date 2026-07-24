@@ -37,6 +37,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     @Resource
     private PermissionMapper permissionMapper;
 
+    /**
+     * 创建Permission。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createPermission(PermissionDTO permissionDTO) {
@@ -83,6 +86,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return permission.getId();
     }
 
+    /**
+     * 更新Permission。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updatePermission(PermissionDTO permissionDTO) {
@@ -140,6 +146,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return count > 0;
     }
 
+    /**
+     * 删除Permission。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deletePermission(Long permissionId) {
@@ -171,6 +180,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return count > 0;
     }
 
+    /**
+     * 获取PermissionById。
+     */
     @Override
     public PermissionVO getPermissionById(Long permissionId) {
         if (permissionId == null) {
@@ -185,6 +197,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return convertToVO(permission);
     }
 
+    /**
+     * 获取PermissionsByParentId。
+     */
     @Override
     public List<PermissionVO> getPermissionsByParentId(Long parentId) {
         Long targetParentId = parentId != null ? parentId : 0L;
@@ -199,6 +214,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 分页查询Permissions。
+     */
     @Override
     public IPage<PermissionVO> pagePermissions(Long current, Long size, String keyword) {
         // 构建查询条件
@@ -217,6 +235,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return permissionPage.convert(this::convertToVO);
     }
 
+    /**
+     * 获取PermissionTree。
+     */
     @Override
     public List<PermissionVO> getPermissionTree() {
         // 查询所有权限
@@ -234,6 +255,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         return buildPermissionTree(permissionVOs, 0L);
     }
 
+    /**
+     * 获取AllPermissions。
+     */
     @Override
     public List<PermissionVO> getAllPermissions() {
         List<Permission> permissions = permissionMapper.selectList(

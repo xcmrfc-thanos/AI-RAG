@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：file.service。
+ */
 import { http } from './request';
 
 export interface UploadProgress {

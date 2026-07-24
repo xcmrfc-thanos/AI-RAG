@@ -1,3 +1,6 @@
+/**
+ * 业务页面：SearchPage。
+ */
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Select, Pagination, Card, Typography, Button } from 'antd';
 import {
@@ -35,6 +38,9 @@ const isAbortError = (error: unknown): boolean => {
   return e.code === 'ERR_CANCELED' || e.name === 'CanceledError' || e.name === 'AbortError';
 };
 
+/**
+ * SearchContent 组件。
+ */
 const SearchContent: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -143,6 +149,9 @@ const SearchContent: React.FC = () => {
 
     let cancelled = false;
 
+    /**
+     * runSearch。
+     */
     const runSearch = async () => {
       try {
         // 混合检索是否精排由系统设置（rag.rerank.enabled）在后端热读决定
@@ -214,6 +223,9 @@ const SearchContent: React.FC = () => {
     }
   }, []);
 
+  /**
+   * handleInputChange。
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
@@ -223,6 +235,9 @@ const SearchContent: React.FC = () => {
     suggestTimer.current = setTimeout(() => fetchSuggestions(value), 300);
   };
 
+  /**
+   * loadHotSearches。
+   */
   const loadHotSearches = async () => {
     try {
       const data = await searchService.hotSearch();
@@ -232,6 +247,9 @@ const SearchContent: React.FC = () => {
     } catch { /* ignore */ }
   };
 
+  /**
+   * loadHistory。
+   */
   const loadHistory = async () => {
     try {
       const data = await searchService.history();
@@ -244,6 +262,9 @@ const SearchContent: React.FC = () => {
     } catch { /* ignore */ }
   };
 
+  /**
+   * clearHistory。
+   */
   const clearHistory = async () => {
     try {
       await searchService.clearHistory();
@@ -251,6 +272,9 @@ const SearchContent: React.FC = () => {
     } catch { /* ignore */ }
   };
 
+  /**
+   * handleSearch。
+   */
   const handleSearch = (value?: string) => {
     const q = value || query;
     if (!q.trim()) {
@@ -282,6 +306,9 @@ const SearchContent: React.FC = () => {
     navigate('/search');
   };
 
+  /**
+   * handleKeyDown。
+   */
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
@@ -329,6 +356,9 @@ const SearchContent: React.FC = () => {
     }
   };
 
+  /**
+   * toggleChunks。
+   */
   const toggleChunks = (resultId: string) => {
     setExpandedChunks((prev) => {
       const next = new Set(prev);
@@ -577,6 +607,9 @@ const SearchContent: React.FC = () => {
   );
 };
 
+/**
+ * SearchPage 页面组件。
+ */
 const SearchPage: React.FC = () => {
   const { enableFullTextSearch } = useAppStore();
 

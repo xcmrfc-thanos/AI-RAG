@@ -1,3 +1,6 @@
+/**
+ * 业务页面：EditDocumentPage。
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
@@ -76,6 +79,9 @@ if (typeof document !== 'undefined' && document.head) {
   }
 }
 
+/**
+ * EditDocumentPage 页面组件。
+ */
 const EditDocumentPage: React.FC = () => {
   const { message } = App.useApp();
   const navigate = useNavigate();
@@ -317,6 +323,9 @@ const EditDocumentPage: React.FC = () => {
 
   // 全局点击事件监听器，用于关闭右键菜单
   useEffect(() => {
+    /**
+     * handleClickOutside。
+     */
     const handleClickOutside = () => {
       if (contextMenu.visible) {
         closeContextMenu();
@@ -362,6 +371,9 @@ const EditDocumentPage: React.FC = () => {
     }
   }, [content, history, historyIndex]);
 
+  /**
+   * fetchCategories。
+   */
   const fetchCategories = async () => {
     try {
       const tree = await categoryService.getCategoryTree();
@@ -1192,6 +1204,9 @@ const EditDocumentPage: React.FC = () => {
     }, 0);
   };
 
+  /**
+   * insertLink。
+   */
   const insertLink = () => {
     const url = prompt('请输入链接地址:');
     if (url) {
@@ -1207,6 +1222,9 @@ const EditDocumentPage: React.FC = () => {
     }
   };
 
+  /**
+   * insertImage。
+   */
   const insertImage = () => {
     // 创建文件选择器
     const input = document.createElement('input');
@@ -1214,6 +1232,9 @@ const EditDocumentPage: React.FC = () => {
     input.accept = 'image/*';
 
     input.onchange = async (e) => {
+      /**
+       * file。
+       */
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 

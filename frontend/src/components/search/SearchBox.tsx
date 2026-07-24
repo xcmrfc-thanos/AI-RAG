@@ -1,3 +1,6 @@
+/**
+ * UI 组件：SearchBox。
+ */
 import React, { RefObject } from 'react';
 import { SearchOutlined, CloseCircleOutlined, LoadingOutlined } from '@ant-design/icons';
 import { resolveSearchHighlight } from './search-utils';

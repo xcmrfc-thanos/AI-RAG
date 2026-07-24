@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：NotificationTemplatePage。
+ */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card,
@@ -97,6 +100,9 @@ export const NotificationTemplatePage: React.FC = () => {
     [enableEmail]
   );
 
+  /**
+   * fetchTemplates。
+   */
   const fetchTemplates = useCallback(async () => {
     setLoading(true);
     try {
@@ -176,6 +182,9 @@ export const NotificationTemplatePage: React.FC = () => {
     setIsTemplateModalVisible(true);
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = async (id: EntityId) => {
     try {
       await foundationService.notificationTemplate.delete(id);
@@ -186,6 +195,9 @@ export const NotificationTemplatePage: React.FC = () => {
     }
   };
 
+  /**
+   * handleTemplateModalOk。
+   */
   const handleTemplateModalOk = async () => {
     try {
       const values = await form.validateFields();
@@ -234,6 +246,9 @@ export const NotificationTemplatePage: React.FC = () => {
     setIsPreviewModalVisible(true);
   };
 
+  /**
+   * handleTest。
+   */
   const handleTest = (template: NotificationTemplate) => {
     setPreviewTemplate(template);
     testForm.resetFields();
@@ -243,6 +258,9 @@ export const NotificationTemplatePage: React.FC = () => {
     setIsTestModalVisible(true);
   };
 
+  /**
+   * handleSendTest。
+   */
   const handleSendTest = async () => {
     if (!previewTemplate?.id) return;
     try {

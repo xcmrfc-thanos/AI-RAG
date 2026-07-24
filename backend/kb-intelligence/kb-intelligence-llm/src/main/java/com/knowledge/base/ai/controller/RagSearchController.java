@@ -33,6 +33,9 @@ public class RagSearchController {
     /**
      * RAG检索
      */
+    /**
+     * 搜索。
+     */
     @PostMapping
     @Operation(summary = "RAG检索", description = "基于RAG的知识库检索，不生成回答")
     public Result<List<RagSearchResultVO>> search(@Valid @RequestBody RagSearchRequestDTO requestDTO) {

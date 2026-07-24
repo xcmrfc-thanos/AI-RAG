@@ -113,6 +113,9 @@ public class SearchServiceImpl implements SearchService {
     // ==================== 搜索入口 ====================
 
     /** {@inheritDoc} */
+    /**
+     * 搜索。
+     */
     @Override
     public PageResult<SearchResultVO> search(SearchRequestDTO dto) {
         normalizeKeyword(dto);
@@ -126,6 +129,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * advancedSearch 方法。
+     */
     @Override
     public PageResult<SearchResultVO> advancedSearch(SearchRequestDTO dto) {
         log.info("高级搜索：keyword={}", dto.getKeyword());
@@ -747,6 +753,9 @@ public class SearchServiceImpl implements SearchService {
     // ==================== 搜索建议 ====================
 
     /** {@inheritDoc} */
+    /**
+     * suggest 方法。
+     */
     @Override
     public List<SearchSuggestVO> suggest(String keyword, Integer size) {
         log.info("搜索建议：keyword={}, size={}", keyword, size);
@@ -819,6 +828,9 @@ public class SearchServiceImpl implements SearchService {
     // ==================== 索引管理 ====================
 
     /** {@inheritDoc} */
+    /**
+     * indexDocument 方法。
+     */
     @Override
     public void indexDocument(Long documentId) {
         if (documentId == null) {
@@ -863,6 +875,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * indexDocumentData 方法。
+     */
     @Override
     public void indexDocumentData(Map<String, Object> docData) {
         try {
@@ -875,6 +890,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 批量IndexDocuments。
+     */
     @Override
     public void batchIndexDocuments(List<Long> documentIds) {
         log.info("批量索引文档：documentCount={}", documentIds != null ? documentIds.size() : 0);
@@ -893,6 +911,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除Document。
+     */
     @Override
     public void deleteDocument(Long documentId) {
         log.info("删除文档索引：documentId={}", documentId);
@@ -910,6 +931,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 批量DeleteDocuments。
+     */
     @Override
     public void batchDeleteDocuments(List<Long> documentIds) {
         log.info("批量删除文档索引：documentCount={}", documentIds != null ? documentIds.size() : 0);
@@ -929,6 +953,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取IndexHealth。
+     */
     @Override
     public SearchIndexHealthVO getIndexHealth() {
         log.info("索引健康检查开始");
@@ -975,6 +1002,9 @@ public class SearchServiceImpl implements SearchService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * rebuildIndex 方法。
+     */
     @Override
     public void rebuildIndex() {
         log.info("重建索引开始：从 kb-core 同步所有已发布文档");

@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：auth.service。
+ */
 import { http } from './request';
 import { LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User } from '@/types';
 import { tokenStorage } from '@/utils/token-storage';

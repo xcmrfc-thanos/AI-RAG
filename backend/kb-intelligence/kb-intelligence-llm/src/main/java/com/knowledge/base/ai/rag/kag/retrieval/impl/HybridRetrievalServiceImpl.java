@@ -42,6 +42,9 @@ public class HybridRetrievalServiceImpl implements HybridRetrievalService {
     private ThreadPoolTaskExecutor ragTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * retrieveHybrid 方法。
+     */
     @Override
     public HybridResult retrieveHybrid(String query, int topK, boolean enableRerank, boolean enableKAG) {
         CompletableFuture<List<RagSearchResultVO>> ragFuture = CompletableFuture.supplyAsync(() -> {

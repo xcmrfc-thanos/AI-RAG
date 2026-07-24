@@ -36,6 +36,9 @@ public class TeamController {
     /**
      * 创建团队
      */
+    /**
+     * 创建Team。
+     */
     @PostMapping
     @Operation(summary = "创建团队", description = "创建新的团队")
     @OperationLog(module = "团队管理", operation = "创建团队", description = "创建新团队")
@@ -46,6 +49,9 @@ public class TeamController {
 
     /**
      * 更新团队
+     */
+    /**
+     * 更新Team。
      */
     @PutMapping
     @Operation(summary = "更新团队", description = "更新团队信息")
@@ -58,6 +64,9 @@ public class TeamController {
     /**
      * 删除团队
      */
+    /**
+     * 删除Team。
+     */
     @DeleteMapping("/{teamId}")
     @Operation(summary = "删除团队", description = "删除指定团队")
     @OperationLog(module = "团队管理", operation = "删除团队", description = "删除团队")
@@ -69,6 +78,9 @@ public class TeamController {
     /**
      * 获取团队详情
      */
+    /**
+     * 获取TeamDetail。
+     */
     @GetMapping("/{teamId}")
     @Operation(summary = "获取团队详情", description = "根据ID获取团队详情")
     public Result<TeamVO> getTeamDetail(@PathVariable Long teamId) {
@@ -78,6 +90,9 @@ public class TeamController {
 
     /**
      * 分页查询团队
+     */
+    /**
+     * 分页查询Teams。
      */
     @PostMapping("/page")
     @Operation(summary = "分页查询团队", description = "分页查询团队列表")
@@ -89,6 +104,9 @@ public class TeamController {
     /**
      * 获取团队树
      */
+    /**
+     * 获取TeamTree。
+     */
     @GetMapping("/tree")
     @Operation(summary = "获取团队树", description = "获取完整的团队树结构，rootOnly=true时只返回一级团队")
     public Result<List<TeamVO>> getTeamTree(@RequestParam(required = false, defaultValue = "false") boolean rootOnly) {
@@ -98,6 +116,9 @@ public class TeamController {
 
     /**
      * 添加团队成员
+     */
+    /**
+     * 添加TeamMembers。
      */
     @PostMapping("/{teamId}/members")
     @Operation(summary = "添加团队成员", description = "批量添加团队成员")
@@ -112,6 +133,9 @@ public class TeamController {
     /**
      * 移除团队成员
      */
+    /**
+     * 删除TeamMembers。
+     */
     @DeleteMapping("/{teamId}/members")
     @Operation(summary = "移除团队成员", description = "批量移除团队成员")
     @OperationLog(module = "团队管理", operation = "移除成员", description = "移除团队成员")
@@ -124,6 +148,9 @@ public class TeamController {
 
     /**
      * 获取团队成员
+     */
+    /**
+     * 获取TeamMembers。
      */
     @GetMapping("/{teamId}/members")
     @Operation(summary = "获取团队成员", description = "获取团队成员列表")

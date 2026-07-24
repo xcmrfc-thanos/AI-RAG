@@ -36,6 +36,9 @@ public class GraphController {
      * @param type 节点类型
      * @return 节点列表
      */
+    /**
+     * 获取Nodes。
+     */
     @GetMapping("/nodes")
     @Operation(summary = "获取节点列表", description = "获取知识图谱节点列表")
     public Result<List<GraphNodeVO>> getNodes(
@@ -52,6 +55,9 @@ public class GraphController {
      * @param sourceType 源节点类型
      * @param targetType 目标节点类型
      * @return 边列表
+     */
+    /**
+     * 获取Edges。
      */
     @GetMapping("/edges")
     @Operation(summary = "获取边列表", description = "获取知识图谱边列表")
@@ -70,6 +76,9 @@ public class GraphController {
      * @param nodeId 节点ID
      * @return 关系列表
      */
+    /**
+     * 获取NodeRelations。
+     */
     @GetMapping("/node/{nodeId}/relations")
     @Operation(summary = "获取节点关系", description = "获取节点的所有关系")
     public Result<List<GraphRelationVO>> getNodeRelations(
@@ -86,6 +95,9 @@ public class GraphController {
      *
      * @param keyword 搜索关键词
      * @return 搜索结果
+     */
+    /**
+     * 搜索Graph。
      */
     @GetMapping("/search")
     @Operation(summary = "图谱搜索", description = "在知识图谱中搜索节点")
@@ -105,6 +117,9 @@ public class GraphController {
      * @param targetId 目标节点ID
      * @param maxDepth 最大深度
      * @return 路径列表
+     */
+    /**
+     * 分析Path。
      */
     @GetMapping("/path")
     @Operation(summary = "路径分析", description = "分析两个节点之间的路径")
@@ -127,6 +142,9 @@ public class GraphController {
      * @param algorithm 算法类型
      * @return 社区列表
      */
+    /**
+     * 检测Community。
+     */
     @GetMapping("/community")
     @Operation(summary = "社区检测", description = "检测图谱中的社区结构")
     public Result<List<GraphCommunityVO>> detectCommunity(
@@ -143,6 +161,9 @@ public class GraphController {
      *
      * @param type 节点类型
      * @return 图谱数据
+     */
+    /**
+     * 获取GraphData。
      */
     @GetMapping("/data")
     @Operation(summary = "获取完整图谱数据", description = "获取完整的知识图谱数据")
@@ -162,6 +183,9 @@ public class GraphController {
      * @param docId 文档ID
      * @return 操作结果
      */
+    /**
+     * 删除DocumentGraph。
+     */
     @DeleteMapping("/document/{docId}")
     @Operation(summary = "删除文档图谱", description = "删除指定文档的知识图谱节点及关系")
     public Result<String> deleteDocumentGraph(
@@ -179,6 +203,9 @@ public class GraphController {
      * @param body 包含 validDocIds 的请求体
      * @return 清理结果
      */
+    /**
+     * 清理GhostNodes。
+     */
     @PostMapping("/document/cleanup")
     @Operation(summary = "清理脏图谱节点", description = "删除 MySQL 中已不存在的文档对应的图谱节点")
     public Result<String> cleanupGhostNodes(@RequestBody Map<String, List<Long>> body) {
@@ -195,6 +222,9 @@ public class GraphController {
      * 确保前端下次查询时从 Neo4j 获取最新数据。</p>
      *
      * @return 操作结果
+     */
+    /**
+     * 失效缓存Cache。
      */
     @PostMapping("/cache/evict")
     @Operation(summary = "清除图谱缓存", description = "清除所有知识图谱 Redis 缓存，强制从 Neo4j 重新加载")

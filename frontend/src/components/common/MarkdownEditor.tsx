@@ -1,3 +1,6 @@
+/**
+ * UI 组件：MarkdownEditor。
+ */
 import React, { useState, useCallback } from 'react';
 import { Input, Button, Space } from 'antd';
 import { EyeOutlined, EditOutlined, CopyOutlined, DownloadOutlined } from '@ant-design/icons';
@@ -57,12 +60,18 @@ export const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
     overflow: 'hidden',
   };
 
+  /**
+   * getEditorWidth。
+   */
   const getEditorWidth = () => {
     if (mode === 'edit') return '100%';
     if (mode === 'preview') return '0%';
     return '50%';
   };
 
+  /**
+   * getPreviewWidth。
+   */
   const getPreviewWidth = () => {
     if (mode === 'edit') return '0%';
     if (mode === 'preview') return '100%';

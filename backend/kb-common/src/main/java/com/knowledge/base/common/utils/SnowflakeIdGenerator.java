@@ -49,6 +49,9 @@ public class SnowflakeIdGenerator {
 
     private static volatile SnowflakeIdGenerator instance;
 
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         log.info("SnowflakeIdGenerator initialized with datacenterId: {}, workerId: {}", datacenterId, workerId);
@@ -71,6 +74,9 @@ public class SnowflakeIdGenerator {
         this.workerId = workerId;
     }
 
+    /**
+     * 获取Instance。
+     */
     public static SnowflakeIdGenerator getInstance(long datacenterId, long workerId) {
         if (instance == null) {
             synchronized (SnowflakeIdGenerator.class) {
@@ -82,10 +88,16 @@ public class SnowflakeIdGenerator {
         return instance;
     }
 
+    /**
+     * 获取Instance。
+     */
     public static SnowflakeIdGenerator getInstance() {
         return getInstance(1L, 1L);
     }
 
+    /**
+     * nextId 方法。
+     */
     public synchronized long nextId() {
         long timestamp = getCurrentTimestamp();
 
@@ -123,6 +135,9 @@ public class SnowflakeIdGenerator {
             | sequence;
     }
 
+    /**
+     * nextIdStr 方法。
+     */
     public String nextIdStr() {
         return String.valueOf(nextId());
     }

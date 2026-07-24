@@ -18,6 +18,9 @@ public class ListTagsTool implements AgentTool {
 
     private final GatewayToolHttpClient httpClient;
 
+    /**
+     * name 方法。
+     */
     @Override
     public String name() {
         return "list_tags";

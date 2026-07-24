@@ -38,6 +38,9 @@ public class StatisticsMQListener {
     /**
      * 消费浏览事件
      */
+    /**
+     * handleViewEvent 方法。
+     */
     @RabbitListener(queues = "#{@statisticsViewQueue.name}")
     public void handleViewEvent(StatisticsEventDTO event) {
         try {
@@ -78,6 +81,9 @@ public class StatisticsMQListener {
     /**
      * 消费点赞事件
      */
+    /**
+     * handleLikeEvent 方法。
+     */
     @RabbitListener(queues = "#{@statisticsLikeQueue.name}")
     public void handleLikeEvent(StatisticsEventDTO event) {
         try {
@@ -101,6 +107,9 @@ public class StatisticsMQListener {
 
     /**
      * 消费评论事件
+     */
+    /**
+     * handleCommentEvent 方法。
      */
     @RabbitListener(queues = "#{@statisticsCommentQueue.name}")
     public void handleCommentEvent(StatisticsEventDTO event) {

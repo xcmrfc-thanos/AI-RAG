@@ -1,3 +1,6 @@
+/**
+ * UI 组件：SearchResultCard。
+ */
 import React from 'react';
 import { Tag } from 'antd';
 import {

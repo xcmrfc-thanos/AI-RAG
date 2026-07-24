@@ -29,6 +29,9 @@ public class DocumentUserLocalClient implements DocumentUserClient {
     /**
      * 通过 UserService 获取头像
      */
+    /**
+     * 获取UserAvatar。
+     */
     @Override
     public String getUserAvatar(Long userId) {
         if (userId == null) {
@@ -44,6 +47,9 @@ public class DocumentUserLocalClient implements DocumentUserClient {
 
     /**
      * 通过 UserService 获取权限列表
+     */
+    /**
+     * 获取UserPermissions。
      */
     @Override
     public List<String> getUserPermissions(Long userId, String token) {
@@ -62,6 +68,9 @@ public class DocumentUserLocalClient implements DocumentUserClient {
      *
      * @param userId 用户 ID
      * @return 团队 ID 列表
+     */
+    /**
+     * 列表查询TeamIds。
      */
     @Override
     public List<Long> listTeamIds(Long userId) {

@@ -1,3 +1,6 @@
+/**
+ * UI 组件：AdminLayout。
+ */
 import React, { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Tooltip } from 'antd';
@@ -47,6 +50,9 @@ const ADMIN_NAV_ICONS: Record<string, React.ReactNode> = {
 
 const ADMIN_SIDEBAR_STORAGE_KEY = 'admin-sidebar-collapsed';
 
+/**
+ * readSidebarCollapsed 方法。
+ */
 function readSidebarCollapsed(): boolean {
   try {
     return window.localStorage.getItem(ADMIN_SIDEBAR_STORAGE_KEY) === 'true';
@@ -55,6 +61,9 @@ function readSidebarCollapsed(): boolean {
   }
 }
 
+/**
+ * persistSidebarCollapsed 方法。
+ */
 function persistSidebarCollapsed(collapsed: boolean): void {
   try {
     window.localStorage.setItem(ADMIN_SIDEBAR_STORAGE_KEY, String(collapsed));

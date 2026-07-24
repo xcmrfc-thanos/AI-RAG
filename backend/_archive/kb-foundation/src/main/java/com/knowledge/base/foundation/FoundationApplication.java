@@ -1,22 +1,17 @@
 package com.knowledge.base.foundation;
 
-import com.knowledge.base.common.support.LegacyCoreServiceNotifier;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
- * kb-foundation基础服务启动类
- *
- * @author 苏三
- * @since 1.0.0
+ * kb-foundation 启动类（已废弃，由 kb-core 替代）。
  */
+@Deprecated(since = "2026-07-10", forRemoval = true)
 @EnableAsync
 @EnableCaching
 @EnableTransactionManagement
@@ -26,7 +21,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class FoundationApplication {
 
     /**
-     * 应用入口
+     * 应用入口。
+     *
+     * @param args 启动参数
      */
     public static void main(String[] args) {
         SpringApplication.run(FoundationApplication.class, args);
@@ -40,13 +37,5 @@ public class FoundationApplication {
                    Druid监控: http://localhost:8089/api/foundation/druid/
                 ========================================
                 """);
-    }
-
-    /**
-     * 启动时打印废弃警告（P2-7）
-     */
-    @Bean
-    ApplicationRunner legacyCoreDeprecationWarning() {
-        return LegacyCoreServiceNotifier.onStartup("kb-foundation", "kb-core");
     }
 }

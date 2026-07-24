@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowNode。
+ */
 import React, { memo } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { FlowNodeData } from './types';

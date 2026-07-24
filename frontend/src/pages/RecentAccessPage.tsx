@@ -1,3 +1,6 @@
+/**
+ * 业务页面：RecentAccessPage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   List,

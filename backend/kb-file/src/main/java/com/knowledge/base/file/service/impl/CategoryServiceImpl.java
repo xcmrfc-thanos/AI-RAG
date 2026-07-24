@@ -32,6 +32,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> implements CategoryService {
 
+    /**
+     * 创建。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CategoryVO create(CategoryDTO dto) {
@@ -71,6 +74,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return CategoryVO.fromEntity(category);
     }
 
+    /**
+     * 更新。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CategoryVO update(CategoryDTO dto) {
@@ -104,6 +110,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return CategoryVO.fromEntity(category);
     }
 
+    /**
+     * 删除。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(Long id) {
@@ -126,12 +135,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         log.info("分类删除成功: id={}", id);
     }
 
+    /**
+     * 获取ById。
+     */
     @Override
     public CategoryVO getById(Long id) {
         Category category = super.getById(id);
         return CategoryVO.fromEntity(category);
     }
 
+    /**
+     * 列表查询All。
+     */
     @Override
     public List<CategoryVO> listAll() {
         List<Category> categories = list(new LambdaQueryWrapper<Category>()
@@ -143,6 +158,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取Tree。
+     */
     @Override
     public List<CategoryVO> getTree() {
         List<Category> categories = list(new LambdaQueryWrapper<Category>()
@@ -153,6 +171,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         return buildTree(categories);
     }
 
+    /**
+     * 列表查询ByParentId。
+     */
     @Override
     public List<CategoryVO> listByParentId(Long parentId) {
         List<Category> categories = list(new LambdaQueryWrapper<Category>()
@@ -165,6 +186,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 更新Status。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public CategoryVO updateStatus(Long id, Integer status) {

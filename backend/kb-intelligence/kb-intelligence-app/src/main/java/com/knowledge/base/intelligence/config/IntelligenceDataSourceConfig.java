@@ -28,6 +28,9 @@ public class IntelligenceDataSourceConfig {
     /**
      * JDBC 主事务管理器
      */
+    /**
+     * transactionManager 方法。
+     */
     @Bean
     @Primary
     public PlatformTransactionManager transactionManager(DataSource dataSource) {

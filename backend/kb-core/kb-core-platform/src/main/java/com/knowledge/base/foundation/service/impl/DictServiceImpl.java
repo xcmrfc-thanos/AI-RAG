@@ -21,6 +21,9 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DictServiceImpl 类。
+ */
 @Slf4j
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
@@ -32,6 +35,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     private DictDataMapper dictDataMapper;
 
     /** {@inheritDoc} */
+    /**
+     * 分页查询Dicts。
+     */
     @Override
     public IPage<Dict> pageDicts(Long current, Long size, String keyword) {
         log.info("分页查询字典：current={}, size={}, keyword={}", current, size, keyword);
@@ -51,6 +57,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取DictByCode。
+     */
     @Override
     public Dict getDictByCode(String code) {
         log.info("根据编码获取字典：code={}", code);
@@ -63,6 +72,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建Dict。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createDict(Dict dict) {
@@ -89,6 +101,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 更新Dict。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateDict(String code, Dict dict) {
@@ -110,6 +125,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除Dict。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteDict(String code) {
@@ -129,6 +147,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取DictData。
+     */
     @Override
     public List<DictData> getDictData(String code) {
         log.info("获取字典数据：code={}", code);
@@ -141,6 +162,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 添加DictData。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean addDictData(String code, DictData dictData) {
@@ -160,6 +184,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 更新DictData。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateDictData(String code, DictData dictData) {
@@ -170,6 +197,9 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除DictData。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteDictData(String code, Long id) {

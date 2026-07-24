@@ -21,6 +21,9 @@ public class OperationLogStatisticsListener {
     /**
      * 写入 stat_operation_log 供活跃用户统计使用
      */
+    /**
+     * handleOperationLog 方法。
+     */
     @RabbitListener(queues = "#{@statisticsOperationLogQueue.name}")
     public void handleOperationLog(OperationLogEventDTO event) {
         if (event == null) {

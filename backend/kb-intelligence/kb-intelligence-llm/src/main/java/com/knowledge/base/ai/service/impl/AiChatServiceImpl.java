@@ -65,6 +65,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     private ThreadPoolTaskExecutor ragTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * chat 方法。
+     */
     @Override
     public ChatResponseVO chat(ChatRequestDTO requestDTO, Long userId) {
         normalizeChatContent(requestDTO);
@@ -161,6 +164,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     }
 
     /** {@inheritDoc} */
+    /**
+     * chatStream 方法。
+     */
     @Override
     public SseEmitter chatStream(ChatRequestDTO requestDTO, Long userId) {
         normalizeChatContent(requestDTO);
@@ -225,6 +231,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
                     StringBuilder fullResponseBuilder = new StringBuilder();
 
                     streamingModel.generate(chatMessages, new StreamingResponseHandler<AiMessage>() {
+                        /**
+                         * onNext 方法。
+                         */
                         @Override
                         public void onNext(String token) {
                             fullResponseBuilder.append(token);
@@ -237,6 +246,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
                             }
                         }
 
+                        /**
+                         * onComplete 方法。
+                         */
                         @Override
                         public void onComplete(Response<AiMessage> response) {
                             try {
@@ -270,6 +282,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
                             }
                         }
 
+                        /**
+                         * onError 方法。
+                         */
                         @Override
                         public void onError(Throwable error) {
                             log.error("流式对话失败[model={}]: {}", modelName, error.getMessage(), error);
@@ -344,6 +359,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取ConversationHistory。
+     */
     @Override
     public String getConversationHistory(Long conversationId, Long userId) {
         LambdaQueryWrapper<Message> queryWrapper = new LambdaQueryWrapper<>();
@@ -361,6 +379,9 @@ public class AiChatServiceImpl extends ServiceImpl<ConversationMapper, Conversat
     }
 
     /** {@inheritDoc} */
+    /**
+     * 生成Title。
+     */
     @Override
     public String generateTitle(String firstMessage) {
         try {

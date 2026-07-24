@@ -29,6 +29,9 @@ public class DocumentLifecycleListener {
      *
      * @param event 领域事件
      */
+    /**
+     * onDocumentLifecycle 方法。
+     */
     @RabbitListener(queues = "#{@searchDocumentLifecycleQueue.name}",
             containerFactory = "documentLifecycleListenerContainerFactory")
     public void onDocumentLifecycle(@Payload DocumentLifecycleEventDTO event) {

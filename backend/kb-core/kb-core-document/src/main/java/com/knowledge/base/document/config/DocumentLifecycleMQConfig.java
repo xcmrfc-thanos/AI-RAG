@@ -19,6 +19,9 @@ public class DocumentLifecycleMQConfig {
     /**
      * 文档生命周期 Topic 交换机
      */
+    /**
+     * documentLifecycleExchange 方法。
+     */
     @Bean
     public TopicExchange documentLifecycleExchange() {
         return new TopicExchange(DocumentLifecycleMQConstants.EXCHANGE, true, false);

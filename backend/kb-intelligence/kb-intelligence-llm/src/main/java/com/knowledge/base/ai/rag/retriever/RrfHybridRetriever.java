@@ -36,6 +36,9 @@ public class RrfHybridRetriever implements HybridRetriever {
     private ThreadPoolTaskExecutor ragTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * retrieve 方法。
+     */
     @Override
     public List<RagSearchResultVO> retrieve(String queryText, float[] queryEmbedding,
                                             int topK, int hybridTopK, int rrfC) {

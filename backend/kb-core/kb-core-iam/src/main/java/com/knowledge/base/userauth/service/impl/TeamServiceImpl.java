@@ -73,6 +73,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     /** Redis 缓存 key 前缀 */
     private static final String REDIS_TEAM_KEY_PREFIX = "sidebar:teams:";
 
+    /**
+     * 创建Team。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:teams", allEntries = true)
@@ -118,6 +121,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return team.getId();
     }
 
+    /**
+     * 更新Team。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:teams", allEntries = true)
@@ -170,6 +176,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return result > 0;
     }
 
+    /**
+     * 删除Team。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = "sidebar:teams", allEntries = true)
@@ -202,6 +211,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return result > 0;
     }
 
+    /**
+     * 获取TeamDetail。
+     */
     @Override
     public TeamVO getTeamDetail(Long teamId) {
         Team team = baseMapper.selectById(teamId);
@@ -211,6 +223,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return convertToVO(team);
     }
 
+    /**
+     * 分页查询Teams。
+     */
     @Override
     public PageResult<TeamVO> pageTeams(TeamQueryDTO dto) {
         LambdaQueryWrapper<Team> queryWrapper = new LambdaQueryWrapper<>();
@@ -243,6 +258,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         );
     }
 
+    /**
+     * 获取TeamTree。
+     */
     @Override
     public List<TeamVO> getTeamTree(boolean rootOnly) {
         String cacheKey = rootOnly ? "roots" : "tree";
@@ -338,6 +356,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         }
     }
 
+    /**
+     * 添加TeamMembers。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean addTeamMembers(Long teamId, List<Long> userIds) {
@@ -381,6 +402,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return true;
     }
 
+    /**
+     * 删除TeamMembers。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeTeamMembers(Long teamId, List<Long> userIds) {
@@ -407,6 +431,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         return true;
     }
 
+    /**
+     * 获取TeamMembers。
+     */
     @Override
     public List<TeamMemberVO> getTeamMembers(Long teamId) {
         Team team = baseMapper.selectById(teamId);

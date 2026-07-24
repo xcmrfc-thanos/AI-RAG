@@ -1,3 +1,6 @@
+/**
+ * 业务页面：FavoritesPage。
+ */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -58,6 +61,9 @@ export const FavoritesPage: React.FC = () => {
   const [selectedFavorites, setSelectedFavorites] = useState<string[]>([]);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
+  /**
+   * getCategoryDisplayStyle。
+   */
   const getCategoryDisplayStyle = (categoryName: string): { bg: string; color: string; borderColor: string } => {
     const name = categoryName.toLowerCase();
     if (name.includes('技术') || name.includes('开发')) {

@@ -1,12 +1,24 @@
+/**
+ * 前端工具模块：notification-link。
+ */
 export interface NotificationTarget {
   url?: string;
   openInNewTab: boolean;
 }
 
+/**
+ * 构建ReviewPageLink。
+ */
 export const buildReviewPageLink = (documentId: string | number) => `/review/documents/${documentId}`;
 
+/**
+ * 判断是否ReviewPageLink。
+ */
 export const isReviewPageLink = (link?: string) => Boolean(link && /^\/review\/documents\/[^/]+/.test(link));
 
+/**
+ * 提取DocumentIdFromLink。
+ */
 export const extractDocumentIdFromLink = (link?: string) => {
   if (!link) {
     return undefined;

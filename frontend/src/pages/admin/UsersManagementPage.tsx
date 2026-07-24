@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：UsersManagementPage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Table,
@@ -81,6 +84,9 @@ const flattenPermissionChildren = (
   return node.children.flatMap((child) => flattenPermissionChildren(child));
 };
 
+/**
+ * hasCustomAvatar。
+ */
 const hasCustomAvatar = (avatar?: string) => {
   if (!avatar) {
     return false;
@@ -168,6 +174,9 @@ export const UsersManagementPage: React.FC = () => {
     });
   }, []);
 
+  /**
+   * fetchUsers。
+   */
   const fetchUsers = async () => {
     setLoading(true);
     try {
@@ -313,6 +322,9 @@ export const UsersManagementPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleModalOk。
+   */
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();
@@ -343,6 +355,9 @@ export const UsersManagementPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleCloseModal。
+   */
   const handleCloseModal = () => {
     setEditingUser(null);
     setSelectedTeamId('');
@@ -351,6 +366,9 @@ export const UsersManagementPage: React.FC = () => {
     form.setFieldsValue(defaultUserFormValues);
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = async (id: string | number) => {
     try {
       await userService.deleteUser(String(id));

@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：admin-echarts。
+ */
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart, PieChart } from 'echarts/charts';
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components';

@@ -23,6 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * SystemConfigServiceImpl 类。
+ */
 @Slf4j
 @Service
 public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, SystemConfig> implements SystemConfigService {
@@ -35,6 +38,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
 
     /**
      * 服务启动完成后（DB、Redis 等基础设施就绪）将所有配置加载到 Redis 缓存
+     */
+    /**
+     * 加载ConfigsToRedis。
      */
     @EventListener(ApplicationReadyEvent.class)
     public void loadConfigsToRedis() {
@@ -64,6 +70,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 分页查询Configs。
+     */
     @Override
     public IPage<SystemConfig> pageConfigs(Long current, Long size, String category) {
         log.info("分页查询配置：current={}, size={}, category={}", current, size, category);
@@ -81,6 +90,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取ConfigByKey。
+     */
     @Override
     public SystemConfig getConfigByKey(String key) {
         log.info("获取配置：key={}", key);
@@ -93,6 +105,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建Config。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createConfig(SystemConfig config) {
@@ -119,6 +134,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 更新Config。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateConfig(String key, SystemConfig config) {
@@ -143,6 +161,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除Config。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteConfig(String key) {
@@ -161,6 +182,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取ConfigsByCategory。
+     */
     @Override
     public List<SystemConfig> getConfigsByCategory(String category) {
         log.info("按分类获取配置：category={}", category);
@@ -173,6 +197,9 @@ public class SystemConfigServiceImpl extends ServiceImpl<SystemConfigMapper, Sys
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取PublicConfigs。
+     */
     @Override
     public List<SystemConfig> getPublicConfigs() {
         log.info("获取公开配置");

@@ -34,6 +34,9 @@ public class AiFeedbackController {
      * @param request     HTTP请求
      * @return 是否成功
      */
+    /**
+     * 提交Feedback。
+     */
     @PostMapping
     @Operation(summary = "提交反馈", description = "提交AI使用反馈")
     public Result<Boolean> submitFeedback(

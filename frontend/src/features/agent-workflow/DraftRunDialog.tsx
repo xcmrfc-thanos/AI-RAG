@@ -1,3 +1,6 @@
+/**
+ * 功能模块：DraftRunDialog。
+ */
 import React, { memo, useEffect, useState } from 'react';
 import { Alert, Input, InputNumber, Modal, Space, Switch, Typography } from 'antd';
 import { buildDraftInputDefaults, validateDraftInput } from './draft-autosave';
@@ -13,6 +16,9 @@ interface DraftRunDialogProps {
   onRun: (input: Record<string, unknown>) => void;
 }
 
+/**
+ * DraftRunDialog 组件。
+ */
 const DraftRunDialog: React.FC<DraftRunDialogProps> = ({ open, busy, schema, onCancel, onRun }) => {
   const [input, setInput] = useState<Record<string, unknown>>({});
   const [errors, setErrors] = useState<string[]>([]);

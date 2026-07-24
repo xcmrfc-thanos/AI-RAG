@@ -34,6 +34,9 @@ public enum UserStatus {
         this.message = message;
     }
 
+    /**
+     * 获取ByCode。
+     */
     public static UserStatus getByCode(Integer code) {
         for (UserStatus status : values()) {
             if (status.getCode().equals(code)) {

@@ -13,6 +13,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * NotificationController 类。
+ */
 @Slf4j
 @RestController
 @RequestMapping("/notifications")
@@ -22,6 +25,9 @@ public class NotificationController {
     @Resource
     private NotificationService notificationService;
 
+    /**
+     * 分页查询Notifications。
+     */
     @GetMapping
     @Operation(summary = "分页查询通知", description = "分页查询通知列表")
     public Result<IPage<Notification>> pageNotifications(
@@ -35,6 +41,9 @@ public class NotificationController {
         return Result.success(page);
     }
 
+    /**
+     * 获取NotificationById。
+     */
     @GetMapping("/{id}")
     @Operation(summary = "查询通知详情", description = "根据通知ID查询通知详情")
     public Result<Notification> getNotificationById(
@@ -46,6 +55,9 @@ public class NotificationController {
         return Result.success(notification);
     }
 
+    /**
+     * 发送Notification。
+     */
     @PostMapping
     @Operation(summary = "发送通知", description = "创建新通知")
     public Result<Boolean> sendNotification(@Valid @RequestBody Notification notification) {
@@ -55,6 +67,9 @@ public class NotificationController {
         return Result.success("发送通知成功", success);
     }
 
+    /**
+     * 标记AsRead。
+     */
     @PutMapping("/{id}/read")
     @Operation(summary = "标记已读", description = "标记通知为已读")
     public Result<Boolean> markAsRead(
@@ -65,6 +80,9 @@ public class NotificationController {
         return notificationService.markAsRead(id);
     }
 
+    /**
+     * 标记AllAsRead。
+     */
     @PutMapping("/read-all")
     @Operation(summary = "全部标记已读", description = "将用户所有未读通知标记为已读")
     public Result<Boolean> markAllAsRead() {
@@ -79,6 +97,9 @@ public class NotificationController {
      *
      * @return 是否成功
      */
+    /**
+     * 删除AllNotifications。
+     */
     @DeleteMapping("/all")
     @Operation(summary = "清空全部通知", description = "删除当前用户的全部通知")
     public Result<Boolean> deleteAllNotifications() {
@@ -88,6 +109,9 @@ public class NotificationController {
         return notificationService.deleteAllByUserId(userId);
     }
 
+    /**
+     * 删除Notification。
+     */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除通知", description = "根据通知ID删除通知")
     public Result<Boolean> deleteNotification(
@@ -98,6 +122,9 @@ public class NotificationController {
         return notificationService.deleteNotification(id);
     }
 
+    /**
+     * 获取UnreadCount。
+     */
     @GetMapping("/unread-count")
     @Operation(summary = "获取未读数量", description = "获取用户未读通知数量")
     public Result<Long> getUnreadCount() {

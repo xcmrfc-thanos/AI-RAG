@@ -99,26 +99,44 @@ public class RustfsClient {
         private String fileName;
         private Long fileSize;
 
+        /**
+         * 获取Url。
+         */
         public String getUrl() {
             return url;
         }
 
+        /**
+         * setUrl 方法。
+         */
         public void setUrl(String url) {
             this.url = url;
         }
 
+        /**
+         * 获取FileName。
+         */
         public String getFileName() {
             return fileName;
         }
 
+        /**
+         * setFileName 方法。
+         */
         public void setFileName(String fileName) {
             this.fileName = fileName;
         }
 
+        /**
+         * 获取FileSize。
+         */
         public Long getFileSize() {
             return fileSize;
         }
 
+        /**
+         * setFileSize 方法。
+         */
         public void setFileSize(Long fileSize) {
             this.fileSize = fileSize;
         }

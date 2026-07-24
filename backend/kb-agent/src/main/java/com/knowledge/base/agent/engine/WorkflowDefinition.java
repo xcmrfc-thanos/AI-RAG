@@ -36,18 +36,30 @@ public class WorkflowDefinition {
         this.edges = List.copyOf(edges);
     }
 
+    /**
+     * 获取SchemaVersion。
+     */
     public int getSchemaVersion() {
         return schemaVersion;
     }
 
+    /**
+     * 获取Name。
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * 获取Nodes。
+     */
     public List<WorkflowNode> getNodes() {
         return nodes;
     }
 
+    /**
+     * 获取Edges。
+     */
     public List<WorkflowEdge> getEdges() {
         return edges;
     }

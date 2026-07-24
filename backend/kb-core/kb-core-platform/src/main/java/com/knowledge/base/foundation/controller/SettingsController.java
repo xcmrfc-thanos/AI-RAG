@@ -33,6 +33,9 @@ public class SettingsController {
     /**
      * 获取全部系统设置
      */
+    /**
+     * 获取Settings。
+     */
     @GetMapping
     @Operation(summary = "获取全部设置", description = "返回按分组组织的设置项和系统状态")
     public Result<SettingsVO> getSettings() {
@@ -42,6 +45,9 @@ public class SettingsController {
 
     /**
      * 按分组更新设置
+     */
+    /**
+     * 更新Settings。
      */
     @PutMapping
     @Operation(summary = "批量更新设置", description = "更新指定分组下的设置项，未传入的字段保持不变")
@@ -53,6 +59,9 @@ public class SettingsController {
     /**
      * 获取系统运行状态
      */
+    /**
+     * 获取SystemStatus。
+     */
     @GetMapping("/status")
     @Operation(summary = "获取系统状态", description = "返回系统版本、数据库连接状态、存储使用情况等运行指标")
     public Result<SystemStatusVO> getSystemStatus() {
@@ -63,6 +72,9 @@ public class SettingsController {
     /**
      * 清理系统缓存
      */
+    /**
+     * 清空Cache。
+     */
     @PostMapping("/cache/clear")
     @Operation(summary = "清理缓存", description = "清理Redis等系统缓存以释放存储空间")
     public Result<String> clearCache() {
@@ -72,6 +84,9 @@ public class SettingsController {
 
     /**
      * 创建数据备份
+     */
+    /**
+     * 创建Backup。
      */
     @PostMapping("/backup")
     @Operation(summary = "创建备份", description = "创建系统数据的完整备份")
@@ -85,6 +100,9 @@ public class SettingsController {
      *
      * @param dto 邮箱地址
      * @return 受理结果
+     */
+    /**
+     * testEmail 方法。
      */
     @PostMapping("/test-email")
     @Operation(summary = "测试邮件", description = "向指定邮箱发送测试邮件（未配置 SMTP 时为占位成功）")

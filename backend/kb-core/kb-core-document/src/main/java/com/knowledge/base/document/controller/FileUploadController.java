@@ -42,6 +42,9 @@ public class FileUploadController {
      * @param file 文件
      * @return 文件访问URL
      */
+    /**
+     * 上传File。
+     */
     @PostMapping("/upload")
     @Operation(summary = "上传文件", description = "上传文件并返回访问URL")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -68,6 +71,9 @@ public class FileUploadController {
      * @param imageUrl 图片URL
      * @return 新的图片访问URL
      */
+    /**
+     * 上传FromUrl。
+     */
     @PostMapping("/upload-from-url")
     @Operation(summary = "从URL上传图片", description = "下载外部图片并上传到文件服务器")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -91,6 +97,9 @@ public class FileUploadController {
      *
      * @param files 文件列表
      * @return 文件URL列表
+     */
+    /**
+     * 批量Upload。
      */
     @PostMapping("/batch-upload")
     @Operation(summary = "批量上传文件", description = "批量上传多个文件")
@@ -131,6 +140,9 @@ public class FileUploadController {
      * @param imageUrl 图片URL
      * @return 转换后的URL
      */
+    /**
+     * 转换ImageUrl。
+     */
     @PostMapping("/convert-url")
     @Operation(summary = "转换图片URL", description = "将外部图片URL转换为本站URL")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_CREATE, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT)")
@@ -154,6 +166,9 @@ public class FileUploadController {
      *
      * @param imageUrls 图片URL列表
      * @return 转换结果
+     */
+    /**
+     * 批量ConvertUrls。
      */
     @PostMapping("/batch-convert")
     @Operation(summary = "批量转换图片URL", description = "批量转换多个外部图片URL")

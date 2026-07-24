@@ -37,6 +37,9 @@ public class JwtConfig {
      *
      * @return SecretKey
      */
+    /**
+     * secretKey 方法。
+     */
     @Bean
     public SecretKey secretKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);

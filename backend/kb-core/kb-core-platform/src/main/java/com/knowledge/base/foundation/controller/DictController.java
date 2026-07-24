@@ -40,6 +40,9 @@ public class DictController {
      * @param keyword 搜索关键词
      * @return 字典分页信息
      */
+    /**
+     * 分页查询Dicts。
+     */
     @GetMapping
     @Operation(summary = "分页查询字典", description = "分页查询字典类型列表")
     public Result<IPage<Dict>> pageDicts(
@@ -58,6 +61,9 @@ public class DictController {
      * @param code 字典编码
      * @return 字典详情
      */
+    /**
+     * 获取DictByCode。
+     */
     @GetMapping("/{code}")
     @Operation(summary = "查询字典详情", description = "根据字典编码查询字典详情")
     public Result<Dict> getDictByCode(
@@ -75,6 +81,9 @@ public class DictController {
      * @param dict 字典信息
      * @return 是否成功
      */
+    /**
+     * 创建Dict。
+     */
     @PostMapping
     @Operation(summary = "创建字典", description = "创建新的字典类型")
     public Result<Boolean> createDict(@Valid @RequestBody Dict dict) {
@@ -90,6 +99,9 @@ public class DictController {
      * @param code 字典编码
      * @param dict 字典信息
      * @return 是否成功
+     */
+    /**
+     * 更新Dict。
      */
     @PutMapping("/{code}")
     @Operation(summary = "更新字典", description = "更新字典类型信息")
@@ -109,6 +121,9 @@ public class DictController {
      * @param code 字典编码
      * @return 是否成功
      */
+    /**
+     * 删除Dict。
+     */
     @DeleteMapping("/{code}")
     @Operation(summary = "删除字典", description = "根据字典编码删除字典")
     public Result<Boolean> deleteDict(
@@ -125,6 +140,9 @@ public class DictController {
      *
      * @param code 字典编码
      * @return 字典数据列表
+     */
+    /**
+     * 获取DictData。
      */
     @GetMapping("/{code}/data")
     @Operation(summary = "获取字典数据", description = "根据字典编码获取字典数据列表")
@@ -143,6 +161,9 @@ public class DictController {
      * @param code     字典编码
      * @param dictData 字典数据
      * @return 是否成功
+     */
+    /**
+     * 添加DictData。
      */
     @PostMapping("/{code}/data")
     @Operation(summary = "添加字典数据", description = "为指定字典添加数据项")
@@ -163,6 +184,9 @@ public class DictController {
      * @param dictData 字典数据
      * @return 是否成功
      */
+    /**
+     * 更新DictData。
+     */
     @PutMapping("/{code}/data")
     @Operation(summary = "更新字典数据", description = "更新字典数据项")
     public Result<Boolean> updateDictData(
@@ -181,6 +205,9 @@ public class DictController {
      * @param code 字典编码
      * @param id   数据ID
      * @return 是否成功
+     */
+    /**
+     * 删除DictData。
      */
     @DeleteMapping("/{code}/data/{id}")
     @Operation(summary = "删除字典数据", description = "删除指定的字典数据项")

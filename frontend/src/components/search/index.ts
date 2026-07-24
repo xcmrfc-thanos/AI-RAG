@@ -1,3 +1,6 @@
+/**
+ * search 模块导出入口。
+ */
 export { SearchBox } from './SearchBox';
 export type { SearchBoxProps, SearchSuggestion } from './SearchBox';
 export { SearchModeToggle } from './SearchModeToggle';

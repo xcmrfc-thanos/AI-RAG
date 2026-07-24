@@ -32,6 +32,9 @@ public class ShareController {
     @Resource
     private DocumentService documentService;
 
+    /**
+     * 获取ShareInfo。
+     */
     @GetMapping("/{shareId}")
     @Operation(summary = "获取分享信息", description = "获取分享链接的基本信息，不增加访问计数")
     public Result<ShareVO> getShareInfo(
@@ -44,6 +47,9 @@ public class ShareController {
         return Result.success(shareVO);
     }
 
+    /**
+     * 校验Share。
+     */
     @PostMapping("/{shareId}/verify")
     @Operation(summary = "验证分享访问", description = "验证密码，不增加访问计数")
     public Result<Boolean> verifyShare(
@@ -56,6 +62,9 @@ public class ShareController {
         return Result.success(valid);
     }
 
+    /**
+     * 访问Share。
+     */
     @PostMapping("/{shareId}/access")
     @Operation(summary = "访问分享", description = "验证并访问分享链接，增加访问计数，返回文档内容")
     public Result<DocumentVO> accessShare(

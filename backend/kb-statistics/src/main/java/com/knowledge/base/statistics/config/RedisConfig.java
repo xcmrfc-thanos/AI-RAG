@@ -47,6 +47,9 @@ public class RedisConfig {
      *
      * @return LettuceConnectionFactory
      */
+    /**
+     * redisConnectionFactory 方法。
+     */
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         org.springframework.data.redis.connection.RedisStandaloneConfiguration config =
@@ -92,6 +95,9 @@ public class RedisConfig {
      *
      * @param connectionFactory 连接工厂
      * @return RedisCacheManager
+     */
+    /**
+     * cacheManager 方法。
      */
     @Bean
     @Primary

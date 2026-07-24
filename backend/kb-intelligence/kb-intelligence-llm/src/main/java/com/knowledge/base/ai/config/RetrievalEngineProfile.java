@@ -193,6 +193,9 @@ public enum RetrievalEngineProfile {
         return raw.trim().toLowerCase(Locale.ROOT);
     }
 
+    /**
+     * toString 方法。
+     */
     @Override
     public String toString() {
         return id;

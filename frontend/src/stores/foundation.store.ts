@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：foundation.store。
+ */
 import { create } from 'zustand';
 import { persist, devtools } from 'zustand/middleware';
 

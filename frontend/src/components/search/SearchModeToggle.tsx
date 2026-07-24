@@ -1,3 +1,6 @@
+/**
+ * UI 组件：SearchModeToggle。
+ */
 import React from 'react';
 import { Tooltip } from 'antd';
 import { FileTextOutlined, ThunderboltOutlined } from '@ant-design/icons';

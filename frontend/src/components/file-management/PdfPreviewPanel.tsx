@@ -1,3 +1,6 @@
+/**
+ * UI 组件：PdfPreviewPanel。
+ */
 import React, { useEffect, useState } from 'react';
 import { Button, Spin, Tooltip } from 'antd';
 import {
@@ -47,6 +50,9 @@ export const PdfPreviewPanel: React.FC<PdfPreviewPanelProps> = ({
   useEffect(() => {
     let cancelled = false;
 
+    /**
+     * loadReactPdf。
+     */
     const loadReactPdf = async () => {
       try {
         const module = await import('react-pdf');

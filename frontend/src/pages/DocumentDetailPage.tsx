@@ -1,3 +1,6 @@
+/**
+ * 业务页面：DocumentDetailPage。
+ */
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Spin, Tooltip, Modal, Form, Input, Pagination, Select, DatePicker, Tag, Typography } from 'antd';
@@ -251,6 +254,9 @@ export const DocumentDetailPage: React.FC = () => {
     let mounted = true;
     const maxAttempts = 3;
 
+    /**
+     * initPrism。
+     */
     const initPrism = async () => {
       try {
         const PrismModule = await loadPrism();
@@ -344,6 +350,9 @@ export const DocumentDetailPage: React.FC = () => {
 
   // 检查收藏状态
   useEffect(() => {
+    /**
+     * checkAndSetFavoriteStatus。
+     */
     const checkAndSetFavoriteStatus = async () => {
       if (id) {
         console.log('🔄 [DocumentDetailPage] 检查收藏状态,文档ID:', id);
@@ -383,12 +392,18 @@ export const DocumentDetailPage: React.FC = () => {
 
   // 滚动监听，更新目录激活状态（scroll spy）
   useEffect(() => {
+    /**
+     * handleScroll。
+     */
     const handleScroll = () => {
       const headingEls = document.querySelectorAll('[id^="md-heading-"]');
       if (headingEls.length === 0) return;
       const scrollPos = window.scrollY + 120;
       let currentId = '';
       headingEls.forEach((el) => {
+        /**
+         * top。
+         */
         const top = (el as HTMLElement).offsetTop;
         if (scrollPos >= top) {
           currentId = el.id;
@@ -473,6 +488,9 @@ export const DocumentDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleLike。
+   */
   const handleLike = async () => {
     if (!currentDoc) return;
     const wasLiked = !!currentDocument?.isLiked;
@@ -588,6 +606,9 @@ export const DocumentDetailPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, currentDocument?.id]);
 
+  /**
+   * handleFavorite。
+   */
   const handleFavorite = async () => {
     if (!currentDocument?.id) return;
 
@@ -603,6 +624,9 @@ export const DocumentDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleShare。
+   */
   const handleShare = async () => {
     if (!id) return;
 
@@ -649,6 +673,9 @@ export const DocumentDetailPage: React.FC = () => {
     });
   };
 
+  /**
+   * handleCreateShare。
+   */
   const handleCreateShare = async (values: {
     shareType: number;
     expireType: number;
@@ -694,6 +721,9 @@ export const DocumentDetailPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleCopyShareLink。
+   */
   const handleCopyShareLink = (shareId: string) => {
     const shareUrl = `${window.location.origin}/share/${shareId}`;
     navigator.clipboard.writeText(shareUrl);
@@ -702,6 +732,9 @@ export const DocumentDetailPage: React.FC = () => {
     message.success('分享链接已复制到剪贴板');
   };
 
+  /**
+   * handleDeleteShare。
+   */
   const handleDeleteShare = async (shareId: string) => {
     try {
       await documentService.deleteShare(shareId);

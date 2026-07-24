@@ -51,6 +51,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Resource
     private SqlDialectHelper sqlDialectHelper;
 
+    /**
+     * 创建Tag。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createTag(TagCreateDTO dto) {
@@ -91,6 +94,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         return tag.getId();
     }
 
+    /**
+     * 更新Tag。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateTag(TagUpdateDTO dto) {
@@ -141,6 +147,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         return count > 0;
     }
 
+    /**
+     * 删除Tag。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteTag(Long tagId) {
@@ -166,6 +175,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         return count > 0;
     }
 
+    /**
+     * 获取TagDetail。
+     */
     @Override
     public TagVO getTagDetail(Long tagId) {
         if (tagId == null) {
@@ -180,6 +192,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
         return convertToVO(tag);
     }
 
+    /**
+     * 分页查询Tags。
+     */
     @Override
     public PageResult<TagVO> pageTags(TagQueryDTO dto) {
         // 构建查询条件
@@ -212,6 +227,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 .build();
     }
 
+    /**
+     * 获取HotTags。
+     */
     @Override
     public List<TagVO> getHotTags(Integer limit) {
         if (limit == null || limit <= 0) {
@@ -230,6 +248,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取TagsByCategory。
+     */
     @Override
     public List<TagVO> getTagsByCategory(Long categoryId) {
         if (categoryId == null) {
@@ -248,6 +269,9 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 批量CreateTags。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public List<Long> batchCreateTags(List<String> tagNames) {

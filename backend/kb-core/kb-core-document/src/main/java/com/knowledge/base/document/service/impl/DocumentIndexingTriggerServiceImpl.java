@@ -37,6 +37,9 @@ public class DocumentIndexingTriggerServiceImpl implements DocumentIndexingTrigg
     private ThreadPoolTaskExecutor asyncTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * onPublished 方法。
+     */
     @Override
     public void onPublished(Document document, String content) {
         CompletableFuture.runAsync(() -> {
@@ -54,6 +57,9 @@ public class DocumentIndexingTriggerServiceImpl implements DocumentIndexingTrigg
     }
 
     /** {@inheritDoc} */
+    /**
+     * onRemoved 方法。
+     */
     @Override
     public void onRemoved(Long documentId, String title) {
         CompletableFuture.runAsync(() -> {
@@ -71,6 +77,9 @@ public class DocumentIndexingTriggerServiceImpl implements DocumentIndexingTrigg
     }
 
     /** {@inheritDoc} */
+    /**
+     * onGraphRebuild 方法。
+     */
     @Override
     public void onGraphRebuild(Long documentId, String title) {
         CompletableFuture.runAsync(() -> {

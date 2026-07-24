@@ -53,6 +53,9 @@ public class ReindexServiceImpl implements ReindexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * reindexAll 方法。
+     */
     @Override
     public String reindexAll() {
         String taskId = UUID.randomUUID().toString();
@@ -66,12 +69,18 @@ public class ReindexServiceImpl implements ReindexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * reindexByDocId 方法。
+     */
     @Override
     public String reindexByDocId(Long documentId) {
         return reindexBatch(List.of(documentId));
     }
 
     /** {@inheritDoc} */
+    /**
+     * reindexBatch 方法。
+     */
     @Override
     public String reindexBatch(List<Long> documentIds) {
         String taskId = UUID.randomUUID().toString();
@@ -86,12 +95,18 @@ public class ReindexServiceImpl implements ReindexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ByDocId。
+     */
     @Override
     public String deleteByDocId(Long documentId) {
         return deleteByDocIds(List.of(documentId));
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ByDocIds。
+     */
     @Override
     public String deleteByDocIds(List<Long> documentIds) {
         String taskId = UUID.randomUUID().toString();
@@ -106,6 +121,9 @@ public class ReindexServiceImpl implements ReindexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取Progress。
+     */
     @Override
     public ReindexProgressVO getProgress(String taskId) {
         try {

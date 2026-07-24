@@ -34,6 +34,9 @@ public class UserFavoriteController {
      * @param documentId 文档ID
      * @return 收藏状态（true-已收藏，false-未收藏）
      */
+    /**
+     * 切换Favorite。
+     */
     @PostMapping("/toggle/{documentId}")
     @Operation(summary = "切换收藏状态", description = "切换文档的收藏状态")
     public Result<Boolean> toggleFavorite(
@@ -51,6 +54,9 @@ public class UserFavoriteController {
      *
      * @param documentId 文档ID
      * @return 是否成功
+     */
+    /**
+     * 添加Favorite。
      */
     @PostMapping("/add/{documentId}")
     @Operation(summary = "添加收藏", description = "添加文档到收藏")
@@ -70,6 +76,9 @@ public class UserFavoriteController {
      * @param documentId 文档ID
      * @return 是否成功
      */
+    /**
+     * 删除Favorite。
+     */
     @DeleteMapping("/remove/{documentId}")
     @Operation(summary = "取消收藏", description = "取消文档收藏")
     public Result<Boolean> removeFavorite(
@@ -88,6 +97,9 @@ public class UserFavoriteController {
      * @param documentId 文档ID
      * @return 是否已收藏
      */
+    /**
+     * 检测Favorite。
+     */
     @GetMapping("/check/{documentId}")
     @Operation(summary = "检查收藏状态", description = "检查文档是否已被收藏")
     public Result<Boolean> checkFavorite(
@@ -105,6 +117,9 @@ public class UserFavoriteController {
      *
      * @return 收藏列表
      */
+    /**
+     * 获取UserFavorites。
+     */
     @GetMapping("/list")
     @Operation(summary = "获取收藏列表", description = "获取当前用户的收藏列表")
     public Result<List<UserFavoriteVO>> getUserFavorites() {
@@ -120,6 +135,9 @@ public class UserFavoriteController {
      *
      * @param documentId 文档ID
      * @return 收藏数量
+     */
+    /**
+     * 获取FavoriteCount。
      */
     @GetMapping("/count/{documentId}")
     @Operation(summary = "获取收藏数量", description = "获取文档的收藏数量")

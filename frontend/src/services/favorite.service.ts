@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：favorite.service。
+ */
 import { http } from './request';
 
 /**

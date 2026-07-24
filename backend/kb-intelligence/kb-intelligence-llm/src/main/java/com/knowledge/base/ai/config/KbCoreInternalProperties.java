@@ -32,6 +32,9 @@ public class KbCoreInternalProperties {
     /**
      * 启用内部调用时校验密钥长度
      */
+    /**
+     * 校验Secret。
+     */
     @PostConstruct
     public void validateSecret() {
         if (!StringUtils.hasText(secret)

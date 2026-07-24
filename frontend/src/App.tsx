@@ -1,3 +1,6 @@
+/**
+ * 应用根组件。
+ */
 import React, { useEffect } from 'react';
 import { RouterProvider } from 'react-router-dom';
 import { ConfigProvider, theme, App as AntdApp } from 'antd';
@@ -26,6 +29,9 @@ const GlobalMessageHolder: React.FC = () => {
   return null;
 };
 
+/**
+ * App 组件。
+ */
 const App: React.FC = () => {
   const { checkAuth, isAuthenticated } = useAuthStore();
 

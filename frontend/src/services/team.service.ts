@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：team.service。
+ */
 import { http } from './request';
 import { Team, TeamMember } from '@/types';
 

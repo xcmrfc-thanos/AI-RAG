@@ -25,10 +25,16 @@ public class ExtractionException extends RuntimeException {
         this.chunkId = chunkId;
     }
 
+    /**
+     * 获取DocId。
+     */
     public Long getDocId() {
         return docId;
     }
 
+    /**
+     * 获取ChunkId。
+     */
     public String getChunkId() {
         return chunkId;
     }

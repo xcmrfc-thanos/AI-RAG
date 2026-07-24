@@ -1,3 +1,6 @@
+/**
+ * 功能模块：useDraftRunDebug。
+ */
 import { useCallback, useEffect, useState } from 'react';
 import {
   agentService,
@@ -6,6 +9,9 @@ import {
 } from '@/services/agent.service';
 import { isTerminalRunStatus } from './run-debug';
 
+/**
+ * useDraftRunDebug 方法。
+ */
 export function useDraftRunDebug() {
   const [run, setRun] = useState<AgentRunView | null>(null);
   const [steps, setSteps] = useState<AgentRunStepView[]>([]);
@@ -61,6 +67,9 @@ export function useDraftRunDebug() {
   };
 }
 
+/**
+ * selectFocusedNode 方法。
+ */
 function selectFocusedNode(steps: AgentRunStepView[]): string | null {
   return steps.find((step) => step.status === 'FAILED')?.nodeId
     || steps.at(-1)?.nodeId

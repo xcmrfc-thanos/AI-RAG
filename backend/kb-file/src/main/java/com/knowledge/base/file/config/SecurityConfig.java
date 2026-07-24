@@ -34,6 +34,9 @@ public class SecurityConfig {
      * @return SecurityFilterChain
      * @throws Exception 异常
      */
+    /**
+     * securityFilterChain 方法。
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

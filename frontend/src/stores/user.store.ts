@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：user.store。
+ */
 import { create } from 'zustand';
 import { User } from '@/types';
 import { userService } from '@/services';

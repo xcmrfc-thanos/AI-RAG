@@ -36,18 +36,27 @@ public class QdrantVectorIndexServiceImpl implements VectorIndexService {
     private final com.knowledge.base.ai.config.RagProperties ragProperties;
 
     /** {@inheritDoc} */
+    /**
+     * indexChunks 方法。
+     */
     @Override
     public void indexChunks(List<DocumentChunk> chunks) {
         qdrantChunkWriter.upsert(chunks);
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ByDocId。
+     */
     @Override
     public void deleteByDocId(Long documentId) {
         qdrantChunkWriter.deleteByDocId(documentId);
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25Collapsed。
+     */
     @Override
     public Bm25CollapsePageVO searchBm25Collapsed(String queryText, int from, int size,
                                                   int innerHitsPerDoc, List<Long> categoryIds) {
@@ -56,6 +65,9 @@ public class QdrantVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25。
+     */
     @Override
     public List<RagSearchResultVO> searchBm25(String queryText, int topK) {
         if (!StringUtils.hasText(queryText) || topK <= 0) {
@@ -66,6 +78,9 @@ public class QdrantVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Hybrid。
+     */
     @Override
     public List<RagSearchResultVO> searchHybrid(String queryText, float[] queryEmbedding,
                                                 int topK, int hybridTopK, int rrfC) {
@@ -74,6 +89,9 @@ public class QdrantVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * indexExists 方法。
+     */
     @Override
     public boolean indexExists() {
         try {
@@ -87,12 +105,18 @@ public class QdrantVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建IndexIfNotExists。
+     */
     @Override
     public void createIndexIfNotExists() {
         qdrantChunkWriter.ensureCollection();
     }
 
     /** {@inheritDoc} */
+    /**
+     * dropIndex 方法。
+     */
     @Override
     public void dropIndex() {
         if (!indexExists()) {

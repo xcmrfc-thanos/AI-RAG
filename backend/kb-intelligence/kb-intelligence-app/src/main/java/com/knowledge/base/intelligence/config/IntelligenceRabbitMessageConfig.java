@@ -27,6 +27,9 @@ public class IntelligenceRabbitMessageConfig {
     /**
      * Intelligence 模块统一 JSON 消息转换器（含 RAG/KAG 消息白名单）
      */
+    /**
+     * intelligenceJackson2JsonMessageConverter 方法。
+     */
     @Bean
     @Primary
     public Jackson2JsonMessageConverter intelligenceJackson2JsonMessageConverter() {
@@ -50,6 +53,9 @@ public class IntelligenceRabbitMessageConfig {
     /**
      * 默认 RabbitTemplate 使用 JSON 序列化，避免 ReindexMessage 走 Java 原生序列化
      */
+    /**
+     * rabbitTemplate 方法。
+     */
     @Bean
     @Primary
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
@@ -61,6 +67,9 @@ public class IntelligenceRabbitMessageConfig {
 
     /**
      * 默认监听容器工厂（RAG/KAG 等未指定 containerFactory 的 @RabbitListener）
+     */
+    /**
+     * rabbitListenerContainerFactory 方法。
      */
     @Bean
     @Primary

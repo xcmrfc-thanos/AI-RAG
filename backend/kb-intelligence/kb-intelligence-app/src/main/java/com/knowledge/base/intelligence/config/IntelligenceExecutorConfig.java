@@ -27,6 +27,9 @@ public class IntelligenceExecutorConfig {
     /**
      * 全文/混合搜索专用线程池。
      */
+    /**
+     * 搜索TaskExecutor。
+     */
     @Bean(name = IntelligenceExecutorNames.SEARCH)
     public ThreadPoolTaskExecutor searchTaskExecutor() {
         int cores = Runtime.getRuntime().availableProcessors();
@@ -39,6 +42,9 @@ public class IntelligenceExecutorConfig {
     /**
      * RAG 检索、对话与向量索引专用线程池。
      */
+    /**
+     * ragTaskExecutor 方法。
+     */
     @Bean(name = IntelligenceExecutorNames.RAG)
     public ThreadPoolTaskExecutor ragTaskExecutor() {
         int cores = Runtime.getRuntime().availableProcessors();
@@ -50,6 +56,9 @@ public class IntelligenceExecutorConfig {
 
     /**
      * KAG 图谱构建专用线程池（LLM 抽取偏重，默认较小并发）。
+     */
+    /**
+     * graphTaskExecutor 方法。
      */
     @Bean(name = IntelligenceExecutorNames.GRAPH)
     public ThreadPoolTaskExecutor graphTaskExecutor() {

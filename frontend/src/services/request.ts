@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：request。
+ */
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { messageHolder as message } from '@/utils/message-holder';
 import { tokenStorage } from '@/utils/token-storage';

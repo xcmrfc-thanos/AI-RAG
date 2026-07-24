@@ -34,6 +34,9 @@ public class SearchHistoryController {
      * @param request   HTTP请求
      * @return 是否成功
      */
+    /**
+     * 删除SearchHistory。
+     */
     @DeleteMapping("/{historyId}")
     @Operation(summary = "删除搜索历史", description = "删除指定的搜索历史记录")
     public Result<Boolean> deleteSearchHistory(
@@ -48,6 +51,9 @@ public class SearchHistoryController {
      * 获取热门搜索
      *
      * @return 热门搜索列表
+     */
+    /**
+     * 获取HotSearch。
      */
     @GetMapping("/hot")
     @Operation(summary = "获取热门搜索", description = "获取系统热门搜索关键词")

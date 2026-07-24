@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：ai-writing.store。
+ */
 import { create } from 'zustand';
 import { WritingRequest, WritingResult, WritingTemplate } from '@/types';
 import { aiService } from '@/services';

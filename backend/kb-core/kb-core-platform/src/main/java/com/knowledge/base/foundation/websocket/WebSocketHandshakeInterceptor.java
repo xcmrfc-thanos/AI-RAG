@@ -33,6 +33,9 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
     @Resource
     private JwtUtil jwtUtil;
 
+    /**
+     * beforeHandshake 方法。
+     */
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,
                                     ServerHttpResponse response,
@@ -59,6 +62,9 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
                         String userIdStr = String.valueOf(userId);
                         // 关键：在 attributes 中设置 Principal，Spring 会将其作为会话的 Principal
                         attributes.put("principal", new Principal() {
+                            /**
+                             * 获取Name。
+                             */
                             @Override
                             public String getName() {
                                 return userIdStr;
@@ -81,6 +87,9 @@ public class WebSocketHandshakeInterceptor implements HandshakeInterceptor {
         return true;
     }
 
+    /**
+     * afterHandshake 方法。
+     */
     @Override
     public void afterHandshake(ServerHttpRequest request,
                                 ServerHttpResponse response,

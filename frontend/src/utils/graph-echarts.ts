@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：graph-echarts。
+ */
 import * as echarts from 'echarts/core';
 import { GraphChart } from 'echarts/charts';
 import { GraphicComponent, TooltipComponent } from 'echarts/components';

@@ -138,6 +138,9 @@ public class PdfExportServiceImpl implements PdfExportService {
             "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"
     };
 
+    /**
+     * 导出DocumentToPdf。
+     */
     @Override
     public String exportDocumentToPdf(Long documentId) {
         log.info("导出文档为PDF：documentId={}", documentId);
@@ -161,6 +164,9 @@ public class PdfExportServiceImpl implements PdfExportService {
         return pdfUrl;
     }
 
+    /**
+     * 导出DocumentToPdfBytes。
+     */
     @Override
     public byte[] exportDocumentToPdfBytes(Long documentId) {
         log.info("导出文档为PDF字节数组：documentId={}", documentId);
@@ -177,6 +183,9 @@ public class PdfExportServiceImpl implements PdfExportService {
                 categoryName, document.getSummary(), document.getPublishTime());
     }
 
+    /**
+     * 批量ExportDocuments。
+     */
     @Override
     public byte[] batchExportDocuments(List<String> documentIds, String format) {
         log.info("批量导出文档：documentIds={}, format={}", documentIds, format);
@@ -279,6 +288,9 @@ public class PdfExportServiceImpl implements PdfExportService {
         return title.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
     }
 
+    /**
+     * 生成PdfFileName。
+     */
     @Override
     public String generatePdfFileName(Long documentId, String title) {
         String safeTitle = FileUtil.mainName(FileUtil.cleanInvalid(title));

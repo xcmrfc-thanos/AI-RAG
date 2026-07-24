@@ -85,6 +85,9 @@ public class ModelProvider {
     /** 模型元信息 */
     private final Map<String, ModelVO> modelInfoMap = new LinkedHashMap<>();
 
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         checkAndRegister("qwen", "通义千问", "阿里云大语言模型，支持多轮对话、文本生成等", qwenApiKey);

@@ -1,3 +1,6 @@
+/**
+ * 功能模块：useWorkflowCanvasInteractions。
+ */
 import { useCallback, useMemo, useRef, useState, type RefObject } from 'react';
 import type React from 'react';
 import type { Edge, Node, XYPosition } from '@xyflow/react';
@@ -27,6 +30,9 @@ interface WorkflowCanvasInteractionsOptions {
   fitCanvas: () => void;
 }
 
+/**
+ * useWorkflowCanvasInteractions 方法。
+ */
 export function useWorkflowCanvasInteractions({
   nodes,
   edges,
@@ -194,10 +200,16 @@ export function useWorkflowCanvasInteractions({
   };
 }
 
+/**
+ * nodeIds 方法。
+ */
 function nodeIds(nodes: Node<FlowNodeData>[]): string[] {
   return nodes.map((node) => node.id);
 }
 
+/**
+ * canvasCenter 方法。
+ */
 function canvasCenter(
   canvasWrapRef: RefObject<HTMLElement | null>,
   screenToFlowPosition: (position: XYPosition) => XYPosition,

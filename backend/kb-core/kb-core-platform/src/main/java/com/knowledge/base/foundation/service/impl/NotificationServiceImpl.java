@@ -25,6 +25,9 @@ import org.springframework.util.StringUtils;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * NotificationServiceImpl 类。
+ */
 @Slf4j
 @Service
 public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Notification> implements NotificationService {
@@ -33,6 +36,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     private NotificationMapper notificationMapper;
 
     /** {@inheritDoc} */
+    /**
+     * 发送Notification。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Long> sendNotification(NotificationDTO notificationDTO) {
@@ -70,6 +76,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 分页查询Notifications。
+     */
     @Override
     public IPage<Notification> pageNotifications(Long current, Long size, Long userId, Integer isRead) {
         log.info("分页查询通知：current={}, size={}, userId={}, isRead={}", current, size, userId, isRead);
@@ -90,6 +99,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取Notifications。
+     */
     @Override
     public Result<IPage<NotificationVO>> getNotifications(NotificationQueryDTO queryDTO) {
         log.info("查询通知列表：userId={}", queryDTO.getUserId());
@@ -128,6 +140,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取NotificationById。
+     */
     @Override
     public Notification getNotificationById(Long id) {
         log.info("查询通知详情：id={}", id);
@@ -135,6 +150,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 发送Notification。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean sendNotification(Notification notification) {
@@ -156,6 +174,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 标记AsRead。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> markAsRead(Long id) {
@@ -180,6 +201,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 标记AllAsRead。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> markAllAsRead(Long userId) {
@@ -201,6 +225,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除Notification。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> deleteNotification(Long id) {
@@ -215,6 +242,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除AllByUserId。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Result<Boolean> deleteAllByUserId(Long userId) {
@@ -232,6 +262,9 @@ public class NotificationServiceImpl extends ServiceImpl<NotificationMapper, Not
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取UnreadCount。
+     */
     @Override
     public Result<Long> getUnreadCount(Long userId) {
         log.info("获取未读通知数量：userId={}", userId);

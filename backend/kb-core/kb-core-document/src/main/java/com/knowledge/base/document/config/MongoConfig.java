@@ -44,6 +44,9 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
         return databaseName;
     }
 
+    /**
+     * mongoClient 方法。
+     */
     @Override
     @Bean
     public MongoClient mongoClient() {
@@ -73,6 +76,9 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
         return MongoClients.create(mongoUri.toString());
     }
 
+    /**
+     * mongoTemplate 方法。
+     */
     @Bean
     public MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongoClient(), getDatabaseName());

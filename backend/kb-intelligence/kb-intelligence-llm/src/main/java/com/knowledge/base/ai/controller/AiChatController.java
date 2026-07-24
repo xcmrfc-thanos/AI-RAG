@@ -4,6 +4,7 @@ import com.knowledge.base.ai.config.ModelProvider;
 import com.knowledge.base.ai.dto.ChatRequestDTO;
 import com.knowledge.base.ai.service.AiChatService;
 import com.knowledge.base.ai.service.AiConversationService;
+import com.knowledge.base.ai.service.AiSensitiveGuard;
 import com.knowledge.base.ai.vo.ChatResponseVO;
 import com.knowledge.base.ai.vo.ModelVO;
 import com.knowledge.base.common.result.Result;
@@ -35,11 +36,15 @@ public class AiChatController {
     private final AiChatService aiChatService;
     private final AiConversationService conversationService;
     private final ModelProvider modelProvider;
+    private final AiSensitiveGuard aiSensitiveGuard;
 
     /**
      * 获取可用AI模型列表
      *
      * @return 模型列表
+     */
+    /**
+     * 获取Models。
      */
     @GetMapping("/models")
     @Operation(summary = "获取AI模型列表", description = "获取当前可用的AI大模型列表")
@@ -55,11 +60,15 @@ public class AiChatController {
      * @param request    HTTP请求
      * @return 对话响应
      */
+    /**
+     * chat 方法。
+     */
     @PostMapping
     @Operation(summary = "AI对话", description = "与AI进行对话")
     public Result<ChatResponseVO> chat(@Validated @RequestBody ChatRequestDTO requestDTO,
                                         HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.chat");
         ChatResponseVO response = aiChatService.chat(requestDTO, userId);
         return Result.success(response);
     }
@@ -71,11 +80,15 @@ public class AiChatController {
      * @param request    HTTP请求
      * @return SSE事件流
      */
+    /**
+     * chatStream 方法。
+     */
     @PostMapping("/stream")
     @Operation(summary = "AI流式对话", description = "与AI进行流式对话")
     public SseEmitter chatStream(@Validated @RequestBody ChatRequestDTO requestDTO,
                                   HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.chat");
         return aiChatService.chatStream(requestDTO, userId);
     }
 

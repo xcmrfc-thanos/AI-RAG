@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：statistics.service。
+ */
 import dayjs from 'dayjs';
 import { http } from './request';
 import { SystemStatistics, DashboardStats, AdminOverview } from '@/types';

@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowToolbar。
+ */
 import React, { memo } from 'react';
 import { Button, Space, Tooltip } from 'antd';
 import {
@@ -20,6 +23,9 @@ interface WorkflowToolbarProps {
   onDelete: () => void;
 }
 
+/**
+ * WorkflowToolbar 组件。
+ */
 const WorkflowToolbar: React.FC<WorkflowToolbarProps> = (props) => (
   <div className="wf-editor__toolbar">
     <span className="wf-editor__toolbar-pill">右侧输出 → 左侧输入 · 单链执行</span>

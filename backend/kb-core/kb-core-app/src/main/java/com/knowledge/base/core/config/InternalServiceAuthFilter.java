@@ -57,6 +57,9 @@ public class InternalServiceAuthFilter extends OncePerRequestFilter {
     /**
      * 校验内部服务 HMAC 并注入系统用户上下文；失败则 401/403
      */
+    /**
+     * doFilterInternal 方法。
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

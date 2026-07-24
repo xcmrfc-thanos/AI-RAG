@@ -55,6 +55,9 @@ public class ReindexConsumer {
     private static final String PROGRESS_KEY_PREFIX = "rag:reindex:progress:";
     private static final int PAGE_SIZE = 50;
 
+    /**
+     * handleReindex 方法。
+     */
     @RabbitListener(queues = "#{@ragReindexQueue.name}", ackMode = "MANUAL")
     public void handleReindex(ReindexMessage message, Channel channel,
                               @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {

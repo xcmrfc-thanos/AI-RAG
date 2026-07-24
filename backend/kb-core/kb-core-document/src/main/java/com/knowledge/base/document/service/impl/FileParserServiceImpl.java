@@ -67,11 +67,17 @@ public class FileParserServiceImpl implements FileParserService {
     @Resource
     private FileUploadService fileUploadService;
 
+    /**
+     * 判断是否Supported。
+     */
     @Override
     public boolean isSupported(String extension) {
         return extension != null && SUPPORTED_EXTENSIONS.contains(extension.toLowerCase());
     }
 
+    /**
+     * parse 方法。
+     */
     @Override
     public String parse(MultipartFile file) throws Exception {
         String originalFilename = file.getOriginalFilename();
@@ -253,6 +259,9 @@ public class FileParserServiceImpl implements FileParserService {
          * 我们不直接生成 PdfLine —— 先累积文本和 TextPosition，
          * 等 writeLineSeparator() 通知行结束时再 flush，这样才能在完整行的基础上做列检测。
          */
+        /**
+         * writeString 方法。
+         */
         @Override
         protected void writeString(String text, List<TextPosition> textPositions) throws IOException {
             String cleaned = text.stripTrailing();
@@ -412,6 +421,9 @@ public class FileParserServiceImpl implements FileParserService {
          * PDFBox 每行结束后调用。
          * 先 flush 累积的当前行，再递增分隔计数。
          */
+        /**
+         * writeLineSeparator 方法。
+         */
         @Override
         protected void writeLineSeparator() throws IOException {
             flushCurrentLine();
@@ -488,6 +500,9 @@ public class FileParserServiceImpl implements FileParserService {
          * PDFBox 每页结束后调用。
          * Flush 当前行 → 插入页面边界标记 → 重置 Y 追踪。
          */
+        /**
+         * writePageEnd 方法。
+         */
         @Override
         protected void writePageEnd() throws IOException {
             super.writePageEnd();
@@ -498,6 +513,9 @@ public class FileParserServiceImpl implements FileParserService {
             runningLineGap = 0;
         }
 
+        /**
+         * 获取Text。
+         */
         @Override
         public String getText(PDDocument doc) throws IOException {
             lines.clear();

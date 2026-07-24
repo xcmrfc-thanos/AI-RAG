@@ -41,6 +41,9 @@ public class S3ClientConfig {
      *
      * @return S3Client 实例
      */
+    /**
+     * s3Client 方法。
+     */
     @Bean
     public S3Client s3Client() {
         FileStorageProperties.S3 config = storageProperties.getEffectiveS3();

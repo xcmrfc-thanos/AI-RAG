@@ -1,3 +1,6 @@
+/**
+ * 功能模块：workflow-validation。
+ */
 import type { Edge, Node } from '@xyflow/react';
 import type { FlowNodeData } from './types';
 
@@ -102,6 +105,9 @@ export function edgeWhen(edge: Edge): 'true' | 'false' | undefined {
   return undefined;
 }
 
+/**
+ * connectedCount 方法。
+ */
 function connectedCount(start: string, neighbors: Map<string, Set<string>>): number {
   const seen = new Set<string>();
   const queue = [start];

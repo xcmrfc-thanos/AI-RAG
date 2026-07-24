@@ -1,3 +1,6 @@
+/**
+ * UI 组件：DocumentListCard。
+ */
 import React from 'react';
 import { Card } from 'antd';
 import { FileTextOutlined } from '@ant-design/icons';

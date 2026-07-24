@@ -30,6 +30,9 @@ public class StatisticsMQConfig {
 
     public static final String STATISTICS_EXCHANGE = "kb.statistics.exchange";
 
+    /**
+     * statisticsExchange 方法。
+     */
     @Bean
     public TopicExchange statisticsExchange() {
         return new TopicExchange(STATISTICS_EXCHANGE, true, false);
@@ -41,10 +44,16 @@ public class StatisticsMQConfig {
         return "kb.statistics.view.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * statisticsLikeQueueName 方法。
+     */
     public String statisticsLikeQueueName() {
         return "kb.statistics.like.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * statisticsCommentQueueName 方法。
+     */
     public String statisticsCommentQueueName() {
         return "kb.statistics.comment.queue." + instanceIdentifier.getId();
     }
@@ -55,60 +64,99 @@ public class StatisticsMQConfig {
         return "statistics.view." + instanceIdentifier.getId() + ".*";
     }
 
+    /**
+     * 点赞RoutingKey。
+     */
     public String likeRoutingKey() {
         return "statistics.like." + instanceIdentifier.getId() + ".*";
     }
 
+    /**
+     * commentRoutingKey 方法。
+     */
     public String commentRoutingKey() {
         return "statistics.comment." + instanceIdentifier.getId() + ".*";
     }
 
+    /**
+     * aiRoutingKey 方法。
+     */
     public String aiRoutingKey() {
         return com.knowledge.base.common.constants.AiStatisticsMQConstants.bindingPattern(instanceIdentifier.getId());
     }
 
+    /**
+     * projectionRoutingKey 方法。
+     */
     public String projectionRoutingKey() {
         return com.knowledge.base.common.constants.CoreStatisticsProjectionMQConstants.bindingPattern(instanceIdentifier.getId());
     }
 
+    /**
+     * statisticsProjectionQueueName 方法。
+     */
     public String statisticsProjectionQueueName() {
         return "kb.statistics.projection.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * statisticsOperationLogQueueName 方法。
+     */
     public String statisticsOperationLogQueueName() {
         return "kb.statistics.operationlog.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * operationLogRoutingKey 方法。
+     */
     public String operationLogRoutingKey() {
         return "operationlog." + instanceIdentifier.getId() + ".#";
     }
 
     // ======================== Bean 定义 ========================
 
+    /**
+     * statisticsViewQueue 方法。
+     */
     @Bean
     public Queue statisticsViewQueue() {
         return QueueBuilder.durable(statisticsViewQueueName()).build();
     }
 
+    /**
+     * statisticsLikeQueue 方法。
+     */
     @Bean
     public Queue statisticsLikeQueue() {
         return QueueBuilder.durable(statisticsLikeQueueName()).build();
     }
 
+    /**
+     * statisticsCommentQueue 方法。
+     */
     @Bean
     public Queue statisticsCommentQueue() {
         return QueueBuilder.durable(statisticsCommentQueueName()).build();
     }
 
+    /**
+     * statisticsAiQueue 方法。
+     */
     @Bean
     public Queue statisticsAiQueue() {
         return QueueBuilder.durable(statisticsAiQueueName()).build();
     }
 
+    /**
+     * statisticsAiQueueName 方法。
+     */
     public String statisticsAiQueueName() {
         return "kb.statistics.ai.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * statisticsViewBinding 方法。
+     */
     @Bean
     public Binding statisticsViewBinding() {
         return BindingBuilder.bind(statisticsViewQueue())
@@ -116,6 +164,9 @@ public class StatisticsMQConfig {
                 .with(viewRoutingKey());
     }
 
+    /**
+     * statisticsLikeBinding 方法。
+     */
     @Bean
     public Binding statisticsLikeBinding() {
         return BindingBuilder.bind(statisticsLikeQueue())
@@ -123,6 +174,9 @@ public class StatisticsMQConfig {
                 .with(likeRoutingKey());
     }
 
+    /**
+     * statisticsCommentBinding 方法。
+     */
     @Bean
     public Binding statisticsCommentBinding() {
         return BindingBuilder.bind(statisticsCommentQueue())
@@ -130,6 +184,9 @@ public class StatisticsMQConfig {
                 .with(commentRoutingKey());
     }
 
+    /**
+     * statisticsAiBinding 方法。
+     */
     @Bean
     public Binding statisticsAiBinding() {
         return BindingBuilder.bind(statisticsAiQueue())
@@ -137,11 +194,17 @@ public class StatisticsMQConfig {
                 .with(aiRoutingKey());
     }
 
+    /**
+     * statisticsProjectionQueue 方法。
+     */
     @Bean
     public Queue statisticsProjectionQueue() {
         return QueueBuilder.durable(statisticsProjectionQueueName()).build();
     }
 
+    /**
+     * statisticsProjectionBinding 方法。
+     */
     @Bean
     public Binding statisticsProjectionBinding() {
         return BindingBuilder.bind(statisticsProjectionQueue())
@@ -149,16 +212,25 @@ public class StatisticsMQConfig {
                 .with(projectionRoutingKey());
     }
 
+    /**
+     * operationLogExchange 方法。
+     */
     @Bean
     public TopicExchange operationLogExchange() {
         return new TopicExchange("kb.operationlog.exchange", true, false);
     }
 
+    /**
+     * statisticsOperationLogQueue 方法。
+     */
     @Bean
     public Queue statisticsOperationLogQueue() {
         return QueueBuilder.durable(statisticsOperationLogQueueName()).build();
     }
 
+    /**
+     * statisticsOperationLogBinding 方法。
+     */
     @Bean
     public Binding statisticsOperationLogBinding() {
         return BindingBuilder.bind(statisticsOperationLogQueue())
@@ -168,6 +240,9 @@ public class StatisticsMQConfig {
 
     // ======================== 消息转换器 ========================
 
+    /**
+     * jackson2JsonMessageConverter 方法。
+     */
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         ObjectMapper objectMapper = new ObjectMapper();

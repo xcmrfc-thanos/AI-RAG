@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：draft-storage。
+ */
 const DRAFT_PREFIX = 'kb_draft_';
 
 export interface DraftData {

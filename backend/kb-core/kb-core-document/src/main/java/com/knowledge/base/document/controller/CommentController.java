@@ -34,6 +34,9 @@ public class CommentController {
     /**
      * 创建评论
      */
+    /**
+     * 创建Comment。
+     */
     @PostMapping
     @Operation(summary = "创建评论", description = "创建文档评论")
     @OperationLog(module = "评论管理", operation = "创建评论", description = "创建文档评论")
@@ -44,6 +47,9 @@ public class CommentController {
 
     /**
      * 删除评论
+     */
+    /**
+     * 删除Comment。
      */
     @DeleteMapping("/{commentId}")
     @Operation(summary = "删除评论", description = "删除指定评论")
@@ -56,6 +62,9 @@ public class CommentController {
     /**
      * 点赞评论
      */
+    /**
+     * 点赞Comment。
+     */
     @PostMapping("/{commentId}/like")
     @Operation(summary = "点赞评论", description = "点赞指定评论")
     @OperationLog(module = "评论管理", operation = "点赞评论", description = "点赞评论")
@@ -66,6 +75,9 @@ public class CommentController {
 
     /**
      * 取消点赞评论
+     */
+    /**
+     * 取消点赞Comment。
      */
     @DeleteMapping("/{commentId}/like")
     @Operation(summary = "取消点赞评论", description = "取消点赞评论")
@@ -78,6 +90,9 @@ public class CommentController {
     /**
      * 分页查询文档评论
      */
+    /**
+     * 分页查询DocumentComments。
+     */
     @PostMapping("/document/{documentId}")
     @Operation(summary = "分页查询文档评论", description = "分页查询文档评论列表")
     public Result<PageResult<CommentVO>> pageDocumentComments(
@@ -89,6 +104,9 @@ public class CommentController {
 
     /**
      * 获取评论回复列表
+     */
+    /**
+     * 获取CommentReplies。
      */
     @GetMapping("/{parentCommentId}/replies")
     @Operation(summary = "获取评论回复", description = "获取评论的回复列表")

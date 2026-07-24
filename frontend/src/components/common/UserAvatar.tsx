@@ -1,3 +1,6 @@
+/**
+ * UI 组件：UserAvatar。
+ */
 import React, { useEffect, useState } from 'react';
 import { DEFAULT_AVATAR } from '@/constants/default-avatar';
 import { resolvePublicFileUrl } from '@/utils/file-url';

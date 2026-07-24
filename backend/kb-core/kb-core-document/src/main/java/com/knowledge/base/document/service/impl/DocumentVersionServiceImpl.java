@@ -48,6 +48,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
     @Resource
     private SqlDialectHelper sqlDialectHelper;
 
+    /**
+     * 创建Version。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean createVersion(Long documentId, String changeDescription, Long userId) {
@@ -115,6 +118,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
         return count > 0;
     }
 
+    /**
+     * 获取VersionList。
+     */
     @Override
     public IPage<DocumentVersionVO> getVersionList(Long documentId, Long current, Long size) {
         if (documentId == null) {
@@ -140,6 +146,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
         return versionPage.convert(this::convertToVO);
     }
 
+    /**
+     * 获取VersionDetail。
+     */
     @Override
     public DocumentVersionVO getVersionDetail(Long versionId) {
         if (versionId == null) {
@@ -154,6 +163,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
         return convertToVO(version);
     }
 
+    /**
+     * 恢复Version。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean restoreVersion(Long documentId, DocumentVersionRestoreDTO restoreDTO, Long userId) {
@@ -196,6 +208,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
         return true;
     }
 
+    /**
+     * 对比Versions。
+     */
     @Override
     public String compareVersions(Long versionId1, Long versionId2) {
         if (versionId1 == null || versionId2 == null) {
@@ -241,6 +256,9 @@ public class DocumentVersionServiceImpl implements DocumentVersionService {
         return diff.toString();
     }
 
+    /**
+     * 删除Version。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteVersion(Long versionId, Long userId) {

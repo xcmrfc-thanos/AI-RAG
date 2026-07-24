@@ -27,6 +27,9 @@ public class AiStatisticsMQListener {
      *
      * @param event 事件
      */
+    /**
+     * handleAiStatisticsEvent 方法。
+     */
     @RabbitListener(queues = "#{@statisticsAiQueue.name}")
     public void handleAiStatisticsEvent(AiStatisticsEventDTO event) {
         if (event == null || event.getEventType() == null) {

@@ -1,3 +1,6 @@
+/**
+ * services 模块导出入口。
+ */
 export { default as authService } from './auth.service';
 export { default as documentService } from './document.service';
 export { default as aiService } from './ai.service';
@@ -17,7 +20,6 @@ export { default as categoryService } from './category.service';
 export { commentService } from './comment.service';
 export { settingsService } from './settings.service';
 export { graphService } from './graph.service';
-export { kagService } from './kag.service';
 export { foundationService } from './foundation.service';
 export { favoriteService } from './favorite.service';
 export { accessService } from './access.service';

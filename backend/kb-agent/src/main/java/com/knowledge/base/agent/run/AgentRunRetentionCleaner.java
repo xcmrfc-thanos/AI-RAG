@@ -34,6 +34,9 @@ public class AgentRunRetentionCleaner {
     /**
      * 每天凌晨清理过期 Run 及其 Step
      */
+    /**
+     * 清理Expired。
+     */
     @Scheduled(cron = "0 30 3 * * ?")
     public void cleanupExpired() {
         int days = Math.max(1, agentProperties.getRunRetentionDays());

@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：DictionaryManagePage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -56,6 +59,9 @@ export const DictionaryManagePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * fetchDicts。
+   */
   const fetchDicts = async () => {
     setLoading(true);
     try {
@@ -71,6 +77,9 @@ export const DictionaryManagePage: React.FC = () => {
     }
   };
 
+  /**
+   * fetchDictData。
+   */
   const fetchDictData = async (dict: Dict) => {
     try {
       const data = await foundationService.dict.getData(dict.dictCode);
@@ -91,6 +100,9 @@ export const DictionaryManagePage: React.FC = () => {
     setIsDictModalVisible(true);
   };
 
+  /**
+   * handleEditDict。
+   */
   const handleEditDict = (dict: Dict) => {
     setEditingDict(dict);
     dictForm.setFieldsValue({
@@ -104,6 +116,9 @@ export const DictionaryManagePage: React.FC = () => {
     setIsDictModalVisible(true);
   };
 
+  /**
+   * handleDeleteDict。
+   */
   const handleDeleteDict = async (dictCode: string) => {
     try {
       await foundationService.dict.delete(dictCode);
@@ -118,6 +133,9 @@ export const DictionaryManagePage: React.FC = () => {
     }
   };
 
+  /**
+   * handleDictModalOk。
+   */
   const handleDictModalOk = async () => {
     try {
       const values = await dictForm.validateFields();
@@ -167,6 +185,9 @@ export const DictionaryManagePage: React.FC = () => {
     setIsDataModalVisible(true);
   };
 
+  /**
+   * handleDeleteData。
+   */
   const handleDeleteData = async (id: EntityId) => {
     if (!selectedDict) return;
 
@@ -179,6 +200,9 @@ export const DictionaryManagePage: React.FC = () => {
     }
   };
 
+  /**
+   * handleDataModalOk。
+   */
   const handleDataModalOk = async () => {
     if (!selectedDict) return;
 

@@ -25,6 +25,9 @@ public class FeignInterceptorConfig {
     /**
      * Feign请求拦截器Bean
      */
+    /**
+     * feignInterceptor 方法。
+     */
     @org.springframework.context.annotation.Bean
     public RequestInterceptor feignInterceptor() {
         return new FeignInterceptor();
@@ -37,6 +40,9 @@ public class FeignInterceptorConfig {
 
         private static final String INNER_REQUEST_HEADER = "INNER-REQUEST";
 
+        /**
+         * apply 方法。
+         */
         @Override
         public void apply(RequestTemplate template) {
             // 添加内部调用标识

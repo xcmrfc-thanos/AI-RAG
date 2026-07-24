@@ -1,3 +1,6 @@
+/**
+ * UI 组件：ChunkedDocumentViewer。
+ */
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

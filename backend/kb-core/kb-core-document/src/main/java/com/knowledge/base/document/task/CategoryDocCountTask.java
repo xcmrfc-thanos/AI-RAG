@@ -39,6 +39,9 @@ public class CategoryDocCountTask {
     /**
      * 项目启动时异步执行一次数据初始化
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         CompletableFuture.runAsync(() -> {
@@ -54,6 +57,9 @@ public class CategoryDocCountTask {
 
     /**
      * 每5分钟重新计算各分类下的文档数量（含子分类），更新到数据库并清除缓存
+     */
+    /**
+     * recalculateCategoryDocumentCounts 方法。
      */
     @Scheduled(cron = "0 */5 * * * ?")
     @CacheEvict(value = "sidebar:categories", allEntries = true)

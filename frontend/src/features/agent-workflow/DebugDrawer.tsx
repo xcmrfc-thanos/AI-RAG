@@ -1,3 +1,6 @@
+/**
+ * 功能模块：DebugDrawer。
+ */
 import React, { memo, useMemo } from 'react';
 import { Button, Drawer, Empty, Space, Tag, Typography } from 'antd';
 import type { AgentRunStepView, AgentRunView } from '@/services/agent.service';
@@ -16,6 +19,9 @@ interface DebugDrawerProps {
   onCancel?: () => void;
 }
 
+/**
+ * DebugDrawer 组件。
+ */
 const DebugDrawer: React.FC<DebugDrawerProps> = ({
   open,
   run,
@@ -95,6 +101,9 @@ const DebugDrawer: React.FC<DebugDrawerProps> = ({
   );
 };
 
+/**
+ * Snapshot 组件。
+ */
 const Snapshot: React.FC<{ title: string; value?: string | null }> = ({ title, value }) => (
   <section className="wf-debug-snapshot">
     <Text strong>{title}</Text>
@@ -102,6 +111,9 @@ const Snapshot: React.FC<{ title: string; value?: string | null }> = ({ title, v
   </section>
 );
 
+/**
+ * statusColor 方法。
+ */
 function statusColor(status: string): string {
   if (status === 'SUCCEEDED') return 'green';
   if (status === 'RUNNING' || status === 'CREATED') return 'blue';

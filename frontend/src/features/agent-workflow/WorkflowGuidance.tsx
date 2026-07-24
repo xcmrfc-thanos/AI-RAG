@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowGuidance。
+ */
 import React, { memo } from 'react';
 import { Alert, Collapse, Space, Tag, Typography } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
@@ -9,6 +12,9 @@ interface WorkflowGuidanceProps {
   draftJson: string;
 }
 
+/**
+ * WorkflowGuidance 组件。
+ */
 const WorkflowGuidance: React.FC<WorkflowGuidanceProps> = ({ draftJson }) => (
   <div className="wf-guidance">
     <Alert

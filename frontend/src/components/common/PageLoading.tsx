@@ -1,3 +1,6 @@
+/**
+ * UI 组件：PageLoading。
+ */
 import React from 'react';
 import { Spin } from 'antd';
 

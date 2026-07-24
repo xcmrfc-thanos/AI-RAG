@@ -35,6 +35,9 @@ public class InternalUserTeamController {
      * @param userId 用户 ID
      * @return 团队 ID 列表
      */
+    /**
+     * 列表查询TeamIds。
+     */
     @GetMapping("/{userId}/team-ids")
     public Result<List<Long>> listTeamIds(@PathVariable Long userId) {
         if (userId == null) {

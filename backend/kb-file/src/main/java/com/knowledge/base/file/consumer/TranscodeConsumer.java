@@ -24,6 +24,9 @@ public class TranscodeConsumer {
     /**
      * 消费转码消息
      */
+    /**
+     * handleTranscodeMessage 方法。
+     */
     @RabbitListener(queues = "#{@transcodeQueue.name}")
     public void handleTranscodeMessage(TranscodeMessage message) {
         log.info("收到转码消息：fileId={}, targetFormat={}", message.getFileId(), message.getTargetFormat());

@@ -84,6 +84,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
     @Value("${kb-file.url:http://localhost:8084}")
     private String kbFileUrl;
 
+    /**
+     * 上传File。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FileMetadata uploadFile(MultipartFile file, Long userId, Boolean isPublic) {
@@ -180,6 +183,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
      * @param dto    登记参数
      * @param userId 当前用户 ID
      * @return 已有或新建的 FileMetadata
+     */
+    /**
+     * 用户注册Stored。
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -308,18 +314,27 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return hash;
     }
 
+    /**
+     * 获取FileList。
+     */
     @Override
     public List<FileMetadata> getFileList(Long userId) {
         log.info("获取文件列表：userId={}", userId);
         return fileMetadataMapper.findByUploaderId(userId);
     }
 
+    /**
+     * 获取FileListByCategory。
+     */
     @Override
     public List<FileMetadata> getFileListByCategory(Long userId, String fileCategory) {
         log.info("按分类获取文件列表：userId={}, fileCategory={}", userId, fileCategory);
         return fileMetadataMapper.findByUploaderIdAndCategory(userId, fileCategory);
     }
 
+    /**
+     * 获取FileDetail。
+     */
     @Override
     public FileMetadata getFileDetail(Long fileId) {
         log.info("获取文件详情：fileId={}", fileId);
@@ -333,6 +348,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return metadata;
     }
 
+    /**
+     * 重命名File。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean renameFile(Long fileId, String newFileName, Long userId) {
@@ -356,6 +374,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return result > 0;
     }
 
+    /**
+     * 删除File。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteFile(Long fileId, Long userId) {
@@ -377,6 +398,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return result > 0;
     }
 
+    /**
+     * 批量DeleteFiles。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Integer batchDeleteFiles(List<Long> fileIds, Long userId) {
@@ -397,6 +421,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return count;
     }
 
+    /**
+     * 更新FilePermission。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateFilePermission(Long fileId, Boolean isPublic, Long userId) {
@@ -419,6 +446,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return result > 0;
     }
 
+    /**
+     * 递增DownloadCount。
+     */
     @Override
     public void incrementDownloadCount(Long fileId) {
         log.info("增加下载次数：fileId={}", fileId);
@@ -430,6 +460,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         }
     }
 
+    /**
+     * 更新LastAccessTime。
+     */
     @Override
     public void updateLastAccessTime(Long fileId) {
         log.info("更新最后访问时间：fileId={}", fileId);
@@ -475,6 +508,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return statistics;
     }
 
+    /**
+     * 复制File。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public FileMetadata copyFile(Long fileId, Long userId) {
@@ -513,6 +549,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return copy;
     }
 
+    /**
+     * 搜索Files。
+     */
     @Override
     public List<FileMetadata> searchFiles(Long userId, String keyword) {
         log.info("搜索文件：userId={}, keyword={}", userId, keyword);
@@ -595,6 +634,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         return ext.matches("jpg|jpeg|png|gif|bmp|webp|svg");
     }
 
+    /**
+     * streamFile 方法。
+     */
     @Override
     public void streamFile(Long fileId, HttpServletRequest request, HttpServletResponse response, boolean download) {
         FileMetadata metadata = fileMetadataMapper.selectById(fileId);
@@ -828,6 +870,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
      * @param fileId 文件管理元数据 ID
      * @return 文件内容字节
      */
+    /**
+     * readFileBytes 方法。
+     */
     @Override
     public byte[] readFileBytes(Long fileId) {
         log.info("读取文件字节：fileId={}", fileId);
@@ -849,6 +894,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
         }
     }
 
+    /**
+     * 获取PptxSlideImages。
+     */
     @Override
     public List<String> getPptxSlideImages(Long fileId) {
         log.info("渲染 PPTX 幻灯片：fileId={}", fileId);

@@ -24,6 +24,9 @@ public class GatewayConfig {
      *
      * @return AuthFilter
      */
+    /**
+     * authFilter 方法。
+     */
     @Bean
     public GlobalFilter authFilter() {
         return new AuthFilter();
@@ -34,6 +37,9 @@ public class GatewayConfig {
      */
     public static class AuthFilter implements GlobalFilter, Ordered {
 
+        /**
+         * filter 方法。
+         */
         @Override
         public Mono<Void> filter(
                 org.springframework.web.server.ServerWebExchange exchange,

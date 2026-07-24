@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：PermissionsPage。
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   App,
@@ -47,6 +50,9 @@ const normalizeId = (value?: string | number | bigint | null) => String(value ??
 
 const isMenuType = (type?: string) => type === '1' || type === 'menu';
 
+/**
+ * getPermissionTypeName。
+ */
 const getPermissionTypeName = (type?: string): string => {
   const typeMap: Record<string, string> = {
     '1': '菜单',
@@ -59,6 +65,9 @@ const getPermissionTypeName = (type?: string): string => {
   return typeMap[type || ''] || '其他';
 };
 
+/**
+ * getPermissionTypeColor。
+ */
 const getPermissionTypeColor = (type?: string) => {
   if (type === '2' || type === 'button') {
     return 'orange';
@@ -69,6 +78,9 @@ const getPermissionTypeColor = (type?: string) => {
   return 'green';
 };
 
+/**
+ * getPermissionIcon。
+ */
 const getPermissionIcon = (type?: string) => {
   if (type === '2' || type === 'button') {
     return <KeyOutlined style={{ color: '#f59e0b' }} />;
@@ -79,6 +91,9 @@ const getPermissionIcon = (type?: string) => {
   return <FolderOutlined style={{ color: '#2563eb' }} />;
 };
 
+/**
+ * extractMenuNodes。
+ */
 const extractMenuNodes = (nodes: PermissionTreeNode[] = []): PermissionTreeNode[] =>
   nodes.flatMap((node) => {
     if (!isMenuType(node.type)) {
@@ -125,6 +140,9 @@ const buildMenuTreeData = (nodes: PermissionTreeNode[]): DataNode[] =>
     children: buildMenuTreeData(node.children || []),
   }));
 
+/**
+ * findNodeById。
+ */
 const findNodeById = (nodes: PermissionTreeNode[], targetId?: string | number | null): PermissionTreeNode | null => {
   const normalizedTargetId = normalizeId(targetId);
   if (!normalizedTargetId) {
@@ -143,6 +161,9 @@ const findNodeById = (nodes: PermissionTreeNode[], targetId?: string | number | 
   return null;
 };
 
+/**
+ * findNodePath。
+ */
 const findNodePath = (nodes: PermissionTreeNode[], targetId?: string | number | null): PermissionTreeNode[] => {
   const normalizedTargetId = normalizeId(targetId);
   if (!normalizedTargetId) {
@@ -176,6 +197,9 @@ const buildParentPermissionOptions = (
     return [current, ...buildParentPermissionOptions(node.children || [], level + 1)];
   });
 
+/**
+ * PermissionsPage 页面组件。
+ */
 const PermissionsPage: React.FC = () => {
   const { message } = App.useApp();
   const user = useAuthStore((state) => state.user);
@@ -253,6 +277,9 @@ const PermissionsPage: React.FC = () => {
     [currentResources]
   );
 
+  /**
+   * syncPageData。
+   */
   const syncPageData = async (preferredSelectedMenuId?: string | null) => {
     setLoading(true);
     setTreeLoading(true);
@@ -284,6 +311,9 @@ const PermissionsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    /**
+     * loadCurrentMenuData。
+     */
     const loadCurrentMenuData = async () => {
       if (!selectedMenuId) {
         setCurrentMenu(null);
@@ -325,8 +355,14 @@ const PermissionsPage: React.FC = () => {
 
   const handleCreateTopMenu = () => openPermissionModal('menu', '0');
 
+  /**
+   * handleCreateChildMenu。
+   */
   const handleCreateChildMenu = () => openPermissionModal('menu', selectedMenuId || '0');
 
+  /**
+   * handleCreatePermissionPoint。
+   */
   const handleCreatePermissionPoint = () => {
     if (!selectedMenuId) {
       message.warning('请先在左侧菜单树中选择一个菜单');
@@ -360,6 +396,9 @@ const PermissionsPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleDeletePermission。
+   */
   const handleDeletePermission = async (permission: PermissionVO) => {
     try {
       await permissionService.deletePermission(normalizeId(permission.id));
@@ -373,6 +412,9 @@ const PermissionsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleSavePermission。
+   */
   const handleSavePermission = async () => {
     try {
       const values = await form.validateFields();
@@ -413,6 +455,9 @@ const PermissionsPage: React.FC = () => {
     setSelectedMenuId(nextMenuId);
   };
 
+  /**
+   * getCreateModalTitle。
+   */
   const getCreateModalTitle = (type: PermissionFormType) => {
     if (type === 'button') {
       return '新增按钮权限点';

@@ -27,6 +27,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     /**
      * 配置消息代理
      */
+    /**
+     * configureMessageBroker 方法。
+     */
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         // 启用简单消息代理，用于向客户端推送消息
@@ -39,6 +42,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * 配置STOMP端点
+     */
+    /**
+     * 用户注册StompEndpoints。
      */
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -54,6 +60,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     /**
      * 注册认证拦截器，在 STOMP CONNECT 时从 JWT 提取用户身份
+     */
+    /**
+     * configureClientInboundChannel 方法。
      */
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {

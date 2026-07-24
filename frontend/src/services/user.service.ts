@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：user.service。
+ */
 import { http } from './request';
 import { User, PageParams } from '@/types';
 

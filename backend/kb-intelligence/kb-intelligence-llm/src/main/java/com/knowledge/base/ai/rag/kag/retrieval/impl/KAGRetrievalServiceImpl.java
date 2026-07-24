@@ -36,6 +36,9 @@ public class KAGRetrievalServiceImpl implements KAGRetrievalService {
     private final RagAclFilter ragAclFilter;
 
     /** {@inheritDoc} */
+    /**
+     * retrieveGraphContext 方法。
+     */
     @Override
     public GraphContext retrieveGraphContext(String query) {
         int maxEntities = kagProperties.getRetrieval().getMaxEntitiesPerQuery();
@@ -45,6 +48,9 @@ public class KAGRetrievalServiceImpl implements KAGRetrievalService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * retrieveGraphContext 方法。
+     */
     @Override
     public GraphContext retrieveGraphContext(String query, int maxEntities, int maxHops, int maxChunks) {
         if (query == null || query.isBlank()) {

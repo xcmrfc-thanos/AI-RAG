@@ -29,6 +29,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
     @Resource
     private MarkdownProcessService markdownProcessService;
 
+    /**
+     * 保存Content。
+     */
     @Override
     public String saveContent(Long documentId, String content) {
         log.info("保存文档内容：documentId={}, contentLength={}", documentId, content != null ? content.length() : 0);
@@ -64,6 +67,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
         return saved.getId();
     }
 
+    /**
+     * 更新Content。
+     */
     @Override
     public Boolean updateContent(Long documentId, String content) {
         log.info("更新文档内容：documentId={}", documentId);
@@ -101,6 +107,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
         return true;
     }
 
+    /**
+     * 获取ContentByDocumentId。
+     */
     @Override
     public DocumentContent getContentByDocumentId(Long documentId) {
         if (documentId == null) {
@@ -115,6 +124,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
         return content;
     }
 
+    /**
+     * 获取ContentById。
+     */
     @Override
     public DocumentContent getContentById(String contentId) {
         if (contentId == null) {
@@ -125,6 +137,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
                 .orElseThrow(() -> new BusinessException("文档内容不存在"));
     }
 
+    /**
+     * 删除Content。
+     */
     @Override
     public Boolean deleteContent(Long documentId) {
         log.info("删除文档内容：documentId={}", documentId);
@@ -144,6 +159,9 @@ public class DocumentContentServiceImpl implements DocumentContentService {
         return true;
     }
 
+    /**
+     * 处理Content。
+     */
     @Override
     public String processContent(String content) {
         if (content == null || content.trim().isEmpty()) {

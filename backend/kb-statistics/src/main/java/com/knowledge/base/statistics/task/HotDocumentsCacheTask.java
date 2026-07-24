@@ -71,6 +71,9 @@ public class HotDocumentsCacheTask {
     /**
      * 服务启动后立即执行一次刷新
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         log.info("HotDocumentsCacheTask 初始化，开始首次热门文档缓存刷新...");
@@ -79,6 +82,9 @@ public class HotDocumentsCacheTask {
 
     /**
      * 每30分钟刷新热门文档缓存
+     */
+    /**
+     * refreshHotDocuments 方法。
      */
     @Scheduled(fixedRate = 1800000)
     public void refreshHotDocuments() {

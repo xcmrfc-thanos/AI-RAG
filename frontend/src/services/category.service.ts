@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：category.service。
+ */
 import { http } from './request';
 import { DocumentCategory, CategoryTree, PageParams } from '@/types';
 

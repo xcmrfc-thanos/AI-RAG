@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowTemplatePicker。
+ */
 import React, { memo } from 'react';
 import { Button, Dropdown } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
@@ -7,6 +10,9 @@ interface WorkflowTemplatePickerProps {
   onApply: (key: WorkflowTemplateKey) => void;
 }
 
+/**
+ * WorkflowTemplatePicker 组件。
+ */
 const WorkflowTemplatePicker: React.FC<WorkflowTemplatePickerProps> = ({ onApply }) => (
   <Dropdown
     trigger={['click']}

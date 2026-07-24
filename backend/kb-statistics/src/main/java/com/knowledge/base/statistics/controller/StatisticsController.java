@@ -35,6 +35,9 @@ public class StatisticsController {
      *
      * @return 数据概览信息
      */
+    /**
+     * 获取Overview。
+     */
     @GetMapping("/overview")
     @Operation(summary = "数据概览", description = "获取系统数据概览信息")
     public Result<OverviewVO> getOverview() {
@@ -51,6 +54,9 @@ public class StatisticsController {
      * @param endDate   结束日期
      * @param type      趋势类型（create、view、like、favorite）
      * @return 趋势数据
+     */
+    /**
+     * 获取DocumentTrend。
      */
     @GetMapping("/trend/document")
     @Operation(summary = "文档趋势", description = "获取文档趋势数据")
@@ -74,6 +80,9 @@ public class StatisticsController {
      * @param endDate   结束日期
      * @return 活跃度数据
      */
+    /**
+     * 获取UserActivity。
+     */
     @GetMapping("/activity/user")
     @Operation(summary = "用户活跃度", description = "获取用户活跃度统计")
     public Result<List<UserActivityVO>> getUserActivity(
@@ -92,6 +101,9 @@ public class StatisticsController {
      *
      * @return 分类分布数据
      */
+    /**
+     * 获取CategoryDistribution。
+     */
     @GetMapping("/distribution/category")
     @Operation(summary = "分类分布", description = "获取文档分类分布统计")
     public Result<List<CategoryDistributionVO>> getCategoryDistribution() {
@@ -107,6 +119,9 @@ public class StatisticsController {
      * @param type 统计类型（view、like、favorite）
      * @param size 数量
      * @return 热门文档列表
+     */
+    /**
+     * 获取HotDocuments。
      */
     @GetMapping("/hot/document")
     @Operation(summary = "热门文档", description = "获取热门文档排行")
@@ -127,6 +142,9 @@ public class StatisticsController {
      * @param size 数量
      * @return 最新文档列表
      */
+    /**
+     * 获取LatestDocuments。
+     */
     @GetMapping("/latest/documents")
     @Operation(summary = "最新文档", description = "获取最新发布的文档列表")
     public Result<List<HotDocumentVO>> getLatestDocuments(
@@ -144,6 +162,9 @@ public class StatisticsController {
      * @param type 统计类型（create、comment、view）
      * @param size 数量
      * @return 活跃用户列表
+     */
+    /**
+     * 获取ActiveUsers。
      */
     @GetMapping("/active/user")
     @Operation(summary = "活跃用户", description = "获取活跃用户排行")
@@ -163,6 +184,9 @@ public class StatisticsController {
      *
      * @return 仪表盘数据
      */
+    /**
+     * 获取DashboardData。
+     */
     @GetMapping("/dashboard")
     @Operation(summary = "仪表盘数据", description = "获取仪表盘综合数据")
     public Result<DashboardVO> getDashboardData() {
@@ -176,6 +200,9 @@ public class StatisticsController {
      * 获取管理后台概览
      *
      * @return 管理后台概览数据
+     */
+    /**
+     * 获取AdminOverview。
      */
     @GetMapping("/admin-overview")
     @Operation(summary = "管理后台概览", description = "获取管理后台仪表盘关键指标")

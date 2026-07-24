@@ -33,6 +33,9 @@ public class RabbitMQConfig {
     /** 通知交换机 */
     public static final String NOTIFICATION_EXCHANGE = "kb.notification.exchange";
 
+    /**
+     * notificationExchange 方法。
+     */
     @Bean
     public TopicExchange notificationExchange() {
         return new TopicExchange(NOTIFICATION_EXCHANGE, true, false);
@@ -44,15 +47,24 @@ public class RabbitMQConfig {
         return "kb.notification.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * notificationRoutingKey 方法。
+     */
     public String notificationRoutingKey() {
         return "notification." + instanceIdentifier.getId() + ".#";
     }
 
+    /**
+     * notificationQueue 方法。
+     */
     @Bean
     public Queue notificationQueue() {
         return QueueBuilder.durable(notificationQueueName()).build();
     }
 
+    /**
+     * notificationBinding 方法。
+     */
     @Bean
     public Binding notificationBinding() {
         return BindingBuilder.bind(notificationQueue())
@@ -66,15 +78,24 @@ public class RabbitMQConfig {
         return "kb.notification.review.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * reviewNotificationRoutingKey 方法。
+     */
     public String reviewNotificationRoutingKey() {
         return "notification.review." + instanceIdentifier.getId() + ".*";
     }
 
+    /**
+     * reviewNotificationQueue 方法。
+     */
     @Bean
     public Queue reviewNotificationQueue() {
         return QueueBuilder.durable(reviewNotificationQueueName()).build();
     }
 
+    /**
+     * reviewNotificationBinding 方法。
+     */
     @Bean
     public Binding reviewNotificationBinding() {
         return BindingBuilder.bind(reviewNotificationQueue())
@@ -87,24 +108,39 @@ public class RabbitMQConfig {
     /** 系统配置交换机 */
     public static final String CONFIG_EXCHANGE = "kb.config.exchange";
 
+    /**
+     * configExchange 方法。
+     */
     @Bean
     public DirectExchange configExchange() {
         return new DirectExchange(CONFIG_EXCHANGE, true, false);
     }
 
+    /**
+     * configQueueName 方法。
+     */
     public String configQueueName() {
         return "kb.config.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * configRoutingKey 方法。
+     */
     public String configRoutingKey() {
         return "config." + instanceIdentifier.getId() + ".update";
     }
 
+    /**
+     * configQueue 方法。
+     */
     @Bean
     public Queue configQueue() {
         return QueueBuilder.durable(configQueueName()).build();
     }
 
+    /**
+     * configBinding 方法。
+     */
     @Bean
     public Binding configBinding() {
         return BindingBuilder.bind(configQueue())
@@ -117,24 +153,39 @@ public class RabbitMQConfig {
     /** 操作日志交换机 */
     public static final String OPERATION_LOG_EXCHANGE = "kb.operationlog.exchange";
 
+    /**
+     * operationLogExchange 方法。
+     */
     @Bean
     public TopicExchange operationLogExchange() {
         return new TopicExchange(OPERATION_LOG_EXCHANGE, true, false);
     }
 
+    /**
+     * operationLogQueueName 方法。
+     */
     public String operationLogQueueName() {
         return "kb.operationlog.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * operationLogRoutingKey 方法。
+     */
     public String operationLogRoutingKey() {
         return "operationlog." + instanceIdentifier.getId() + ".#";
     }
 
+    /**
+     * operationLogQueue 方法。
+     */
     @Bean
     public Queue operationLogQueue() {
         return QueueBuilder.durable(operationLogQueueName()).build();
     }
 
+    /**
+     * operationLogBinding 方法。
+     */
     @Bean
     public Binding operationLogBinding() {
         return BindingBuilder.bind(operationLogQueue())
@@ -144,6 +195,9 @@ public class RabbitMQConfig {
 
     // ======================== Message Converter ========================
 
+    /**
+     * jackson2JsonMessageConverter 方法。
+     */
     @Bean
     public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -162,6 +216,9 @@ public class RabbitMQConfig {
 
     // ======================== RabbitTemplate ========================
 
+    /**
+     * rabbitTemplate 方法。
+     */
     @Bean
     public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory,
                                           Jackson2JsonMessageConverter messageConverter) {

@@ -51,6 +51,9 @@ public enum UserType {
         this.name = name;
     }
 
+    /**
+     * 获取ByCode。
+     */
     public static UserType getByCode(Integer code) {
         for (UserType type : values()) {
             if (type.getCode().equals(code)) {
@@ -60,6 +63,9 @@ public enum UserType {
         return null;
     }
 
+    /**
+     * 获取ByRoleCode。
+     */
     public static UserType getByRoleCode(String roleCode) {
         for (UserType type : values()) {
             if (type.getRoleCode().equals(roleCode)) {

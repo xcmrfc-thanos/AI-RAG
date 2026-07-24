@@ -40,7 +40,7 @@ spring:
         - id: kb-core-foundation
           uri: lb://kb-core
           predicates:
-            - Path=/api/notifications/**, /api/config/**, /api/logs/**, /api/dicts/**
+            - Path=/api/notifications/**, /api/config/**, /api/logs/**, /api/dicts/**, /api/sensitive-words/**
           filters:
             - StripPrefix=1
         - id: kb-core-ws

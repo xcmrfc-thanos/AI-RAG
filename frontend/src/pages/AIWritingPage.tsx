@@ -1,3 +1,6 @@
+/**
+ * 业务页面：AIWritingPage。
+ */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
@@ -268,6 +271,9 @@ const CodeBlock: React.FC<{ language: string | undefined; value: string }> = ({ 
   const [copied, setCopied] = useState(false);
   const lang = language || 'text';
 
+  /**
+   * handleCopy。
+   */
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(value);
@@ -1342,6 +1348,9 @@ const AIWritingContent: React.FC = () => {
   );
 };
 
+/**
+ * AIWritingPage 页面组件。
+ */
 const AIWritingPage: React.FC = () => {
   const { enableAIWriting } = useAppStore();
 

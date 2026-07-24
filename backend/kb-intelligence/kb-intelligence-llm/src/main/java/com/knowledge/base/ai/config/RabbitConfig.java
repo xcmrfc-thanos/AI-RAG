@@ -29,27 +29,45 @@ public class RabbitConfig {
 
     public static final String EXCHANGE = "rag.reindex.exchange";
 
+    /**
+     * ragReindexQueueName 方法。
+     */
     public String ragReindexQueueName() {
         return "rag.reindex.queue." + instanceIdentifier.getId();
     }
 
+    /**
+     * ragReindexRoutingKeyAll 方法。
+     */
     public String ragReindexRoutingKeyAll() {
         return "rag.reindex." + instanceIdentifier.getId() + ".all";
     }
 
+    /**
+     * ragReindexRoutingKeyByIds 方法。
+     */
     public String ragReindexRoutingKeyByIds() {
         return "rag.reindex." + instanceIdentifier.getId() + ".by_ids";
     }
 
+    /**
+     * ragReindexRoutingKeyDelete 方法。
+     */
     public String ragReindexRoutingKeyDelete() {
         return "rag.reindex." + instanceIdentifier.getId() + ".delete";
     }
 
+    /**
+     * ragReindexExchange 方法。
+     */
     @Bean
     public TopicExchange ragReindexExchange() {
         return new TopicExchange(EXCHANGE);
     }
 
+    /**
+     * ragReindexQueue 方法。
+     */
     @Bean
     public Queue ragReindexQueue() {
         return QueueBuilder.durable(ragReindexQueueName())
@@ -57,6 +75,9 @@ public class RabbitConfig {
                 .build();
     }
 
+    /**
+     * ragReindexAllBinding 方法。
+     */
     @Bean
     public Binding ragReindexAllBinding() {
         return BindingBuilder.bind(ragReindexQueue())
@@ -64,6 +85,9 @@ public class RabbitConfig {
                 .with(ragReindexRoutingKeyAll());
     }
 
+    /**
+     * ragReindexByIdsBinding 方法。
+     */
     @Bean
     public Binding ragReindexByIdsBinding() {
         return BindingBuilder.bind(ragReindexQueue())
@@ -71,6 +95,9 @@ public class RabbitConfig {
                 .with(ragReindexRoutingKeyByIds());
     }
 
+    /**
+     * ragReindexDeleteBinding 方法。
+     */
     @Bean
     public Binding ragReindexDeleteBinding() {
         return BindingBuilder.bind(ragReindexQueue())

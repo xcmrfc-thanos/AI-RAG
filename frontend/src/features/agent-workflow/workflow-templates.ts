@@ -1,3 +1,6 @@
+/**
+ * 功能模块：workflow-templates。
+ */
 import type { WorkflowDefinitionV1, WorkflowNodeV1 } from './types';
 
 export type WorkflowTemplateKey =
@@ -40,11 +43,17 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplateMeta[] = [
   },
 ];
 
+/**
+ * 创建WorkflowTemplate。
+ */
 export function createWorkflowTemplate(key: WorkflowTemplateKey): WorkflowDefinitionV1 {
   const definition = TEMPLATE_FACTORIES[key]();
   return JSON.parse(JSON.stringify(definition)) as WorkflowDefinitionV1;
 }
 
+/**
+ * 创建WorkflowTemplateJson。
+ */
 export function createWorkflowTemplateJson(key: WorkflowTemplateKey): string {
   return JSON.stringify(createWorkflowTemplate(key), null, 2);
 }
@@ -89,6 +98,9 @@ const TEMPLATE_FACTORIES: Record<WorkflowTemplateKey, () => WorkflowDefinitionV1
 
 export const DEFAULT_WORKFLOW_TEMPLATE_JSON = createWorkflowTemplateJson('knowledge-qa');
 
+/**
+ * 构建Definition。
+ */
 function buildDefinition(
   name: string,
   inputSchema: WorkflowDefinitionV1['inputSchema'],
@@ -119,6 +131,9 @@ function buildDefinition(
   };
 }
 
+/**
+ * toolNode 方法。
+ */
 function toolNode(
   id: string,
   tool: Extract<WorkflowNodeV1, { type: 'tool' }>['tool'],
@@ -127,10 +142,16 @@ function toolNode(
   return { id, type: 'tool', tool, input };
 }
 
+/**
+ * llmNode 方法。
+ */
 function llmNode(id: string, prompt: string): WorkflowNodeV1 {
   return { id, type: 'llm', input: { prompt } };
 }
 
+/**
+ * nodeKind 方法。
+ */
 function nodeKind(node?: WorkflowNodeV1): string {
   if (!node) return 'end';
   return node.type === 'llm' ? 'llm' : node.tool;

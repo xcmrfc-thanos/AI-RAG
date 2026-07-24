@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：category.store。
+ */
 import { create } from 'zustand';
 import { DocumentCategory, CategoryTree } from '@/types';
 import { categoryService } from '@/services/category.service';

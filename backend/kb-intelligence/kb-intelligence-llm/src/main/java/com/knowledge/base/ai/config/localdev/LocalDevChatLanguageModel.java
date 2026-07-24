@@ -19,6 +19,9 @@ public class LocalDevChatLanguageModel implements ChatLanguageModel {
     /**
      * 生成基于 RAG 参考资料的 stub 回答。
      */
+    /**
+     * 生成。
+     */
     @Override
     public Response<AiMessage> generate(List<ChatMessage> messages) {
         return Response.from(AiMessage.from(LocalDevResponseSynthesizer.synthesize(extractLastUserText(messages))));

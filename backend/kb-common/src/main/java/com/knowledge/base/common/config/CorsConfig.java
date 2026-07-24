@@ -22,6 +22,9 @@ public class CorsConfig {
      *
      * @return CorsFilter
      */
+    /**
+     * corsFilter 方法。
+     */
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

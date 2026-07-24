@@ -20,11 +20,17 @@ public class CharacterEncodingFilter implements Filter {
 
     private static final String UTF_8 = "UTF-8";
 
+    /**
+     * 初始化。
+     */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // 初始化
     }
 
+    /**
+     * doFilter 方法。
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -45,6 +51,9 @@ public class CharacterEncodingFilter implements Filter {
         chain.doFilter(request, response);
     }
 
+    /**
+     * destroy 方法。
+     */
     @Override
     public void destroy() {
         // 销毁

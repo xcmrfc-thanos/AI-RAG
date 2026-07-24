@@ -33,6 +33,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 节点查询 ====================
 
+    /**
+     * 获取Nodes。
+     */
     @Override
     public List<GraphNodeVO> getNodes(String type) {
         log.info("获取节点列表，type={}", type);
@@ -61,6 +64,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 边查询 ====================
 
+    /**
+     * 获取Edges。
+     */
     @Override
     @Cacheable(value = "graphEdges", key = "#sourceType + '_' + #targetType")
     public List<GraphEdgeVO> getEdges(String sourceType, String targetType) {
@@ -109,6 +115,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 节点关系 ====================
 
+    /**
+     * 获取NodeRelations。
+     */
     @Override
     @Cacheable(value = "graphNodeRelations", key = "#nodeId")
     public List<GraphRelationVO> getNodeRelations(String nodeId) {
@@ -164,6 +173,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 图谱搜索 ====================
 
+    /**
+     * 搜索Graph。
+     */
     @Override
     public List<GraphNodeVO> searchGraph(String keyword) {
         log.info("图谱搜索，keyword={}", keyword);
@@ -196,6 +208,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 路径分析 ====================
 
+    /**
+     * 分析Path。
+     */
     @Override
     @Cacheable(value = "graphPath", key = "#sourceId + '_' + #targetId + '_' + #maxDepth")
     @SuppressWarnings("unchecked")
@@ -288,6 +303,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 社区检测 ====================
 
+    /**
+     * 检测Community。
+     */
     @Override
     @Cacheable(value = "graphCommunity", key = "#algorithm ?: 'default'")
     public List<GraphCommunityVO> detectCommunity(String algorithm) {
@@ -367,6 +385,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 完整图谱数据 ====================
 
+    /**
+     * 获取GraphData。
+     */
     @Override
     @Cacheable(value = "graphData", key = "#type ?: 'all'")
     public GraphDataVO getGraphData(String type) {
@@ -385,6 +406,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 图谱删除 ====================
 
+    /**
+     * 删除ByDocId。
+     */
     @Override
     @CacheEvict(cacheNames = {"graphNodes", "graphEdges", "graphNodeRelations",
             "graphSearch", "graphPath", "graphCommunity", "graphData"}, allEntries = true)
@@ -407,6 +431,9 @@ public class GraphServiceImpl implements GraphService {
         }
     }
 
+    /**
+     * 清理GhostNodes。
+     */
     @Override
     public int cleanupGhostNodes(List<Long> validDocIds) {
         if (validDocIds == null || validDocIds.isEmpty()) {
@@ -444,6 +471,9 @@ public class GraphServiceImpl implements GraphService {
 
     // ==================== 缓存管理 ====================
 
+    /**
+     * 失效缓存AllCaches。
+     */
     @Override
     @CacheEvict(cacheNames = {"graphNodes", "graphEdges", "graphNodeRelations",
             "graphSearch", "graphPath", "graphCommunity", "graphData"}, allEntries = true)

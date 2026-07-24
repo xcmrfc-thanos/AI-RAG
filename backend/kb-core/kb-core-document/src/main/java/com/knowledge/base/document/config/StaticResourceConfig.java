@@ -19,6 +19,9 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     @Value("${file.upload.path:/data/knowledge-base/uploads}")
     private String uploadPath;
 
+    /**
+     * 添加ResourceHandlers。
+     */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置文件访问路径

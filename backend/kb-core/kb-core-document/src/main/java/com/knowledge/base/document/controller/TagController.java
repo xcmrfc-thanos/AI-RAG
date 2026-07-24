@@ -36,6 +36,9 @@ public class TagController {
     /**
      * 创建标签
      */
+    /**
+     * 创建Tag。
+     */
     @PostMapping
     @Operation(summary = "创建标签", description = "创建新标签")
     @OperationLog(module = "标签管理", operation = "创建标签", description = "创建新标签")
@@ -47,6 +50,9 @@ public class TagController {
 
     /**
      * 更新标签
+     */
+    /**
+     * 更新Tag。
      */
     @PutMapping
     @Operation(summary = "更新标签", description = "更新标签信息")
@@ -60,6 +66,9 @@ public class TagController {
     /**
      * 删除标签
      */
+    /**
+     * 删除Tag。
+     */
     @DeleteMapping("/{tagId}")
     @Operation(summary = "删除标签", description = "删除指定标签")
     @OperationLog(module = "标签管理", operation = "删除标签", description = "删除标签")
@@ -72,6 +81,9 @@ public class TagController {
     /**
      * 获取标签详情
      */
+    /**
+     * 获取TagDetail。
+     */
     @GetMapping("/{tagId}")
     @Operation(summary = "获取标签详情", description = "根据ID获取标签详情")
     public Result<TagVO> getTagDetail(@PathVariable Long tagId) {
@@ -81,6 +93,9 @@ public class TagController {
 
     /**
      * 分页查询标签
+     */
+    /**
+     * 分页查询Tags。
      */
     @PostMapping("/page")
     @Operation(summary = "分页查询标签", description = "分页查询标签列表")
@@ -92,6 +107,9 @@ public class TagController {
     /**
      * 获取热门标签
      */
+    /**
+     * 获取HotTags。
+     */
     @GetMapping("/hot")
     @Operation(summary = "获取热门标签", description = "获取使用最多的标签")
     public Result<List<TagVO>> getHotTags(
@@ -102,6 +120,9 @@ public class TagController {
 
     /**
      * 根据分类获取标签
+     */
+    /**
+     * 获取TagsByCategory。
      */
     @GetMapping("/category/{categoryId}")
     @Operation(summary = "根据分类获取标签", description = "获取指定分类下的标签")

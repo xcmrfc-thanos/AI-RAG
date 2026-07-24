@@ -1,3 +1,6 @@
+/**
+ * UI 组件：PageHeader。
+ */
 import React from 'react';
 import { Breadcrumb, Button, Space, Typography } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';

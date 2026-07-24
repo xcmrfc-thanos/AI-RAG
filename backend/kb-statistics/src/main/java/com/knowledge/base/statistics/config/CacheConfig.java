@@ -28,6 +28,9 @@ public class CacheConfig {
      *
      * @return Caffeine CacheManager 实例
      */
+    /**
+     * caffeineCacheManager 方法。
+     */
     @Bean
     public CacheManager caffeineCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();

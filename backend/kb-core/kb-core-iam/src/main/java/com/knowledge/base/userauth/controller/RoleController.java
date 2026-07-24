@@ -38,6 +38,9 @@ public class RoleController {
      * @param roleDTO 角色信息
      * @return 角色ID
      */
+    /**
+     * 创建Role。
+     */
     @PostMapping
     @Operation(summary = "创建角色", description = "创建新角色")
     public Result<Long> createRole(@Valid @RequestBody RoleDTO roleDTO) {
@@ -53,6 +56,9 @@ public class RoleController {
      * @param roleDTO 角色信息
      * @return 是否成功
      */
+    /**
+     * 更新Role。
+     */
     @PutMapping
     @Operation(summary = "更新角色", description = "更新角色信息")
     public Result<Boolean> updateRole(@Valid @RequestBody RoleDTO roleDTO) {
@@ -67,6 +73,9 @@ public class RoleController {
      *
      * @param roleId 角色ID
      * @return 是否成功
+     */
+    /**
+     * 删除Role。
      */
     @DeleteMapping("/{roleId}")
     @Operation(summary = "删除角色", description = "根据角色ID删除角色")
@@ -84,6 +93,9 @@ public class RoleController {
      *
      * @param roleId 角色ID
      * @return 角色信息
+     */
+    /**
+     * 获取RoleById。
      */
     @GetMapping("/{roleId}")
     @Operation(summary = "查询角色", description = "根据角色ID查询角色详情")
@@ -104,6 +116,9 @@ public class RoleController {
      * @param keyword 搜索关键词
      * @return 角色分页信息
      */
+    /**
+     * 分页查询Roles。
+     */
     @GetMapping("/page")
     @Operation(summary = "分页查询角色", description = "分页查询角色列表")
     public Result<IPage<RoleVO>> pageRoles(
@@ -121,6 +136,9 @@ public class RoleController {
      *
      * @return 角色列表
      */
+    /**
+     * 获取AllRoles。
+     */
     @GetMapping("/list")
     @Operation(summary = "获取所有角色", description = "获取所有角色列表")
     public Result<List<RoleVO>> getAllRoles() {
@@ -134,6 +152,9 @@ public class RoleController {
      * 获取所有角色（简化版，用于下拉选择等场景）
      *
      * @return 角色列表
+     */
+    /**
+     * 列表查询Roles。
      */
     @GetMapping
     @Operation(summary = "获取所有角色", description = "获取所有角色列表（简化版）")
@@ -150,6 +171,9 @@ public class RoleController {
      * @param roleId        角色ID
      * @param permissionIds 权限ID列表
      * @return 是否成功
+     */
+    /**
+     * 分配Permissions。
      */
     @PostMapping("/{roleId}/permissions")
     @Operation(summary = "分配权限", description = "为角色分配权限")
@@ -168,6 +192,9 @@ public class RoleController {
      *
      * @param roleId 角色ID
      * @return 权限ID列表
+     */
+    /**
+     * 获取RolePermissions。
      */
     @GetMapping("/{roleId}/permissions")
     @Operation(summary = "获取角色权限", description = "获取角色的权限列表")

@@ -1,3 +1,6 @@
+/**
+ * 业务页面：NotificationCenterPage。
+ */
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Card,
@@ -187,6 +190,9 @@ export const NotificationCenterPage: React.FC = () => {
     [markAsRead],
   );
 
+  /**
+   * handleMarkAllAsRead。
+   */
   const handleMarkAllAsRead = useCallback(async () => {
     try {
       await markAllAsRead();
@@ -211,6 +217,9 @@ export const NotificationCenterPage: React.FC = () => {
     [deleteNotification, selectedNotification],
   );
 
+  /**
+   * handleClearAll。
+   */
   const handleClearAll = useCallback(async () => {
     try {
       await clearAll();

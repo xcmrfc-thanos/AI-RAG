@@ -41,6 +41,9 @@ public class SqlDialectHelper {
     /**
      * 解析并缓存当前部署方言。
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         this.dbType = KbDbTypeResolver.resolve(kbDbProperties.getType(), springDatasourceUrl);
@@ -314,22 +317,6 @@ public class SqlDialectHelper {
                 + "WHEN MATCHED THEN UPDATE SET " + toMergeAssignments(updateSet.trim()) + " "
                 + "WHEN NOT MATCHED THEN INSERT (" + String.join(", ", cols) + ") VALUES ("
                 + insertSrc + ")";
-    }
-
-    /**
-     * 兼容旧四参数签名：无 insertValues 时无法生成 USING，明确失败。
-     *
-     * @param table           目标表
-     * @param conflictColumns 冲突列
-     * @param insertColumns   INSERT 列
-     * @param updateSet       UPDATE 赋值
-     * @return 永不返回
-     * @deprecated 请使用五参数 {@link #mergeInto(String, String, String, String, String)}
-     */
-    @Deprecated
-    public String mergeInto(String table, String conflictColumns, String insertColumns, String updateSet) {
-        throw new UnsupportedOperationException(
-                "请改用 mergeInto(table, conflict, insertColumns, insertValues, updateSet) 或 upsertSql");
     }
 
     /**

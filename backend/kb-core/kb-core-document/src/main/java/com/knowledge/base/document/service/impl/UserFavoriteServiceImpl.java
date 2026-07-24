@@ -39,6 +39,9 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
     @Resource
     private DocumentMapper documentMapper;
 
+    /**
+     * 添加Favorite。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean addFavorite(Long userId, Long documentId) {
@@ -83,6 +86,9 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
         }
     }
 
+    /**
+     * 删除Favorite。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean removeFavorite(Long userId, Long documentId) {
@@ -105,12 +111,18 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
         }
     }
 
+    /**
+     * 判断是否Favorited。
+     */
     @Override
     public Boolean isFavorited(Long userId, Long documentId) {
         UserFavorite favorite = userFavoriteMapper.findByUserAndDocument(userId, documentId);
         return favorite != null;
     }
 
+    /**
+     * 获取UserFavorites。
+     */
     @Override
     public List<UserFavoriteVO> getUserFavorites(Long userId) {
         log.info("获取用户收藏列表：userId={}", userId);
@@ -134,12 +146,18 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
         return result;
     }
 
+    /**
+     * 获取FavoriteCount。
+     */
     @Override
     public Long getFavoriteCount(Long documentId) {
         Integer count = userFavoriteMapper.countByDocumentId(documentId);
         return count != null ? count.longValue() : 0L;
     }
 
+    /**
+     * 切换Favorite。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean toggleFavorite(Long userId, Long documentId) {

@@ -1,3 +1,6 @@
+/**
+ * 业务页面：ActivateAccountPage。
+ */
 import React, { useEffect, useState } from 'react';
 import { Typography, Spin, Result, Button } from 'antd';
 import { Link, useSearchParams } from 'react-router-dom';

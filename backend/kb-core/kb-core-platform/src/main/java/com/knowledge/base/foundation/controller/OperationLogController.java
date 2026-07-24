@@ -44,6 +44,9 @@ public class OperationLogController {
      * @param endTime       结束时间
      * @return 日志分页信息
      */
+    /**
+     * 分页查询Logs。
+     */
     @GetMapping
     @Operation(summary = "分页查询日志", description = "分页查询操作日志列表")
     public Result<IPage<OperationLog>> pageLogs(
@@ -69,6 +72,9 @@ public class OperationLogController {
      *
      * @param id 日志ID
      * @return 日志详情
+     */
+    /**
+     * 获取LogById。
      */
     @GetMapping("/{id}")
     @Operation(summary = "查询日志详情", description = "根据日志ID查询日志详情")
@@ -106,6 +112,9 @@ public class OperationLogController {
      *
      * @param beforeDate 指定日期
      * @return 删除数量
+     */
+    /**
+     * 删除LogsBeforeDate。
      */
     @DeleteMapping("/before-date")
     @Operation(summary = "删除历史日志", description = "删除指定日期前的操作日志")

@@ -34,6 +34,9 @@ public class DocumentAccessServiceImpl implements DocumentAccessService {
      */
     private static final int DEFAULT_LIMIT = 20;
 
+    /**
+     * 记录Access。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void recordAccess(Long userId, Long documentId, String documentTitle) {
@@ -56,6 +59,9 @@ public class DocumentAccessServiceImpl implements DocumentAccessService {
         log.debug("Recorded access for user {} to document {} ({})", userId, documentId, documentTitle);
     }
 
+    /**
+     * 获取RecentAccess。
+     */
     @Override
     public List<DocumentAccessVO> getRecentAccess(Integer limit) {
         Long userId = UserContext.getCurrentUserId();
@@ -72,6 +78,9 @@ public class DocumentAccessServiceImpl implements DocumentAccessService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 删除Access。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteAccess(Long documentId) {
@@ -85,6 +94,9 @@ public class DocumentAccessServiceImpl implements DocumentAccessService {
         log.debug("Deleted access record for user {} to document {}", userId, documentId);
     }
 
+    /**
+     * 清空AllAccess。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void clearAllAccess() {

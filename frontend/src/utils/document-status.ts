@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：document-status。
+ */
 import { DOCUMENT_STATUS, DOCUMENT_STATUS_CODE } from '@/constants';
 
 export type DocumentStatusCode = typeof DOCUMENT_STATUS_CODE[keyof typeof DOCUMENT_STATUS_CODE];

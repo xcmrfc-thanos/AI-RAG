@@ -39,6 +39,9 @@ public class SystemConfigController {
      * @param category 配置分类
      * @return 配置分页信息
      */
+    /**
+     * 分页查询Configs。
+     */
     @GetMapping
     @Operation(summary = "分页查询配置", description = "分页查询系统配置列表")
     public Result<IPage<SystemConfig>> pageConfigs(
@@ -57,6 +60,9 @@ public class SystemConfigController {
      * @param key 配置键
      * @return 配置信息
      */
+    /**
+     * 获取ConfigByKey。
+     */
     @GetMapping("/{key}")
     @Operation(summary = "查询配置项", description = "根据配置键查询配置项")
     public Result<SystemConfig> getConfigByKey(
@@ -74,6 +80,9 @@ public class SystemConfigController {
      * @param config 配置信息
      * @return 是否成功
      */
+    /**
+     * 创建Config。
+     */
     @PostMapping
     @Operation(summary = "创建配置", description = "创建新的系统配置")
     public Result<Boolean> createConfig(@Valid @RequestBody SystemConfig config) {
@@ -89,6 +98,9 @@ public class SystemConfigController {
      * @param key    配置键
      * @param config 配置信息
      * @return 是否成功
+     */
+    /**
+     * 更新Config。
      */
     @PutMapping("/{key}")
     @Operation(summary = "更新配置", description = "更新系统配置")
@@ -108,6 +120,9 @@ public class SystemConfigController {
      * @param key 配置键
      * @return 是否成功
      */
+    /**
+     * 删除Config。
+     */
     @DeleteMapping("/{key}")
     @Operation(summary = "删除配置", description = "根据配置键删除配置")
     public Result<Boolean> deleteConfig(
@@ -125,6 +140,9 @@ public class SystemConfigController {
      * @param category 配置分类
      * @return 配置列表
      */
+    /**
+     * 获取ConfigsByCategory。
+     */
     @GetMapping("/category/{category}")
     @Operation(summary = "按分类获取配置", description = "根据配置分类获取配置列表")
     public Result<List<SystemConfig>> getConfigsByCategory(
@@ -140,6 +158,9 @@ public class SystemConfigController {
      * 获取公开配置
      *
      * @return 公开配置列表
+     */
+    /**
+     * 获取PublicConfigs。
      */
     @GetMapping("/public")
     @Operation(summary = "获取公开配置", description = "获取所有公开的系统配置")

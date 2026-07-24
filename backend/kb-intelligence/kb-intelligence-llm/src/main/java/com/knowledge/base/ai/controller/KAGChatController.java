@@ -4,6 +4,7 @@ import com.knowledge.base.ai.dto.ChatRequestDTO;
 import com.knowledge.base.ai.rag.kag.chat.KAGChatService;
 import com.knowledge.base.ai.rag.kag.retrieval.KAGRetrievalService;
 import com.knowledge.base.ai.rag.kag.retrieval.GraphContext;
+import com.knowledge.base.ai.service.AiSensitiveGuard;
 import com.knowledge.base.ai.vo.ChatResponseVO;
 import com.knowledge.base.common.result.Result;
 import com.knowledge.base.common.utils.UserContextUtil;
@@ -39,23 +40,37 @@ public class KAGChatController {
     @Resource
     private KAGRetrievalService kagRetrievalService;
 
+    @Resource
+    private AiSensitiveGuard aiSensitiveGuard;
+
+    /**
+     * chat 方法。
+     */
     @PostMapping("/chat")
     @Operation(summary = "KAG增强对话", description = "融合RAG文本检索和KAG知识图谱推理的增强对话")
     public Result<ChatResponseVO> chat(@RequestBody @Valid ChatRequestDTO requestDTO,
                                         HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.kag");
         ChatResponseVO response = kagChatService.chatWithKnowledgeGraph(requestDTO, userId);
         return Result.success("KAG对话完成", response);
     }
 
+    /**
+     * chatStream 方法。
+     */
     @PostMapping("/chat/stream")
     @Operation(summary = "KAG增强流式对话", description = "基于知识图谱的增强流式对话（SSE）")
     public SseEmitter chatStream(@RequestBody @Valid ChatRequestDTO requestDTO,
                                   HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.kag");
         return kagChatService.chatWithKnowledgeGraphStream(requestDTO, userId);
     }
 
+    /**
+     * 搜索。
+     */
     @PostMapping("/search")
     @Operation(summary = "KAG图谱检索", description = "从知识图谱中检索结构化知识和推理路径")
     public Result<GraphContext> search(

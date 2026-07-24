@@ -40,6 +40,9 @@ public class SearchController {
     /**
      * 全文搜索
      */
+    /**
+     * 搜索。
+     */
     @PostMapping
     @Operation(summary = "全文搜索", description = "执行全文搜索")
     public Result<PageResult<SearchResultVO>> search(@Valid @RequestBody SearchRequestDTO dto,
@@ -60,6 +63,9 @@ public class SearchController {
      * @param request HTTP 请求
      * @return 分页结果
      */
+    /**
+     * 搜索Get。
+     */
     @GetMapping({"/search", ""})
     @Operation(summary = "全文搜索(GET)", description = "GET 方式执行关键词搜索")
     public Result<PageResult<SearchResultVO>> searchGet(
@@ -79,6 +85,9 @@ public class SearchController {
 
     /**
      * 高级搜索
+     */
+    /**
+     * advancedSearch 方法。
      */
     @PostMapping("/advanced")
     @Operation(summary = "高级搜索", description = "执行高级搜索")
@@ -111,6 +120,9 @@ public class SearchController {
     /**
      * 搜索建议
      */
+    /**
+     * suggest 方法。
+     */
     @GetMapping("/suggest")
     @Operation(summary = "搜索建议", description = "获取搜索建议")
     public Result<List<SearchSuggestVO>> suggest(
@@ -123,6 +135,9 @@ public class SearchController {
     /**
      * 热门搜索
      */
+    /**
+     * hotSearch 方法。
+     */
     @GetMapping("/hot")
     @Operation(summary = "热门搜索", description = "获取系统热门搜索关键词")
     public Result<List<String>> hotSearch() {
@@ -132,6 +147,9 @@ public class SearchController {
 
     /**
      * 获取当前用户搜索历史
+     */
+    /**
+     * 搜索History。
      */
     @GetMapping("/history")
     @Operation(summary = "搜索历史", description = "获取当前用户搜索历史")
@@ -144,6 +162,9 @@ public class SearchController {
     /**
      * 清空当前用户搜索历史
      */
+    /**
+     * 清空SearchHistory。
+     */
     @DeleteMapping("/history")
     @Operation(summary = "清空搜索历史", description = "清空当前用户搜索历史")
     public Result<Boolean> clearSearchHistory(HttpServletRequest request) {
@@ -155,6 +176,9 @@ public class SearchController {
     /**
      * 索引健康检查
      */
+    /**
+     * indexHealth 方法。
+     */
     @GetMapping("/index/health")
     @Operation(summary = "索引健康检查", description = "对比 MySQL 已发布文档数与 ES 双索引文档/chunk 数量")
     public Result<SearchIndexHealthVO> indexHealth() {
@@ -163,6 +187,9 @@ public class SearchController {
 
     /**
      * 重建索引
+     */
+    /**
+     * rebuildIndex 方法。
      */
     @PostMapping("/index/rebuild")
     @Operation(summary = "重建索引", description = "重建搜索索引")
@@ -177,6 +204,9 @@ public class SearchController {
      * @param docData 文档数据
      * @return 是否成功
      */
+    /**
+     * indexDocument 方法。
+     */
     @PostMapping("/index/document")
     @Operation(summary = "索引文档", description = "从文档数据直接索引到ES（kb-document内部调用）")
     public Result<Boolean> indexDocument(@RequestBody Map<String, Object> docData) {
@@ -189,6 +219,9 @@ public class SearchController {
      *
      * @param documentId 文档ID
      * @return 是否成功
+     */
+    /**
+     * 删除DocumentIndex。
      */
     @DeleteMapping("/index/document/{documentId}")
     @Operation(summary = "删除文档索引", description = "从ES删除文档索引（kb-document内部调用）")

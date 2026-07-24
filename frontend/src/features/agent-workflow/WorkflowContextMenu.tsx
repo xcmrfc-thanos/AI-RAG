@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowContextMenu。
+ */
 import React from 'react';
 import {
   AimOutlined,
@@ -32,6 +35,9 @@ export interface WorkflowContextMenuProps extends WorkflowContextMenuState {
   onFit: () => void;
 }
 
+/**
+ * WorkflowContextMenu 组件。
+ */
 const WorkflowContextMenu: React.FC<WorkflowContextMenuProps> = (props) => (
   <div
     className="wf-context-menu nodrag nopan"
@@ -81,6 +87,9 @@ interface MenuItemProps {
   onClick: () => void;
 }
 
+/**
+ * MenuItem 组件。
+ */
 const MenuItem: React.FC<MenuItemProps> = ({ icon, label, shortcut, danger, disabled, onClick }) => (
   <button
     type="button"
@@ -97,6 +106,9 @@ const MenuItem: React.FC<MenuItemProps> = ({ icon, label, shortcut, danger, disa
 
 const MenuDivider = () => <div className="wf-context-menu__divider" role="separator" />;
 
+/**
+ * menuLabel 方法。
+ */
 function menuLabel(kind: WorkflowContextMenuKind): string {
   if (kind === 'node') return '节点操作';
   if (kind === 'edge') return '连接操作';

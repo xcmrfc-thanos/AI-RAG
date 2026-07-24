@@ -28,6 +28,9 @@ public class OperationLogMQListener {
     /**
      * 消费操作日志事件
      */
+    /**
+     * handleOperationLogEvent 方法。
+     */
     @RabbitListener(queues = "#{@operationLogQueue.name}")
     public void handleOperationLogEvent(OperationLogEventDTO event) {
         try {

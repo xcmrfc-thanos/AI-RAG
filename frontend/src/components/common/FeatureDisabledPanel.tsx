@@ -1,3 +1,6 @@
+/**
+ * UI 组件：FeatureDisabledPanel。
+ */
 import React from 'react';
 import { Result } from 'antd';
 

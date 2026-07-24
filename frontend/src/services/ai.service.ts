@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：ai.service。
+ */
 import { http } from './request';
 import { AIRequest, AIConversation, AIQuickQuestion, AIModelOption, WritingRequest, WritingResult, WritingTemplate } from '@/types';
 import { tokenStorage } from '@/utils/token-storage';

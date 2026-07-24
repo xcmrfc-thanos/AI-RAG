@@ -1,3 +1,6 @@
+/**
+ * 功能模块：draft-autosave。
+ */
 import type { WorkflowInputFieldSchema } from './types';
 
 export interface RevisionGate {
@@ -6,6 +9,9 @@ export interface RevisionGate {
   current: () => number;
 }
 
+/**
+ * 创建RevisionGate。
+ */
 export function createRevisionGate(): RevisionGate {
   let revision = 0;
   return {
@@ -18,6 +24,9 @@ export function createRevisionGate(): RevisionGate {
   };
 }
 
+/**
+ * 构建DraftInputDefaults。
+ */
 export function buildDraftInputDefaults(
   schema?: Record<string, WorkflowInputFieldSchema>,
 ): Record<string, unknown> {
@@ -38,6 +47,9 @@ export function buildDraftInputDefaults(
   return result;
 }
 
+/**
+ * 校验DraftInput。
+ */
 export function validateDraftInput(
   schema: Record<string, WorkflowInputFieldSchema> | undefined,
   input: Record<string, unknown>,
@@ -52,6 +64,9 @@ export function validateDraftInput(
   return errors;
 }
 
+/**
+ * draftSaveStatusLabel 方法。
+ */
 export function draftSaveStatusLabel(status: string): string {
   const labels: Record<string, string> = {
     saving: '保存中', saved: '已自动保存', failed: '保存失败', unsaved: '未保存',

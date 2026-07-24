@@ -31,6 +31,9 @@ public class AgentHealthController {
      *
      * @return pong
      */
+    /**
+     * ping 方法。
+     */
     @GetMapping("/ping")
     public Result<String> ping() {
         return Result.success("ok", "kb-agent-pong");

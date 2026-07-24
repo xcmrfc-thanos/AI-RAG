@@ -29,6 +29,9 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
     /**
      * {@inheritDoc}
      */
+    /**
+     * nextId 方法。
+     */
     @Override
     public long nextId() {
         return localSeq.incrementAndGet();
@@ -36,6 +39,9 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
 
     /**
      * {@inheritDoc}
+     */
+    /**
+     * 查找Run。
      */
     @Override
     public AgentRunEntity findRun(Long runId) {
@@ -45,6 +51,9 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
     /**
      * {@inheritDoc}
      */
+    /**
+     * 更新Run。
+     */
     @Override
     public void updateRun(AgentRunEntity run) {
         runMapper.updateById(run);
@@ -53,6 +62,9 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
     /**
      * {@inheritDoc}
      */
+    /**
+     * insertStep 方法。
+     */
     @Override
     public void insertStep(AgentRunStepEntity step) {
         stepMapper.insert(step);
@@ -60,6 +72,9 @@ public class MybatisAgentRunPersistence implements AgentRunPersistence {
 
     /**
      * {@inheritDoc}
+     */
+    /**
+     * 更新Step。
      */
     @Override
     public void updateStep(AgentRunStepEntity step) {

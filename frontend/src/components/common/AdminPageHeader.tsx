@@ -1,3 +1,6 @@
+/**
+ * UI 组件：AdminPageHeader。
+ */
 import React from 'react';
 import './AdminPageHeader.css';
 

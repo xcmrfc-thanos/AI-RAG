@@ -1,3 +1,6 @@
+/**
+ * types 模块导出入口。
+ */
 export type EntityId = string | number;
 
 // 用户相关类型

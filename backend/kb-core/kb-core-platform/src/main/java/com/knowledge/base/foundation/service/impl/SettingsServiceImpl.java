@@ -192,6 +192,9 @@ public class SettingsServiceImpl implements SettingsService {
     // ==================== 按分组读取 ====================
 
     /** {@inheritDoc} */
+    /**
+     * 获取Settings。
+     */
     @Override
     public SettingsVO getSettings() {
         log.info("获取系统设置");
@@ -334,6 +337,9 @@ public class SettingsServiceImpl implements SettingsService {
     // ==================== 按分组更新 ====================
 
     /** {@inheritDoc} */
+    /**
+     * 更新Settings。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     @CacheEvict(value = {"configCache", "settingsCache"}, allEntries = true)
@@ -403,6 +409,9 @@ public class SettingsServiceImpl implements SettingsService {
     // ==================== 系统状态 ====================
 
     /** {@inheritDoc} */
+    /**
+     * 获取SystemStatus。
+     */
     @Override
     public SystemStatusVO getSystemStatus() {
         // 读取系统配置
@@ -537,6 +546,9 @@ public class SettingsServiceImpl implements SettingsService {
     // ==================== 运维操作 ====================
 
     /** {@inheritDoc} */
+    /**
+     * 清空Cache。
+     */
     @Override
     public String clearCache() {
         log.info("清理系统缓存");
@@ -545,6 +557,9 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建Backup。
+     */
     @Override
     public String createBackup() {
         log.info("创建系统备份（占位未实际执行）");
@@ -553,6 +568,9 @@ public class SettingsServiceImpl implements SettingsService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * testEmail 方法。
+     */
     @Override
     public String testEmail(String email) {
         log.info("测试邮件请求：email={}", email);

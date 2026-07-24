@@ -1,3 +1,6 @@
+/**
+ * 业务页面：DocumentsPage。
+ */
 import React, { useEffect, useState } from 'react';
 import {
   Input,
@@ -114,6 +117,9 @@ export const DocumentsPage: React.FC = () => {
 
     // 同步团队空间上下文到 store
     if (teamIdFromUrl) {
+      /**
+       * findTeam。
+       */
       const findTeam = (teams: any[], id: string): any | undefined => {
         for (const t of teams) {
           if (String(t.id) === String(id)) return t;
@@ -148,6 +154,9 @@ export const DocumentsPage: React.FC = () => {
     fetchDocuments(newFilter);
   }, [fetchDocuments, searchParams, setFilter, setSelectedTeam, teamTree]);
 
+  /**
+   * fetchCategories。
+   */
   const fetchCategories = async () => {
     try {
       const data = await categoryService.getCategoryTree();

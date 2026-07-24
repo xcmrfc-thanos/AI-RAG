@@ -1,3 +1,6 @@
+/**
+ * 常量定义：admin-nav。
+ */
 import { PERMISSIONS } from '@/utils/permission';
 
 /**
@@ -122,6 +125,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroupConfig[] = [
         label: '数据字典',
         path: '/admin/dictionary',
         permissions: [PERMISSIONS.systemSettings],
+      },
+      {
+        key: 'sensitive-words',
+        label: '敏感词管理',
+        path: '/admin/sensitive-words',
+        permissions: [PERMISSIONS.systemSensitiveWord, PERMISSIONS.systemSettings],
       },
       {
         key: 'operation-logs',

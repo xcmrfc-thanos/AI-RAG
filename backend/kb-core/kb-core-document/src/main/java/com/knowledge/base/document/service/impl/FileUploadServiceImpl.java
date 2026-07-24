@@ -35,6 +35,9 @@ public class FileUploadServiceImpl implements FileUploadService {
     private static final Set<String> INTERNAL_DOMAINS = new HashSet<>(
             Arrays.asList("rustfs", "localhost", "127.0.0.1", "117.72.88.11"));
 
+    /**
+     * 上传File。
+     */
     @Override
     public String uploadFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -75,6 +78,9 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
     }
 
+    /**
+     * 上传Bytes。
+     */
     @Override
     public String uploadBytes(byte[] bytes, String fileName, String contentType) {
         if (bytes == null || bytes.length == 0) {
@@ -97,6 +103,9 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
     }
 
+    /**
+     * 上传ImageFromUrl。
+     */
     @Override
     public String uploadImageFromUrl(String imageUrl) {
         if (!StringUtils.hasText(imageUrl)) {
@@ -144,6 +153,9 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
     }
 
+    /**
+     * 判断是否ExternalImageUrl。
+     */
     @Override
     public boolean isExternalImageUrl(String url) {
         if (!StringUtils.hasText(url)) {

@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：document.service。
+ */
 import type { AxiosProgressEvent } from 'axios';
 import { http } from './request';
 import request from './request';

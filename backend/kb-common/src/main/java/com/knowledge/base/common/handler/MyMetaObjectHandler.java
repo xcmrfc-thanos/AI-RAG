@@ -25,6 +25,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      *
      * @param metaObject 元对象
      */
+    /**
+     * insertFill 方法。
+     */
     @Override
     public void insertFill(MetaObject metaObject) {
         log.debug("开始插入填充...");
@@ -58,6 +61,9 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
      * 更新时自动填充
      *
      * @param metaObject 元对象
+     */
+    /**
+     * 更新Fill。
      */
     @Override
     public void updateFill(MetaObject metaObject) {

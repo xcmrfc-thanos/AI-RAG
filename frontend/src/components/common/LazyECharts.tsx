@@ -1,3 +1,6 @@
+/**
+ * UI 组件：LazyECharts。
+ */
 import React from 'react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import type { EChartsReactProps } from 'echarts-for-react';

@@ -53,6 +53,9 @@ public class RagAclContextResolver {
      * @param userId 用户
      * @return 团队列表
      */
+    /**
+     * fetchUserTeamIds 方法。
+     */
     @SuppressWarnings("unchecked")
     public List<Long> fetchUserTeamIds(Long userId) {
         if (userId == null) {

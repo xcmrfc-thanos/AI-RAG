@@ -1,3 +1,6 @@
+/**
+ * 功能模块：NodeInspector。
+ */
 import React, { memo, useMemo } from 'react';
 import type { Edge, Node } from '@xyflow/react';
 import { Alert, Divider, Input, InputNumber, Space, Tag, Typography } from 'antd';
@@ -16,6 +19,9 @@ interface NodeInspectorProps {
   onChange: (nodeId: string, data: FlowNodeData) => void;
 }
 
+/**
+ * NodeInspector 组件。
+ */
 const NodeInspector: React.FC<NodeInspectorProps> = ({ node, nodes, edges, onChange }) => {
   const options = useMemo(
     () => node ? getUpstreamVariableOptions(node.id, nodes, edges) : [],

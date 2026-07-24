@@ -150,10 +150,16 @@ public enum ResultCode {
      */
     private final String message;
 
+    /**
+     * 获取Code。
+     */
     public Integer getCode() {
         return code;
     }
 
+    /**
+     * 获取Message。
+     */
     public String getMessage() {
         return message;
     }

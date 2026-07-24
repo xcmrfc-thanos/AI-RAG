@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowEdge。
+ */
 import React, { memo } from 'react';
 import {
   BaseEdge,
@@ -16,6 +19,9 @@ interface WorkflowEdgeData extends Record<string, unknown> {
   actionsOpen?: boolean;
 }
 
+/**
+ * WorkflowEdge 组件。
+ */
 const WorkflowEdge: React.FC<EdgeProps> = (props) => {
   const [path, labelX, labelY] = getBezierPath(props);
   const data = props.data as WorkflowEdgeData | undefined;

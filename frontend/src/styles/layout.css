@@ -524,6 +524,15 @@
     font-weight: 600;
 }
 
+/* 全部文档：蓝色；我的文档：青绿，便于一眼区分 */
+.sidebar-item .badge.badge--all {
+    background-color: #2563eb;
+}
+
+.sidebar-item .badge.badge--mine {
+    background-color: #0d9488;
+}
+
 .sidebar-count {
     margin-left: auto;
     color: var(--text-muted);

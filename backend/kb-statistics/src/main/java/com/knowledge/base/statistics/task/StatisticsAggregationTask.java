@@ -48,6 +48,9 @@ public class StatisticsAggregationTask {
      *
      * <p>每天 00:05 执行，聚合前一天的浏览/点赞/评论数据写入 kb_document_statistics</p>
      */
+    /**
+     * aggregateDailyDocumentStatistics 方法。
+     */
     @Scheduled(cron = "0 5 0 * * ?")
     public void aggregateDailyDocumentStatistics() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -108,6 +111,9 @@ public class StatisticsAggregationTask {
      *
      * <p>每天 00:10 执行，聚合前一天的用户浏览数据写入 kb_user_statistics</p>
      */
+    /**
+     * aggregateDailyUserStatistics 方法。
+     */
     @Scheduled(cron = "0 10 0 * * ?")
     public void aggregateDailyUserStatistics() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
@@ -161,6 +167,9 @@ public class StatisticsAggregationTask {
      * 清理过期浏览历史记录
      *
      * <p>每天 02:30 执行，删除 90 天前的浏览历史记录，控制表数据量</p>
+     */
+    /**
+     * 清理OldViewHistory。
      */
     @Scheduled(cron = "0 30 2 * * ?")
     public void cleanupOldViewHistory() {

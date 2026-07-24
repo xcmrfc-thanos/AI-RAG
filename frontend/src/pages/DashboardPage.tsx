@@ -1,7 +1,11 @@
+/**
+ * 业务页面：DashboardPage。
+ */
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import dashboardService from '@/services/dashboard.service';
 import statisticsService from '@/services/statistics.service';
+import documentService from '@/services/document.service';
 import type { EntityId } from '@/types';
 import { useAppStore, useAuthStore } from '@/stores';
 import { PERMISSIONS, hasPermission } from '@/utils/permission';
@@ -14,6 +18,9 @@ import {
 } from '@/components/common';
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
 
+/**
+ * DashboardPage 页面组件。
+ */
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
@@ -33,12 +40,37 @@ const DashboardPage: React.FC = () => {
   const [hotDocuments, setHotDocuments] = useState<any[]>([]);
   const [hotDocsLoading, setHotDocsLoading] = useState(true);
 
-  // 获取最新文档
+  // 获取最新文档：直接走文档中心真源（统计投影常滞后，去假数据后不能再依赖空投影）
   useEffect(() => {
-    statisticsService.getLatestDocuments({ limit: 6 })
-      .then((docs) => setLatestDocuments(docs || []))
-      .catch(err => console.error('获取最新文档失败:', err))
-      .finally(() => setLatestDocsLoading(false));
+    let cancelled = false;
+    documentService.getDocuments({
+      status: 1,
+      page: 1,
+      pageSize: 6,
+      sortBy: 'publishTime',
+      sortOrder: 'desc',
+    })
+      .then((page) => {
+        if (cancelled) return;
+        const list = (page.list || []).map((d: any) => ({
+          documentId: d.id,
+          title: d.title,
+          authorName: d.authorName,
+          categoryName: d.categoryName,
+          viewCount: d.viewCount || 0,
+          favoriteCount: d.favoriteCount || 0,
+          summary: d.summary,
+          createdAt: d.publishTime || d.updatedAt || d.createdAt,
+        }));
+        setLatestDocuments(list);
+      })
+      .catch((err) => console.error('获取最新文档失败:', err))
+      .finally(() => {
+        if (!cancelled) setLatestDocsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -61,20 +93,73 @@ const DashboardPage: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
+
+    // 文档总数以文档分页为准，校正统计投影滞后导致的「2 篇」假象
+    documentService.getDocuments({ status: 1, page: 1, pageSize: 1 })
+      .then((page) => {
+        const total = Number(page?.total);
+        if (Number.isFinite(total) && total >= 0) {
+          setStats((prev) => ({ ...prev, totalDocuments: total }));
+        }
+      })
+      .catch(() => {});
   }, []);
 
-  // 获取热门文档
+  // 获取热门文档：统计为空时回退文档中心
   useEffect(() => {
+    let cancelled = false;
+    /**
+     * 将文档列表项映射为首页卡片字段。
+     */
+    const mapDocs = (list: any[]) =>
+      (list || []).map((d) => ({
+        documentId: d.id,
+        title: d.title,
+        authorName: d.authorName,
+        categoryName: d.categoryName,
+        viewCount: d.viewCount || 0,
+        favoriteCount: d.favoriteCount || 0,
+        summary: d.summary,
+        createdAt: d.publishTime || d.updatedAt || d.createdAt,
+      }));
+
     statisticsService.getPopularDocuments({ limit: 6 })
-      .then((docs) => {
-        setHotDocuments(docs || []);
+      .then(async (docs) => {
+        if (cancelled) return;
+        if (docs && docs.length > 0) {
+          setHotDocuments(docs);
+          return;
+        }
+        const page = await documentService.getDocuments({
+          status: 1,
+          page: 1,
+          pageSize: 6,
+          sortBy: 'viewCount',
+          sortOrder: 'desc',
+        });
+        if (!cancelled) setHotDocuments(mapDocs(page.list || []));
       })
-      .catch((err) => {
-        console.error('获取热门文档失败:', err);
+      .catch(async (err) => {
+        console.error('获取热门文档失败，尝试回退文档列表:', err);
+        try {
+          const page = await documentService.getDocuments({
+            status: 1,
+            page: 1,
+            pageSize: 6,
+            sortBy: 'publishTime',
+            sortOrder: 'desc',
+          });
+          if (!cancelled) setHotDocuments(mapDocs(page.list || []));
+        } catch (e) {
+          console.error('热门文档回退失败:', e);
+        }
       })
       .finally(() => {
-        setHotDocsLoading(false);
+        if (!cancelled) setHotDocsLoading(false);
       });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleDocumentClick = (id: EntityId) => {
@@ -92,6 +177,9 @@ const DashboardPage: React.FC = () => {
     { name: 'React 18', version: '前端框架', icon: 'Re', gradient: 'linear-gradient(135deg, #61DAFB, #21A4C7)' },
   ];
 
+  /**
+   * handleSuggestionClick。
+   */
   const handleSuggestionClick = (text: string) => {
     navigate('/ai', { state: { query: text } });
   };

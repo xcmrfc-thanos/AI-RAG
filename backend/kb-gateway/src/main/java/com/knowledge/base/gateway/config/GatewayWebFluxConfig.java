@@ -16,6 +16,9 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 @Configuration
 public class GatewayWebFluxConfig implements WebFluxConfigurer {
 
+    /**
+     * configureHttpMessageCodecs 方法。
+     */
     @Override
     public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
         // 配置消息编码器，确保响应体能够正确处理

@@ -1,3 +1,6 @@
+/**
+ * UI 组件：NotificationToast。
+ */
 import React from 'react';
 import type { SystemNotification } from '@/types';
 
@@ -6,6 +9,9 @@ interface NotificationToastProps {
   onNavigate?: () => void;
 }
 
+/**
+ * NotificationToast 组件。
+ */
 const NotificationToast: React.FC<NotificationToastProps> = ({ notification, onNavigate }) => {
   const { content } = notification;
 

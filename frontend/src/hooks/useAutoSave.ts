@@ -1,3 +1,6 @@
+/**
+ * React Hook：useAutoSave。
+ */
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { draftStorage, type DraftData } from '@/utils/draft-storage';
 import { documentService } from '@/services';

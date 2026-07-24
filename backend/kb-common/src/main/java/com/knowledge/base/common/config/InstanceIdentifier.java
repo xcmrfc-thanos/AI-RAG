@@ -49,6 +49,9 @@ public class InstanceIdentifier implements InitializingBean {
     @Getter
     private String id;
 
+    /**
+     * afterPropertiesSet 方法。
+     */
     @Override
     public void afterPropertiesSet() {
         this.id = resolve();

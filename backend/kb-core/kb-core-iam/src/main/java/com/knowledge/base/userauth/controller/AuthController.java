@@ -45,6 +45,9 @@ public class AuthController {
      * @param token         URL参数中的token（备选）
      * @return Token验证结果
      */
+    /**
+     * 校验Token。
+     */
     @PostMapping("/validate")
     @Operation(summary = "Token验证", description = "供其他微服务Feign调用，验证JWT Token并返回用户身份和角色信息")
     public Result<TokenValidateVO> validateToken(
@@ -58,6 +61,9 @@ public class AuthController {
      *
      * @return 当前用户信息
      */
+    /**
+     * 获取CurrentUser。
+     */
     @GetMapping("/me")
     @Operation(summary = "获取当前用户信息", description = "获取当前登录用户的详细信息")
     public Result<UserVO> getCurrentUser() {
@@ -70,6 +76,9 @@ public class AuthController {
      *
      * @param loginDTO 登录请求参数
      * @return 登录响应信息
+     */
+    /**
+     * 用户登录。
      */
     @PostMapping("/login")
     @Operation(summary = "用户登录", description = "用户使用用户名密码登录系统")
@@ -85,6 +94,9 @@ public class AuthController {
      * @param registerDTO 注册请求参数
      * @return 注册响应（含邮箱验证状态）
      */
+    /**
+     * 用户注册。
+     */
     @PostMapping("/register")
     @Operation(summary = "用户注册", description = "新用户注册账号，若提供邮箱则需验证激活")
     public Result<RegisterVO> register(@Valid @RequestBody RegisterDTO registerDTO) {
@@ -98,6 +110,9 @@ public class AuthController {
      *
      * @param token 激活令牌
      * @return 激活结果消息
+     */
+    /**
+     * 校验Email。
      */
     @GetMapping("/verify-email")
     @Operation(summary = "邮箱验证", description = "通过邮件中的激活链接验证邮箱并激活账户")
@@ -113,6 +128,9 @@ public class AuthController {
      * @param token 访问令牌
      * @return 响应结果
      */
+    /**
+     * 用户登出。
+     */
     @PostMapping("/logout")
     @Operation(summary = "用户退出", description = "用户退出登录")
     public Result<Void> logout(@RequestHeader("Authorization") String token) {
@@ -126,6 +144,9 @@ public class AuthController {
      *
      * @param refreshToken 刷新令牌
      * @return 新的访问令牌
+     */
+    /**
+     * refresh 方法。
      */
     @PostMapping("/refresh")
     @Operation(summary = "刷新Token", description = "使用刷新令牌获取新的访问令牌")
@@ -141,6 +162,9 @@ public class AuthController {
      * @param roleCode 角色编码，如 ROLE_REVIEWER
      * @return 用户ID列表
      */
+    /**
+     * 获取UserIdsByRole。
+     */
     @GetMapping("/users/by-role")
     @Operation(summary = "根据角色查询用户ID", description = "供其他微服务Feign调用，查询拥有指定角色的所有用户ID")
     public Result<List<Long>> getUserIdsByRole(@RequestParam String roleCode) {
@@ -151,6 +175,9 @@ public class AuthController {
      * 查询审核员用户ID列表（无Result包装，专供Feign调用）
      *
      * @return 审核员用户ID列表
+     */
+    /**
+     * 获取ReviewerIds。
      */
     @GetMapping("/reviewer-ids")
     @Operation(summary = "查询审核员ID列表", description = "供kb-foundation微服务Feign调用，返回审核员用户ID列表")
@@ -168,6 +195,9 @@ public class AuthController {
      * @param dto 请求（含注册邮箱）
      * @return 发送结果
      */
+    /**
+     * 发送ResetCode。
+     */
     @PostMapping("/password/reset/send-code")
     @Operation(summary = "发送重置密码验证码", description = "向注册邮箱发送6位验证码，有效期10分钟")
     public Result<Void> sendResetCode(@Valid @RequestBody SendResetCodeDTO dto) {
@@ -182,6 +212,9 @@ public class AuthController {
      * @param dto 请求（含邮箱和验证码）
      * @return 验证结果
      */
+    /**
+     * 校验ResetCode。
+     */
     @PostMapping("/password/reset/verify-code")
     @Operation(summary = "验证重置密码验证码", description = "校验邮箱对应的验证码是否正确")
     public Result<Void> verifyResetCode(@Valid @RequestBody VerifyResetCodeDTO dto) {
@@ -195,6 +228,9 @@ public class AuthController {
      *
      * @param dto 请求（含邮箱、验证码、新密码）
      * @return 重置结果
+     */
+    /**
+     * 重置Password。
      */
     @PostMapping("/password/reset")
     @Operation(summary = "重置密码", description = "使用验证码重置用户密码")

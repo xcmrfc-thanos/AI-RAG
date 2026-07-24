@@ -46,14 +46,23 @@ public class WorkflowNode {
         this.input = input;
     }
 
+    /**
+     * 获取Id。
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * 获取Type。
+     */
     public String getType() {
         return type;
     }
 
+    /**
+     * 获取Tool。
+     */
     public String getTool() {
         return tool;
     }
@@ -67,6 +76,9 @@ public class WorkflowNode {
      *
      * @param n JSON
      * @return 节点
+     */
+    /**
+     * parse 方法。
      */
     @SuppressWarnings("unchecked")
     public static WorkflowNode parse(JsonNode n) {

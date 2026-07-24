@@ -40,6 +40,9 @@ import java.nio.charset.StandardCharsets;
 @Component
 public class UnifiedResponseFilter implements GlobalFilter, Ordered {
 
+    /**
+     * filter 方法。
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpResponse originalResponse = exchange.getResponse();
@@ -47,6 +50,9 @@ public class UnifiedResponseFilter implements GlobalFilter, Ordered {
 
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
 
+            /**
+             * writeWith 方法。
+             */
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                 if (body instanceof Flux) {
@@ -103,6 +109,9 @@ public class UnifiedResponseFilter implements GlobalFilter, Ordered {
                 return super.writeWith(body);
             }
 
+            /**
+             * writeAndFlushWith 方法。
+             */
             @Override
             public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
                 return writeWith(Flux.from(body).flatMapSequential(p -> p));
@@ -144,6 +153,9 @@ public class UnifiedResponseFilter implements GlobalFilter, Ordered {
         return result.toJSONString();
     }
 
+    /**
+     * 获取Order。
+     */
     @Override
     public int getOrder() {
         return -2; // 设置较高优先级

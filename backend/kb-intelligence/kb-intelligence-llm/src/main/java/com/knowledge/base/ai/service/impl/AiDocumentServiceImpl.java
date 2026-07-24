@@ -90,6 +90,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param length  摘要长度
      * @return 摘要内容
      */
+    /**
+     * 生成Summary。
+     */
     @Override
     public String generateSummary(String content, Integer length) {
         log.info("生成文档摘要：contentLength={}, summaryLength={}", content.length(), length);
@@ -141,6 +144,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param level   大纲层级
      * @return 大纲内容
      */
+    /**
+     * 生成Outline。
+     */
     @Override
     public String generateOutline(String content, Integer level) {
         log.info("生成文档大纲：contentLength={}, level={}", content.length(), level);
@@ -178,6 +184,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param expType 扩展类型
      * @return 扩展内容
      */
+    /**
+     * expandContent 方法。
+     */
     @Override
     public String expandContent(String content, String expType) {
         log.info("扩展内容：contentLength={}, expType={}", content.length(), expType);
@@ -210,6 +219,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param content 文档内容
      * @param target  优化目标
      * @return 优化内容
+     */
+    /**
+     * optimizeContent 方法。
      */
     @Override
     public String optimizeContent(String content, String target) {
@@ -244,6 +256,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param expType 示例类型
      * @return 添加示例后的内容
      */
+    /**
+     * 添加Example。
+     */
     @Override
     public String addExample(String content, String expType) {
         log.info("添加示例：contentLength={}, expType={}", content.length(), expType);
@@ -277,6 +292,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      *
      * @param processDTO 处理请求
      * @return 处理结果
+     */
+    /**
+     * 处理Document。
      */
     @Override
     public DocumentProcessVO processDocument(DocumentProcessDTO processDTO) {
@@ -352,6 +370,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param userId 用户ID
      * @return 处理结果
      */
+    /**
+     * 生成Summary。
+     */
     @Override
     public DocumentProcessVO generateSummary(MultipartFile file, Long userId) {
         log.info("生成文档摘要（文件上传）：fileName={}, userId={}", file.getOriginalFilename(), userId);
@@ -386,6 +407,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param file   文档文件
      * @param userId 用户ID
      * @return 处理结果
+     */
+    /**
+     * 生成Outline。
      */
     @Override
     public DocumentProcessVO generateOutline(MultipartFile file, Long userId) {
@@ -422,6 +446,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param userId 用户ID
      * @return 处理结果
      */
+    /**
+     * expandContent 方法。
+     */
     @Override
     public DocumentProcessVO expandContent(DocumentProcessDTO dto, Long userId) {
         log.info("扩展内容（DTO方式）：userId={}", userId);
@@ -452,6 +479,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param dto    处理请求
      * @param userId 用户ID
      * @return 处理结果
+     */
+    /**
+     * optimizeContent 方法。
      */
     @Override
     public DocumentProcessVO optimizeContent(DocumentProcessDTO dto, Long userId) {
@@ -484,6 +514,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param userId 用户ID
      * @return SSE事件流
      */
+    /**
+     * 生成SummaryStream。
+     */
     @Override
     public SseEmitter generateSummaryStream(MultipartFile file, Long userId) {
         log.info("流式生成摘要：fileName={}, userId={}", file.getOriginalFilename(), userId);
@@ -513,6 +546,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param file   文档文件
      * @param userId 用户ID
      * @return SSE事件流
+     */
+    /**
+     * 生成OutlineStream。
      */
     @Override
     public SseEmitter generateOutlineStream(MultipartFile file, Long userId) {
@@ -592,6 +628,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param userId 用户ID
      * @return 处理结果
      */
+    /**
+     * 生成SummaryByContent。
+     */
     @Override
     public DocumentProcessVO generateSummaryByContent(DocumentProcessDTO dto, Long userId) {
         log.info("基于内容生成摘要（非流式）：userId={}, title={}", userId, dto.getTitle());
@@ -648,6 +687,9 @@ public class AiDocumentServiceImpl implements AiDocumentService {
      * @param dto    处理请求
      * @param userId 用户ID
      * @return SSE事件流
+     */
+    /**
+     * 生成SummaryByContentStream。
      */
     @Override
     public SseEmitter generateSummaryByContentStream(DocumentProcessDTO dto, Long userId) {

@@ -1,3 +1,6 @@
+/**
+ * UI 组件：Logo。
+ */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '@/stores';

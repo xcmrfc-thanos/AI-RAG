@@ -48,6 +48,9 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * embed 方法。
+     */
     @Override
     public float[] embed(String text) {
         if (text == null) {
@@ -100,6 +103,9 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * embedBatch 方法。
+     */
     @Override
     public List<float[]> embedBatch(List<String> texts) {
         if (embeddingModel == null) {

@@ -40,6 +40,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     private final ModelProvider modelProvider;
 
     /** {@inheritDoc} */
+    /**
+     * 生成。
+     */
     @Override
     public WritingResultVO generate(WritingRequestDTO dto, Long userId) {
         String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
@@ -70,6 +73,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 生成Stream。
+     */
     @Override
     public SseEmitter generateStream(WritingRequestDTO dto, Long userId) {
         final String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
@@ -88,6 +94,9 @@ public class AiWritingServiceImpl implements AiWritingService {
                 StringBuilder fullContentBuilder = new StringBuilder();
                 List<ChatMessage> messages = List.of(UserMessage.from(prompt));
                 streamingModel.generate(messages, new StreamingResponseHandler<AiMessage>() {
+                    /**
+                     * onNext 方法。
+                     */
                     @Override
                     public void onNext(String token) {
                         fullContentBuilder.append(token);
@@ -100,6 +109,9 @@ public class AiWritingServiceImpl implements AiWritingService {
                         }
                     }
 
+                    /**
+                     * onComplete 方法。
+                     */
                     @Override
                     public void onComplete(Response<AiMessage> response) {
                         try {
@@ -123,6 +135,9 @@ public class AiWritingServiceImpl implements AiWritingService {
                         }
                     }
 
+                    /**
+                     * onError 方法。
+                     */
                     @Override
                     public void onError(Throwable error) {
                         log.error("AI写作流式生成失败：model={}, error={}", modelName, error.getMessage(), error);
@@ -154,6 +169,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * expand 方法。
+     */
     @Override
     public WritingResultVO expand(WritingRequestDTO dto, Long userId) {
         String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
@@ -200,6 +218,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * optimize 方法。
+     */
     @Override
     public WritingResultVO optimize(WritingRequestDTO dto, Long userId) {
         String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
@@ -247,6 +268,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * continueWriting 方法。
+     */
     @Override
     public WritingResultVO continueWriting(WritingRequestDTO dto, Long userId) {
         String modelName = dto.getModel() != null ? dto.getModel() : modelProvider.getDefaultModelName();
@@ -295,6 +319,9 @@ public class AiWritingServiceImpl implements AiWritingService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取Templates。
+     */
     @Override
     @Cacheable(value = "writingTemplates", cacheManager = "aiCacheManager")
     public List<WritingTemplateVO> getTemplates() {

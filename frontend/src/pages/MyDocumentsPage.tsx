@@ -1,3 +1,6 @@
+/**
+ * 业务页面：MyDocumentsPage。
+ */
 import React, { useEffect, useState, useCallback } from 'react';
 import {
   Button,
@@ -77,6 +80,9 @@ interface StatCard {
   bgColor: string;
 }
 
+/**
+ * MyDocumentsPage 页面组件。
+ */
 const MyDocumentsPage: React.FC = () => {
   const { message } = App.useApp();
   const navigate = useNavigate();
@@ -209,6 +215,9 @@ const MyDocumentsPage: React.FC = () => {
     commentCount: doc.commentCount || 0,
   });
 
+  /**
+   * getCategoryIcon。
+   */
   const getCategoryIcon = (categoryName: string) => {
     const name = categoryName?.toLowerCase() || '';
     if (name.includes('技术') || name.includes('开发') || name.includes('后端') || name.includes('前端'))
@@ -224,6 +233,9 @@ const MyDocumentsPage: React.FC = () => {
     return <FolderOutlined style={{ fontSize: 16, color: COLORS.textSecondary }} />;
   };
 
+  /**
+   * getCategoryBadgeStyle。
+   */
   const getCategoryBadgeStyle = (categoryName: string) => {
     const name = categoryName.toLowerCase();
     if (name.includes('技术') || name.includes('开发')) return 'tech';
@@ -237,12 +249,18 @@ const MyDocumentsPage: React.FC = () => {
     );
   };
 
+  /**
+   * handleSelectAll。
+   */
   const handleSelectAll = (checked: boolean) => {
     setSelectedDocuments(
       checked ? documents.map(doc => doc.id) : []
     );
   };
 
+  /**
+   * handleDeleteDocument。
+   */
   const handleDeleteDocument = (documentId: string) => {
     Modal.confirm({
       title: '确认删除',
@@ -260,6 +278,9 @@ const MyDocumentsPage: React.FC = () => {
     });
   };
 
+  /**
+   * handleBatchDelete。
+   */
   const handleBatchDelete = async () => {
     if (selectedDocuments.length === 0) {
       message.warning('请先选择要删除的文档');

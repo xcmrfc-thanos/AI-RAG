@@ -1,3 +1,6 @@
+/**
+ * 功能模块：schema-flow-mapper。
+ */
 import type { Edge, Node } from '@xyflow/react';
 import type {
   FlowNodeData,

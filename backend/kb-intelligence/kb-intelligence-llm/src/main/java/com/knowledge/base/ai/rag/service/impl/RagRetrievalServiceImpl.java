@@ -40,6 +40,9 @@ public class RagRetrievalServiceImpl implements RagRetrievalService {
     private final LlmRerankService llmRerankService;
 
     /** {@inheritDoc} */
+    /**
+     * retrieve 方法。
+     */
     @Override
     public List<RagSearchResultVO> retrieve(String query, int topK, boolean enableRerank) {
         if (query != null) {

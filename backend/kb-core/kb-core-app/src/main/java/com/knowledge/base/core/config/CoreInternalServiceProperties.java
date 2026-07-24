@@ -62,11 +62,15 @@ public class CoreInternalServiceProperties {
             "/documents/page",
             "/documents/*",
             "/internal/users/*/team-ids",
-            "/internal/documents/visible-ids"
+            "/internal/documents/visible-ids",
+            "/internal/sensitive/check"
     ));
 
     /**
      * 启用时校验密钥长度，避免空密钥上线
+     */
+    /**
+     * 校验Secret。
      */
     @PostConstruct
     public void validateSecret() {

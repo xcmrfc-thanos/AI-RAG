@@ -1,3 +1,6 @@
+/**
+ * React Hook：useComplianceConfirm。
+ */
 import { Modal } from 'antd';
 import type { ModalFuncProps } from 'antd';
 import { settingsService } from '@/services';

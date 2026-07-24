@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.knowledge.base.common.exception.BusinessException;
 import com.knowledge.base.common.result.PageResult;
+import com.knowledge.base.common.sensitive.SensitiveCheckView;
+import com.knowledge.base.common.sensitive.SensitiveTextGuard;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
 import com.knowledge.base.document.dto.CommentCreateDTO;
 import com.knowledge.base.document.dto.CommentQueryDTO;
@@ -63,10 +65,19 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
     @Resource
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
 
+    @Resource
+    private SensitiveTextGuard sensitiveTextGuard;
+
+    /**
+     * 创建Comment。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createComment(CommentCreateDTO dto) {
         log.info("创建评论：documentId={}, parentId={}", dto.getDocumentId(), dto.getParentId());
+
+        SensitiveCheckView check = sensitiveTextGuard.checkAndSanitize(dto.getContent(), "comment");
+        dto.setContent(check.getFilteredText());
 
         // 检查父评论是否存在
         Long rootId = null;
@@ -140,6 +151,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return comment.getId();
     }
 
+    /**
+     * 删除Comment。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteComment(Long commentId) {
@@ -193,6 +207,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return count > 0;
     }
 
+    /**
+     * 点赞Comment。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean likeComment(Long commentId) {
@@ -237,6 +254,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return true;
     }
 
+    /**
+     * 取消点赞Comment。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean unlikeComment(Long commentId) {
@@ -272,6 +292,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
         return count > 0;
     }
 
+    /**
+     * 分页查询DocumentComments。
+     */
     @Override
     public PageResult<CommentVO> pageDocumentComments(Long documentId, CommentQueryDTO dto) {
         // 构建查询条件 - 只查询根评论
@@ -343,6 +366,9 @@ public class CommentServiceImpl extends ServiceImpl<CommentMapper, Comment> impl
                 .build();
     }
 
+    /**
+     * 获取CommentReplies。
+     */
     @Override
     public List<CommentVO> getCommentReplies(Long parentCommentId) {
         if (parentCommentId == null || parentCommentId <= 0) {

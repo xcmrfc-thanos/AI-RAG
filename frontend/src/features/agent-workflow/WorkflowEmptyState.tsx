@@ -1,3 +1,6 @@
+/**
+ * 功能模块：WorkflowEmptyState。
+ */
 import React, { memo } from 'react';
 import { Button, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -10,6 +13,9 @@ interface WorkflowEmptyStateProps {
   onApply: (key: WorkflowTemplateKey) => void;
 }
 
+/**
+ * WorkflowEmptyState 组件。
+ */
 const WorkflowEmptyState: React.FC<WorkflowEmptyStateProps> = ({ onApply }) => (
   <section className="wf-empty-state" aria-label="空画布快捷入口">
     <Title level={5}>从一个可运行流程开始</Title>

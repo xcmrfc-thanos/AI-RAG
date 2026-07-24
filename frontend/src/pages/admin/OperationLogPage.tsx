@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：OperationLogPage。
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -96,6 +99,9 @@ export const OperationLogPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pagination.current, pagination.size]);
 
+  /**
+   * fetchLogs。
+   */
   const fetchLogs = async () => {
     setLoading(true);
     try {
@@ -121,6 +127,9 @@ export const OperationLogPage: React.FC = () => {
     }
   };
 
+  /**
+   * fetchStatistics。
+   */
   const fetchStatistics = async () => {
     try {
       const stats = await foundationService.log.statistics({
@@ -150,6 +159,9 @@ export const OperationLogPage: React.FC = () => {
     setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
+  /**
+   * handleViewDetail。
+   */
   const handleViewDetail = (log: OperationLog) => {
     setSelectedLog(log);
     setIsDetailModalVisible(true);

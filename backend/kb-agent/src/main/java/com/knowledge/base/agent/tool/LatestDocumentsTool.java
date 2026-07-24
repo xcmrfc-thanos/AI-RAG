@@ -17,6 +17,9 @@ public class LatestDocumentsTool implements AgentTool {
 
     private final GatewayToolHttpClient httpClient;
 
+    /**
+     * name 方法。
+     */
     @Override
     public String name() {
         return "latest_documents";

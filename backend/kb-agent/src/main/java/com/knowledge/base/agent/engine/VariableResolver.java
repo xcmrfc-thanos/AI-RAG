@@ -72,6 +72,9 @@ public class VariableResolver {
      * @param value 原值
      * @return 展开值
      */
+    /**
+     * expandValue 方法。
+     */
     @SuppressWarnings("unchecked")
     public Object expandValue(Object value) {
         if (value == null) {

@@ -1,3 +1,6 @@
+/**
+ * 功能模块：NodePalette。
+ */
 import React, { memo, useDeferredValue, useMemo, useState } from 'react';
 import { Button, Input, Tooltip, Typography } from 'antd';
 import { LeftOutlined, RightOutlined, SearchOutlined } from '@ant-design/icons';
@@ -24,6 +27,9 @@ interface NodePaletteProps {
   onToggleCollapse?: () => void;
 }
 
+/**
+ * NodePalette 组件。
+ */
 const NodePalette: React.FC<NodePaletteProps> = ({
   onAdd,
   insertMode,

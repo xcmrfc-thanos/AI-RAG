@@ -155,6 +155,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
     /** 头像缓存，避免对同一用户重复调用HTTP */
     private final Map<Long, String> avatarCache = new ConcurrentHashMap<>();
 
+    /**
+     * 创建Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createDocument(DocumentDTO documentDTO) {
@@ -272,6 +275,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return document.getId();
     }
 
+    /**
+     * autoSaveDocument 方法。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long autoSaveDocument(AutoSaveDTO autoSaveDTO) {
@@ -471,6 +477,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         }
     }
 
+    /**
+     * 更新Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateDocument(DocumentDTO documentDTO) {
@@ -579,6 +588,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return count > 0;
     }
 
+    /**
+     * 更新Summary。
+     */
     @Override
     public Boolean updateSummary(Long documentId, String summary) {
         log.info("更新文档摘要：documentId={}", documentId);
@@ -601,6 +613,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return count > 0;
     }
 
+    /**
+     * 删除Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteDocument(Long documentId) {
@@ -674,6 +689,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return authorVO;
     }
 
+    /**
+     * 获取DocumentById。
+     */
     @Override
     public DocumentVO getDocumentById(Long documentId) {
         Document document = documentMapper.selectById(documentId);
@@ -702,6 +720,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return documentVO;
     }
 
+    /**
+     * 浏览Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public DocumentVO viewDocument(Long documentId) {
@@ -750,6 +771,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return documentVO;
     }
 
+    /**
+     * 分页查询Documents。
+     */
     @Override
     public IPage<DocumentVO> pageDocuments(Long current, Long size, Long categoryId, Long teamId, String keyword, Integer status, String sortBy, String sortOrder, Long authorId) {
         // 构建查询条件
@@ -872,6 +896,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         });
     }
 
+    /**
+     * 获取DocumentNeighbors。
+     */
     @Override
     public DocumentNeighborVO getDocumentNeighbors(Long documentId) {
         Document currentDoc = getById(documentId);
@@ -898,6 +925,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return result;
     }
 
+    /**
+     * 上传DocumentFile。
+     */
     @Override
     public String uploadDocumentFile(MultipartFile file) {
         log.info("上传文档文件到文件服务：fileName={}", file.getOriginalFilename());
@@ -1179,6 +1209,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return result;
     }
 
+    /**
+     * 点赞Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean likeDocument(Long documentId) {
@@ -1208,6 +1241,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return updated > 0;
     }
 
+    /**
+     * 取消点赞Document。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean unlikeDocument(Long documentId) {
@@ -1233,6 +1269,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return true;
     }
 
+    /**
+     * favoriteDocument 方法。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean favoriteDocument(Long documentId) {
@@ -1255,6 +1294,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return count > 0;
     }
 
+    /**
+     * publishDocument 方法。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean publishDocument(Long documentId) {
@@ -1372,6 +1414,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return true;
     }
 
+    /**
+     * archiveDocument 方法。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean archiveDocument(Long documentId) {
@@ -1399,6 +1444,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return count > 0;
     }
 
+    /**
+     * rebuildAllGraphs 方法。
+     */
     @Override
     public int rebuildAllGraphs() {
         log.info("开始批量重建知识图谱...");
@@ -1422,6 +1470,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return publishedDocs.size();
     }
 
+    /**
+     * 清理GraphGhostNodes。
+     */
     @Override
     public int cleanupGraphGhostNodes() {
         log.info("开始清理知识图谱脏节点...");
@@ -1432,7 +1483,7 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
             List<Long> validDocIds = allDocs.stream().map(Document::getId).collect(Collectors.toList());
             log.info("MySQL有效文档数量：{}", validDocIds.size());
 
-            // 2. 调用kb-graph服务清理脏节点
+            // 2. 调用 kb-intelligence 图谱接口清理脏节点
             Map<String, List<Long>> body = Map.of("validDocIds", validDocIds);
             Result<String> result = graphFeignClient.cleanupDocumentGraph(body);
             log.info("图谱脏节点清理结果：{}", result != null ? result.getData() : null);
@@ -1456,6 +1507,9 @@ public class DocumentServiceImpl extends ServiceImpl<DocumentMapper, Document> i
         return ids;
     }
 
+    /**
+     * dismissAutoSaveDrafts 方法。
+     */
     @Override
     public void dismissAutoSaveDrafts() {
         Long userId = UserContext.getCurrentUserId();

@@ -50,12 +50,14 @@ Compose 首次初始化挂载 `schema/mysql`（见 `deploy/docker-compose.yml`�
 |------|------|
 | `init_kb_user.sql` 等 | 用户/权限/文档/通知等样例 |
 | `init_kb_foundation.sql` | 系统配置种子（含 Settings 热读相关项） |
+| `init_sensitive_word.sql` | 敏感词 L1/L1.5 种子 + 菜单权限（约 80 词） |
 
 ## patch/（已有库）
 
 | 文件 | 说明 |
 |------|------|
 | `patch_settings_hotread_seeds.sql` | 幂等补齐 Settings 热读配置；导入后重启 kb-core |
+| `patch_sensitive_word_tables.sql` | 建 `kb_sensitive_word` / `regex` / `homophone`；再跑 `init_sensitive_word.sql` |
 
 ```powershell
 Get-Content ..\backend\sql\patch\patch_settings_hotread_seeds.sql -Raw |

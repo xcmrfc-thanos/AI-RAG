@@ -103,6 +103,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private SqlDialectHelper sqlDialectHelper;
 
+    /**
+     * 用户登录。
+     */
     @Override
     public LoginVO login(String username, String password) {
         log.info("用户登录：username={}", username);
@@ -204,6 +207,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 用户登出。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void logout(String token) {
@@ -251,6 +257,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 定时清理过期的黑名单Token（每小时执行一次）
      */
+    /**
+     * cleanExpiredTokens 方法。
+     */
     @Scheduled(fixedRate = 3600000)
     public void cleanExpiredTokens() {
         try {
@@ -265,6 +274,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 判断是否TokenBlacklisted。
+     */
     @Override
     public boolean isTokenBlacklisted(String rawToken) {
         if (!StringUtils.hasText(rawToken)) {
@@ -282,11 +294,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 获取ByUsername。
+     */
     @Override
     public User getByUsername(String username) {
         return userMapper.selectByUsername(username);
     }
 
+    /**
+     * 创建User。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createUser(UserDTO userDTO) {
@@ -348,6 +366,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return user.getId();
     }
 
+    /**
+     * 更新User。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateUser(UserDTO userDTO) {
@@ -395,6 +416,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 删除用户并同步 statistics 投影
      */
+    /**
+     * 删除User。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteUser(Long userId) {
@@ -411,6 +435,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return count > 0;
     }
 
+    /**
+     * 获取UserById。
+     */
     @Override
     public UserVO getUserById(Long userId) {
         User user = userMapper.selectById(userId);
@@ -421,6 +448,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return buildUserVO(user, true);
     }
 
+    /**
+     * 分页查询Users。
+     */
     @Override
     public IPage<UserVO> pageUsers(Long current, Long size, String keyword, String role, Integer status) {
         // 构建查询条件
@@ -459,6 +489,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userPage.convert(user -> buildUserVO(user, false));
     }
 
+    /**
+     * 重置Password。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean resetPassword(Long userId, String newPassword) {
@@ -480,6 +513,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return count > 0;
     }
 
+    /**
+     * 修改Password。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean changePassword(String oldPassword, String newPassword) {
@@ -510,6 +546,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return count > 0;
     }
 
+    /**
+     * 用户注册。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public RegisterVO register(RegisterDTO registerDTO) {
@@ -588,6 +627,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Long teamId = registerDTO.getTeamId();
         if (teamId != null) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                /**
+                 * afterCommit 方法。
+                 */
                 @Override
                 public void afterCommit() {
                     try {
@@ -641,6 +683,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 获取CurrentUserInfo。
+     */
     @Override
     public UserVO getCurrentUserInfo() {
         log.info("获取当前登录用户信息");
@@ -667,6 +712,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVO;
     }
 
+    /**
+     * 分配Roles。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean assignRoles(Long userId, List<Long> roleIds) {
@@ -702,6 +750,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
+    /**
+     * 获取UserRoles。
+     */
     @Override
     public List<Long> getUserRoles(Long userId) {
         log.info("获取用户角色：userId={}", userId);
@@ -717,6 +768,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         );
     }
 
+    /**
+     * 分配Permissions。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean assignPermissions(Long userId, List<Long> permissionIds) {
@@ -758,6 +812,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static final List<String> ADMIN_ROLES = List.of("ROLE_SUPER_ADMIN", "ROLE_ADMIN");
 
+    /**
+     * 获取UserPermissions。
+     */
     public List<String> getUserPermissions(Long userId) {
         log.info("获取用户权限：userId={}", userId);
 
@@ -871,6 +928,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return jdbcTemplate.queryForList(sql, Long.class, roleCodes.toArray());
     }
 
+    /**
+     * refreshToken 方法。
+     */
     @Override
     public LoginVO refreshToken(String refreshToken) {
         if (!StringUtils.hasText(refreshToken)) {
@@ -933,6 +993,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .build();
     }
 
+    /**
+     * 校验Email。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public String verifyEmail(String token) {
@@ -980,6 +1043,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final long RESET_CODE_EXPIRE_MINUTES = 10;
     private static final int RESET_CODE_LENGTH = 6;
 
+    /**
+     * 发送ResetCode。
+     */
     @Override
     public void sendResetCode(String email) {
         // 检查邮箱是否已注册
@@ -1016,6 +1082,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 校验ResetCode。
+     */
     @Override
     public boolean verifyResetCode(String email, String code) {
         String redisKey = RESET_CODE_PREFIX + email;
@@ -1032,6 +1101,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
+    /**
+     * 重置Password。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void resetPassword(String email, String code, String newPassword) {
@@ -1076,6 +1148,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return String.valueOf(code);
     }
 
+    /**
+     * 获取UserStatistics。
+     */
     @Override
     public UserStatisticsVO getUserStatistics(Long userId) {
         log.info("获取用户统计数据：userId={}", userId);
@@ -1102,6 +1177,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .build();
     }
 
+    /**
+     * 校验Token。
+     */
     @Override
     public TokenValidateVO validateToken(String authorization, String token) {
         // 优先从请求头提取Token，其次使用参数中的Token
@@ -1150,6 +1228,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 获取UserIdsByRoleCode。
+     */
     @Override
     public List<Long> getUserIdsByRoleCode(String roleCode) {
         try {

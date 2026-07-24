@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：resumable-upload。
+ */
 import type { AxiosProgressEvent } from 'axios';
 import { http } from './request';
 import { computeFileHash } from '@/utils/file-hash';

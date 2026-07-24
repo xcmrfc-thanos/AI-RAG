@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：role.service。
+ */
 import { http } from './request';
 import { Role, Permission } from '@/types';
 

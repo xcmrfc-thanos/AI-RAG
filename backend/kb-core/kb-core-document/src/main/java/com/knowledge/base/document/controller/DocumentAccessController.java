@@ -35,6 +35,9 @@ public class DocumentAccessController {
      * @param documentTitle 文档标题
      * @return 是否成功
      */
+    /**
+     * 记录Access。
+     */
     @PostMapping("/record")
     @Operation(summary = "记录文档访问", description = "记录用户访问文档的行为")
     public Result<Boolean> recordAccess(
@@ -55,6 +58,9 @@ public class DocumentAccessController {
      * @param limit 查询数量限制（默认20）
      * @return 访问记录列表
      */
+    /**
+     * 获取RecentAccess。
+     */
     @GetMapping("/recent")
     @Operation(summary = "获取最近访问记录", description = "获取当前用户最近访问的文档列表")
     public Result<List<DocumentAccessVO>> getRecentAccess(
@@ -72,6 +78,9 @@ public class DocumentAccessController {
      * @param documentId 文档ID
      * @return 是否成功
      */
+    /**
+     * 删除Access。
+     */
     @DeleteMapping("/remove/{documentId}")
     @Operation(summary = "删除访问记录", description = "删除单条访问记录")
     public Result<Boolean> deleteAccess(
@@ -87,6 +96,9 @@ public class DocumentAccessController {
      * 清空用户所有访问记录
      *
      * @return 是否成功
+     */
+    /**
+     * 清空AllAccess。
      */
     @DeleteMapping("/clear")
     @Operation(summary = "清空访问记录", description = "清空当前用户的所有访问记录")

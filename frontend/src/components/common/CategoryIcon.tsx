@@ -1,3 +1,6 @@
+/**
+ * UI 组件：CategoryIcon。
+ */
 import React from 'react';
 
 interface CategoryIconProps {

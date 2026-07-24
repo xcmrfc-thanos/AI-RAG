@@ -15,10 +15,13 @@ import com.knowledge.base.document.dto.DocumentReviewDTO;
 import com.knowledge.base.document.dto.ReviewQueryDTO;
 import com.knowledge.base.document.entity.Document;
 import com.knowledge.base.document.entity.DocumentReview;
+import com.knowledge.base.document.entity.mongodb.DocumentContent;
 import com.knowledge.base.document.mapper.DocumentMapper;
 import com.knowledge.base.document.mapper.DocumentReviewMapper;
+import com.knowledge.base.document.service.DocumentContentService;
 import com.knowledge.base.document.service.DocumentIndexingTriggerService;
 import com.knowledge.base.document.service.DocumentReviewService;
+import com.knowledge.base.common.sensitive.SensitiveTextGuard;
 import com.knowledge.base.document.utils.UserContext;
 import com.knowledge.base.document.vo.DocumentReviewVO;
 import jakarta.annotation.Resource;
@@ -85,6 +88,12 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
     private CoreStatisticsProjectionPublisher coreStatisticsProjectionPublisher;
 
     @Resource
+    private SensitiveTextGuard sensitiveTextGuard;
+
+    @Resource
+    private DocumentContentService documentContentService;
+
+    @Resource
     private SqlDialectHelper sqlDialectHelper;
 
     private static final String REVIEW_EXCHANGE = "kb.notification.exchange";
@@ -94,6 +103,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         return "notification.review." + instanceIdentifier.getId() + "." + eventType;
     }
 
+    /**
+     * 提交ForReview。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean submitForReview(Long documentId) {
@@ -108,6 +120,8 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         if (document == null) {
             throw new BusinessException("文档不存在");
         }
+
+        assertDocumentContentAllowed(document);
 
         // 检查系统配置：如果关闭了文档审核，直接发布文档
         if (!checkRequireApproval()) {
@@ -178,6 +192,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         return true;
     }
 
+    /**
+     * 通过审核Review。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean approveReview(DocumentReviewDTO dto) {
@@ -255,6 +272,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         return true;
     }
 
+    /**
+     * 驳回审核Review。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean rejectReview(DocumentReviewDTO dto) {
@@ -382,6 +402,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         }
     }
 
+    /**
+     * 获取PendingReviews。
+     */
     @Override
     public PageResult<DocumentReviewVO> getPendingReviews(ReviewQueryDTO dto) {
         // 自动修复：为状态是 PENDING_REVIEW 但缺少待审核记录的文档补建审核记录
@@ -439,6 +462,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
                 .build();
     }
 
+    /**
+     * 获取CurrentReviewTask。
+     */
     @Override
     public DocumentReviewVO getCurrentReviewTask(Long documentId) {
         if (documentId == null) {
@@ -453,6 +479,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         return buildReviewVO(review);
     }
 
+    /**
+     * 获取DocumentReviewHistory。
+     */
     @Override
     public List<DocumentReviewVO> getDocumentReviewHistory(Long documentId) {
         if (documentId == null) {
@@ -470,6 +499,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取PendingCount。
+     */
     @Override
     public Long getPendingCount() {
         LambdaQueryWrapper<DocumentReview> wrapper = new LambdaQueryWrapper<>();
@@ -489,6 +521,9 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
         return stats;
     }
 
+    /**
+     * 批量Review。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void batchReview(List<Long> taskIds, String status, String comment) {
@@ -555,6 +590,30 @@ public class DocumentReviewServiceImpl extends ServiceImpl<DocumentReviewMapper,
     /**
      * 检查系统配置：是否需要文档审核
      */
+    /**
+     * 送审/发布前校验标题与正文敏感词。
+     *
+     * @param document 文档元数据
+     */
+    private void assertDocumentContentAllowed(Document document) {
+        StringBuilder sb = new StringBuilder();
+        if (StringUtils.hasText(document.getTitle())) {
+            sb.append(document.getTitle()).append('\n');
+        }
+        if (StringUtils.hasText(document.getSummary())) {
+            sb.append(document.getSummary()).append('\n');
+        }
+        try {
+            DocumentContent content = documentContentService.getContentByDocumentId(document.getId());
+            if (content != null && StringUtils.hasText(content.getContent())) {
+                sb.append(content.getContent());
+            }
+        } catch (Exception e) {
+            log.warn("读取文档正文失败，仅校验标题摘要：documentId={}, err={}", document.getId(), e.getMessage());
+        }
+        sensitiveTextGuard.assertAllowed(sb.toString(), "document.publish");
+    }
+
     private boolean checkRequireApproval() {
         String value = systemConfigCache.getConfig("system.requireApproval");
         return !"false".equals(value);

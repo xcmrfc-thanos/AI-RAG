@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：graph.service。
+ */
 import { http } from './request';
 import { GraphNode, GraphEdge, GraphData, GraphPathResult } from '@/types';
 

@@ -2,6 +2,7 @@ package com.knowledge.base.ai.controller;
 
 import com.knowledge.base.ai.dto.ChatRequestDTO;
 import com.knowledge.base.ai.rag.service.RagChatService;
+import com.knowledge.base.ai.service.AiSensitiveGuard;
 import com.knowledge.base.ai.vo.ChatResponseVO;
 import com.knowledge.base.common.result.Result;
 import com.knowledge.base.common.utils.UserContextUtil;
@@ -30,6 +31,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 public class RagChatController {
 
     private final RagChatService ragChatService;
+    private final AiSensitiveGuard aiSensitiveGuard;
 
     /**
      * RAG对话（同步）
@@ -38,12 +40,16 @@ public class RagChatController {
      * @param request    HTTP请求
      * @return 对话响应（含引用来源）
      */
+    /**
+     * chat 方法。
+     */
     @PostMapping
     @Operation(summary = "RAG对话", description = "基于知识库检索增强的AI对话")
     public Result<ChatResponseVO> chat(@Valid @RequestBody ChatRequestDTO requestDTO,
                                         HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
         log.info("RAG对话请求：userId={}, contentLength={}", userId, requestDTO.getContent().length());
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.rag");
         ChatResponseVO response = ragChatService.chatWithContext(requestDTO, userId);
         return Result.success(response);
     }
@@ -55,12 +61,16 @@ public class RagChatController {
      * @param request    HTTP请求
      * @return SSE事件流
      */
+    /**
+     * chatStream 方法。
+     */
     @PostMapping("/stream")
     @Operation(summary = "RAG流式对话", description = "基于知识库检索增强的AI流式对话")
     public SseEmitter chatStream(@Valid @RequestBody ChatRequestDTO requestDTO,
                                   HttpServletRequest request) {
         Long userId = UserContextUtil.getUserIdFromHeader(request);
         log.info("RAG流式对话请求：userId={}, contentLength={}", userId, requestDTO.getContent().length());
+        aiSensitiveGuard.assertUserInputAllowed(requestDTO.getContent(), "ai.rag");
         return ragChatService.chatWithContextStream(requestDTO, userId);
     }
 

@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：favorite.store。
+ */
 import { create } from 'zustand';
 import { favoriteService } from '@/services/favorite.service';
 

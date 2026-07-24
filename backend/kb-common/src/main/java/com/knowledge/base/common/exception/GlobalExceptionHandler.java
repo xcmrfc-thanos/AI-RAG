@@ -42,6 +42,9 @@ public class GlobalExceptionHandler {
     /**
      * 统一异常处理入口
      */
+    /**
+     * handleException 方法。
+     */
     @ExceptionHandler(Throwable.class)
     public Object handleException(Throwable e) {
         String requestInfo = getRequestInfo();

@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：AgentAdminPage。
+ */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -68,6 +71,9 @@ const AgentAdminPage: React.FC = () => {
     }
   }, [draftJson]);
 
+  /**
+   * refresh。
+   */
   const refresh = useCallback(async () => {
     try {
       const rows = await agentService.listMyWorkflows();
@@ -83,6 +89,9 @@ const AgentAdminPage: React.FC = () => {
     return () => cancelAnimationFrame(frameId);
   }, [gate, refresh]);
 
+  /**
+   * selectWorkflow。
+   */
   const selectWorkflow = async (id: number) => {
     setSelectedId(id);
     setBusy(true);
@@ -98,6 +107,9 @@ const AgentAdminPage: React.FC = () => {
     }
   };
 
+  /**
+   * createWorkflow。
+   */
   const createWorkflow = async () => {
     setBusy(true);
     try {
@@ -112,6 +124,9 @@ const AgentAdminPage: React.FC = () => {
     }
   };
 
+  /**
+   * saveDraft。
+   */
   const saveDraft = async (silent = false) => {
     if (!selectedId) {
       if (!silent) message.warning('请先创建或选择工作流');
@@ -123,6 +138,9 @@ const AgentAdminPage: React.FC = () => {
     return true;
   };
 
+  /**
+   * runAction。
+   */
   const runAction = async (action: 'save' | 'validate' | 'publish') => {
     setBusy(true);
     try {
@@ -145,6 +163,9 @@ const AgentAdminPage: React.FC = () => {
     }
   };
 
+  /**
+   * runDraft。
+   */
   const runDraft = async (input: Record<string, unknown>) => {
     if (!selectedId) {
       message.warning('请先创建或选择工作流');
@@ -168,9 +189,15 @@ const AgentAdminPage: React.FC = () => {
     }
   };
 
+  /**
+   * applyTemplate。
+   */
   const applyTemplate = (key: WorkflowTemplateKey) => {
     const template = WORKFLOW_TEMPLATES.find((item) => item.key === key);
     if (!template) return;
+    /**
+     * replace。
+     */
     const replace = () => {
       setName(template.title);
       updateDraft(createWorkflowTemplateJson(key));

@@ -24,16 +24,25 @@ public class RabbitMQConfig {
     @Resource
     private InstanceIdentifier instanceIdentifier;
 
+    /**
+     * transcodeExchange 方法。
+     */
     @Bean
     public DirectExchange transcodeExchange() {
         return new DirectExchange(TRANSCODE_EXCHANGE, true, false);
     }
 
+    /**
+     * transcodeQueue 方法。
+     */
     @Bean
     public Queue transcodeQueue() {
         return new Queue("transcode.queue." + instanceIdentifier.getId(), true, false, false);
     }
 
+    /**
+     * transcodeBinding 方法。
+     */
     @Bean
     public Binding transcodeBinding() {
         return BindingBuilder.bind(transcodeQueue())

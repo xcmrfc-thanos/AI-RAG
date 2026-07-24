@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：document.store。
+ */
 import { create } from 'zustand';
 import { Document, DocumentFilter } from '@/types';
 import { documentService } from '@/services';

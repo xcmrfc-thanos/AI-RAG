@@ -19,10 +19,16 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class FileServiceFallbackFactory implements FallbackFactory<FileServiceFeignClient> {
 
+    /**
+     * 创建。
+     */
     @Override
     public FileServiceFeignClient create(Throwable cause) {
         log.error("文件服务 Feign 调用失败，触发降级：{}", cause.getMessage());
         return new FileServiceFeignClient() {
+            /**
+             * 上传File。
+             */
             @Override
             public Result<FileUploadResponse> uploadFile(MultipartFile file, String fileType,
                                                           Integer accessLevel, Long teamId) {
@@ -30,12 +36,18 @@ public class FileServiceFallbackFactory implements FallbackFactory<FileServiceFe
                 return null;
             }
 
+            /**
+             * 转换ImageUrl。
+             */
             @Override
             public Result<FileUploadResponse> convertImageUrl(String imageUrl) {
                 log.warn("Feign 降级：URL 转换回退，imageUrl={}", imageUrl);
                 return null;
             }
 
+            /**
+             * 检测Hash。
+             */
             @Override
             public Result<FileUploadResponse> checkHash(String fileHash) {
                 log.warn("Feign 降级：check-hash 回退，fileHash={}", fileHash);

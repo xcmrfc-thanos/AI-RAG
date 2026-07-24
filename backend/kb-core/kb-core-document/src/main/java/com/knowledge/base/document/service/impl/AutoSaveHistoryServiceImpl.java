@@ -34,6 +34,9 @@ public class AutoSaveHistoryServiceImpl implements AutoSaveHistoryService {
     @Resource
     private AutoSaveHistoryRepository autoSaveHistoryRepository;
 
+    /**
+     * 保存Snapshot。
+     */
     @Override
     public void saveSnapshot(Long documentId, String title, String content, Long authorId) {
         if (content == null || content.isBlank()) {
@@ -63,6 +66,9 @@ public class AutoSaveHistoryServiceImpl implements AutoSaveHistoryService {
         }
     }
 
+    /**
+     * 分页查询History。
+     */
     @Override
     public IPage<AutoSaveHistoryVO> pageHistory(AutoSaveHistoryQueryDTO query) {
         long current = query.getCurrent() != null ? query.getCurrent() : 1L;
@@ -91,6 +97,9 @@ public class AutoSaveHistoryServiceImpl implements AutoSaveHistoryService {
         return result;
     }
 
+    /**
+     * 获取Snapshot。
+     */
     @Override
     public AutoSaveHistoryVO getSnapshot(String snapshotId, Long documentId) {
         Optional<AutoSaveHistory> opt = autoSaveHistoryRepository.findById(snapshotId);
@@ -112,6 +121,9 @@ public class AutoSaveHistoryServiceImpl implements AutoSaveHistoryService {
         return vo;
     }
 
+    /**
+     * 删除ByDocumentId。
+     */
     @Override
     public void deleteByDocumentId(Long documentId) {
         try {

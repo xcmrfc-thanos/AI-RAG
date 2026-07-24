@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：RolesPage。
+ */
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -78,6 +81,9 @@ export const RolesPage: React.FC = () => {
     [permissions]
   );
 
+  /**
+   * fetchPageData。
+   */
   const fetchPageData = async () => {
     setLoading(true);
     try {
@@ -141,6 +147,9 @@ export const RolesPage: React.FC = () => {
     width: '100%',
   };
 
+  /**
+   * handleAdd。
+   */
   const handleAdd = () => {
     setEditingRole(null);
     form.resetFields();
@@ -148,6 +157,9 @@ export const RolesPage: React.FC = () => {
     setIsModalVisible(true);
   };
 
+  /**
+   * handleEdit。
+   */
   const handleEdit = async (role: Role) => {
     setEditingRole(role);
     setSaving(true);
@@ -169,6 +181,9 @@ export const RolesPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleDelete。
+   */
   const handleDelete = (role: Role) => {
     if ((Number(role.userCount) || 0) > 0) {
       message.warning('该角色已分配给用户，请先解除用户关联后再删除');
@@ -191,6 +206,9 @@ export const RolesPage: React.FC = () => {
     });
   };
 
+  /**
+   * handleModalOk。
+   */
   const handleModalOk = async () => {
     try {
       const values = await form.validateFields();

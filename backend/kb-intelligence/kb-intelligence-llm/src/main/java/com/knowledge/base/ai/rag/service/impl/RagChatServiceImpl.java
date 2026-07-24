@@ -73,6 +73,9 @@ public class RagChatServiceImpl implements RagChatService {
     private ThreadPoolTaskExecutor ragTaskExecutor;
 
     /** {@inheritDoc} */
+    /**
+     * chatWithContext 方法。
+     */
     @Override
     public ChatResponseVO chatWithContext(ChatRequestDTO requestDTO, Long userId) {
         if (requestDTO != null && requestDTO.getContent() != null) {
@@ -135,6 +138,9 @@ public class RagChatServiceImpl implements RagChatService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * chatWithContextStream 方法。
+     */
     @Override
     public SseEmitter chatWithContextStream(ChatRequestDTO requestDTO, Long userId) {
         if (requestDTO != null && requestDTO.getContent() != null) {
@@ -173,6 +179,9 @@ public class RagChatServiceImpl implements RagChatService {
                     StringBuilder fullResponseBuilder = new StringBuilder();
 
                     streamingModel.generate(chatMessages, new StreamingResponseHandler<AiMessage>() {
+                        /**
+                         * onNext 方法。
+                         */
                         @Override
                         public void onNext(String token) {
                             fullResponseBuilder.append(token);
@@ -185,6 +194,9 @@ public class RagChatServiceImpl implements RagChatService {
                             }
                         }
 
+                        /**
+                         * onComplete 方法。
+                         */
                         @Override
                         public void onComplete(Response<AiMessage> response) {
                             try {
@@ -220,6 +232,9 @@ public class RagChatServiceImpl implements RagChatService {
                             }
                         }
 
+                        /**
+                         * onError 方法。
+                         */
                         @Override
                         public void onError(Throwable error) {
                             log.error("RAG流式对话失败：{}", error.getMessage(), error);

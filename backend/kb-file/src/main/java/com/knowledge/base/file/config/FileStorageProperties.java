@@ -56,6 +56,9 @@ public class FileStorageProperties {
     /**
      * 归一化存储类型并合并旧 rustfs 配置
      */
+    /**
+     * 归一化。
+     */
     @PostConstruct
     public void normalize() {
         if ("rustfs".equalsIgnoreCase(type)) {

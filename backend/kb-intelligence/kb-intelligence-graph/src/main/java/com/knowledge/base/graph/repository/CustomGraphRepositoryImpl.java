@@ -28,6 +28,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
 
     private final Neo4jClient neo4jClient;
 
+    /**
+     * 查找ShortestPaths。
+     */
     @Override
     @SuppressWarnings("unchecked")
     public List<GraphPathResultDTO> findShortestPaths(String source, String target, int maxDepth) {
@@ -68,6 +71,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .toList();
     }
 
+    /**
+     * 遍历FromEntity。
+     */
     @Override
     @SuppressWarnings("unchecked")
     public List<TraverseResultDTO> traverseFromEntity(String entityName, int maxHops, int limit) {
@@ -101,6 +107,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .toList();
     }
 
+    /**
+     * 获取GraphStatistics。
+     */
     @Override
     public GraphStatsDTO getGraphStatistics() {
         // 节点总数 - fetchAs + mappedBy 提供原生 Record
@@ -144,6 +153,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .build();
     }
 
+    /**
+     * 检测Communities。
+     */
     @Override
     public List<CommunityMemberDTO> detectCommunities(int minCommunitySize) {
         String cypher = """
@@ -168,6 +180,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .toList();
     }
 
+    /**
+     * 搜索Subgraph。
+     */
     @Override
     @SuppressWarnings("unchecked")
     public SubgraphResultDTO searchSubgraph(String keyword, int maxNodes) {
@@ -214,6 +229,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .build();
     }
 
+    /**
+     * 合并Entities。
+     */
     @Override
     public void mergeEntities(List<EntityMergeDTO> entities) {
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -237,6 +255,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
         log.debug("Merged {} entities into Neo4j", entities.size());
     }
 
+    /**
+     * 合并Relations。
+     */
     @Override
     public void mergeRelations(List<RelationMergeDTO> relations) {
         for (RelationMergeDTO rel : relations) {
@@ -256,6 +277,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
         log.debug("Merged {} relations into Neo4j", relations.size());
     }
 
+    /**
+     * 关联ChunksToEntities。
+     */
     @Override
     public void connectChunksToEntities(List<ChunkEntityMappingDTO> chunkEntityMappings) {
         for (ChunkEntityMappingDTO mapping : chunkEntityMappings) {
@@ -274,6 +298,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
         log.debug("Connected {} chunks to entities", chunkEntityMappings.size());
     }
 
+    /**
+     * 创建DocumentNode。
+     */
     @Override
     public void createDocumentNode(DocumentPropsDTO props) {
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -297,6 +324,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .run();
     }
 
+    /**
+     * 创建ChunkNode。
+     */
     @Override
     public void createChunkNode(ChunkPropsDTO props) {
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -318,6 +348,9 @@ public class CustomGraphRepositoryImpl implements CustomGraphRepository {
                 .run();
     }
 
+    /**
+     * 创建HasChunkRelation。
+     */
     @Override
     public void createHasChunkRelation(Long docId, String chunkId, int chunkIndex) {
         neo4jClient.query("""

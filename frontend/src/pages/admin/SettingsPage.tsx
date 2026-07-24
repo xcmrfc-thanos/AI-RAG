@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：SettingsPage。
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card,
@@ -108,6 +111,9 @@ const RERANK_PROVIDER_OPTIONS = [
  * 由旧向量库+旁路推导部署形态。
  */
 function profileFromLegacy(vectorStore?: string, qdrantEnabled?: boolean): string {
+  /**
+   * vs。
+   */
   const vs = (vectorStore || 'elasticsearch').toLowerCase();
   if (vs === 'milvus') return 'milvus-milvus';
   if (vs === 'qdrant') return 'qdrant-qdrant';
@@ -486,7 +492,13 @@ export const SettingsPage: React.FC = () => {
   };
   const handleSaveGraph    = () => { graphForm.validateFields().then(v => handleSave('graph', v)); };
   const handleSaveAgent    = () => { agentForm.validateFields().then(v => handleSave('agent', v)); };
+  /**
+   * handleSaveCompliance。
+   */
   const handleSaveCompliance = () => { complianceForm.validateFields().then(v => handleSave('compliance', v)); };
+  /**
+   * handleSaveIntegration。
+   */
   const handleSaveIntegration = () => { integrationForm.validateFields().then(v => handleSave('integration', v)); };
 
   /**
@@ -504,6 +516,9 @@ export const SettingsPage: React.FC = () => {
       }
       setReindexTaskId(taskId);
       message.success(`全量重建已提交，任务ID：${taskId}`);
+      /**
+       * poll。
+       */
       const poll = async () => {
         try {
           const p = await aiService.getReindexProgress(taskId);
@@ -581,6 +596,9 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleBackup。
+   */
   const handleBackup = async () => {
     try {
       const result = await settingsService.createBackup();
@@ -590,6 +608,9 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handleTestEmail。
+   */
   const handleTestEmail = async () => {
     try {
       const email = notifForm.getFieldValue('emailTestAddress');

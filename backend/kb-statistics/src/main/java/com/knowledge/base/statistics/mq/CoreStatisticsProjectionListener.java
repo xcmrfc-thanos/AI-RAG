@@ -33,6 +33,9 @@ public class CoreStatisticsProjectionListener {
     /**
      * 消费 Core 投影事件并写入本地宽表
      */
+    /**
+     * handleProjectionEvent 方法。
+     */
     @RabbitListener(queues = "#{@statisticsProjectionQueue.name}")
     public void handleProjectionEvent(CoreStatisticsProjectionEventDTO event) {
         if (event == null || event.getEventType() == null) {

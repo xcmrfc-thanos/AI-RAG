@@ -40,6 +40,9 @@ public class DocumentReviewController {
     /**
      * 提交审核
      */
+    /**
+     * 提交ForReview。
+     */
     @PostMapping("/submit/{documentId}")
     @Operation(summary = "提交文档审核", description = "提交文档进行审核")
     @OperationLog(module = "文档审核", operation = "提交审核", description = "提交文档审核")
@@ -51,6 +54,9 @@ public class DocumentReviewController {
 
     /**
      * 获取审核任务列表（支持按状态筛选）
+     */
+    /**
+     * 获取ReviewTasks。
      */
     @GetMapping("/tasks")
     @Operation(summary = "获取审核任务列表", description = "分页查询审核任务，支持按状态筛选。审核员可查看全部，普通用户通过authorId参数查看自己的")
@@ -81,6 +87,9 @@ public class DocumentReviewController {
     /**
      * 获取文档当前审核任务
      */
+    /**
+     * 获取CurrentReviewTask。
+     */
     @GetMapping("/documents/{documentId}/current")
     @Operation(summary = "获取文档当前审核任务", description = "获取文档最新一条审核任务，用于独立审核页")
     @PreAuthorize("hasAnyAuthority(T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_EDIT, T(com.knowledge.base.document.constants.DocumentPermissionConstants).DOCUMENT_REVIEW)")
@@ -90,6 +99,9 @@ public class DocumentReviewController {
 
     /**
      * 获取待审核任务数量
+     */
+    /**
+     * 获取PendingCount。
      */
     @GetMapping("/tasks/pending-count")
     @Operation(summary = "获取待审核任务数量", description = "获取当前待审核的文档数量")
@@ -112,6 +124,9 @@ public class DocumentReviewController {
 
     /**
      * 单条审核（通过或驳回）
+     */
+    /**
+     * reviewDocument 方法。
      */
     @PostMapping("/tasks/{taskId}/review")
     @Operation(summary = "审核文档", description = "对文档进行审核（通过或驳回）")
@@ -140,6 +155,9 @@ public class DocumentReviewController {
     /**
      * 批量审核（通过或驳回）
      */
+    /**
+     * 批量Review。
+     */
     @PostMapping("/tasks/batch-review")
     @Operation(summary = "批量审核", description = "批量对文档进行审核（通过或驳回）")
     @OperationLog(module = "文档审核", operation = "批量审核", description = "批量审核文档")
@@ -151,6 +169,9 @@ public class DocumentReviewController {
 
     /**
      * 获取文档审核历史
+     */
+    /**
+     * 获取DocumentReviewHistory。
      */
     @GetMapping("/documents/{documentId}/history")
     @Operation(summary = "获取审核历史", description = "获取文档的审核历史")

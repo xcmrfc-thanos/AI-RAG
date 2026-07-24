@@ -36,6 +36,9 @@ public class KAGReindexConsumer {
     /**
      * 消费 KAG 图谱构建消息并在 graph 线程池执行。
      */
+    /**
+     * handleBuild 方法。
+     */
     @RabbitListener(queues = "#{@kagGraphBuildQueue.name}", ackMode = "MANUAL")
     public void handleBuild(@Payload KAGReindexMessage message, Channel channel,
                             @Header(AmqpHeaders.DELIVERY_TAG) long deliveryTag) {

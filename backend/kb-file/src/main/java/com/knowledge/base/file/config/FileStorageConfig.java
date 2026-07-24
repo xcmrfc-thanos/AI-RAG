@@ -28,6 +28,9 @@ public class FileStorageConfig {
     /**
      * 初始化时创建上传目录
      */
+    /**
+     * 初始化。
+     */
     @PostConstruct
     public void init() {
         try {

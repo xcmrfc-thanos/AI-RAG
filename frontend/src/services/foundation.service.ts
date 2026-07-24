@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：foundation.service。
+ */
 import { http } from './request';
 import { EntityId, PageResponse } from '@/types';
 
@@ -396,6 +399,153 @@ export const deleteDictData = (code: string, id: EntityId) => {
   return http.delete<boolean>(`/dicts/${code}/data/${id}`);
 };
 
+// ==================== 敏感词 ====================
+
+export interface SensitiveWord {
+  /** 主键 */
+  id?: number | string;
+  /** 词条原文 */
+  word: string;
+  /** 分类 */
+  category?: string;
+  /** 策略 block/replace/audit */
+  action?: string;
+  /** 替换文本 */
+  replaceTo?: string;
+  /** 是否启用 0/1 */
+  enabled?: number;
+  /** 备注 */
+  remark?: string;
+  /** 更新时间 */
+  updatedAt?: string;
+}
+
+export interface SensitiveRegex {
+  /** 主键 */
+  id?: number | string;
+  /** 规则名称 */
+  name: string;
+  /** Java 正则 */
+  pattern: string;
+  /** 分类 */
+  category?: string;
+  /** 策略 */
+  action?: string;
+  /** 替换文本 */
+  replaceTo?: string;
+  /** 是否启用 */
+  enabled?: number;
+  /** 备注 */
+  remark?: string;
+}
+
+export interface SensitiveHomophone {
+  /** 主键 */
+  id?: number | string;
+  /** 源 */
+  src: string;
+  /** 目标 */
+  dst: string;
+  /** 是否启用 */
+  enabled?: number;
+  /** 备注 */
+  remark?: string;
+}
+
+export interface SensitiveCheckResult {
+  /** 是否应拦截 */
+  blocked: boolean;
+  /** 是否有命中 */
+  hit: boolean;
+  /** 替换后文本 */
+  filteredText: string;
+  /** 命中明细 */
+  hits: Array<{
+    type: string;
+    word: string;
+    category: string;
+    action: string;
+    start: number;
+    end: number;
+  }>;
+}
+
+/** 分页查询敏感词（兼容 MyBatis IPage.records） */
+export const listSensitiveWords = async (params?: {
+  current?: number;
+  size?: number;
+  keyword?: string;
+  category?: string;
+  enabled?: number;
+}): Promise<PageResponse<SensitiveWord>> => {
+  const data = await http.get<{
+    records?: SensitiveWord[];
+    list?: SensitiveWord[];
+    total?: number;
+    current?: number;
+    size?: number;
+  }>('/sensitive-words', { params });
+  const list = data?.list ?? data?.records ?? [];
+  const total = data?.total ?? 0;
+  const page = data?.current ?? params?.current ?? 1;
+  const pageSize = data?.size ?? params?.size ?? 20;
+  return {
+    list,
+    total,
+    page,
+    pageSize,
+    totalPages: pageSize > 0 ? Math.ceil(total / pageSize) : 0,
+  };
+};
+
+/** 新增敏感词 */
+export const createSensitiveWord = (data: SensitiveWord) =>
+  http.post<boolean>('/sensitive-words', data);
+
+/** 更新敏感词 */
+export const updateSensitiveWord = (id: EntityId, data: SensitiveWord) =>
+  http.put<boolean>(`/sensitive-words/${id}`, data);
+
+/** 删除敏感词 */
+export const deleteSensitiveWord = (id: EntityId) =>
+  http.delete<boolean>(`/sensitive-words/${id}`);
+
+/** 批量导入 */
+export const importSensitiveWords = (data: { text: string; category?: string; action?: string }) =>
+  http.post<{ imported: number }>('/sensitive-words/import', data);
+
+/** 试检测 */
+export const checkSensitiveText = (text: string) =>
+  http.post<SensitiveCheckResult>('/sensitive-words/check', { text });
+
+/** 重载引擎 */
+export const reloadSensitiveEngine = () =>
+  http.post<boolean>('/sensitive-words/reload');
+
+/** 正则列表 */
+export const listSensitiveRegex = () =>
+  http.get<SensitiveRegex[]>('/sensitive-words/regex');
+
+/** 保存正则 */
+export const saveSensitiveRegex = (data: SensitiveRegex) =>
+  http.post<boolean>('/sensitive-words/regex', data);
+
+/** 删除正则 */
+export const deleteSensitiveRegex = (id: EntityId) =>
+  http.delete<boolean>(`/sensitive-words/regex/${id}`);
+
+/** 谐音列表 */
+export const listSensitiveHomophones = () =>
+  http.get<SensitiveHomophone[]>('/sensitive-words/homophones');
+
+/** 保存谐音 */
+export const saveSensitiveHomophone = (data: SensitiveHomophone) =>
+  http.post<boolean>('/sensitive-words/homophones', data);
+
+/** 删除谐音 */
+export const deleteSensitiveHomophone = (id: EntityId) =>
+  http.delete<boolean>(`/sensitive-words/homophones/${id}`);
+
 // ==================== 通知模板相关类型 ====================
 
 export interface NotificationTemplate {
@@ -529,6 +679,23 @@ export const foundationService = {
     addData: addDictData,
     updateData: updateDictData,
     deleteData: deleteDictData,
+  },
+
+  // 敏感词（L1/L1.5）
+  sensitive: {
+    list: listSensitiveWords,
+    create: createSensitiveWord,
+    update: updateSensitiveWord,
+    delete: deleteSensitiveWord,
+    import: importSensitiveWords,
+    check: checkSensitiveText,
+    reload: reloadSensitiveEngine,
+    listRegex: listSensitiveRegex,
+    saveRegex: saveSensitiveRegex,
+    deleteRegex: deleteSensitiveRegex,
+    listHomophones: listSensitiveHomophones,
+    saveHomophone: saveSensitiveHomophone,
+    deleteHomophone: deleteSensitiveHomophone,
   },
 };
 

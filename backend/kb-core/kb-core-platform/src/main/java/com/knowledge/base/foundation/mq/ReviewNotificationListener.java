@@ -45,6 +45,9 @@ public class ReviewNotificationListener {
     @Resource
     private SystemConfigCache systemConfigCache;
 
+    /**
+     * handleReviewEvent 方法。
+     */
     @RabbitListener(queues = "#{@reviewNotificationQueue.name}")
     public void handleReviewEvent(ReviewEventDTO event) {
         if (event == null || event.getEventType() == null) {

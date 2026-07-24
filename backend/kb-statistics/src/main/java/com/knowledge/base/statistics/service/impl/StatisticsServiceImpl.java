@@ -162,6 +162,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 数据概览 ========================
 
+    /**
+     * 获取Overview。
+     */
     @Override
     public OverviewVO getOverview() {
         return overviewCache.get("overview");
@@ -196,6 +199,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 文档趋势 ========================
 
+    /**
+     * 获取DocumentTrend。
+     */
     @Override
     @Cacheable(value = CACHE_DOC_TREND, key = "#startDate + '_' + #endDate + '_' + #type",
             unless = "#result == null || #result.isEmpty()")
@@ -264,6 +270,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 用户活跃度 ========================
 
+    /**
+     * 获取UserActivity。
+     */
     @Override
     @Cacheable(value = CACHE_USER_ACTIVITY,
             key = "#startDate + '_' + #endDate",
@@ -353,6 +362,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 分类分布（P0：Mock → 真实查询） ========================
 
+    /**
+     * 获取CategoryDistribution。
+     */
     @Override
     @Cacheable(value = CACHE_CATEGORY_DIST, key = "'distribution'",
             unless = "#result == null || #result.isEmpty()")
@@ -404,6 +416,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 热门文档（P0：Mock → 真实查询） ========================
 
+    /**
+     * 获取HotDocuments。
+     */
     @Override
     public List<HotDocumentVO> getHotDocuments(String type, Integer size) {
         log.debug("查询热门文档：type={}, size={}", type, size);
@@ -585,6 +600,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 最新文档（定时任务预计算 + 多层缓存） ========================
 
+    /**
+     * 获取LatestDocuments。
+     */
     @Override
     public List<HotDocumentVO> getLatestDocuments(Integer size) {
         int limit = Math.min(size != null ? size : 6, MAX_LIMIT);
@@ -659,6 +677,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 活跃用户（P0：Mock → 真实查询） ========================
 
+    /**
+     * 获取ActiveUsers。
+     */
     @Override
     @Cacheable(value = CACHE_ACTIVE_USERS, key = "#type + '_' + #size",
             unless = "#result == null || #result.isEmpty()")
@@ -740,6 +761,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 管理后台概览 ========================
 
+    /**
+     * 获取AdminOverview。
+     */
     @Override
     @Cacheable(value = CACHE_ADMIN_OVERVIEW, key = "'adminOverview'", unless = "#result == null")
     public AdminOverviewVO getAdminOverview() {
@@ -765,6 +789,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // ======================== 仪表盘数据 ========================
 
+    /**
+     * 获取DashboardData。
+     */
     @Override
     @Cacheable(value = CACHE_DASHBOARD, key = "'dashboard'", unless = "#result == null")
     public DashboardVO getDashboardData() {

@@ -51,6 +51,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     /**
      * 清理信任头 → 白名单放行 / JWT 强制 401 → 注入可信用户头
      */
+    /**
+     * filter 方法。
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest cleanedRequest = stripTrustHeaders(exchange.getRequest());
@@ -149,6 +152,9 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
         return null;
     }
 
+    /**
+     * 获取Order。
+     */
     @Override
     public int getOrder() {
         return -200;

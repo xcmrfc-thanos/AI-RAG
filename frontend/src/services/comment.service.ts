@@ -1,3 +1,6 @@
+/**
+ * 前端 API 服务：comment.service。
+ */
 import { http } from './request';
 import { Comment } from '@/types';
 

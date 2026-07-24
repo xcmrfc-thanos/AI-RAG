@@ -1,3 +1,6 @@
+/**
+ * 管理后台页面：ReviewPage。
+ */
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import {
   Card, Button, Space, Tag, Typography, Row, Col,
@@ -71,6 +74,9 @@ export const ReviewPage: React.FC = () => {
   const [authorFilter, setAuthorFilter] = useState<string | undefined>(undefined);
   const [categoryFilter, setCategoryFilter] = useState<string | undefined>(undefined);
 
+  /**
+   * loadData。
+   */
   const loadData = useCallback(async (status: string) => {
     setLoading(true);
     try {
@@ -114,6 +120,9 @@ export const ReviewPage: React.FC = () => {
     setRejectModalOpen(true);
   };
 
+  /**
+   * handleRejectConfirm。
+   */
   const handleRejectConfirm = async () => {
     if (!rejectTask) return;
     if (!rejectComment.trim()) {
@@ -158,6 +167,9 @@ export const ReviewPage: React.FC = () => {
       if (searchText) {
         const keyword = searchText.toLowerCase();
         const matchTitle = t.documentTitle.toLowerCase().includes(keyword);
+        /**
+         * matchAuthor。
+         */
         const matchAuthor = (t.documentAuthor?.username || '').toLowerCase().includes(keyword);
         if (!matchTitle && !matchAuthor) return false;
       }

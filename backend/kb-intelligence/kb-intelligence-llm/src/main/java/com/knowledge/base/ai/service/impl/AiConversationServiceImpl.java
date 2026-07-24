@@ -44,6 +44,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
     @Resource
     private AiStatisticsEventPublisher aiStatisticsEventPublisher;
 
+    /**
+     * 创建Conversation。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createConversation(ChatRequestDTO requestDTO, Long userId) {
@@ -78,6 +81,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取Conversation。
+     */
     @Override
     public ConversationVO getConversation(Long conversationId, Long userId) {
         log.info("获取对话详情：conversationId={}, userId={}", conversationId, userId);
@@ -110,6 +116,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
     }
 
     /** {@inheritDoc} */
+    /**
+     * 列表查询Conversations。
+     */
     @Override
     public IPage<ConversationVO> listConversations(Long userId, Long current, Long size) {
         log.info("获取对话列表：userId={}, current={}, size={}", userId, current, size);
@@ -127,6 +136,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
         return conversationPage.convert(this::convertToVO);
     }
 
+    /**
+     * 删除Conversation。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteConversation(Long conversationId, Long userId) {
@@ -156,6 +168,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
         return count > 0;
     }
 
+    /**
+     * 更新Status。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateStatus(Long conversationId, Integer status) {
@@ -177,6 +192,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
         return count > 0;
     }
 
+    /**
+     * 更新Tokens。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateTokens(Long conversationId, Integer tokens) {
@@ -205,6 +223,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
      * @param title          标题
      * @return 是否成功
      */
+    /**
+     * 更新Title。
+     */
     @Transactional(rollbackFor = Exception.class)
     public boolean updateTitle(Long conversationId, String title) {
         log.info("更新对话标题：conversationId={}, title={}", conversationId, title);
@@ -231,6 +252,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
      * @param conversationId 对话ID
      * @param count          增加数量
      * @return 是否成功
+     */
+    /**
+     * 递增MessageCount。
      */
     @Transactional(rollbackFor = Exception.class)
     public boolean incrementMessageCount(Long conversationId, Integer count) {
@@ -288,6 +312,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
                 .build();
     }
 
+    /**
+     * 创建Conversation。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long createConversation(String title, Long userId) {
@@ -315,6 +342,9 @@ public class AiConversationServiceImpl extends ServiceImpl<ConversationMapper, C
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取ById。
+     */
     @Override
     public Conversation getById(Long conversationId) {
         return conversationMapper.selectById(conversationId);

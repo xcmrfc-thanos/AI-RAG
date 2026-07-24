@@ -29,6 +29,9 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
     @Resource
     private NotificationTemplateMapper templateMapper;
 
+    /**
+     * 分页查询Templates。
+     */
     @Override
     public IPage<NotificationTemplate> pageTemplates(Long current, Long size, String notificationType) {
         Page<NotificationTemplate> page = new Page<>(current, size);
@@ -42,6 +45,9 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
         return templateMapper.selectPage(page, wrapper);
     }
 
+    /**
+     * 列表查询ActiveTemplates。
+     */
     @Override
     public List<NotificationTemplate> listActiveTemplates() {
         LambdaQueryWrapper<NotificationTemplate> wrapper = new LambdaQueryWrapper<>();
@@ -50,11 +56,17 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
         return templateMapper.selectList(wrapper);
     }
 
+    /**
+     * 获取TemplateById。
+     */
     @Override
     public NotificationTemplate getTemplateById(Long id) {
         return templateMapper.selectById(id);
     }
 
+    /**
+     * 创建Template。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean createTemplate(NotificationTemplate template) {
@@ -63,6 +75,9 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
         return templateMapper.insert(template) > 0;
     }
 
+    /**
+     * 更新Template。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean updateTemplate(NotificationTemplate template) {
@@ -70,12 +85,18 @@ public class NotificationTemplateServiceImpl extends ServiceImpl<NotificationTem
         return templateMapper.updateById(template) > 0;
     }
 
+    /**
+     * 删除Template。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteTemplate(Long id) {
         return templateMapper.deleteById(id) > 0;
     }
 
+    /**
+     * testTemplate 方法。
+     */
     @Override
     public Boolean testTemplate(Long id, String target) {
         NotificationTemplate template = templateMapper.selectById(id);

@@ -36,6 +36,9 @@ public class CorsResponseHeaderFilter implements GlobalFilter, Ordered {
         return org.springframework.cloud.gateway.filter.NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER + 1;
     }
 
+    /**
+     * filter 方法。
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {

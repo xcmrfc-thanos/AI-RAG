@@ -1,3 +1,6 @@
+/**
+ * 功能模块：workflow-editor-operations。
+ */
 import type { Edge, Node, XYPosition } from '@xyflow/react';
 import { defaultInputFor, getCatalogItem, type AgentNodeKind } from './node-catalog';
 import type { FlowNodeData, WorkflowToolName } from './types';
@@ -21,6 +24,9 @@ export interface CopiedFlowNode {
   input: Record<string, unknown>;
 }
 
+/**
+ * cloneFlowSnapshot 方法。
+ */
 export function cloneFlowSnapshot(
   nodes: Node<FlowNodeData>[],
   edges: Edge[],
@@ -79,6 +85,9 @@ export function isAllowedLinearConnection(
   return true;
 }
 
+/**
+ * 创建FlowNode。
+ */
 export function createFlowNode(
   kind: AgentNodeKind,
   id: string,
@@ -123,11 +132,17 @@ export function createFlowNode(
   };
 }
 
+/**
+ * disconnectEdge 方法。
+ */
 export function disconnectEdge(edges: Edge[], edgeId: string): Edge[] {
   if (!edges.some((edge) => edge.id === edgeId)) return edges;
   return edges.filter((edge) => edge.id !== edgeId);
 }
 
+/**
+ * 复制FlowNode。
+ */
 export function copyFlowNode(node: Node<FlowNodeData>): CopiedFlowNode | null {
   if (node.data.schemaType === 'virtual') return null;
   return {
@@ -139,6 +154,9 @@ export function copyFlowNode(node: Node<FlowNodeData>): CopiedFlowNode | null {
   };
 }
 
+/**
+ * pasteFlowNode 方法。
+ */
 export function pasteFlowNode(
   copied: CopiedFlowNode,
   id: string,
@@ -155,6 +173,9 @@ export function pasteFlowNode(
   };
 }
 
+/**
+ * positionBetweenConnectedNodes 方法。
+ */
 export function positionBetweenConnectedNodes(
   nodes: Node<FlowNodeData>[],
   edge: Edge,
@@ -256,6 +277,9 @@ export function layoutLinearFlow<T extends Node<FlowNodeData>>(
   }));
 }
 
+/**
+ * 获取UpstreamVariableOptions。
+ */
 export function getUpstreamVariableOptions(
   nodeId: string,
   nodes: Node<FlowNodeData>[],
@@ -289,6 +313,9 @@ export function getUpstreamVariableOptions(
   return options;
 }
 
+/**
+ * topologicalOrder 方法。
+ */
 function topologicalOrder(ids: string[], edges: Edge[]): string[] {
   const indegree = new Map(ids.map((id) => [id, 0]));
   const next = new Map(ids.map((id) => [id, [] as string[]]));
@@ -310,10 +337,16 @@ function topologicalOrder(ids: string[], edges: Edge[]): string[] {
   return result.length === ids.length ? result : ids;
 }
 
+/**
+ * cloneJsonRecord 方法。
+ */
 function cloneJsonRecord(value: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, cloneJsonValue(item)]));
 }
 
+/**
+ * cloneJsonValue 方法。
+ */
 function cloneJsonValue(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(cloneJsonValue);
   if (value && typeof value === 'object') return cloneJsonRecord(value as Record<string, unknown>);

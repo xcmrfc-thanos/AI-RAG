@@ -43,6 +43,9 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     private final MilvusCollectionSupport collectionSupport;
 
     /** {@inheritDoc} */
+    /**
+     * indexChunks 方法。
+     */
     @Override
     public void indexChunks(List<DocumentChunk> chunks) {
         if (chunks == null || chunks.isEmpty()) {
@@ -52,12 +55,18 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 删除ByDocId。
+     */
     @Override
     public void deleteByDocId(Long documentId) {
         milvusChunkWriter.deleteByDocId(documentId);
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25Collapsed。
+     */
     @Override
     public Bm25CollapsePageVO searchBm25Collapsed(String queryText, int from, int size,
                                                   int innerHitsPerDoc, List<Long> categoryIds) {
@@ -66,6 +75,9 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Bm25。
+     */
     @Override
     public List<RagSearchResultVO> searchBm25(String queryText, int topK) {
         if (!StringUtils.hasText(queryText) || topK <= 0) {
@@ -76,6 +88,9 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 搜索Hybrid。
+     */
     @Override
     public List<RagSearchResultVO> searchHybrid(String queryText, float[] queryEmbedding,
                                                 int topK, int hybridTopK, int rrfC) {
@@ -84,18 +99,27 @@ public class MilvusVectorIndexServiceImpl implements VectorIndexService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * indexExists 方法。
+     */
     @Override
     public boolean indexExists() {
         return collectionSupport.collectionExists();
     }
 
     /** {@inheritDoc} */
+    /**
+     * 创建IndexIfNotExists。
+     */
     @Override
     public void createIndexIfNotExists() {
         collectionSupport.ensureCollection(true);
     }
 
     /** {@inheritDoc} */
+    /**
+     * dropIndex 方法。
+     */
     @Override
     public void dropIndex() {
         if (!indexExists()) {

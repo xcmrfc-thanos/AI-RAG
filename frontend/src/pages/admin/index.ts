@@ -1,3 +1,6 @@
+/**
+ * admin 模块导出入口。
+ */
 export { default as AdminCenterPage } from './AdminCenterPage';
 export { UsersManagementPage } from './UsersManagementPage';
 export { CategoriesPage } from './CategoriesPage';

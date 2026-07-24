@@ -27,6 +27,9 @@ public class CacheConfig {
      *
      * @return CacheManager 实例
      */
+    /**
+     * aiCacheManager 方法。
+     */
     @Bean("aiCacheManager")
     public CacheManager aiCacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();

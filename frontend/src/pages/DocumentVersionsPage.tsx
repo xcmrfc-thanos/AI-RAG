@@ -1,3 +1,6 @@
+/**
+ * 业务页面：DocumentVersionsPage。
+ */
 import React, { useEffect, useState } from 'react';
 import {
   Card,
@@ -52,6 +55,9 @@ export const DocumentVersionsPage: React.FC = () => {
     }
   }, [fetchVersions, id]);
 
+  /**
+   * handleRestore。
+   */
   const handleRestore = async (versionId: string) => {
     if (!id) return;
 
@@ -65,11 +71,17 @@ export const DocumentVersionsPage: React.FC = () => {
     }
   };
 
+  /**
+   * handlePreview。
+   */
   const handlePreview = (version: DocumentVersion) => {
     setPreviewVersion(version);
     setPreviewVisible(true);
   };
 
+  /**
+   * handleCompare。
+   */
   const handleCompare = () => {
     if (selectedVersions.length !== 2) {
       message.warning('请选择两个版本进行比较');

@@ -1,3 +1,6 @@
+/**
+ * 主题与样式变量。
+ */
 import { ThemeConfig } from 'antd';
 
 export const theme: ThemeConfig = {

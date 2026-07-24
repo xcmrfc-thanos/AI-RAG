@@ -1,3 +1,6 @@
+/**
+ * 前端工具模块：document-preview-loaders。
+ */
 import type { WorkBook } from 'xlsx';
 
 type MammothModule = typeof import('mammoth');

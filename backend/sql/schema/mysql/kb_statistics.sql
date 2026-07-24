@@ -111,19 +111,19 @@ DROP TABLE IF EXISTS `stat_user`;
 DROP TABLE IF EXISTS `stat_document`;
 CREATE TABLE `stat_document` (
   `id` BIGINT NOT NULL COMMENT '文档ID',
-  `title` VARCHAR(200) DEFAULT NULL,
-  `author_id` BIGINT DEFAULT NULL,
-  `category_id` BIGINT DEFAULT NULL,
-  `status` INT DEFAULT NULL,
-  `view_count` BIGINT NOT NULL DEFAULT 0,
-  `like_count` BIGINT NOT NULL DEFAULT 0,
-  `favorite_count` BIGINT NOT NULL DEFAULT 0,
-  `summary` VARCHAR(500) DEFAULT NULL,
-  `is_public` TINYINT NOT NULL DEFAULT 1 COMMENT '是否公开 0/1',
+  `title` VARCHAR(200) DEFAULT NULL COMMENT '文档标题',
+  `author_id` BIGINT DEFAULT NULL COMMENT '作者用户ID',
+  `category_id` BIGINT DEFAULT NULL COMMENT '分类ID',
+  `status` INT DEFAULT NULL COMMENT '文档状态',
+  `view_count` BIGINT NOT NULL DEFAULT 0 COMMENT '浏览次数',
+  `like_count` BIGINT NOT NULL DEFAULT 0 COMMENT '点赞次数',
+  `favorite_count` BIGINT NOT NULL DEFAULT 0 COMMENT '收藏次数',
+  `summary` VARCHAR(500) DEFAULT NULL COMMENT '摘要',
+  `is_public` TINYINT NOT NULL DEFAULT 1 COMMENT '是否公开：0否1是',
   `team_id` BIGINT DEFAULT NULL COMMENT '所属团队ID',
-  `created_at` DATETIME DEFAULT NULL,
-  `updated_at` DATETIME DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `created_at` DATETIME DEFAULT NULL COMMENT '创建时间',
+  `updated_at` DATETIME DEFAULT NULL COMMENT '更新时间',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`),
   KEY `idx_author_deleted` (`author_id`, `deleted`),
   KEY `idx_category_deleted` (`category_id`, `deleted`),
@@ -132,23 +132,23 @@ CREATE TABLE `stat_document` (
 
 CREATE TABLE `stat_user` (
   `id` BIGINT NOT NULL COMMENT '用户ID',
-  `username` VARCHAR(50) DEFAULT NULL,
-  `real_name` VARCHAR(50) DEFAULT NULL,
-  `avatar` VARCHAR(255) DEFAULT NULL,
-  `status` INT DEFAULT NULL,
-  `created_at` DATETIME DEFAULT NULL,
-  `updated_at` DATETIME DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `username` VARCHAR(50) DEFAULT NULL COMMENT '用户名',
+  `real_name` VARCHAR(50) DEFAULT NULL COMMENT '真实姓名',
+  `avatar` VARCHAR(255) DEFAULT NULL COMMENT '头像URL',
+  `status` INT DEFAULT NULL COMMENT '用户状态',
+  `created_at` DATETIME DEFAULT NULL COMMENT '创建时间',
+  `updated_at` DATETIME DEFAULT NULL COMMENT '更新时间',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`),
   KEY `idx_status_deleted` (`status`, `deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户统计投影';
 
 CREATE TABLE `stat_comment` (
   `id` BIGINT NOT NULL COMMENT '评论ID',
-  `user_id` BIGINT NOT NULL,
-  `document_id` BIGINT NOT NULL,
-  `created_at` DATETIME DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `user_id` BIGINT NOT NULL COMMENT '评论用户ID',
+  `document_id` BIGINT NOT NULL COMMENT '文档ID',
+  `created_at` DATETIME DEFAULT NULL COMMENT '创建时间',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`),
   KEY `idx_user_deleted` (`user_id`, `deleted`),
   KEY `idx_doc_deleted` (`document_id`, `deleted`)
@@ -156,37 +156,37 @@ CREATE TABLE `stat_comment` (
 
 CREATE TABLE `stat_category` (
   `id` BIGINT NOT NULL COMMENT '分类ID',
-  `category_name` VARCHAR(100) DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `category_name` VARCHAR(100) DEFAULT NULL COMMENT '分类名称',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='分类统计投影';
 
 CREATE TABLE `stat_role` (
   `id` BIGINT NOT NULL COMMENT '角色ID',
-  `role_name` VARCHAR(100) DEFAULT NULL,
-  `role_code` VARCHAR(50) DEFAULT NULL,
-  `status` INT DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `role_name` VARCHAR(100) DEFAULT NULL COMMENT '角色名称',
+  `role_code` VARCHAR(50) DEFAULT NULL COMMENT '角色编码',
+  `status` INT DEFAULT NULL COMMENT '角色状态',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`),
   KEY `idx_deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='角色统计投影';
 
 CREATE TABLE `stat_team` (
   `id` BIGINT NOT NULL COMMENT '团队ID',
-  `team_name` VARCHAR(100) DEFAULT NULL,
-  `team_code` VARCHAR(50) DEFAULT NULL,
-  `status` INT DEFAULT NULL,
-  `deleted` TINYINT NOT NULL DEFAULT 0,
+  `team_name` VARCHAR(100) DEFAULT NULL COMMENT '团队名称',
+  `team_code` VARCHAR(50) DEFAULT NULL COMMENT '团队编码',
+  `status` INT DEFAULT NULL COMMENT '团队状态',
+  `deleted` TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0未删1已删',
   PRIMARY KEY (`id`),
   KEY `idx_deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='团队统计投影';
 
 CREATE TABLE `stat_operation_log` (
   `id` BIGINT NOT NULL COMMENT '日志ID',
-  `user_id` BIGINT DEFAULT NULL,
-  `username` VARCHAR(50) DEFAULT NULL,
-  `status` INT DEFAULT NULL,
-  `created_at` DATETIME DEFAULT NULL,
+  `user_id` BIGINT DEFAULT NULL COMMENT '操作用户ID',
+  `username` VARCHAR(50) DEFAULT NULL COMMENT '操作用户名',
+  `status` INT DEFAULT NULL COMMENT '操作结果状态',
+  `created_at` DATETIME DEFAULT NULL COMMENT '操作时间',
   PRIMARY KEY (`id`),
   KEY `idx_user_created` (`user_id`, `created_at`),
   KEY `idx_created_status` (`created_at`, `status`)

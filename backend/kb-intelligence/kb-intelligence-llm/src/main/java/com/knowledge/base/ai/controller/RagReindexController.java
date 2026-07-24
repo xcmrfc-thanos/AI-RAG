@@ -31,6 +31,9 @@ public class RagReindexController {
     /**
      * 重建单个文档
      */
+    /**
+     * reindexByDoc 方法。
+     */
     @PostMapping("/{docId}")
     @Operation(summary = "重建单个文档索引", description = "重新分块、嵌入并索引指定文档")
     public Result<String> reindexByDoc(@PathVariable Long docId) {
@@ -41,6 +44,9 @@ public class RagReindexController {
 
     /**
      * 批量重建文档
+     */
+    /**
+     * reindexBatch 方法。
      */
     @PostMapping("/batch")
     @Operation(summary = "批量重建文档索引", description = "重新分块、嵌入并索引指定的多个文档")
@@ -53,6 +59,9 @@ public class RagReindexController {
     /**
      * 重建所有文档
      */
+    /**
+     * reindexAll 方法。
+     */
     @PostMapping("/all")
     @Operation(summary = "重建全部文档索引", description = "重新分块、嵌入并索引所有已发布文档")
     public Result<String> reindexAll() {
@@ -64,6 +73,9 @@ public class RagReindexController {
     /**
      * 删除单个文档的向量索引
      */
+    /**
+     * 删除ByDoc。
+     */
     @DeleteMapping("/{docId}")
     @Operation(summary = "删除单个文档向量索引", description = "从ES向量库中删除指定文档的所有chunk")
     public Result<String> deleteByDoc(@PathVariable Long docId) {
@@ -74,6 +86,9 @@ public class RagReindexController {
 
     /**
      * 查询重建进度
+     */
+    /**
+     * 获取Progress。
      */
     @GetMapping("/progress/{taskId}")
     @Operation(summary = "查询重建进度", description = "根据任务ID查询索引重建进度")

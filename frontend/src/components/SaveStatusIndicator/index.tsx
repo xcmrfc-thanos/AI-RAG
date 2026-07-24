@@ -1,3 +1,6 @@
+/**
+ * SaveStatusIndicator 模块导出入口。
+ */
 import React from 'react';
 import { LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { SaveStatus } from '@/hooks/useAutoSave';
@@ -15,6 +18,9 @@ const statusConfig: Record<SaveStatus, { label: string; color: string }> = {
   error: { label: '保存失败', color: '#ef4444' },
 };
 
+/**
+ * formatTime。
+ */
 const formatTime = (date: Date): string => {
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();

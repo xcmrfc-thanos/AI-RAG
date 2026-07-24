@@ -1,3 +1,6 @@
+/**
+ * 业务页面：AutoSaveHistoryPage。
+ */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button, List, Spin, message, Pagination, Tag } from 'antd';
@@ -20,6 +23,9 @@ interface AutoSaveSnapshot {
   savedAt: string;
 }
 
+/**
+ * AutoSaveHistoryPage 页面组件。
+ */
 const AutoSaveHistoryPage: React.FC = () => {
   const { id: documentId } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -32,6 +38,9 @@ const AutoSaveHistoryPage: React.FC = () => {
   const [selectedSnapshot, setSelectedSnapshot] = useState<AutoSaveSnapshot | null>(null);
   const [selectedContent, setSelectedContent] = useState<string | null>(null);
 
+  /**
+   * fetchHistory。
+   */
   const fetchHistory = useCallback(async () => {
     if (!documentId) return;
     setLoading(true);
@@ -47,6 +56,9 @@ const AutoSaveHistoryPage: React.FC = () => {
     }
   }, [documentId, page, pageSize]);
 
+  /**
+   * fetchSnapshotDetail。
+   */
   const fetchSnapshotDetail = useCallback(async (snapshot: AutoSaveSnapshot) => {
     if (!documentId) return;
     setSelectedSnapshot(snapshot);
@@ -85,6 +97,9 @@ const AutoSaveHistoryPage: React.FC = () => {
     });
   };
 
+  /**
+   * formatRelativeTime。
+   */
   const formatRelativeTime = (dateStr: string): string => {
     const date = new Date(dateStr);
     const now = new Date();

@@ -56,6 +56,9 @@ public class EmbeddingConfig {
      *
      * @return OpenAI 兼容嵌入模型
      */
+    /**
+     * embeddingModel 方法。
+     */
     @Bean
     @ConditionalOnProperty(name = "rag.enabled", havingValue = "true", matchIfMissing = true)
     @ConditionalOnExpression(
@@ -78,6 +81,9 @@ public class EmbeddingConfig {
 
     /**
      * 启动时打印嵌入就绪状态（不输出完整 Key）。
+     */
+    /**
+     * 初始化。
      */
     @PostConstruct
     public void init() {

@@ -1,3 +1,6 @@
+/**
+ * router 模块导出入口。
+ */
 import React, { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate, RouteObject } from 'react-router-dom';
 import { MainLayout, AuthLayout, AdminLayout } from '@/components/layout';
@@ -51,6 +54,7 @@ const SettingsPage = lazy(() => import('@/pages/admin/SettingsPage'));
 // 基础服务管理页面
 const SystemConfigPage = lazy(() => import('@/pages/admin/SystemConfigPage'));
 const DictionaryManagePage = lazy(() => import('@/pages/admin/DictionaryManagePage'));
+const SensitiveWordsPage = lazy(() => import('@/pages/admin/SensitiveWordsPage'));
 const OperationLogPage = lazy(() => import('@/pages/admin/OperationLogPage'));
 const NotificationTemplatePage = lazy(() => import('@/pages/admin/NotificationTemplatePage'));
 const RolesPage = lazy(() => import('@/pages/admin/RolesPage'));
@@ -500,6 +504,18 @@ export const appRoutes: RouteObject[] = [
               <ProtectedRoute requiredPermissions={[PERMISSIONS.systemSettings]}>
                 <Suspense fallback={<LoadingFallback />}>
                   <DictionaryManagePage />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'sensitive-words',
+            element: (
+              <ProtectedRoute
+                requiredPermissions={[PERMISSIONS.systemSensitiveWord, PERMISSIONS.systemSettings]}
+              >
+                <Suspense fallback={<LoadingFallback />}>
+                  <SensitiveWordsPage />
                 </Suspense>
               </ProtectedRoute>
             ),

@@ -41,6 +41,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
 
     private static final String SHARE_BASE_URL = "/share/";
 
+    /**
+     * 创建Share。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ShareVO createShare(ShareDTO shareDTO) {
@@ -96,6 +99,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return convertToShareVO(share);
     }
 
+    /**
+     * 获取ShareById。
+     */
     @Override
     public ShareVO getShareById(String shareId) {
         log.info("获取分享信息：shareId={}", shareId);
@@ -117,6 +123,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return convertToShareVO(share);
     }
 
+    /**
+     * 校验ShareAccess。
+     */
     @Override
     public boolean verifyShareAccess(String shareId, String password) {
         DocumentShare share = baseMapper.selectByShareId(shareId);
@@ -143,6 +152,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return true;
     }
 
+    /**
+     * 访问Share。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Long accessShare(String shareId, String password) {
@@ -178,6 +190,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return share.getDocumentId();
     }
 
+    /**
+     * 获取SharesByDocumentId。
+     */
     @Override
     public List<ShareVO> getSharesByDocumentId(Long documentId) {
         log.info("获取文档的所有分享：documentId={}", documentId);
@@ -188,6 +203,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 获取MyShares。
+     */
     @Override
     public List<ShareVO> getMyShares() {
         Long userId = UserContext.getCurrentUserId();
@@ -199,6 +217,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
                 .collect(Collectors.toList());
     }
 
+    /**
+     * 删除Share。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteShare(String shareId) {
@@ -221,6 +242,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return true;
     }
 
+    /**
+     * 批量DeleteShares。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int batchDeleteShares(List<String> shareIds) {
@@ -248,6 +272,9 @@ public class DocumentShareServiceImpl extends ServiceImpl<DocumentShareMapper, D
         return shares.size();
     }
 
+    /**
+     * 更新Share。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean updateShare(String shareId, ShareDTO shareDTO) {

@@ -1,3 +1,6 @@
+/**
+ * 功能模块：VariablePicker。
+ */
 import React, { memo } from 'react';
 import { Select } from 'antd';
 import type { VariableOption } from './workflow-editor-operations';
@@ -7,6 +10,9 @@ interface VariablePickerProps {
   onPick: (value: string) => void;
 }
 
+/**
+ * VariablePicker 组件。
+ */
 const VariablePicker: React.FC<VariablePickerProps> = ({ options, onPick }) => (
   <Select
     size="small"

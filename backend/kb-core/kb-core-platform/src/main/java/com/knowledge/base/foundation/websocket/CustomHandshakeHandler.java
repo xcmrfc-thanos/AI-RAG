@@ -26,6 +26,9 @@ import java.util.Map;
 @Slf4j
 public class CustomHandshakeHandler extends DefaultHandshakeHandler {
 
+    /**
+     * determineUser 方法。
+     */
     @Override
     protected Principal determineUser(ServerHttpRequest request,
                                        WebSocketHandler wsHandler,

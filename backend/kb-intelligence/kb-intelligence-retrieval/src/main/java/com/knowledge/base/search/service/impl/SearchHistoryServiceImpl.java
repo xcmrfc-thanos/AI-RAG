@@ -1,6 +1,7 @@
 package com.knowledge.base.search.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.knowledge.base.ai.service.AiSensitiveGuard;
 import com.knowledge.base.search.entity.SearchHistory;
 import com.knowledge.base.search.mapper.SearchHistoryMapper;
 import com.knowledge.base.search.service.SearchHistoryService;
@@ -42,10 +43,16 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
     @Resource
     private SqlDialectHelper sqlDialectHelper;
 
+    @Resource
+    private AiSensitiveGuard aiSensitiveGuard;
+
     /** 按 userId+keyword 串行化 upsert，避免并发异步写入重复行 */
     private final ConcurrentHashMap<String, Object> upsertLocks = new ConcurrentHashMap<>();
 
     /** {@inheritDoc} */
+    /**
+     * 获取SearchHistory。
+     */
     @Override
     public List<SearchHistoryVO> getSearchHistory(Long userId) {
         LambdaQueryWrapper<SearchHistory> queryWrapper = new LambdaQueryWrapper<>();
@@ -64,11 +71,17 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
 
         return keywordMap.values().stream()
             .sorted(Comparator.comparing(SearchHistory::getCreatedAt).reversed())
+            // 多取一些再过滤敏感词，尽量凑满 20 条展示
+            .limit(40)
+            .filter(h -> !aiSensitiveGuard.shouldSkipSearchHistory(h.getKeyword()))
             .limit(20)
             .map(this::convertToVO)
             .collect(Collectors.toList());
     }
 
+    /**
+     * 清空SearchHistory。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean clearSearchHistory(Long userId) {
@@ -77,6 +90,9 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
         return searchHistoryMapper.delete(queryWrapper) >= 0;
     }
 
+    /**
+     * 删除SearchHistory。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Boolean deleteSearchHistory(Long historyId, Long userId) {
@@ -87,18 +103,25 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 获取HotSearch。
+     */
     @Override
     public List<String> getHotSearch() {
-        // 获取最近7天的热门搜索
+        // 获取最近7天的热门搜索（多取再过滤，防存量敏感词进热搜）
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
         LambdaQueryWrapper<SearchHistory> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.ge(SearchHistory::getCreatedAt, sevenDaysAgo);
         queryWrapper.orderByDesc(SearchHistory::getSearchCount);
-        queryWrapper.last(sqlDialectHelper.limitClause(10));
+        queryWrapper.last(sqlDialectHelper.limitClause(50));
 
         return searchHistoryMapper.selectList(queryWrapper).stream()
             .map(SearchHistory::getKeyword)
+            .filter(StringUtils::hasText)
+            .filter(kw -> !aiSensitiveGuard.shouldSkipSearchHistory(kw))
+            .distinct()
+            .limit(10)
             .collect(Collectors.toList());
     }
 
@@ -108,6 +131,9 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
      * @param userId  用户 ID
      * @param keyword 搜索关键词
      */
+    /**
+     * 保存SearchHistory。
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void saveSearchHistory(Long userId, String keyword) {
@@ -116,6 +142,12 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
         }
 
         String normalizedKeyword = keyword.trim();
+        // 敏感词不入库：检索结果仍可返回，仅跳过历史/热搜污染
+        if (aiSensitiveGuard.shouldSkipSearchHistory(normalizedKeyword)) {
+            log.info("搜索历史跳过敏感关键词 userId={} keywordLen={}", userId, normalizedKeyword.length());
+            return;
+        }
+
         String lockKey = userId + ":" + normalizedKeyword;
         Object lock = upsertLocks.computeIfAbsent(lockKey, key -> new Object());
         synchronized (lock) {
@@ -162,6 +194,9 @@ public class SearchHistoryServiceImpl implements SearchHistoryService {
     }
 
     /** {@inheritDoc} */
+    /**
+     * 保存SearchHistoryAsync。
+     */
     @Override
     public void saveSearchHistoryAsync(Long userId, String keyword) {
         CompletableFuture.runAsync(() -> {

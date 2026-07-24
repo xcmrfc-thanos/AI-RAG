@@ -44,6 +44,9 @@ public class FileController {
     /**
      * 上传文件
      */
+    /**
+     * 上传File。
+     */
     @PostMapping("/upload")
     @Operation(summary = "上传文件", description = "上传单个文件")
     @OperationLog(module = "文件管理", operation = "上传文件", description = "上传文件")
@@ -56,6 +59,9 @@ public class FileController {
 
     /**
      * 批量上传文件
+     */
+    /**
+     * 上传Files。
      */
     @PostMapping("/upload/batch")
     @Operation(summary = "批量上传文件", description = "批量上传文件")
@@ -76,6 +82,9 @@ public class FileController {
      *
      * @param fileHash 文件内容 SHA-256 十六进制摘要
      * @return 已存在时 data 为文件信息；不存在时 data 为 null
+     */
+    /**
+     * 检测Hash。
      */
     @GetMapping("/upload/check-hash")
     @Operation(summary = "秒传预检", description = "按 SHA-256 文件哈希查询是否可秒传；不存在时 data 为 null")
@@ -122,6 +131,9 @@ public class FileController {
      * @param chunk      分片数据（multipart 字段名 chunk）
      * @return 是否成功
      */
+    /**
+     * 上传Chunk。
+     */
     @PutMapping("/upload/resumable/{sessionId}/chunks/{chunkIndex}")
     @Operation(summary = "上传分片", description = "上传指定索引的分片数据")
     public Result<Boolean> uploadChunk(
@@ -158,6 +170,9 @@ public class FileController {
      * @param dto       合并参数（可含 fileName/fileHash 冗余校验）
      * @return 文件信息
      */
+    /**
+     * 合并Chunks。
+     */
     @PostMapping("/upload/resumable/{sessionId}/merge")
     @Operation(summary = "合并分片", description = "合并全部分片并写入文件元数据")
     @OperationLog(module = "文件管理", operation = "合并分片", description = "合并断点续传分片")
@@ -170,6 +185,9 @@ public class FileController {
 
     /**
      * 下载文件
+     */
+    /**
+     * 下载File。
      */
     @GetMapping("/download/{fileId}/**")
     @Operation(summary = "下载文件", description = "下载指定文件")
@@ -185,6 +203,9 @@ public class FileController {
     /**
      * 删除文件
      */
+    /**
+     * 删除File。
+     */
     @DeleteMapping("/{fileId}")
     @Operation(summary = "删除文件", description = "删除指定文件")
     @OperationLog(module = "文件管理", operation = "删除文件", description = "删除文件")
@@ -195,6 +216,9 @@ public class FileController {
 
     /**
      * 批量删除文件
+     */
+    /**
+     * 批量DeleteFiles。
      */
     @DeleteMapping("/batch")
     @Operation(summary = "批量删除文件", description = "批量删除文件")
@@ -207,6 +231,9 @@ public class FileController {
     /**
      * 获取文件详情
      */
+    /**
+     * 获取FileInfo。
+     */
     @GetMapping("/{fileId}")
     @Operation(summary = "获取文件详情", description = "根据ID获取文件详情")
     public Result<FileInfoVO> getFileInfo(@PathVariable Long fileId) {
@@ -217,6 +244,9 @@ public class FileController {
     /**
      * 分页查询文件
      */
+    /**
+     * 分页查询Files。
+     */
     @PostMapping("/page")
     @Operation(summary = "分页查询文件", description = "分页查询文件列表")
     public Result<PageResult<FileInfoVO>> pageFiles(@RequestBody FileQueryDTO dto) {
@@ -226,6 +256,9 @@ public class FileController {
 
     /**
      * 获取文件预览URL
+     */
+    /**
+     * 获取PreviewUrl。
      */
     @GetMapping("/preview/{fileId}")
     @Operation(summary = "获取文件预览URL", description = "获取文件预览URL")
@@ -238,6 +271,9 @@ public class FileController {
 
     /**
      * 预览文件（直接返回文件内容）
+     */
+    /**
+     * previewFile 方法。
      */
     @GetMapping("/preview/{fileId}/**")
     @Operation(summary = "预览文件", description = "预览指定文件内容")
@@ -252,6 +288,9 @@ public class FileController {
     /**
      * 按文件哈希预览（兼容历史 RustFS 直链头像）。
      */
+    /**
+     * previewFileByHash 方法。
+     */
     @GetMapping("/hash-preview/{hashWithExt}")
     @Operation(summary = "按哈希预览文件", description = "根据文件哈希预览图片，兼容历史对象存储直链")
     public void previewFileByHash(
@@ -264,6 +303,9 @@ public class FileController {
     /**
      * 从URL转换图片（下载并上传到系统）
      */
+    /**
+     * 转换FromUrl。
+     */
     @PostMapping("/convert-url")
     @Operation(summary = "从URL转换图片", description = "下载外部图片并上传到系统")
     @OperationLog(module = "文件管理", operation = "URL转换", description = "从URL转换图片")
@@ -275,6 +317,9 @@ public class FileController {
     /**
      * 批量转换图片URL
      */
+    /**
+     * 批量ConvertUrls。
+     */
     @PostMapping("/batch-convert")
     @Operation(summary = "批量转换图片URL", description = "批量下载外部图片并上传到系统")
     @OperationLog(module = "文件管理", operation = "批量转换", description = "批量转换图片URL")
@@ -285,6 +330,9 @@ public class FileController {
 
     /**
      * 文件格式转换
+     */
+    /**
+     * 转换FileFormat。
      */
     @PostMapping("/convert/{fileId}")
     @Operation(summary = "文件格式转换", description = "转换文件格式")
@@ -299,6 +347,9 @@ public class FileController {
     /**
      * 流式播放HLS master播放列表
      */
+    /**
+     * streamMasterPlaylist 方法。
+     */
     @GetMapping("/stream/{fileId}/master.m3u8")
     @Operation(summary = "HLS播放列表", description = "获取HLS master播放列表")
     public void streamMasterPlaylist(
@@ -309,6 +360,9 @@ public class FileController {
 
     /**
      * 流式播放HLS TS分片
+     */
+    /**
+     * streamSegment 方法。
      */
     @GetMapping("/stream/{fileId}/{segment:.+\\.ts}")
     @Operation(summary = "HLS分片", description = "获取HLS TS分片")
@@ -321,6 +375,9 @@ public class FileController {
 
     /**
      * 获取缩略图
+     */
+    /**
+     * 获取Thumbnail。
      */
     @GetMapping("/thumbnail/{fileId}")
     @Operation(summary = "获取缩略图", description = "获取视频缩略图")

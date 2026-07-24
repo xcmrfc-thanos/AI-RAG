@@ -21,6 +21,9 @@ public class GraphSearchTool implements AgentTool {
 
     private final GatewayToolHttpClient httpClient;
 
+    /**
+     * name 方法。
+     */
     @Override
     public String name() {
         return "graph_search";

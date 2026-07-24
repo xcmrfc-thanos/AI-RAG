@@ -1,3 +1,6 @@
+/**
+ * 状态仓库：app.store。
+ */
 import { create } from 'zustand';
 import { foundationService } from '@/services';
 
