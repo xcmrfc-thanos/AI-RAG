@@ -12,6 +12,7 @@ import com.knowledge.base.ai.config.RagProperties;
 import com.knowledge.base.ai.config.RagRuntimeSettings;
 import com.knowledge.base.ai.rag.service.RagChatService;
 import com.knowledge.base.ai.rag.service.RagRetrievalService;
+import com.knowledge.base.ai.rag.support.RagGroundingSupport;
 import com.knowledge.base.ai.vo.CitationVO;
 import com.knowledge.base.ai.vo.RagSearchResultVO;
 import com.knowledge.base.ai.service.AiConversationService;
@@ -133,7 +134,8 @@ public class RagChatServiceImpl implements RagChatService {
                 .tokens(userMsgEntity.getTokens() + aiMsgEntity.getTokens())
                 .title(conv != null ? conv.getTitle() : "新对话")
                 .citations(citations)
-                .fromKnowledgeBase(!context.isEmpty())
+                .fromKnowledgeBase(!context.isEmpty()
+                        && !RagGroundingSupport.isRefusalAnswer(responseContent))
                 .build();
     }
 
@@ -224,7 +226,8 @@ public class RagChatServiceImpl implements RagChatService {
                                                 .content(fullResponse)
                                                 .tokens(totalTokens.get())
                                                 .citations(citations)
-                                                .fromKnowledgeBase(!context.isEmpty())
+                                                .fromKnowledgeBase(!context.isEmpty()
+                                                        && !RagGroundingSupport.isRefusalAnswer(fullResponse))
                                                 .build()));
                                 emitter.complete();
                             } catch (IOException e) {
@@ -283,7 +286,7 @@ public class RagChatServiceImpl implements RagChatService {
     }
 
     /**
-     * 构建RAG Prompt
+     * 构建RAG Prompt（短主题改写 + 放宽接地规则，便于模型基于资料总结）
      */
     private String buildRagPrompt(String query, List<RagSearchResultVO> context) {
         if (context.isEmpty()) {
@@ -291,10 +294,7 @@ public class RagChatServiceImpl implements RagChatService {
         }
 
         StringBuilder sb = new StringBuilder();
-        sb.append("你是一个企业知识库助手。请仅根据以下参考资料回答用户的问题。\n");
-        sb.append("如果参考资料中没有相关信息，请说明【根据现有知识库暂时无法回答此问题】，绝对不要编造内容。\n");
-        sb.append("回答时，请在引用资料处的末尾标注引用编号，如 [1]、[2]。\n");
-        sb.append("回答应当专业、准确、简洁。\n\n");
+        RagGroundingSupport.appendGroundingRules(sb);
 
         sb.append("=== 参考资料 ===\n");
         for (int i = 0; i < context.size(); i++) {
@@ -307,33 +307,15 @@ public class RagChatServiceImpl implements RagChatService {
         }
 
         sb.append("=== 用户问题 ===\n");
-        sb.append(query);
+        sb.append(RagGroundingSupport.resolveEffectiveQuery(query));
         return sb.toString();
     }
 
     /**
-     * 构建引用列表
+     * 构建引用列表（拒答清空；有 [n] 时只保留被引用项）
      */
     private List<CitationVO> buildCitations(List<RagSearchResultVO> context, String response) {
-        if (context.isEmpty()) {
-            return List.of();
-        }
-        List<CitationVO> citations = new ArrayList<>();
-        for (int i = 0; i < context.size(); i++) {
-            RagSearchResultVO chunk = context.get(i);
-            String excerpt = chunk.getContent();
-            if (excerpt != null && excerpt.length() > 100) {
-                excerpt = excerpt.substring(0, 100) + "...";
-            }
-            citations.add(CitationVO.builder()
-                    .index(i + 1)
-                    .documentId(chunk.getDocumentId())
-                    .documentTitle(chunk.getDocumentTitle())
-                    .excerpt(excerpt)
-                    .relevanceScore(chunk.getScore())
-                    .build());
-        }
-        return citations;
+        return RagGroundingSupport.buildCitationsForAnswer(context, response);
     }
 
     /**

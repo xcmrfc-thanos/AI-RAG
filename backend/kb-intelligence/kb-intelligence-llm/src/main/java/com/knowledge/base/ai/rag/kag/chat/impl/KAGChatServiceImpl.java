@@ -7,6 +7,7 @@ import com.knowledge.base.ai.rag.kag.chat.KAGChatService;
 import com.knowledge.base.ai.rag.kag.retrieval.GraphContext;
 import com.knowledge.base.ai.rag.kag.retrieval.HybridRetrievalService;
 import com.knowledge.base.ai.rag.kag.retrieval.HybridRetrievalService.HybridResult;
+import com.knowledge.base.ai.rag.support.RagGroundingSupport;
 import com.knowledge.base.ai.vo.CitationVO;
 import com.knowledge.base.ai.vo.RagSearchResultVO;
 import com.knowledge.base.ai.vo.ChatResponseVO;
@@ -20,7 +21,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -76,14 +76,17 @@ public class KAGChatServiceImpl implements KAGChatService
                 UserMessage.from(prompt)
         ).content().text();
 
-        // Step 4: Build citations
-        List<CitationVO> citations = buildCitations(hybridResult.fusedResults());
+        // Step 4: Build citations（拒答清空 / 按 [n] 收敛）
+        List<CitationVO> citations = RagGroundingSupport.buildCitationsForAnswer(
+                hybridResult.fusedResults(), answer);
 
         // Step 5: Build response
         ChatResponseVO response = ChatResponseVO.builder()
                 .content(answer)
                 .citations(citations)
-                .fromKnowledgeBase(true)
+                .fromKnowledgeBase(!RagGroundingSupport.isRefusalAnswer(answer)
+                        && hybridResult.fusedResults() != null
+                        && !hybridResult.fusedResults().isEmpty())
                 .graphContext(hybridResult.kagContext())
                 .build();
 
@@ -122,12 +125,15 @@ public class KAGChatServiceImpl implements KAGChatService
                         UserMessage.from(prompt)
                 ).content().text();
 
-                // Build response
-                List<CitationVO> citations = buildCitations(hybridResult.fusedResults());
+                // Build response（拒答清空 / 按 [n] 收敛）
+                List<CitationVO> citations = RagGroundingSupport.buildCitationsForAnswer(
+                        hybridResult.fusedResults(), fullAnswer);
                 ChatResponseVO response = ChatResponseVO.builder()
                         .content(fullAnswer)
                         .citations(citations)
-                        .fromKnowledgeBase(true)
+                        .fromKnowledgeBase(!RagGroundingSupport.isRefusalAnswer(fullAnswer)
+                                && hybridResult.fusedResults() != null
+                                && !hybridResult.fusedResults().isEmpty())
                         .graphContext(hybridResult.kagContext())
                         .build();
 
@@ -150,18 +156,13 @@ public class KAGChatServiceImpl implements KAGChatService
     // ==================== Private Methods ====================
 
     /**
-     * 构建KAG增强Prompt（包含知识图谱推理路径 + 文档片段）
+     * 构建KAG增强Prompt（图谱路径 + 文档片段；短主题改写为介绍问法）
      */
     private String buildKAGPrompt(String query, HybridResult hybridResult) {
         StringBuilder sb = new StringBuilder();
 
-        // System instructions
-        sb.append("你是一个企业知识库助手。请综合参考以下两类知识来回答用户问题。\n");
-        sb.append("回答时，请注意以下规则：\n");
-        sb.append("1. 优先基于知识图谱中最直接的推理路径进行解答\n");
-        sb.append("2. 参考文档片段提供具体细节和验证\n");
-        sb.append("3. 引用参考文档时标注编号 [1]、[2]\n");
-        sb.append("4. 如果知识库中没有相关信息，请明确说明\n\n");
+        RagGroundingSupport.appendGroundingRules(sb);
+        sb.append("补充：优先参考知识图谱中最直接的推理路径，再用文档片段补充细节与验证。\n\n");
 
         // KAG Graph Context
         GraphContext kagContext = hybridResult.kagContext();
@@ -213,32 +214,10 @@ public class KAGChatServiceImpl implements KAGChatService
             }
         }
 
-        // User query
-        sb.append("=== 用户问题 ===\n").append(query);
+        sb.append("=== 用户问题 ===\n")
+                .append(RagGroundingSupport.resolveEffectiveQuery(query));
 
         return sb.toString();
-    }
-
-    private List<CitationVO> buildCitations(List<RagSearchResultVO> results) {
-        if (results == null || results.isEmpty()) return List.of();
-
-        List<CitationVO> citations = new ArrayList<>();
-        for (int i = 0; i < results.size(); i++) {
-            RagSearchResultVO result = results.get(i);
-            String excerpt = result.getContent() != null &&
-                    result.getContent().length() > 100
-                    ? result.getContent().substring(0, 100) + "..."
-                    : result.getContent();
-
-            citations.add(CitationVO.builder()
-                    .index(i + 1)
-                    .documentId(result.getDocumentId())
-                    .documentTitle(result.getDocumentTitle())
-                    .excerpt(excerpt)
-                    .relevanceScore(result.getScore())
-                    .build());
-        }
-        return citations;
     }
 
     private ChatLanguageModel getModel(String modelName) {

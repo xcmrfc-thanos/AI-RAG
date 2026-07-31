@@ -15,7 +15,7 @@
 *.key
 *.p12
 *.jks
-
+docs/lingclaw/
 # ---------- deploy：本地运行产物与密钥（勿提交） ----------
 /deploy/.env
 /deploy/.env.*
