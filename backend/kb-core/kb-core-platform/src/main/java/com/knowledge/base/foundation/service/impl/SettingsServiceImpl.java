@@ -96,6 +96,8 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("enableAI",             new String[]{"system.enableAI",                "boolean", "true",                               "SYSTEM"});
         FIELD_TO_CONFIG.put("enableAIWriting",      new String[]{"system.enableAIWriting",         "boolean", "true",                               "SYSTEM"});
         FIELD_TO_CONFIG.put("enableAgent",          new String[]{"system.enableAgent",             "boolean", "true",                               "SYSTEM"});
+        /** AI 助手内结构化 @workflow 触发；默认关闭，显式开启后才展示选择器 */
+        FIELD_TO_CONFIG.put("enableAiWorkflowTrigger", new String[]{"system.enableAiWorkflowTrigger", "boolean", "false",                          "SYSTEM"});
         FIELD_TO_CONFIG.put("enableFullTextSearch", new String[]{"system.enableFullTextSearch",    "boolean", "true",                               "SYSTEM"});
 
         // ===== 安全设置 =====
@@ -242,7 +244,8 @@ public class SettingsServiceImpl implements SettingsService {
     // 各分组的字段列表
     private static final List<String> SETTINGS_BASIC_FIELDS = List.of(
             "systemName", "systemDescription", "systemVersion", "defaultLanguage", "timezone",
-            "allowRegistration", "requireApproval", "enableComments", "enableAI", "enableAIWriting", "enableAgent", "enableFullTextSearch"
+            "allowRegistration", "requireApproval", "enableComments", "enableAI", "enableAIWriting", "enableAgent",
+            "enableAiWorkflowTrigger", "enableFullTextSearch"
     );
     private static final List<String> SETTINGS_SECURITY_FIELDS = List.of(
             "passwordPolicy", "sessionTimeout", "enable2FA", "ipRestriction",

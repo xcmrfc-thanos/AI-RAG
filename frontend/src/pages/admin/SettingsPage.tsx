@@ -857,6 +857,12 @@ export const SettingsPage: React.FC = () => {
           {renderSwitchItem('AI助手', '启用AI智能问答助手功能', 'enableAI', basicForm)}
           {renderSwitchItem('AI写作', '启用AI智能写作辅助功能', 'enableAIWriting', basicForm)}
           {renderSwitchItem('Agent', '启用Agent工作流（默认开启）', 'enableAgent', basicForm)}
+          {renderSwitchItem(
+            'AI助手@工作流',
+            '在 AI 助手内用结构化选择器触发已发布工作流（默认关闭）',
+            'enableAiWorkflowTrigger',
+            basicForm,
+          )}
           {renderSwitchItem('全文搜索', '启用文档全文检索功能', 'enableFullTextSearch', basicForm)}
         </Form>
         {renderSaveBar(handleSaveBasic)}

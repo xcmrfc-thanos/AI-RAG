@@ -14,6 +14,8 @@
 - [x] Design 已落盘：`docs/superpowers/specs/2026-07-31-structured-workflow-trigger-design.md`
 - [x] 未修改 Workflow v1
 
+**实施状态（2026-07-31）：** 代码与单测已合入；默认开关关闭；受控 E2E 冒烟待联调环境开启 `enableAiWorkflowTrigger` 后验证。
+
 **参考快照：** 本专项不依赖 lingclaw 源码拷贝；交互对照仅作产品参考。
 
 ---

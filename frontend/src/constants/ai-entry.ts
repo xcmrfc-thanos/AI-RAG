@@ -14,6 +14,8 @@ export const AI_FEATURE_FLAGS = {
    * 默认生产关闭；任务 71 冒烟 + 56-Ops 完成前不得开启。
    */
   enableAgent: 'enableAgent',
+  /** AI 助手结构化 @workflow 触发（默认关闭） */
+  enableAiWorkflowTrigger: 'enableAiWorkflowTrigger',
 } as const;
 
 /** 前端路由（任务 64 冻结） */
@@ -54,6 +56,12 @@ export const AI_ENTRY_COPY = {
     tagRag: '知识库增强',
     ragTooltip: '开启后 AI 将从知识库检索相关文档辅助回答',
     placeholder: '输入您的问题，Enter 发送，Shift+Enter 换行',
+    workflowPickerLabel: '工作流',
+    workflowPickerPlaceholder: '选择已发布工作流',
+    workflowChipClear: '取消工作流',
+    workflowRunning: '工作流运行中…',
+    workflowFailed: '工作流运行失败',
+    workflowOpenAgent: '在 Agent 页查看轨迹',
     disabledTitle: 'AI 助手功能已关闭',
     disabledDesc: '管理员已在系统设置中关闭了 AI 助手功能，如需使用请联系管理员。',
   },

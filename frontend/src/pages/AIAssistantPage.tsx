@@ -34,9 +34,18 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import { useAIStore, useAuthStore, useAppStore } from '@/stores';
-import { aiService } from '@/services';
+import { aiService, agentService } from '@/services';
 import { EmptyState } from '@/components/common';
 import { AI_ENTRY_COPY } from '@/constants/ai-entry';
+import {
+  WorkflowMentionPicker,
+  WorkflowRunCard,
+  buildCreateRunPayload,
+  buildIdempotencyKey,
+  canShowWorkflowTrigger,
+  type WorkflowSelection,
+} from '@/features/ai-workflow-trigger';
+import type { AgentRunView } from '@/services/agent.service';
 import { AIQuickQuestion, Citation, openCitationDocument } from '@/types';
 import type { GraphContext } from '@/types';
 import { formatRelevancePercent } from '@/components/search';
@@ -1034,9 +1043,34 @@ const AIAssistantContent: React.FC = () => {
   } = useAIStore();
 
   const { user } = useAuthStore();
+  const enableAI = useAppStore((s) => s.enableAI);
+  const enableAgent = useAppStore((s) => s.enableAgent);
+  const enableAiWorkflowTrigger = useAppStore((s) => s.enableAiWorkflowTrigger);
 
   const chatInputRef = useRef<ChatInputHandle>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [workflowSelection, setWorkflowSelection] = useState<WorkflowSelection | null>(null);
+  const [workflowCards, setWorkflowCards] = useState<Array<{
+    localId: string;
+    selection: WorkflowSelection;
+    query: string;
+    run: AgentRunView | null;
+    errorMessage?: string | null;
+    cancelling?: boolean;
+  }>>([]);
+  const pendingIdempotencyRef = useRef<string | null>(null);
+
+  const showWorkflowTrigger = canShowWorkflowTrigger({
+    enableAI,
+    enableAgent,
+    enableAiWorkflowTrigger,
+    user,
+  });
+
+  useEffect(() => {
+    pendingIdempotencyRef.current = null;
+  }, [workflowSelection?.workflowVersionId]);
+
   const [quickQuestions, setQuickQuestions] = useState<AIQuickQuestion[]>([]);
   const [messageFeedbacks, setMessageFeedbacks] = useState<Record<string, 'like' | 'dislike'>>({});
   const [showReferences, setShowReferences] = useState<Record<string, boolean>>({});
@@ -1111,17 +1145,95 @@ const AIAssistantContent: React.FC = () => {
   };
 
   /**
-   * handleSend。
+   * handleSend：无工作流选中时走普通问答；有选中时走结构化 Agent Run。
    */
   const handleSend = useCallback(async (content: string) => {
     if (!content.trim()) return;
+
+    if (workflowSelection) {
+      let idempotencyKey = pendingIdempotencyRef.current;
+      const versionToken = `-${workflowSelection.workflowVersionId}-`;
+      if (!idempotencyKey || !idempotencyKey.includes(versionToken)) {
+        const nonce = typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}`;
+        idempotencyKey = buildIdempotencyKey(
+          currentConversation?.id ?? null,
+          workflowSelection.workflowVersionId,
+          nonce,
+        );
+        pendingIdempotencyRef.current = idempotencyKey;
+      }
+      const payload = buildCreateRunPayload(workflowSelection, content, idempotencyKey);
+      if (!payload) return;
+
+      const localId = idempotencyKey;
+      setWorkflowCards((prev) => {
+        if (prev.some((c) => c.localId === localId)) return prev;
+        return [
+          ...prev,
+          {
+            localId,
+            selection: workflowSelection,
+            query: payload.input.query,
+            run: null,
+          },
+        ];
+      });
+      setIsTyping(true);
+      try {
+        const session = await agentService.createSession(payload.input.query.slice(0, 40));
+        const run = await agentService.createRun({
+          ...payload,
+          sessionId: session?.id,
+        });
+        setWorkflowCards((prev) =>
+          prev.map((c) => (c.localId === localId ? { ...c, run, errorMessage: null } : c)),
+        );
+        pendingIdempotencyRef.current = null;
+      } catch (err: unknown) {
+        const axiosErr = err as { response?: { data?: { message?: string }; status?: number }; message?: string };
+        const msg =
+          axiosErr?.response?.data?.message
+          || (axiosErr?.response?.status === 403 ? '无权限运行该工作流（403）' : null)
+          || axiosErr?.message
+          || '运行失败';
+        setWorkflowCards((prev) =>
+          prev.map((c) => (c.localId === localId ? { ...c, errorMessage: msg } : c)),
+        );
+        pendingIdempotencyRef.current = null;
+      } finally {
+        setIsTyping(false);
+      }
+      return;
+    }
+
     setIsTyping(true);
     try {
       await sendMessage(content, currentConversation?.id != null ? String(currentConversation.id) : undefined);
     } finally {
       setIsTyping(false);
     }
-  }, [sendMessage, currentConversation?.id]);
+  }, [sendMessage, currentConversation?.id, workflowSelection]);
+
+  /**
+   * 协作取消工作流 Run。
+   */
+  const handleCancelWorkflowRun = useCallback(async (localId: string, runId: number) => {
+    setWorkflowCards((prev) =>
+      prev.map((c) => (c.localId === localId ? { ...c, cancelling: true } : c)),
+    );
+    try {
+      const run = await agentService.cancelRun(runId);
+      setWorkflowCards((prev) =>
+        prev.map((c) => (c.localId === localId ? { ...c, run, cancelling: false } : c)),
+      );
+    } catch {
+      setWorkflowCards((prev) =>
+        prev.map((c) => (c.localId === localId ? { ...c, cancelling: false } : c)),
+      );
+    }
+  }, []);
 
   /**
    * handleQuickQuestion。
@@ -1796,6 +1908,32 @@ const AIAssistantContent: React.FC = () => {
           </div>
 
           {/* ======== 输入区域 ======== */}
+          <div style={{ padding: '0 20px', background: '#fafbfc' }}>
+            <div style={{ maxWidth: 900, margin: '0 auto' }}>
+              {workflowCards.map((card) => (
+                <WorkflowRunCard
+                  key={card.localId}
+                  selection={card.selection}
+                  query={card.query}
+                  run={card.run}
+                  errorMessage={card.errorMessage}
+                  cancelling={card.cancelling}
+                  onCancel={
+                    card.run?.id
+                      ? () => { void handleCancelWorkflowRun(card.localId, card.run!.id); }
+                      : undefined
+                  }
+                />
+              ))}
+              {showWorkflowTrigger ? (
+                <WorkflowMentionPicker
+                  value={workflowSelection}
+                  onChange={setWorkflowSelection}
+                  disabled={isLoading || isTyping}
+                />
+              ) : null}
+            </div>
+          </div>
           <ChatInput
             ref={chatInputRef}
             onSend={handleSend}
