@@ -51,7 +51,7 @@ Cursor / 内部 Agent（MCP Client）
 | `hybrid_search` | `POST /api/search` | `query` 1–1000；`mode` keyword\|hybrid；`topK` 1–20 | 仅 documentId/title/summary/score 等裁剪字段；截断过长 summary |
 | `get_document` | `GET /api/document/documents/{id}` | `documentId` 必填；`maxChars` 500–10000（默认 4000） | 正文截断；不返回下载 URL/内部存储密钥 |
 
-**首期不做**：`check_sensitive`（可作 P1.1）、写操作、任意 Gateway 路径代理。
+**首期不做**：写操作、任意 Gateway 路径代理、敏感词工具（已明确取消，不作 P1.1）。
 
 动态工具注册、远程 MCP 市场、Agent 工作流内嵌 MCP Client → **不在本边界**；须另开设计且不得写入 Workflow v1。
 

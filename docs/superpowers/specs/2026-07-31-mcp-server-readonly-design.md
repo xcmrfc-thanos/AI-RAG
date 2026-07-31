@@ -12,7 +12,7 @@
 
 为企业侧 **Cursor / 内部 Agent** 提供只读 MCP 能力，复用现有 `hybrid_search`、`get_document` 语义（与 kb-agent 工具对齐），经 Gateway + 终端用户 JWT 执行 ACL，峰值约 5 QPS。
 
-**非目标**：MCP Client、stdio 默认托管、写工具、系统 HMAC 旁路、Workflow v1 动态工具、敏感词工具（P1.1）。
+**非目标**：MCP Client、stdio 默认托管、写工具、系统 HMAC 旁路、Workflow v1 动态工具、敏感词工具（已取消，不作 P1.1）。
 
 ---
 
