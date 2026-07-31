@@ -95,6 +95,13 @@ spring:
             - Path=/api/agent/**
           filters:
             - StripPrefix=2
+        - id: kb-mcp
+          uri: lb://kb-mcp
+          predicates:
+            - Path=/api/mcp,/api/mcp/**
+          filters:
+            # 保留 /mcp/** 下游路径（与 /api/rag 同为 StripPrefix=1）
+            - StripPrefix=1
 
 logging:
   level:

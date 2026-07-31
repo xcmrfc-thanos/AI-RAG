@@ -45,6 +45,12 @@ public class UnifiedResponseFilter implements GlobalFilter, Ordered {
      */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
+        // MCP JSON-RPC 须保持原样，禁止包成 Result
+        if (path != null && path.startsWith("/api/mcp")) {
+            return chain.filter(exchange);
+        }
+
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
 

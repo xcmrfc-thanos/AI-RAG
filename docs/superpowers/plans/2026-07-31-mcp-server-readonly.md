@@ -47,10 +47,10 @@
 
 - [x] 需求证据：使用方、负责人、用例、可量化验收指标（waitlist）
 - [x] 契约证据：spec + 本 plan 已落盘；冻结契约未静默变更
-- [ ] 安全证据：401/403、ACL 越权、凭证泄露、默认关闭、限流均有负向验证
-- [ ] 功能证据：专项单测/集成通过；至少一次受控 E2E/冒烟
-- [ ] 默认关闭：`mcp.server.enabled=false` 时业务不可用
-- [ ] 文档：边界 + design + 本 plan + 冒烟脚本说明
+- [x] 安全证据：401/403、ACL 越权、凭证泄露、默认关闭、限流均有负向验证
+- [x] 功能证据：专项单测/集成通过；至少一次受控 E2E/冒烟
+- [x] 默认关闭：`mcp.server.enabled=false` 时业务不可用
+- [x] 文档：边界 + design + 本 plan + 冒烟脚本说明
 
 ---
 
@@ -100,9 +100,9 @@
 
 ## Task 4：Gateway 路由 + 冒烟脚本
 
-- [ ] Nacos template：`/api/mcp/**` → kb-mcp，不进白名单
-- [ ] `verify-mcp-readonly.ps1`：静态检查 + 可选 `-Live`
-- [ ] 更新路线图 Phase1 勾选与 M2 状态
+- [x] Nacos template：`/api/mcp` + `/api/mcp/**` → kb-mcp，不进白名单；UnifiedResponse 跳过 MCP
+- [x] `verify-mcp-readonly.ps1`：静态检查 + 可选 `-Live`
+- [x] 更新路线图 Phase1 勾选与 M2 状态
 
 ---
 
@@ -120,3 +120,4 @@
 | 2026-07-31 | Task 1 | 完成（kb-mcp 脚手架 + 默认关） |
 | 2026-07-31 | Task 2 | 完成（Gateway 出站 + 两只读工具） |
 | 2026-07-31 | Task 3 | 完成（JSON-RPC 子集 + 限流） |
+| 2026-07-31 | Task 4 | 完成（Gateway 路由 + 冒烟） |
