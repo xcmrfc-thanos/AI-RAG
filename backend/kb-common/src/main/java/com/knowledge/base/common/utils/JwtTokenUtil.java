@@ -37,7 +37,7 @@ public class JwtTokenUtil {
      * @return Token
      */
     public String generateAccessToken(Long userId) {
-        return generateToken(userId, null, null, jwtConfig.getExpiration() * 1000);
+        return generateToken(userId, null, null, jwtConfig.getExpiration() * 1000, "access", null);
     }
 
     /**
@@ -49,7 +49,7 @@ public class JwtTokenUtil {
      * @return Token
      */
     public String generateAccessToken(Long userId, String username, String avatar) {
-        return generateToken(userId, username, avatar, jwtConfig.getExpiration() * 1000);
+        return generateToken(userId, username, avatar, jwtConfig.getExpiration() * 1000, "access", null);
     }
 
     /**
@@ -62,7 +62,52 @@ public class JwtTokenUtil {
      * @return Token
      */
     public String generateAccessToken(Long userId, String username, String avatar, Long expirationSeconds) {
-        return generateToken(userId, username, avatar, expirationSeconds * 1000);
+        return generateToken(userId, username, avatar, expirationSeconds * 1000, "access", null);
+    }
+
+    /**
+     * 生成短期 Embed 访问 Token（iframe 对话用，禁止写入 URL）。
+     *
+     * @param userId           终端用户 ID
+     * @param username         用户名（可空）
+     * @param knowledgeScope   知识范围声明（审计/展示；检索仍按用户 ACL）
+     * @param allowedOrigin    允许的父页 Origin
+     * @param nonce            一次性随机串
+     * @param expirationSeconds 过期秒数
+     * @return JWT
+     */
+    public String generateEmbedToken(Long userId,
+                                     String username,
+                                     String knowledgeScope,
+                                     String allowedOrigin,
+                                     String nonce,
+                                     long expirationSeconds) {
+        Map<String, Object> extra = new HashMap<>();
+        if (knowledgeScope != null && !knowledgeScope.isBlank()) {
+            extra.put("knowledgeScope", knowledgeScope.trim());
+        }
+        if (allowedOrigin != null && !allowedOrigin.isBlank()) {
+            extra.put("allowedOrigin", allowedOrigin.trim());
+        }
+        if (nonce != null && !nonce.isBlank()) {
+            extra.put("nonce", nonce.trim());
+        }
+        return generateToken(userId, username, null, expirationSeconds * 1000, "embed", extra);
+    }
+
+    /**
+     * 读取 Token 类型声明（access / embed 等）。
+     *
+     * @param token JWT
+     * @return type 或 null
+     */
+    public String getTokenType(String token) {
+        Claims claims = parseToken(token);
+        if (claims == null) {
+            return null;
+        }
+        Object type = claims.get("type");
+        return type != null ? type.toString() : null;
     }
 
     /**
@@ -72,28 +117,40 @@ public class JwtTokenUtil {
      * @return Token
      */
     public String generateRefreshToken(Long userId) {
-        return generateToken(userId, null, null, jwtConfig.getRefreshExpiration() * 1000);
+        return generateToken(userId, null, null, jwtConfig.getRefreshExpiration() * 1000, "access", null);
     }
 
     /**
      * 生成Token
      *
      * @param userId 用户ID
+     * @param username 用户名
+     * @param avatar 头像
      * @param expiration 过期时间（毫秒）
+     * @param tokenType access / embed
+     * @param extraClaims 附加声明
      * @return Token
      */
-    private String generateToken(Long userId, String username, String avatar, Long expiration) {
+    private String generateToken(Long userId,
+                                 String username,
+                                 String avatar,
+                                 Long expiration,
+                                 String tokenType,
+                                 Map<String, Object> extraClaims) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("type", "access");
+        claims.put("type", tokenType != null ? tokenType : "access");
         if (username != null) {
             claims.put("username", username);
         }
         if (avatar != null) {
             claims.put("avatar", avatar);
+        }
+        if (extraClaims != null) {
+            claims.putAll(extraClaims);
         }
 
         return Jwts.builder()

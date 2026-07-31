@@ -18,6 +18,8 @@ const ActivateAccountPage = lazy(() => import('@/pages/ActivateAccountPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
 const ShareViewerPage = lazy(() => import('@/pages/ShareViewerPage'));
+const EmbedChatPage = lazy(() => import('@/pages/EmbedChatPage'));
+const EmbedLabPage = lazy(() => import('@/pages/EmbedLabPage'));
 const DocumentsPage = lazy(() => import('@/pages/DocumentsPage'));
 const DraftsPage = lazy(() => import('@/pages/DraftsPage'));
 const CreateDocumentPage = lazy(() => import('@/pages/CreateDocumentPage'));
@@ -154,6 +156,26 @@ const AiWritingGate: React.FC = () => {
   );
 };
 
+/**
+ * 嵌入实验室门禁
+ */
+const EmbedLabGate: React.FC = () => {
+  const enableEmbedLab = useAppStore((s) => s.enableEmbedLab);
+  if (!enableEmbedLab) {
+    return (
+      <FeatureDisabledPanel
+        title="嵌入实验室已关闭"
+        subtitle="管理员可在系统设置中开启「嵌入实验室」后使用自嵌演示。"
+      />
+    );
+  }
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <EmbedLabPage />
+    </Suspense>
+  );
+};
+
 // 配置路由（导出供单测检测重复 path）
 export const appRoutes: RouteObject[] = [
   {
@@ -161,6 +183,14 @@ export const appRoutes: RouteObject[] = [
     element: (
       <Suspense fallback={<LoadingFallback />}>
         <ShareViewerPage />
+      </Suspense>
+    ),
+  },
+  {
+    path: '/embed/chat',
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <EmbedChatPage />
       </Suspense>
     ),
   },
@@ -355,6 +385,14 @@ export const appRoutes: RouteObject[] = [
       {
         path: 'ai',
         element: <AiAssistantGate />,
+      },
+      {
+        path: 'embed-lab',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <EmbedLabGate />
+          </Suspense>
+        ),
       },
       {
         path: 'ai-writing',

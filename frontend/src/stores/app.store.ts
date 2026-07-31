@@ -16,6 +16,8 @@ interface AppState {
   enableAgent: boolean;
   /** AI 助手内结构化 @workflow 触发；默认关闭 */
   enableAiWorkflowTrigger: boolean;
+  /** 嵌入实验室自嵌试点；默认关闭 */
+  enableEmbedLab: boolean;
   enableFullTextSearch: boolean;
   enableEmail: boolean;
   enableWebSocket: boolean;
@@ -45,6 +47,7 @@ const BOOLEAN_CONFIG_MAP: Record<string, [keyof AppState, boolean]> = {
   'system.enableAIWriting':     ['enableAIWriting', true],
   'system.enableAgent':         ['enableAgent', true],
   'system.enableAiWorkflowTrigger': ['enableAiWorkflowTrigger', false],
+  'system.enableEmbedLab': ['enableEmbedLab', false],
   'system.enableFullTextSearch': ['enableFullTextSearch', true],
   'email.enabled':                ['enableEmail', true],
   'websocket.enabled':            ['enableWebSocket', true],
@@ -59,6 +62,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   enableAIWriting: true,
   enableAgent: true,
   enableAiWorkflowTrigger: false,
+  enableEmbedLab: false,
   enableFullTextSearch: true,
   enableEmail: true,
   enableWebSocket: true,

@@ -16,6 +16,8 @@ export const AI_FEATURE_FLAGS = {
   enableAgent: 'enableAgent',
   /** AI 助手结构化 @workflow 触发（默认关闭） */
   enableAiWorkflowTrigger: 'enableAiWorkflowTrigger',
+  /** 嵌入实验室（自嵌试点，默认关闭） */
+  enableEmbedLab: 'enableEmbedLab',
 } as const;
 
 /** 前端路由（任务 64 冻结） */

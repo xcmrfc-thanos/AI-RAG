@@ -867,6 +867,12 @@ export const SettingsPage: React.FC = () => {
             'enableAiWorkflowTrigger',
             basicForm,
           )}
+          {renderSwitchItem(
+            '嵌入实验室',
+            '本系统自嵌 iframe 对话试点（模拟 OA/门户，默认关闭）',
+            'enableEmbedLab',
+            basicForm,
+          )}
           {renderSwitchItem('全文搜索', '启用文档全文检索功能', 'enableFullTextSearch', basicForm)}
         </Form>
         {renderSaveBar(handleSaveBasic)}

@@ -216,6 +216,7 @@ const MainLayout: React.FC = () => {
   const enableAI = useAppStore((s) => s.enableAI);
   const enableAIWriting = useAppStore((s) => s.enableAIWriting);
   const enableAgent = useAppStore((s) => s.enableAgent);
+  const enableEmbedLab = useAppStore((s) => s.enableEmbedLab);
   const enableFullTextSearch = useAppStore((s) => s.enableFullTextSearch);
   const enableWebSocket = useAppStore((s) => s.enableWebSocket);
   const fetchAppConfig = useAppStore((s) => s.fetchAppConfig);
@@ -414,6 +415,16 @@ const MainLayout: React.FC = () => {
                 <path d="M3 14h7v7H3z"></path>
               </svg>
               {AI_ENTRY_COPY.agent.navLabel}
+            </a>
+            )}
+            {enableEmbedLab && (
+            <a href="/embed-lab" className={`nav-link ${location.pathname === '/embed-lab' ? 'active' : ''}`} onClick={(e) => handleNavClick(e, '/embed-lab')}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="2" y="3" width="20" height="14" rx="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+              </svg>
+              嵌入实验室
             </a>
             )}
             {showAdminMenu && (

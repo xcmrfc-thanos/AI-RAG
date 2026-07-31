@@ -98,6 +98,8 @@ public class SettingsServiceImpl implements SettingsService {
         FIELD_TO_CONFIG.put("enableAgent",          new String[]{"system.enableAgent",             "boolean", "true",                               "SYSTEM"});
         /** AI 助手内结构化 @workflow 触发；默认关闭，显式开启后才展示选择器 */
         FIELD_TO_CONFIG.put("enableAiWorkflowTrigger", new String[]{"system.enableAiWorkflowTrigger", "boolean", "false",                          "SYSTEM"});
+        /** 嵌入实验室（自嵌 iframe 试点）；默认关闭 */
+        FIELD_TO_CONFIG.put("enableEmbedLab",       new String[]{"system.enableEmbedLab",          "boolean", "false",                              "SYSTEM"});
         FIELD_TO_CONFIG.put("enableFullTextSearch", new String[]{"system.enableFullTextSearch",    "boolean", "true",                               "SYSTEM"});
 
         // ===== 安全设置 =====
@@ -245,7 +247,7 @@ public class SettingsServiceImpl implements SettingsService {
     private static final List<String> SETTINGS_BASIC_FIELDS = List.of(
             "systemName", "systemDescription", "systemVersion", "defaultLanguage", "timezone",
             "allowRegistration", "requireApproval", "enableComments", "enableAI", "enableAIWriting", "enableAgent",
-            "enableAiWorkflowTrigger", "enableFullTextSearch"
+            "enableAiWorkflowTrigger", "enableEmbedLab", "enableFullTextSearch"
     );
     private static final List<String> SETTINGS_SECURITY_FIELDS = List.of(
             "passwordPolicy", "sessionTimeout", "enable2FA", "ipRestriction",

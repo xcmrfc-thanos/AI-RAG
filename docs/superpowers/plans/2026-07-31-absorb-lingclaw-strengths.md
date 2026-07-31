@@ -296,6 +296,6 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 1. ~~先完成 P0 使用方确认；无须写代码。~~ **已完成**（见 P0 基线，2026-07-31）。
 2. ~~M1：P2 结构化 `@workflow` design + 实施。~~ **已完成**（计划/代码/静态+Live 冒烟）。
-3. **M2 暂停实施：** 填齐 [M2 准入等待清单](../specs/2026-07-31-lingclaw-absorb-m2-waitlist.md) 中 P1 或 P3 表格并确认后，再开对应 design；**禁止无使用方编码**。
+3. **M2：** P3 自嵌试点已获准实施（嵌入实验室）；P1（Cursor/内部 Agent）已登记，待独立 MCP design。
 4. P2 回归：`.\verify-ai-workflow-trigger.ps1`（可选 `-Live -RunSample`）。
-5. Embed、MCP Client、Cron 均按各自 Gate；出现消费方/宿主/工具样例后再开独立 design。
+5. MCP Client / Cron 仍按 Gate 延后。

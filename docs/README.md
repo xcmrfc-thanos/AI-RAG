@@ -14,7 +14,9 @@
 | [superpowers/plans/2026-07-18-upload-progress-resume-fast.md](superpowers/plans/2026-07-18-upload-progress-resume-fast.md) | 真进度 + 分片/续传/秒传实现计划 |
 | [superpowers/plans/2026-07-31-absorb-lingclaw-strengths.md](superpowers/plans/2026-07-31-absorb-lingclaw-strengths.md) | lingclaw 能力吸收路线图：按必要性、可行性与风险排序（只读 MCP Server / 结构化工作流触发 / 安全嵌入） |
 | [superpowers/specs/2026-07-31-lingclaw-absorb-p0-baseline.md](superpowers/specs/2026-07-31-lingclaw-absorb-p0-baseline.md) | P0 基线：使用方确认、跨域冻结决策、M0 退出（仅 P2 获准） |
-| [superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md](superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md) | M2 准入等待清单：P1/P3 使用方填表后方可开 design |
+| [superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md](superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md) | M2 准入等待清单：P1 已登记 Cursor/Agent；P3 自嵌试点获准 |
+| [superpowers/specs/2026-07-31-embed-chat-self-lab-design.md](superpowers/specs/2026-07-31-embed-chat-self-lab-design.md) | P3 嵌入实验室自嵌设计 |
+| [superpowers/plans/2026-07-31-embed-chat-self-lab.md](superpowers/plans/2026-07-31-embed-chat-self-lab.md) | P3 自嵌实施计划 |
 | [superpowers/templates/specialty-implementation-plan-template.md](superpowers/templates/specialty-implementation-plan-template.md) | 获准专项的 implementation plan 模板（含统一交付 Gate） |
 | [superpowers/specs/2026-07-31-structured-workflow-trigger-design.md](superpowers/specs/2026-07-31-structured-workflow-trigger-design.md) | P2 结构化 @workflow 触发设计 |
 | [superpowers/plans/2026-07-31-structured-workflow-trigger.md](superpowers/plans/2026-07-31-structured-workflow-trigger.md) | P2 结构化 @workflow 实施计划 |
