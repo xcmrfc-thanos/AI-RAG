@@ -31,7 +31,7 @@
 | 验收指标 | 401/403、不可见文档、限流可测 |
 | HMAC 旁路 ACL | **否** |
 
-**状态：** **获准实施**；边界 [mcp-server-boundary-v1.md](../../agent/mcp-server-boundary-v1.md)、design [2026-07-31-mcp-server-readonly-design.md](./2026-07-31-mcp-server-readonly-design.md)、plan [2026-07-31-mcp-server-readonly.md](../plans/2026-07-31-mcp-server-readonly.md)。
+**状态：** **首期已交付**（默认 `mcp.server.enabled=false`）；冒烟 `deploy/scripts/verify-mcp-readonly.ps1`。
 
 ---
 
