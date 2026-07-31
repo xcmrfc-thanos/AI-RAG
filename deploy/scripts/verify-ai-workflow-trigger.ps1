@@ -6,9 +6,11 @@
 .EXAMPLE
   .\verify-ai-workflow-trigger.ps1
   .\verify-ai-workflow-trigger.ps1 -Live
+  .\verify-ai-workflow-trigger.ps1 -Live -RunSample
 #>
 param(
     [switch]$Live,
+    [switch]$RunSample,
     [string]$GatewayUrl = "http://127.0.0.1:18080",
     [string]$AdminUser = "admin",
     [string]$AdminPassword = "admin123",
@@ -223,6 +225,78 @@ if ($Live) {
         }
         else {
             Write-WfResult -Name "Live published workflows list" -Status "FAIL" -Detail ("HTTP " + $wf.StatusCode)
+        }
+
+        if ($RunSample) {
+            $draftObj = @{
+                schemaVersion = 1
+                name          = "p2-live-smoke"
+                nodes         = @(
+                    @{
+                        id    = "answer"
+                        type  = "llm"
+                        input = @{ prompt = 'Echo: ${input.query}' }
+                    }
+                )
+                edges = @()
+            }
+            $draftJson = $draftObj | ConvertTo-Json -Depth 10 -Compress
+            $created = Invoke-Json -Uri "$base/api/agent/workflows" -Method POST -Token $token -Body @{
+                name      = "p2-live-smoke"
+                draftJson = $draftJson
+            }
+            $wfId = $null
+            if ($created.StatusCode -eq 200 -and $created.Json -and $created.Json.data) {
+                $wfId = $created.Json.data.id
+            }
+            if (-not $wfId) {
+                Write-WfResult -Name "Live sample create workflow" -Status "FAIL" -Detail ("HTTP " + $created.StatusCode)
+            }
+            else {
+                $null = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/draft" -Method PUT -Token $token -Body @{ draftJson = $draftJson }
+                $null = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/validate" -Method POST -Token $token
+                $published = Invoke-Json -Uri "$base/api/agent/workflows/$wfId/publish" -Method POST -Token $token
+                $verId = $null
+                if ($published.StatusCode -eq 200 -and $published.Json -and $published.Json.data) {
+                    $verId = $published.Json.data.workflowVersionId
+                }
+                if (-not $verId) {
+                    Write-WfResult -Name "Live sample publish" -Status "FAIL" -Detail ("HTTP " + $published.StatusCode)
+                }
+                else {
+                    Write-WfResult -Name "Live sample publish" -Status "PASS" -Detail ("versionId=$verId")
+                    $idem = "ai-wf-live-" + [guid]::NewGuid().ToString("N")
+                    $run1 = Invoke-Json -Uri "$base/api/agent/runs" -Method POST -Token $token -Body @{
+                        workflowVersionId = [int64]$verId
+                        input             = @{ query = "P2 live smoke" }
+                        idempotencyKey    = $idem
+                    }
+                    $run2 = Invoke-Json -Uri "$base/api/agent/runs" -Method POST -Token $token -Body @{
+                        workflowVersionId = [int64]$verId
+                        input             = @{ query = "P2 live smoke" }
+                        idempotencyKey    = $idem
+                    }
+                    $st = $null
+                    $id1 = $null
+                    $id2 = $null
+                    if ($run1.Json -and $run1.Json.data) {
+                        $st = [string]$run1.Json.data.status
+                        $id1 = $run1.Json.data.id
+                    }
+                    if ($run2.Json -and $run2.Json.data) {
+                        $id2 = $run2.Json.data.id
+                    }
+                    if ($run1.StatusCode -eq 200 -and $st -in @("SUCCEEDED", "FAILED", "TIMED_OUT", "CANCELLED") -and $id1 -and ($id1 -eq $id2)) {
+                        Write-WfResult -Name "Live sample run + idempotency" -Status "PASS" -Detail ("status=$st id=$id1")
+                    }
+                    else {
+                        Write-WfResult -Name "Live sample run + idempotency" -Status "FAIL" -Detail ("HTTP $($run1.StatusCode) status=$st id1=$id1 id2=$id2")
+                    }
+                }
+            }
+        }
+        else {
+            Write-WfResult -Name "Live sample run" -Status "SKIP" -Detail "pass -RunSample with -Live"
         }
     }
 }

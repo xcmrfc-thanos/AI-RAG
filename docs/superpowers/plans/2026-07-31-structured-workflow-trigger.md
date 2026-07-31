@@ -14,7 +14,7 @@
 - [x] Design 已落盘：`docs/superpowers/specs/2026-07-31-structured-workflow-trigger-design.md`
 - [x] 未修改 Workflow v1
 
-**实施状态（2026-07-31）：** 代码与单测已合入；默认开关关闭；静态冒烟 `deploy/scripts/verify-ai-workflow-trigger.ps1` 已通过（13 PASS）。网关 `-Live` 与 UI 一次 Run 在服务就绪后补做。
+**实施状态（2026-07-31）：** 代码与单测已合入；默认开关关闭；静态冒烟通过；网关 Live + RunSample（发布 LLM 流程、Run、幂等）已通过。
 
 **参考快照：** 本专项不依赖 lingclaw 源码拷贝；交互对照仅作产品参考。
 
@@ -50,7 +50,7 @@
 - [x] 运维证据：设置页可关 `enableAiWorkflowTrigger`；默认 false
 - [x] 文档证据：`docs/README.md`、`ai-entry-boundaries.md`、本地 `readme_plan.md` 已同步
 - [x] 受控冒烟（静态契约 + 单测）：`deploy/scripts/verify-ai-workflow-trigger.ps1`
-- [ ] 网关 `-Live` + UI 开开关后一次 Run（服务就绪后补做）
+- [x] 网关 `-Live` + `-RunSample`（发布流程、Run、幂等）：2026-07-31 通过；UI 开开关一次点选可人工抽验
 
 ---
 
