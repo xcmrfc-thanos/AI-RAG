@@ -76,7 +76,7 @@
 ### 开关说明
 
 - 受系统设置 `enableAI` 控制；关闭时导航隐藏，访问页展示关闭提示。
-- 结构化工作流触发另受 `enableAgent` + `enableAiWorkflowTrigger`（默认关闭）及 `agent:workflow:view` / `agent:run` 约束。
+- 结构化工作流触发另受 `enableAgent` + `enableAiWorkflowTrigger`（默认关闭）及 `agent:workflow:view` / `agent:run` 约束；管理员在「基本设置」保存后，前端会强制刷新公开配置，无需整页硬刷新即可生效。
 
 ---
 

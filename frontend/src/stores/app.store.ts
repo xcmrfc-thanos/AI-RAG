@@ -3,6 +3,7 @@
  */
 import { create } from 'zustand';
 import { foundationService } from '@/services';
+import { shouldSkipAppConfigFetch } from './app-config-refresh';
 
 interface AppState {
   systemName: string;
@@ -22,7 +23,12 @@ interface AppState {
   allowedFileTypes: string;
   loaded: boolean;
 
-  fetchAppConfig: () => Promise<void>;
+  /**
+   * 拉取公开系统配置。
+   *
+   * @param options.force 为 true 时忽略 loaded 缓存（设置页保存后刷新开关）
+   */
+  fetchAppConfig: (options?: { force?: boolean }) => Promise<void>;
 }
 
 /** 系统配置 → store 字段映射 */
@@ -60,8 +66,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   allowedFileTypes: 'pdf,doc,docx,xls,xlsx,ppt,pptx,txt,md,jpg,jpeg,png,gif,bmp,webp,svg,ico,mp4,avi,mov,wmv,flv,mkv,webm,mp3,wav,flac,aac,ogg,m4a,wma',
   loaded: false,
 
-  fetchAppConfig: async () => {
-    if (get().loaded) return;
+  fetchAppConfig: async (options) => {
+    if (shouldSkipAppConfigFetch(get().loaded, options?.force)) return;
     try {
       const configs: Record<string, string> = await foundationService.config.getPublic();
       const updates: Partial<Pick<AppState, 'systemName' | 'systemDescription'>> = {};

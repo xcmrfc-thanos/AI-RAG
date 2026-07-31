@@ -456,6 +456,10 @@ export const SettingsPage: React.FC = () => {
       message.success('设置已保存');
       // Refresh to get latest server state
       await fetchSettings();
+      // 基本设置含 AI/Agent/@workflow 开关：强制刷新公开配置，避免 SPA 内仍读旧缓存
+      if (section === 'basic') {
+        await useAppStore.getState().fetchAppConfig({ force: true });
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '保存失败';
       message.error(msg);
