@@ -53,5 +53,5 @@
 
 ## 如何继续
 
-- P3：自嵌试点已交付，维护回归。  
-- P1：按 `2026-07-31-mcp-server-readonly.md` Task 1+ 实现 `kb-mcp`。
+- P1 / P3 首期均已交付（默认关）；运维见 [mcp-server-ops.md](../../agent/mcp-server-ops.md)。  
+- 可选：P1 Live、`check_sensitive`（P1.1，需确认）；M3/M4 仍延后。

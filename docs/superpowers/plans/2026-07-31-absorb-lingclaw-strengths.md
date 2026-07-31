@@ -298,6 +298,7 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 1. ~~先完成 P0 使用方确认；无须写代码。~~ **已完成**（见 P0 基线，2026-07-31）。
 2. ~~M1：P2 结构化 `@workflow` design + 实施。~~ **已完成**（计划/代码/静态+Live 冒烟）。
-3. **M2：** P3 自嵌试点已交付；P1（Cursor/内部 Agent）design/plan 已落盘，按 `2026-07-31-mcp-server-readonly.md` 实现。
-4. P2 回归：`.\verify-ai-workflow-trigger.ps1`（可选 `-Live -RunSample`）。
-5. MCP Client / Cron 仍按 Gate 延后。
+3. ~~M2：P3 自嵌 + P1 只读 MCP。~~ **已完成**（P3 嵌入实验室；P1 `kb-mcp` Task 0–4，默认关；见 `verify-mcp-readonly.ps1` / `docs/agent/mcp-server-ops.md`）。
+4. **可选：** P1 Live 联调（启 `kb-mcp` + 导入路由 + `-Live -EnableProbe`）；P1.1 `check_sensitive`（需产品确认）。
+5. **延后：** M3 MCP Client / M4 Cron（无样例前不编码）。
+6. P2 回归：`.\verify-ai-workflow-trigger.ps1`（可选 `-Live -RunSample`）。

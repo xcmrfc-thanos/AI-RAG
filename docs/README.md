@@ -8,13 +8,18 @@
 | [ai-entry-boundaries.md](ai-entry-boundaries.md) | AI 入口产品边界（搜索/助手/写作/Agent） |
 | [agent/agent-contract-v1.md](agent/agent-contract-v1.md) | Agent 工作流契约 v1 |
 | [agent/agent-security-boundary.md](agent/agent-security-boundary.md) | Agent 安全边界 |
+| [agent/mcp-server-boundary-v1.md](agent/mcp-server-boundary-v1.md) | P1 只读 MCP Server 安全边界 |
+| [agent/mcp-server-ops.md](agent/mcp-server-ops.md) | P1 MCP 运维、开关回滚与 Cursor 接入 |
 | [agent/workflow-schema-v1.json](agent/workflow-schema-v1.json) | 工作流 JSON Schema v1 |
 | [第7阶段-地基治理与Agent演进计划.md](第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段计划与验收证据（56–75，已完成） |
 | [superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md](superpowers/specs/2026-07-18-qdrant-hybrid-dual-write-design.md) | Qdrant 旁路双写设计 |
 | [superpowers/plans/2026-07-18-upload-progress-resume-fast.md](superpowers/plans/2026-07-18-upload-progress-resume-fast.md) | 真进度 + 分片/续传/秒传实现计划 |
 | [superpowers/plans/2026-07-31-absorb-lingclaw-strengths.md](superpowers/plans/2026-07-31-absorb-lingclaw-strengths.md) | lingclaw 能力吸收路线图：按必要性、可行性与风险排序（只读 MCP Server / 结构化工作流触发 / 安全嵌入） |
 | [superpowers/specs/2026-07-31-lingclaw-absorb-p0-baseline.md](superpowers/specs/2026-07-31-lingclaw-absorb-p0-baseline.md) | P0 基线：使用方确认、跨域冻结决策、M0 退出（仅 P2 获准） |
-| [superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md](superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md) | M2 准入等待清单：P1 已登记 Cursor/Agent；P3 自嵌试点获准 |
+| [superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md](superpowers/specs/2026-07-31-lingclaw-absorb-m2-waitlist.md) | M2 准入：P1/P3 已交付；P4/P5 仍延后 |
+| [superpowers/specs/2026-07-31-mcp-server-readonly-design.md](superpowers/specs/2026-07-31-mcp-server-readonly-design.md) | P1 只读 MCP design |
+| [superpowers/plans/2026-07-31-mcp-server-readonly.md](superpowers/plans/2026-07-31-mcp-server-readonly.md) | P1 只读 MCP 实施计划（Task 0–4 已完成） |
+| [../deploy/scripts/verify-mcp-readonly.ps1](../deploy/scripts/verify-mcp-readonly.ps1) | P1 MCP 静态/联调冒烟 |
 | [superpowers/specs/2026-07-31-embed-chat-self-lab-design.md](superpowers/specs/2026-07-31-embed-chat-self-lab-design.md) | P3 嵌入实验室自嵌设计 |
 | [superpowers/plans/2026-07-31-embed-chat-self-lab.md](superpowers/plans/2026-07-31-embed-chat-self-lab.md) | P3 自嵌实施计划 |
 | [superpowers/templates/specialty-implementation-plan-template.md](superpowers/templates/specialty-implementation-plan-template.md) | 获准专项的 implementation plan 模板（含统一交付 Gate） |
@@ -35,7 +40,7 @@
 | [after/hmac-key-rotation.md](after/hmac-key-rotation.md) | 内部 HMAC 密钥轮换 |
 | [after/internal-hmac-path-matrix.md](after/internal-hmac-path-matrix.md) | 内部签名路径矩阵 |
 
-> **同步纪律**：`deploy/` 联调冒烟准源为 `deploy/scripts/verify-all.ps1`（含 `verify-auth-ai.ps1`）。
+> **同步纪律**：`deploy/` 联调冒烟准源为 `deploy/scripts/verify-all.ps1`（含 `verify-auth-ai.ps1`）；专项另见 `verify-ai-workflow-trigger.ps1`、`verify-mcp-readonly.ps1`。
 
 ## 评测
 
