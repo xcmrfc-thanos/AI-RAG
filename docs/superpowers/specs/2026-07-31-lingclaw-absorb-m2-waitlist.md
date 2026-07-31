@@ -1,7 +1,7 @@
 # lingclaw 吸收路线图 — M2 准入等待清单
 
 **日期：** 2026-07-31  
-**状态：** P3 自嵌试点已获准；P1 已登记消费方待独立 design  
+**状态：** P3 自嵌试点已交付；P1 design/plan 已落盘并进入实现  
 **路线图：** [plans/2026-07-31-absorb-lingclaw-strengths.md](../plans/2026-07-31-absorb-lingclaw-strengths.md)  
 **P0 基线：** [2026-07-31-lingclaw-absorb-p0-baseline.md](./2026-07-31-lingclaw-absorb-p0-baseline.md)  
 **P3 设计：** [2026-07-31-embed-chat-self-lab-design.md](./2026-07-31-embed-chat-self-lab-design.md)
@@ -31,7 +31,7 @@
 | 验收指标 | 401/403、不可见文档、限流可测 |
 | HMAC 旁路 ACL | **否** |
 
-**状态：** 已登记，**尚未开 design/编码**（本迭代优先 P3 自嵌）。
+**状态：** **获准实施**；边界 [mcp-server-boundary-v1.md](../../agent/mcp-server-boundary-v1.md)、design [2026-07-31-mcp-server-readonly-design.md](./2026-07-31-mcp-server-readonly-design.md)、plan [2026-07-31-mcp-server-readonly.md](../plans/2026-07-31-mcp-server-readonly.md)。
 
 ---
 
@@ -53,5 +53,5 @@
 
 ## 如何继续
 
-- P3：按 `2026-07-31-embed-chat-self-lab` plan 实现。  
-- P1：P3 试点稳定后再开 `mcp-server-boundary-v1` design。
+- P3：自嵌试点已交付，维护回归。  
+- P1：按 `2026-07-31-mcp-server-readonly.md` Task 1+ 实现 `kb-mcp`。

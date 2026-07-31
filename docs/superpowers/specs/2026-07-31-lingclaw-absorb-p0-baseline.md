@@ -16,8 +16,8 @@
 | 能力 | 使用方 | 结论 | 下一步 |
 |------|--------|------|--------|
 | **P2 结构化 `@workflow`** | AI-RAG 产品自身（`/ai` 用户） | **已交付（M1）** | 维护回归；见 `verify-ai-workflow-trigger.ps1` |
-| **P1 只读 MCP Server** | 无已登记外部消费系统 | **停在设计等待** | 填 [M2 准入清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) 后再开 design |
-| **P3 iframe Embed Chat** | 无已登记宿主系统 | **停在设计等待** | 填 [M2 准入清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) 后再开 design |
+| **P1 只读 MCP Server** | Cursor / 内部 Agent（已登记） | **获准实施** | [mcp-server-boundary-v1](../../agent/mcp-server-boundary-v1.md) + [readonly plan](../plans/2026-07-31-mcp-server-readonly.md) |
+| **P3 iframe Embed Chat** | 本系统「嵌入实验室」自嵌 | **已交付试点** | 见 embed-chat-self-lab design/plan |
 | **P4 MCP Client** | 无只读工具样例证明现有工具不足 | **继续延后** | 不进入 PoC |
 | **P5 Cron** | 无真实定时任务样例 | **继续延后** | 不进入设计编码 |
 | Skills / CodingTool / 市场 | — | **不进排期 / 不做** | 维持路线图 |
@@ -32,22 +32,23 @@
 | 非目标 | 不解析消息正文中的 `@名称 + JSON`；不修改 Workflow Schema v1；`kb-intelligence` 不做命令路由 |
 | 复用契约 | 现有 `POST /api/agent/runs`（含 `idempotencyKey`）、`GET /runs/{id}`、`POST /runs/{id}/cancel` |
 
-### 1.3 P1 MCP Server（未获准实施）
+### 1.3 P1 MCP Server（获准实施）
 
 | 项 | 记录 |
 |----|------|
-| 消费系统 | **未确认**（无外部 Agent/IDE/企业系统负责人与调用约定） |
-| 候选工具 | 若获准则首期仅 `hybrid_search`、`get_document` |
-| 目标 QPS | 未定义 |
-| 身份传递 | 未定义（获准前必须可映射终端用户，禁止共享超级账号） |
-| 停损 | 无法可靠映射终端用户，或消费方只接受系统身份旁路 ACL → **不实施** |
+| 消费系统 | Cursor、内部 Agent（产品试点） |
+| 候选工具 | 首期仅 `hybrid_search`、`get_document` |
+| 目标 QPS | 峰值约 5 |
+| 身份传递 | 调用方带终端用户 JWT/SSO，按该用户 ACL；禁止 HMAC 旁路 |
+| 停损 | 无法可靠映射终端用户，或消费方只接受系统身份旁路 ACL → **停止** |
+| 准源 | [mcp-server-boundary-v1.md](../../agent/mcp-server-boundary-v1.md)、[readonly-design](./2026-07-31-mcp-server-readonly-design.md) |
 
-### 1.4 P3 Embed（未获准实施）
+### 1.4 P3 Embed（自嵌试点已交付）
 
 | 项 | 记录 |
 |----|------|
-| 宿主系统 | **未确认** |
-| Origin / SSO / 知识范围 | **未确认** |
+| 宿主系统 | 本系统「嵌入实验室」（模拟 OA）；外部真实 OA Origin 暂缓 |
+| Origin / SSO / 知识范围 | 同源；登录会话 mint embed Token；knowledgeScope + 用户 ACL |
 | 停损 | 宿主要求浏览器长期 JWT 或 HMAC secret → **停止并重设计** |
 
 ### 1.5 P4 / P5（延后）
@@ -124,10 +125,10 @@
 
 | 问题 | 答案 |
 |------|------|
-| 哪些有真实使用方？ | **仅 P2 `@workflow`（内部产品）** |
-| P1 / P3？ | 无消费方/宿主 → **不实施，仅保留路线图准入条件** |
+| 哪些有真实使用方？ | **P2**（已交付）、**P3 自嵌**（已交付）、**P1**（Cursor/内部 Agent，获准实现中） |
+| P1 / P3？ | P3 试点已交付；P1 design/plan 已落盘进入实现 |
 | P4 / P5？ | **延后** |
-| 下一里程碑 M1 | ~~为 **P2 结构化 `@workflow`** 编写独立 design + implementation plan~~ **已完成**；M2 见 [准入等待清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) |
+| 下一里程碑 | P1 按 [mcp-server-readonly plan](../plans/2026-07-31-mcp-server-readonly.md) Task 1+ |
 
 ---
 

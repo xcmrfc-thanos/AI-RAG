@@ -100,7 +100,7 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 准源记录：[specs/2026-07-31-lingclaw-absorb-p0-baseline.md](../specs/2026-07-31-lingclaw-absorb-p0-baseline.md)
 
-- [x] MCP Server：无已登记消费方与 QPS → **不实施**；候选工具仍为 `hybrid_search` / `get_document`
+- [x] MCP Server：消费方已登记（Cursor/内部 Agent，约 5 QPS）→ **获准**；首期工具 `hybrid_search` / `get_document`
 - [x] `@workflow`：确认内部产品痛点为 `/ai` 与 `/agent` 入口割裂 → **获准写独立实施计划**
 - [x] Embed：无宿主系统 / Origin / SSO → **不实施**
 - [x] MCP Client / Cron：无工具或定时任务样例 → **继续延后**
@@ -134,14 +134,16 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 ### 进入实施 Gate
 
-- [ ] 已记录消费系统、负责人、身份传递方式和目标 QPS
-- [ ] 已完成 `docs/agent/mcp-server-boundary-v1.md` 设计并通过安全评审
-- [ ] 已定义 401/403、不可见文档、超时、限流、输出截断和审计验收
-- [ ] 已生成独立 MCP Server implementation plan
+- [x] 已记录消费系统、负责人、身份传递方式和目标 QPS（见 M2 waitlist）
+- [x] 已完成 `docs/agent/mcp-server-boundary-v1.md` 设计并通过安全评审
+- [x] 已定义 401/403、不可见文档、超时、限流、输出截断和审计验收
+- [x] 已生成独立 MCP Server implementation plan：[plans/2026-07-31-mcp-server-readonly.md](./2026-07-31-mcp-server-readonly.md)
 
 ### 停损条件
 
 无法可靠映射终端用户，或消费方只接受共享超级账号时停止；不得以系统身份旁路 ACL。
+
+**进展（2026-07-31）：** Task 0 契约落盘完成；实现见专项 plan Task 1+。
 
 ---
 
@@ -284,7 +286,7 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 |--------|------|----------|
 | **M0** | P0 需求与边界收敛 | ~~决定 P1/P2/P3 哪些有真实使用方~~ **已退出**（仅 P2 获准） |
 | **M1** | P1 MCP Server 或 P2 `@workflow` 中价值更明确者 | ~~独立计划完成统一 Gate~~ **P2 已交付**（静态 + Live/RunSample 冒烟通过） |
-| **M2** | 完成 M1 未选项，或在有宿主方时做 P3 Embed | 前一阶段稳定且无安全遗留；**P1/P3 仍缺使用方 → 暂停** |
+| **M2** | 完成 M1 未选项，或在有宿主方时做 P3 Embed | P3 自嵌已交付；**P1 进入实现**（design/plan 已落盘） |
 | **M3** | 重新评估 P4 MCP Client | 明确工具样例并通过隔离 PoC |
 | **M4** | 重新评估 P5 Cron | 身份委托与多实例幂等设计获准 |
 
@@ -296,6 +298,6 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 1. ~~先完成 P0 使用方确认；无须写代码。~~ **已完成**（见 P0 基线，2026-07-31）。
 2. ~~M1：P2 结构化 `@workflow` design + 实施。~~ **已完成**（计划/代码/静态+Live 冒烟）。
-3. **M2：** P3 自嵌试点已获准实施（嵌入实验室）；P1（Cursor/内部 Agent）已登记，待独立 MCP design。
+3. **M2：** P3 自嵌试点已交付；P1（Cursor/内部 Agent）design/plan 已落盘，按 `2026-07-31-mcp-server-readonly.md` 实现。
 4. P2 回归：`.\verify-ai-workflow-trigger.ps1`（可选 `-Live -RunSample`）。
 5. MCP Client / Cron 仍按 Gate 延后。
