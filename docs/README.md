@@ -17,6 +17,7 @@
 | [superpowers/templates/specialty-implementation-plan-template.md](superpowers/templates/specialty-implementation-plan-template.md) | 获准专项的 implementation plan 模板（含统一交付 Gate） |
 | [superpowers/specs/2026-07-31-structured-workflow-trigger-design.md](superpowers/specs/2026-07-31-structured-workflow-trigger-design.md) | P2 结构化 @workflow 触发设计 |
 | [superpowers/plans/2026-07-31-structured-workflow-trigger.md](superpowers/plans/2026-07-31-structured-workflow-trigger.md) | P2 结构化 @workflow 实施计划 |
+| [../deploy/scripts/verify-ai-workflow-trigger.ps1](../deploy/scripts/verify-ai-workflow-trigger.ps1) | P2 @workflow 触发静态/联调冒烟 |
 | [superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md](superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md) | AI 公网/内网双环境（对话+向量）实现计划 |
 | [superpowers/specs/2026-07-20-ai-dual-env-design.md](superpowers/specs/2026-07-20-ai-dual-env-design.md) | AI 双环境设计（回退规则与切换步骤） |
 | [superpowers/plans/2026-07-20-db-multi-dialect-foundation.md](superpowers/plans/2026-07-20-db-multi-dialect-foundation.md) | MySQL/PG/Oracle 方言地基实现计划 |

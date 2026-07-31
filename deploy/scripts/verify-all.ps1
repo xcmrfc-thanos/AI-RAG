@@ -48,6 +48,7 @@ Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-phase7-gates.ps1" { .\verify-phase7-gates.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-admin-ui.ps1" { .\verify-admin-ui.ps1 }
+Invoke-VerifyStep "verify-ai-workflow-trigger.ps1" { .\verify-ai-workflow-trigger.ps1 -SkipNpmTest }
 
 # 定向后端单测（网关鉴权 / Core 内部签名 / 文档索引模式 / Agent）
 Invoke-VerifyStep "backend targeted unit tests (56/57/66-70)" {

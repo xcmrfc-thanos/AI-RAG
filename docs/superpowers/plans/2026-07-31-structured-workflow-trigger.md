@@ -14,7 +14,7 @@
 - [x] Design 已落盘：`docs/superpowers/specs/2026-07-31-structured-workflow-trigger-design.md`
 - [x] 未修改 Workflow v1
 
-**实施状态（2026-07-31）：** 代码与单测已合入；默认开关关闭；受控 E2E 冒烟待联调环境开启 `enableAiWorkflowTrigger` 后验证。
+**实施状态（2026-07-31）：** 代码与单测已合入；默认开关关闭；静态冒烟 `deploy/scripts/verify-ai-workflow-trigger.ps1` 已通过（13 PASS）。网关 `-Live` 与 UI 一次 Run 在服务就绪后补做。
 
 **参考快照：** 本专项不依赖 lingclaw 源码拷贝；交互对照仅作产品参考。
 
@@ -45,11 +45,12 @@
 - [x] 需求证据：P0 已记录内部使用方与验收指标
 - [x] 契约证据：design + 本 plan 落盘；Workflow v1 未改
 - [x] 安全证据：无权限隐藏选择器；默认关闭开关（门禁单测）
-- [x] 功能证据：`vitest` 专项通过；全量前端单测 60 通过
-- [x] 回归证据：前端 `npm test` 通过；type-check 无本专项新增错误
+- [x] 功能证据：`vitest` 专项通过；全量前端单测 60 通过；`verify-ai-workflow-trigger.ps1` 静态 13 PASS
+- [x] 回归证据：前端 `npm test` 通过；type-check 无本专项新增错误；脚本已挂入 `verify-all.ps1`
 - [x] 运维证据：设置页可关 `enableAiWorkflowTrigger`；默认 false
 - [x] 文档证据：`docs/README.md`、`ai-entry-boundaries.md`、本地 `readme_plan.md` 已同步
-- [ ] 受控 E2E 冒烟（开启开关后人工一次 Run）— 环境就绪后补做
+- [x] 受控冒烟（静态契约 + 单测）：`deploy/scripts/verify-ai-workflow-trigger.ps1`
+- [ ] 网关 `-Live` + UI 开开关后一次 Run（服务就绪后补做）
 
 ---
 
