@@ -81,9 +81,9 @@
 
 **目标：** 镜像 `HybridSearchTool` / `GetDocumentTool` 语义。
 
-- [ ] `GatewayMcpHttpClient`（仅允许 `/api/**`，强制 Bearer）
-- [ ] `HybridSearchMcpTool` / `GetDocumentMcpTool`
-- [ ] 入参校验与输出截断单测（可用 MockRest）
+- [x] `GatewayMcpHttpClient`（仅允许 `/api/**`，强制 Bearer）
+- [x] `HybridSearchMcpTool` / `GetDocumentMcpTool`
+- [x] 入参校验与输出截断单测（MockRest）
 
 ---
 
@@ -118,3 +118,4 @@
 |------|------|------|
 | 2026-07-31 | Task 0 | 完成（契约落盘） |
 | 2026-07-31 | Task 1 | 完成（kb-mcp 脚手架 + 默认关） |
+| 2026-07-31 | Task 2 | 完成（Gateway 出站 + 两只读工具） |
