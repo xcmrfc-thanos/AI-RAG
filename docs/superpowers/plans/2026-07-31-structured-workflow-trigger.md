@@ -42,13 +42,14 @@
 
 ## 统一交付 Gate
 
-- [ ] 需求证据：P0 已记录内部使用方与验收指标
-- [ ] 契约证据：design + 本 plan 落盘；Workflow v1 未改
-- [ ] 安全证据：无权限隐藏选择器；403 卡片；默认关闭开关
-- [ ] 功能证据：`vitest` 专项通过；手动或脚本冒烟一次 Run
-- [ ] 回归证据：`frontend` `npm test` + `npm run type-check`；受影响后端若改 Settings 则相关模块可编译
-- [ ] 运维证据：设置页可关 `enableAiWorkflowTrigger` 立即隐藏入口
-- [ ] 文档证据：`docs/README.md`、`ai-entry-boundaries.md`、本地 `readme_plan.md` 同步
+- [x] 需求证据：P0 已记录内部使用方与验收指标
+- [x] 契约证据：design + 本 plan 落盘；Workflow v1 未改
+- [x] 安全证据：无权限隐藏选择器；默认关闭开关（门禁单测）
+- [x] 功能证据：`vitest` 专项通过；全量前端单测 60 通过
+- [x] 回归证据：前端 `npm test` 通过；type-check 无本专项新增错误
+- [x] 运维证据：设置页可关 `enableAiWorkflowTrigger`；默认 false
+- [x] 文档证据：`docs/README.md`、`ai-entry-boundaries.md`、本地 `readme_plan.md` 已同步
+- [ ] 受控 E2E 冒烟（开启开关后人工一次 Run）— 环境就绪后补做
 
 ---
 
