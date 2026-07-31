@@ -70,10 +70,10 @@
 
 **目标：** 可启动的 Spring Boot 模块 + health；开关默认关。
 
-- [ ] `backend/kb-mcp` 加入 parent `pom.xml`
-- [ ] `McpApplication`、`application.yml`（port 8095、`mcp.server.enabled=false`）
-- [ ] Security：信任 Gateway 头或仅作内网 + 强制要求下游再鉴权；对外业务入口仍经 Gateway JWT
-- [ ] 单测：context loads 或开关关闭拒绝
+- [x] `backend/kb-mcp` 加入 parent `pom.xml`
+- [x] `McpApplication`、`application.yml`（port 8095、`mcp.server.enabled=false`）
+- [x] Security：JWT 过滤器 + 健康检查放行；业务需登录；ACL 仍由下游 Gateway 强制
+- [x] 单测：`McpServerGateTest`（默认关闭 / 显式启用）
 
 ---
 
@@ -117,3 +117,4 @@
 | 日期 | Task | 结果 |
 |------|------|------|
 | 2026-07-31 | Task 0 | 完成（契约落盘） |
+| 2026-07-31 | Task 1 | 完成（kb-mcp 脚手架 + 默认关） |

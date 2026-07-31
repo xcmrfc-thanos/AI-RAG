@@ -1,0 +1,2 @@
+# kb-mcp-dev 可选覆盖（Nacos 未就绪时本地可不导入）
+# mcp.server.enabled: true

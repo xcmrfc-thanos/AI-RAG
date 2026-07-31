@@ -1,0 +1,48 @@
+# kb-mcp 本地兜底：密钥/发现见 Nacos（optional）
+server:
+  port: 8095
+
+spring:
+  application:
+    name: kb-mcp
+  profiles:
+    active: dev
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  cloud:
+    nacos:
+      config:
+        namespace: knowledge
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:20848}
+        file-extension: yaml
+        group: KNOWLEDGE_BASE
+        enabled: true
+      discovery:
+        server-addr: ${NACOS_SERVER_ADDR:127.0.0.1:20848}
+        namespace: knowledge
+        group: ${COMPUTER_ID:${USER:default}}
+        ip: ${NACOS_DISCOVERY_IP:127.0.0.1}
+  config:
+    import:
+      - optional:nacos:application-dev.yaml
+      - optional:nacos:kb-mcp-dev.yaml
+
+# 默认关闭；启用需显式配置 mcp.server.enabled=true
+mcp:
+  server:
+    enabled: false
+  gateway-base-url: http://127.0.0.1:18080
+  timeouts:
+    tool-seconds: 5
+  rate-limit:
+    per-user-qps: 5
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized

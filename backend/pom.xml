@@ -48,6 +48,7 @@
         <module>kb-intelligence</module>
         <module>kb-core</module>
         <module>kb-agent</module>
+        <module>kb-mcp</module>
     </modules>
 
     <dependencyManagement>
