@@ -15,9 +15,9 @@
 
 | 能力 | 使用方 | 结论 | 下一步 |
 |------|--------|------|--------|
-| **P2 结构化 `@workflow`** | AI-RAG 产品自身（`/ai` 用户） | **获准进入独立实施计划** | 写 design + implementation plan |
-| **P1 只读 MCP Server** | 无已登记外部消费系统 | **停在设计等待** | 有消费方后再开 design |
-| **P3 iframe Embed Chat** | 无已登记宿主系统 | **停在设计等待** | 有宿主方后再开 design |
+| **P2 结构化 `@workflow`** | AI-RAG 产品自身（`/ai` 用户） | **已交付（M1）** | 维护回归；见 `verify-ai-workflow-trigger.ps1` |
+| **P1 只读 MCP Server** | 无已登记外部消费系统 | **停在设计等待** | 填 [M2 准入清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) 后再开 design |
+| **P3 iframe Embed Chat** | 无已登记宿主系统 | **停在设计等待** | 填 [M2 准入清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) 后再开 design |
 | **P4 MCP Client** | 无只读工具样例证明现有工具不足 | **继续延后** | 不进入 PoC |
 | **P5 Cron** | 无真实定时任务样例 | **继续延后** | 不进入设计编码 |
 | Skills / CodingTool / 市场 | — | **不进排期 / 不做** | 维持路线图 |
@@ -127,7 +127,7 @@
 | 哪些有真实使用方？ | **仅 P2 `@workflow`（内部产品）** |
 | P1 / P3？ | 无消费方/宿主 → **不实施，仅保留路线图准入条件** |
 | P4 / P5？ | **延后** |
-| 下一里程碑 M1 | 为 **P2 结构化 `@workflow`** 编写独立 design + implementation plan，再按计划实现并通过统一交付 Gate |
+| 下一里程碑 M1 | ~~为 **P2 结构化 `@workflow`** 编写独立 design + implementation plan~~ **已完成**；M2 见 [准入等待清单](./2026-07-31-lingclaw-absorb-m2-waitlist.md) |
 
 ---
 
