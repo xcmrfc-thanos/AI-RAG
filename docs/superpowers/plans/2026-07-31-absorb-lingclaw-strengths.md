@@ -161,10 +161,10 @@ P1 和 P3 都设置业务准入条件：没有明确消费系统、负责人和�
 
 ### 进入实施 Gate
 
-- [ ] 已确认 AI 助手用户确有跨入口触发需求
-- [ ] 已明确已发布流程的可见性和 `agent:run` 权限处理
-- [ ] 已定义重复点击、版本变化、流程停用、403 和运行失败体验
-- [ ] 已生成独立 `@workflow` implementation plan
+- [x] 已确认 AI 助手用户确有跨入口触发需求（P0 基线）
+- [x] 已明确已发布流程的可见性和 `agent:run` 权限处理（见 design）
+- [x] 已定义重复点击、版本变化、流程停用、403 和运行失败体验（见 design）
+- [x] 已生成独立 `@workflow` implementation plan：[2026-07-31-structured-workflow-trigger.md](./2026-07-31-structured-workflow-trigger.md)
 
 ### 验收方向
 
