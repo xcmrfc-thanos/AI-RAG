@@ -59,7 +59,7 @@ public class GatewayMcpHttpClient {
      * @param restTemplate  客户端
      * @param objectMapper  JSON
      */
-    GatewayMcpHttpClient(McpProperties mcpProperties, RestTemplate restTemplate, ObjectMapper objectMapper) {
+    public GatewayMcpHttpClient(McpProperties mcpProperties, RestTemplate restTemplate, ObjectMapper objectMapper) {
         this.mcpProperties = mcpProperties;
         this.restTemplateBuilder = null;
         this.objectMapper = objectMapper;

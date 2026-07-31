@@ -91,10 +91,10 @@
 
 **目标：** `POST /mcp`（经 Gateway 为 `/api/mcp`）支持 initialize / tools/list / tools/call。
 
-- [ ] `McpJsonRpcController`
-- [ ] 每用户 ~5 QPS 限流
-- [ ] 开关关闭 → 明确错误
-- [ ] 审计日志（无 JWT/正文）
+- [x] `McpJsonRpcController` / `McpJsonRpcService`
+- [x] 每用户 ~5 QPS 限流
+- [x] 开关关闭 → 明确错误
+- [x] 审计日志（无 JWT/正文）
 
 ---
 
@@ -119,3 +119,4 @@
 | 2026-07-31 | Task 0 | 完成（契约落盘） |
 | 2026-07-31 | Task 1 | 完成（kb-mcp 脚手架 + 默认关） |
 | 2026-07-31 | Task 2 | 完成（Gateway 出站 + 两只读工具） |
+| 2026-07-31 | Task 3 | 完成（JSON-RPC 子集 + 限流） |
