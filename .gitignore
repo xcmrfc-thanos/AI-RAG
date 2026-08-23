@@ -107,6 +107,7 @@ ehthumbs.db
 # ---------- Cursor / 本地工具 ----------
 .cursor/
 .claude/
+.reasonix/
 **/agent-transcripts/
 
 # ---------- 本地嵌套仓备份（不入库） ----------
