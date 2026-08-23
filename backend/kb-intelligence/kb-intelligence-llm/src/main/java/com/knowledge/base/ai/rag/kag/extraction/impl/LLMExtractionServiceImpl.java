@@ -96,7 +96,9 @@ public class LLMExtractionServiceImpl implements ExtractionService {
 
         int maxEntities = kagProperties.getExtraction().getMaxEntitiesPerChunk();
         int maxRelations = kagProperties.getExtraction().getMaxRelationsPerChunk();
-        String modelName = kagProperties.getExtraction().getModel();
+        // 第8阶段：模型解析改走模型库（kag.extraction.model 仍为覆盖键；
+        // 空值时取模型库默认 chat 模型，legacy 回退 qwen）
+        String modelName = resolveModelName();
         int maxRetries = kagProperties.getExtraction().getMaxRetries();
 
         String systemPrompt = EXTRACTION_SYSTEM_PROMPT.formatted(maxEntities, maxRelations);
@@ -156,6 +158,18 @@ public class LLMExtractionServiceImpl implements ExtractionService {
     }
 
     // ==================== Private Methods ====================
+
+    /**
+     * 解析抽取模型：kag.extraction.model 覆盖键优先；
+     * 空值时取模型库默认 chat 模型（ModelProvider.getDefaultModelName）。
+     */
+    private String resolveModelName() {
+        String configured = kagProperties.getExtraction().getModel();
+        if (configured != null && !configured.isBlank()) {
+            return configured.trim();
+        }
+        return modelProvider.getDefaultModelName();
+    }
 
     /**
      * 构建用户提示词
