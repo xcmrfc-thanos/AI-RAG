@@ -297,6 +297,7 @@ public class ModelProviderServiceImpl implements ModelProviderService {
                     mi.setDisplayName(item.getDisplayName());
                     mi.setIsDefault(item.getIsDefault());
                     mi.setDimension(item.getDimension());
+                    mi.setModelConfig(item.getModelConfig());
                     models.add(mi);
                 }
                 entry.setModels(models);

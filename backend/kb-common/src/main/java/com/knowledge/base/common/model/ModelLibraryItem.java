@@ -3,6 +3,7 @@ package com.knowledge.base.common.model;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 模型库条目（模型视角）。
@@ -29,4 +30,7 @@ public class ModelLibraryItem implements Serializable {
 
     /** embedding 维度 */
     private Integer dimension;
+
+    /** 预留参数（max_tokens/temperature/top_p 等） */
+    private Map<String, Object> modelConfig;
 }
