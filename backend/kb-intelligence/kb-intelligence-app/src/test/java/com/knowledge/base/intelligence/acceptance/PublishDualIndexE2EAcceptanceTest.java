@@ -50,6 +50,9 @@ class PublishDualIndexE2EAcceptanceTest {
     @Autowired
     private InMemoryElasticsearchSupport inMemoryElasticsearchSupport;
 
+    @Autowired
+    private com.knowledge.base.ai.config.KagRuntimeSettings kagRuntimeSettings;
+
     private com.knowledge.base.search.mq.DocumentLifecycleListener searchListener;
     private DocumentLifecycleListener aiListener;
 
@@ -60,7 +63,7 @@ class PublishDualIndexE2EAcceptanceTest {
     void setUp() {
         inMemoryElasticsearchSupport.reset();
         searchListener = new com.knowledge.base.search.mq.DocumentLifecycleListener(searchService);
-        aiListener = new DocumentLifecycleListener(reindexService, graphBuildService);
+        aiListener = new DocumentLifecycleListener(reindexService, graphBuildService, kagRuntimeSettings);
     }
 
     /**

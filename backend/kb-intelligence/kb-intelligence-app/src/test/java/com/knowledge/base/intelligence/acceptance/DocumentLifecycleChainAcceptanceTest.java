@@ -1,5 +1,6 @@
 package com.knowledge.base.intelligence.acceptance;
 
+import com.knowledge.base.ai.config.KagRuntimeSettings;
 import com.knowledge.base.ai.mq.DocumentLifecycleListener;
 import com.knowledge.base.ai.rag.kag.graph.GraphBuildService;
 import com.knowledge.base.ai.rag.service.ReindexService;
@@ -34,6 +35,9 @@ class DocumentLifecycleChainAcceptanceTest {
     @Mock
     private GraphBuildService graphBuildService;
 
+    @Mock
+    private KagRuntimeSettings kagRuntimeSettings;
+
     private com.knowledge.base.search.mq.DocumentLifecycleListener searchListener;
     private DocumentLifecycleListener aiListener;
 
@@ -43,7 +47,7 @@ class DocumentLifecycleChainAcceptanceTest {
     @BeforeEach
     void setUp() {
         searchListener = new com.knowledge.base.search.mq.DocumentLifecycleListener(searchService);
-        aiListener = new DocumentLifecycleListener(reindexService, graphBuildService);
+        aiListener = new DocumentLifecycleListener(reindexService, graphBuildService, kagRuntimeSettings);
     }
 
     /**
