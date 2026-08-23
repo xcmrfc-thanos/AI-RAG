@@ -128,6 +128,24 @@ public class ModelLibraryClient {
     }
 
     /**
+     * 指定类型默认条目的完整提供方信息（含解密 apiKey / baseUrl）。
+     */
+    public ModelLibraryEntry getDefaultEntryByType(String modelType) {
+        ModelLibraryItem item = getDefaultByType(modelType);
+        if (item == null) {
+            return null;
+        }
+        for (ModelLibraryEntry entry : getAll()) {
+            if (entry.getModels() != null && entry.getModels().stream()
+                    .anyMatch(m -> m.getModelKey().equals(item.getModelKey())
+                            && modelType.equals(m.getModelType()))) {
+                return entry;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 按提供方标识取条目（含解密 apiKey）。
      */
     public ModelLibraryEntry getProvider(String providerKey) {
@@ -163,6 +181,29 @@ public class ModelLibraryClient {
         return entry.getModels().stream()
                 .filter(m -> modelKey.equals(m.getModelKey()))
                 .findFirst().orElse(null);
+    }
+
+    /**
+     * 指定类型是否存在启用条目（供 @ConditionalOnExpression 启动条件判断）。
+     */
+    public boolean hasLibraryType(String modelType) {
+        try {
+            Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(REDIS_HASH_KEY);
+            if (CollectionUtils.isEmpty(entries)) {
+                return false;
+            }
+            for (Object v : entries.values()) {
+                ModelLibraryEntry entry = parse(v == null ? null : v.toString());
+                if (entry != null && entry.getModels() != null
+                        && entry.getModels().stream().anyMatch(m -> modelType.equals(m.getModelType()))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (Exception e) {
+            log.warn("模型库 Redis 读取失败（hasLibraryType={}）：{}", modelType, e.getMessage());
+            return false;
+        }
     }
 
     /**

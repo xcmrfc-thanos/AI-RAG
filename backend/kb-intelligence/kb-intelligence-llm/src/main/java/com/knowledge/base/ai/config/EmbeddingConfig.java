@@ -1,5 +1,8 @@
 package com.knowledge.base.ai.config;
 
+import com.knowledge.base.common.config.ModelLibraryClient;
+import com.knowledge.base.common.model.ModelLibraryEntry;
+import com.knowledge.base.common.model.ModelLibraryItem;
 import dev.langchain4j.model.embedding.EmbeddingModel;
 import dev.langchain4j.model.openai.OpenAiEmbeddingModel;
 import jakarta.annotation.PostConstruct;
@@ -13,13 +16,14 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 /**
- * 嵌入模型配置（OpenAI 兼容接口）。
+ * 嵌入模型配置（OpenAI 兼容接口，第8阶段：模型库优先）。
  *
- * <p>凭证解析顺序：</p>
+ * <p>凭证与模型解析顺序：</p>
  * <ol>
- *   <li>{@code rag.embedding.api-key}/{@code base-url}（可选覆盖）</li>
- *   <li>当 {@code rag.embedding.provider=siliconflow} 时 → 根节点 {@code siliconflow.*}</li>
- *   <li>否则回退根节点 {@code qwen.*}（历史「对话与向量共用通义」）</li>
+ *   <li><b>模型库</b>（embedding 类型默认条目）：base_url / api_key（解密）/ model；</li>
+ *   <li>{@code rag.embedding.api-key}/{@code base-url}/{@code model}（可选覆盖）；</li>
+ *   <li>当 {@code rag.embedding.provider=siliconflow} 时 → 根节点 {@code siliconflow.*}；</li>
+ *   <li>否则回退根节点 {@code qwen.*}（历史「对话与向量共用通义」）。</li>
  * </ol>
  *
  * @author 苏三
@@ -49,10 +53,15 @@ public class EmbeddingConfig {
     @Autowired
     private RagProperties ragProperties;
 
+    /** 模型库客户端（可选注入：单测/无 Redis 场景为 null） */
+    @Autowired(required = false)
+    private ModelLibraryClient modelLibraryClient;
+
     /**
      * 创建 EmbeddingModel Bean。
      *
-     * <p>条件：rag.enabled=true，且 embedding / siliconflow / qwen 任一 api-key 非空。</p>
+     * <p>条件：rag.enabled=true，且 embedding / siliconflow / qwen 任一 api-key 非空，
+     * 或模型库已配置 embedding 类型条目。</p>
      *
      * @return OpenAI 兼容嵌入模型
      */
@@ -64,11 +73,12 @@ public class EmbeddingConfig {
     @ConditionalOnExpression(
             "T(org.springframework.util.StringUtils).hasText('${rag.embedding.api-key:}') "
                     + "|| T(org.springframework.util.StringUtils).hasText('${siliconflow.api-key:}') "
-                    + "|| T(org.springframework.util.StringUtils).hasText('${qwen.api-key:}')")
+                    + "|| T(org.springframework.util.StringUtils).hasText('${qwen.api-key:}') "
+                    + "|| @modelLibraryClient.hasLibraryType('embedding')")
     public EmbeddingModel embeddingModel() {
         String apiKey = resolveApiKey();
         String baseUrl = resolveBaseUrl();
-        String model = ragProperties.getEmbedding().getModel();
+        String model = resolveModel();
         String provider = ragProperties.getEmbedding().getProvider();
         log.info("✅ 创建 EmbeddingModel：provider={}, model={}, baseUrl={}",
                 provider, model, baseUrl);
@@ -91,20 +101,24 @@ public class EmbeddingConfig {
         if (StringUtils.hasText(apiKey)) {
             log.info("✅ RAG嵌入已配置：provider={}, model={}, dimension={}, keyLen={}",
                     ragProperties.getEmbedding().getProvider(),
-                    ragProperties.getEmbedding().getModel(),
+                    resolveModel(),
                     ragProperties.getEmbedding().getDimension(),
                     apiKey.length());
         } else {
-            log.warn("⚠️ RAG嵌入不可用：未配置 SILICONFLOW_API_KEY / RAG_EMBEDDING_API_KEY / QWEN_API_KEY");
+            log.warn("⚠️ RAG嵌入不可用：未配置 SILICONFLOW_API_KEY / RAG_EMBEDDING_API_KEY / QWEN_API_KEY，且模型库无 embedding 条目");
         }
     }
 
     /**
-     * 解析嵌入 API Key：embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
+     * 解析嵌入 API Key：模型库默认条目 → embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
      *
      * @return 非空 Key，或空字符串
      */
     String resolveApiKey() {
+        ModelLibraryEntry entry = libraryEmbeddingEntry();
+        if (entry != null && StringUtils.hasText(entry.getApiKey())) {
+            return entry.getApiKey().trim();
+        }
         String fromEmbedding = ragProperties.getEmbedding().getApiKey();
         if (StringUtils.hasText(fromEmbedding)) {
             return fromEmbedding.trim();
@@ -116,11 +130,15 @@ public class EmbeddingConfig {
     }
 
     /**
-     * 解析嵌入 base-url：embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
+     * 解析嵌入 base-url：模型库默认条目 → embedding 覆盖 → siliconflow 根节点 → qwen 根节点。
      *
      * @return OpenAI 兼容 base-url
      */
     String resolveBaseUrl() {
+        ModelLibraryEntry entry = libraryEmbeddingEntry();
+        if (entry != null && StringUtils.hasText(entry.getBaseUrl())) {
+            return entry.getBaseUrl().trim();
+        }
         String fromEmbedding = ragProperties.getEmbedding().getBaseUrl();
         if (StringUtils.hasText(fromEmbedding)) {
             return fromEmbedding.trim();
@@ -131,6 +149,39 @@ public class EmbeddingConfig {
                     : DEFAULT_SILICONFLOW_BASE_URL;
         }
         return StringUtils.hasText(qwenBaseUrl) ? qwenBaseUrl.trim() : DEFAULT_QWEN_BASE_URL;
+    }
+
+    /**
+     * 解析嵌入模型名：模型库默认条目优先，否则 rag.embedding.model。
+     *
+     * @return 模型名
+     */
+    String resolveModel() {
+        ModelLibraryItem item = libraryEmbeddingItem();
+        if (item != null && StringUtils.hasText(item.getModelKey())) {
+            return item.getModelKey().trim();
+        }
+        return ragProperties.getEmbedding().getModel();
+    }
+
+    /**
+     * 模型库 embedding 类型默认条目（提供方，含解密 apiKey / baseUrl）。
+     */
+    private ModelLibraryEntry libraryEmbeddingEntry() {
+        if (modelLibraryClient == null) {
+            return null;
+        }
+        return modelLibraryClient.getDefaultEntryByType(ModelLibraryClient.TYPE_EMBEDDING);
+    }
+
+    /**
+     * 模型库 embedding 类型默认条目（模型）。
+     */
+    private ModelLibraryItem libraryEmbeddingItem() {
+        if (modelLibraryClient == null) {
+            return null;
+        }
+        return modelLibraryClient.getDefaultByType(ModelLibraryClient.TYPE_EMBEDDING);
     }
 
     /**

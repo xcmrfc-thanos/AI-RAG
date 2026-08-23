@@ -2,6 +2,9 @@ package com.knowledge.base.ai.rag.rerank;
 
 import com.knowledge.base.ai.config.RagProperties;
 import com.knowledge.base.ai.config.RagRuntimeSettings;
+import com.knowledge.base.common.config.ModelLibraryClient;
+import com.knowledge.base.common.model.ModelLibraryEntry;
+import com.knowledge.base.common.model.ModelLibraryItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
@@ -11,7 +14,12 @@ import org.springframework.util.StringUtils;
 /**
  * 解析重排 provider / 模型 / 凭证（auto 跟随 embedding）。
  *
- * <p>enabled/mode/provider/model 优先热读 {@link RagRuntimeSettings}，API 密钥仍走 yml/Nacos。</p>
+ * <p>优先级（第8阶段）：</p>
+ * <ol>
+ *   <li><b>模型库</b>（rerank 类型默认条目）：provider / model / apiKey（解密）/ baseUrl；</li>
+ *   <li>热读 {@link RagRuntimeSettings} 的 provider/model；</li>
+ *   <li>yml/Nacos 兜底（enabled/mode 始终热读）。</li>
+ * </ol>
  *
  * @author knowledge-base-team
  * @since 1.0.0
@@ -45,6 +53,10 @@ public class RerankProviderResolver {
 
     @Value("${siliconflow.base-url:https://api.siliconflow.cn/v1}")
     private String siliconflowBaseUrl;
+
+    /** 模型库客户端（可选注入：单测/无 Redis 场景为 null） */
+    @Autowired(required = false)
+    private ModelLibraryClient modelLibraryClient;
 
     /**
      * Spring 构造（runtimeSettings 可选）。
@@ -80,6 +92,12 @@ public class RerankProviderResolver {
             return unusable();
         }
 
+        // 第8阶段：模型库 rerank 默认条目优先（provider/model/凭证/baseUrl 一体）
+        ResolvedRerank library = resolveFromLibrary();
+        if (library != null) {
+            return library;
+        }
+
         String provider = resolveProvider(resolveProviderRaw(rerank));
         String modelCfg = resolveModelRaw(rerank);
         String model = StringUtils.hasText(modelCfg)
@@ -96,6 +114,30 @@ public class RerankProviderResolver {
             return new ResolvedRerank(false, provider, model, "", baseUrl, path);
         }
         return new ResolvedRerank(true, provider, model, apiKey, trimSlash(baseUrl), path);
+    }
+
+    /**
+     * 从模型库解析 rerank 默认条目；无条目返回 null（走旧配置）。
+     */
+    private ResolvedRerank resolveFromLibrary() {
+        if (modelLibraryClient == null) {
+            return null;
+        }
+        ModelLibraryEntry entry = modelLibraryClient.getDefaultEntryByType(ModelLibraryClient.TYPE_RERANK);
+        if (entry == null) {
+            return null;
+        }
+        ModelLibraryItem item = modelLibraryClient.getDefaultByType(ModelLibraryClient.TYPE_RERANK);
+        String model = item != null && StringUtils.hasText(item.getModelKey())
+                ? item.getModelKey().trim()
+                : DEFAULT_SILICONFLOW_MODEL;
+        String apiKey = entry.getApiKey();
+        String baseUrl = entry.getBaseUrl();
+        if (!StringUtils.hasText(apiKey) || !StringUtils.hasText(baseUrl)) {
+            return new ResolvedRerank(false, entry.getProviderKey(), model,
+                    StringUtils.hasText(apiKey) ? apiKey : "", StringUtils.hasText(baseUrl) ? baseUrl : "", "/rerank");
+        }
+        return new ResolvedRerank(true, entry.getProviderKey(), model, apiKey, trimSlash(baseUrl), "/rerank");
     }
 
     /**
