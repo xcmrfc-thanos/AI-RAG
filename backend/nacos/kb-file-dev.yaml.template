@@ -110,3 +110,8 @@ logging:
     org.springframework: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
+
+# 模型凭证加密密钥（第8阶段模型库，AES-GCM；环境变量 KB_SECURITY_ENCRYPT_KEY 兜底）
+kb:
+  security:
+    encrypt-key: ${KB_SECURITY_ENCRYPT_KEY:}

@@ -50,3 +50,8 @@ kb-core:
     service: kb-intelligence
     secret: ${KB_INTERNAL_HMAC_SECRET:ai-rag-local-dev-hmac-secret-key!!}
     system-user-id: 1000000000000000001
+
+# 模型凭证加密密钥（第8阶段模型库，AES-GCM；环境变量 KB_SECURITY_ENCRYPT_KEY 兜底）
+kb:
+  security:
+    encrypt-key: ${KB_SECURITY_ENCRYPT_KEY:}

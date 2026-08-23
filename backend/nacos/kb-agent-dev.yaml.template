@@ -48,3 +48,8 @@ ai:
 logging:
   level:
     com.knowledge.base.agent: debug
+
+# 模型凭证加密密钥（第8阶段模型库，AES-GCM；环境变量 KB_SECURITY_ENCRYPT_KEY 兜底）
+kb:
+  security:
+    encrypt-key: ${KB_SECURITY_ENCRYPT_KEY:}

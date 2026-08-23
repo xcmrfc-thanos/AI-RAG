@@ -3,6 +3,10 @@
 # 本地可另有嵌套 .git，不影响根仓推送
 
 # ---------- 密钥与本地环境 ----------
+.cursor/
+.claude/
+.cursorrules/
+.mcp.json
 .env
 .env.*
 !.env.example
@@ -106,10 +110,15 @@ ehthumbs.db
 
 # ---------- Cursor / 本地工具 ----------
 .cursor/
+.cursorrules
 .claude/
+CLAUDE.md
+AGENTS.md
 .reasonix/
 **/agent-transcripts/
 
 # ---------- 本地嵌套仓备份（不入库） ----------
 /.git-nested-backup/
 
+# Added by code-review-graph
+.code-review-graph/

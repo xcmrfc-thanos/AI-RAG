@@ -43,6 +43,9 @@ jwt:
 kb:
   db:
     type: ${KB_DB_TYPE:mysql}
+  security:
+    # 模型凭证加密密钥（第8阶段模型库，AES-GCM；环境变量 KB_SECURITY_ENCRYPT_KEY 兜底）
+    encrypt-key: ${KB_SECURITY_ENCRYPT_KEY:}
 
 logging:
   level:
