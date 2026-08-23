@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * OpenAI-compatible AgentModelClient（千问 / DeepSeek）+ AI_DEV_STUB
+ * OpenAI-compatible AgentModelClient（第8阶段：模型库直连优先 + legacy 兜底 + AI_DEV_STUB）。
+ *
+ * <p>模型解析经 {@link AgentModelResolver}：模型库 chat 条目（任意 provider）→
+ * 旧 qwen/deepseek 配置；不再 switch 限定两家。</p>
  *
  * @author AI-RAG
  * @since 1.0.0
@@ -31,6 +34,7 @@ import java.util.Map;
 public class OpenAiCompatibleAgentModelClient implements AgentModelClient {
 
     private final AgentProperties agentProperties;
+    private final AgentModelResolver agentModelResolver;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -49,21 +53,21 @@ public class OpenAiCompatibleAgentModelClient implements AgentModelClient {
             return stub(request);
         }
         String key = StringUtils.hasText(request.modelKey())
-                ? request.modelKey().trim().toLowerCase()
-                : agentProperties.getDefaultModel().toLowerCase();
-        AgentProperties.Provider provider = resolveProvider(key);
-        if (!StringUtils.hasText(provider.getApiKey())) {
-            log.warn("模型 {} 无 API Key，回退 Stub", key);
+                ? request.modelKey().trim()
+                : agentProperties.getDefaultModel();
+        AgentModelResolver.Resolved resolved = agentModelResolver.resolve(key);
+        if (!resolved.usable()) {
+            log.warn("模型 {} 无 API Key/基址（{}），回退 Stub", key, resolved.source());
             return stub(request);
         }
         try {
-            String url = trimSlash(provider.getBaseUrl()) + "/chat/completions";
+            String url = trimSlash(resolved.baseUrl()) + "/chat/completions";
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.setBearerAuth(provider.getApiKey());
+            headers.setBearerAuth(resolved.apiKey());
 
             Map<String, Object> body = new HashMap<>();
-            body.put("model", provider.getModel());
+            body.put("model", resolved.model());
             List<Map<String, String>> messages = new ArrayList<>();
             if (StringUtils.hasText(request.systemPrompt())) {
                 messages.add(Map.of("role", "system", "content", request.systemPrompt()));
@@ -76,21 +80,11 @@ public class OpenAiCompatibleAgentModelClient implements AgentModelClient {
                     url, new HttpEntity<>(body, headers), String.class);
             JsonNode root = objectMapper.readTree(resp.getBody());
             String text = root.path("choices").path(0).path("message").path("content").asText("");
-            return new AgentModelResponse(text, key + ":" + provider.getModel(), false);
+            return new AgentModelResponse(text, key + ":" + resolved.model(), false);
         } catch (Exception e) {
             log.error("Agent LLM 调用失败 model={}: {}", key, e.getMessage());
             throw new IllegalStateException("Agent LLM 调用失败: " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * 解析提供商配置
-     */
-    private AgentProperties.Provider resolveProvider(String key) {
-        if ("deepseek".equals(key)) {
-            return agentProperties.getLlm().getDeepseek();
-        }
-        return agentProperties.getLlm().getQwen();
     }
 
     /**

@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "agent")
 public class AgentProperties {
 
-    /** 默认模型：qwen | deepseek */
+    /** 默认模型：任意模型 key（模型库 chat 条目优先；legacy 兼容 qwen | deepseek） */
     private String defaultModel = "qwen";
 
     /** 工具出站 Gateway 基址（禁止直连业务端口） */

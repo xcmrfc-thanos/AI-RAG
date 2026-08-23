@@ -19,7 +19,8 @@ class OpenAiCompatibleAgentModelClientTest {
     void stubWhenDevEnabled() {
         AgentProperties props = new AgentProperties();
         props.setDefaultModel("qwen");
-        OpenAiCompatibleAgentModelClient client = new OpenAiCompatibleAgentModelClient(props);
+        OpenAiCompatibleAgentModelClient client =
+                new OpenAiCompatibleAgentModelClient(props, null);
         ReflectionTestUtils.setField(client, "devStubEnabled", true);
 
         AgentModelResponse resp = client.complete(new AgentModelRequest("sys", "hello agent", null));

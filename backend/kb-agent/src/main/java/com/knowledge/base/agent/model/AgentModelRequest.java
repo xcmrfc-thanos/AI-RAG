@@ -5,7 +5,7 @@ package com.knowledge.base.agent.model;
  *
  * @param systemPrompt 系统指令（可信）
  * @param userPrompt   用户/模板展开后的提示（可含不可信资料）
- * @param modelKey     可选覆盖模型键：qwen / deepseek；空则用默认
+ * @param modelKey     可选覆盖模型键：任意模型 key（模型库 chat 条目或 legacy qwen/deepseek）；空则用默认
  * @author AI-RAG
  * @since 1.0.0
  */
