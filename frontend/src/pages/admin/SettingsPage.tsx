@@ -49,7 +49,8 @@ import {
   AuditOutlined,
   ApiOutlined,
 } from '@ant-design/icons';
-import { settingsService, aiService, graphService, agentService } from '@/services';
+import { settingsService, aiService, graphService, agentService, modelService } from '@/services';
+import type { ModelOption } from '@/services/model.service';
 import { PageLoading, AdminPageHeader } from '@/components/common';
 import { useAppStore } from '@/stores';
 import type { SystemSettings, AIModelOption } from '@/types';
@@ -240,6 +241,8 @@ export const SettingsPage: React.FC = () => {
   const confirmGraphOps = Form.useWatch('confirmSensitiveGraphOps', complianceForm);
 
   const [chatModels, setChatModels] = useState<AIModelOption[]>([]);
+  /** 模型库下拉缓存（第8阶段）：key=模型类型，value=启用模型列表 */
+  const [modelLib, setModelLib] = useState<Record<string, ModelOption[]>>({});
   const ragRetrievalProfile = Form.useWatch('ragRetrievalProfile', ragForm) || 'es-es';
   const embeddingProvider = Form.useWatch('embeddingProvider', aiForm) || 'siliconflow';
   const pdfWatermarkEnabled = Form.useWatch('pdfWatermarkEnabled', exportForm);
@@ -430,6 +433,25 @@ export const SettingsPage: React.FC = () => {
       } catch {
         if (!cancelled) setChatModels([]);
       }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // 第8阶段：模型库下拉动态化（chat/embedding/rerank；tts/stt 预留）
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const result: Record<string, ModelOption[]> = {};
+      await Promise.all(
+        (['chat', 'embedding', 'rerank'] as const).map(async (type) => {
+          try {
+            result[type] = await modelService.listForScene(type);
+          } catch {
+            result[type] = [];
+          }
+        }),
+      );
+      if (!cancelled) setModelLib(result);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -1206,6 +1228,26 @@ export const SettingsPage: React.FC = () => {
 
   // ===================== AI TAB =====================
   function renderAITab() {
+    // 第8阶段：模型库优先（value=模型 key / providerKey），空库时回退静态兜底
+    const libChat = modelLib.chat ?? [];
+    const libEmbedding = modelLib.embedding ?? [];
+    const libChatProviders = [...new Set(libChat.map((m) => m.providerKey).filter(Boolean))];
+    const libEmbeddingProviders = [...new Set(libEmbedding.map((m) => m.providerKey).filter(Boolean))];
+    const chatProviderOptions = [
+      ...libChatProviders.map((p) => ({ value: p as string, label: p })),
+      ...CHAT_PROVIDER_OPTIONS.filter((o) => !libChatProviders.includes(o.value)),
+    ];
+    const embeddingProviderOptions = [
+      ...libEmbeddingProviders.map((p) => ({ value: p as string, label: p })),
+      ...Object.keys(EMBEDDING_PRESETS)
+        .filter((k) => !libEmbeddingProviders.includes(k))
+        .map((k) => ({ value: k, label: EMBEDDING_PRESETS[k].label })),
+    ];
+    const libEmbeddingModels = libEmbedding.map((m) => ({ value: m.value, label: m.label }));
+    const fallbackEmbeddingModels = EMBEDDING_PRESETS[embeddingProvider]?.models ?? [];
+    const embeddingModelOptions = libEmbeddingModels.length > 0
+      ? libEmbeddingModels
+      : fallbackEmbeddingModels;
     const embeddingPresets = EMBEDDING_PRESETS[embeddingProvider]?.models ?? [];
     const modelSelectOptions = chatModels.length > 0
       ? chatModels.map((m) => ({
@@ -1230,7 +1272,7 @@ export const SettingsPage: React.FC = () => {
           type="info"
           showIcon
           style={{ marginBottom: 20 }}
-          message="聊天与 Embedding 写入系统配置。API 密钥在部署配置中维护；变更模型后通常需重启 intelligence。检索引擎请到「检索/RAG → 部署形态」。"
+          message="聊天与 Embedding 写入系统配置。模型下拉优先来自「系统管理 → 模型管理」模型库（凭证在模型库加密维护）；未配置模型库时回退部署配置。API 密钥在部署配置中维护；变更模型后通常需重启 intelligence。检索引擎请到「检索/RAG → 部署形态」。"
         />
         <Form form={aiForm} layout="vertical" initialValues={{
           chatProvider: 'qwen',
@@ -1247,7 +1289,7 @@ export const SettingsPage: React.FC = () => {
                 rules={[{ required: true, message: '请选择聊天 Provider' }]}
               >
                 <Select
-                  options={CHAT_PROVIDER_OPTIONS}
+                  options={chatProviderOptions}
                   onChange={() => {
                     /* 保留当前模型名，允许跨 Provider 自定义 */
                   }}
@@ -1280,10 +1322,7 @@ export const SettingsPage: React.FC = () => {
                 rules={[{ required: true, message: '请选择 Embedding Provider' }]}
               >
                 <Select
-                  options={Object.entries(EMBEDDING_PRESETS).map(([value, meta]) => ({
-                    value,
-                    label: meta.label,
-                  }))}
+                  options={embeddingProviderOptions}
                   onChange={(v) => {
                     const first = EMBEDDING_PRESETS[v]?.models?.[0]?.value;
                     if (first) aiForm.setFieldValue('embeddingModel', first);
@@ -1299,9 +1338,9 @@ export const SettingsPage: React.FC = () => {
               >
                 <AutoComplete
                   options={
-                    embeddingProvider === 'custom' || embeddingPresets.length === 0
+                    embeddingProvider === 'custom' || embeddingModelOptions.length === 0
                       ? []
-                      : embeddingPresets.map((m) => ({ value: m.value, label: m.label }))
+                      : embeddingModelOptions
                   }
                   filterOption={(input, option) =>
                     String(option?.value ?? '').toLowerCase().includes(input.toLowerCase())
@@ -1368,6 +1407,14 @@ export const SettingsPage: React.FC = () => {
    */
   function renderRagTab() {
     const profileMeta = RETRIEVAL_PROFILE_OPTIONS.find((o) => o.value === ragRetrievalProfile);
+    // 第8阶段：重排 provider / 模型优先来自模型库，空库回退静态兜底
+    const libRerank = modelLib.rerank ?? [];
+    const libRerankProviders = [...new Set(libRerank.map((m) => m.providerKey).filter(Boolean))];
+    const rerankProviderOptions = [
+      ...libRerankProviders.map((p) => ({ value: p as string, label: p })),
+      ...RERANK_PROVIDER_OPTIONS.filter((o) => !libRerankProviders.includes(o.value)),
+    ];
+    const rerankModelOptions = libRerank.map((m) => ({ value: m.value, label: m.label }));
     return (
       <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
         {renderSectionHeader(
@@ -1448,7 +1495,7 @@ export const SettingsPage: React.FC = () => {
             </Col>
             <Col span={8}>
               <Form.Item label="重排 Provider" name="ragRerankProvider">
-                <Select options={RERANK_PROVIDER_OPTIONS} />
+                <Select options={rerankProviderOptions} />
               </Form.Item>
             </Col>
           </Row>
@@ -1456,7 +1503,14 @@ export const SettingsPage: React.FC = () => {
             <Col span={12}>
               <Form.Item label="重排模型" name="ragRerankModel"
                 extra="可空：硅基默认 BAAI/bge-reranker-v2-m3，通义 qwen3-rerank">
-                <Input placeholder="留空使用 Provider 默认" allowClear />
+                <AutoComplete
+                  options={rerankModelOptions}
+                  placeholder="留空使用 Provider 默认"
+                  allowClear
+                  filterOption={(input, option) =>
+                    String(option?.value ?? '').toLowerCase().includes(input.toLowerCase())
+                  }
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -1561,6 +1615,12 @@ export const SettingsPage: React.FC = () => {
    * @returns 图谱设置 Tab 内容
    */
   function renderGraphTab() {
+    // 第8阶段：KAG 抽取模型优先来自模型库 chat 类型，空库回退静态兜底
+    const libChat = modelLib.chat ?? [];
+    const kagModelOptions = [
+      ...libChat.map((m) => ({ value: m.value, label: `${m.label}${m.isDefault ? '（默认）' : ''}` })),
+      ...KAG_MODEL_OPTIONS.filter((o) => !libChat.some((m) => m.value === o.value)),
+    ];
     return (
       <Card style={CARD_STYLE} styles={{ body: { padding: '24px 32px' } }}>
         {renderSectionHeader(
@@ -1620,7 +1680,7 @@ export const SettingsPage: React.FC = () => {
                 name="kagExtractionModel"
                 rules={[{ required: true, message: '请选择抽取模型' }]}
               >
-                <Select options={KAG_MODEL_OPTIONS} />
+                <Select options={kagModelOptions} />
               </Form.Item>
             </Col>
             <Col span={6}>
@@ -1712,6 +1772,12 @@ export const SettingsPage: React.FC = () => {
    * @returns Agent 设置 Tab 内容
    */
   function renderAgentTab() {
+    // 第8阶段：Agent 默认模型优先来自模型库 chat 类型，空库回退静态兜底
+    const libChat = modelLib.chat ?? [];
+    const agentModelOptions = [
+      ...libChat.map((m) => ({ value: m.value, label: `${m.label}${m.isDefault ? '（默认）' : ''}` })),
+      ...AGENT_MODEL_OPTIONS.filter((o) => !libChat.some((m) => m.value === o.value)),
+    ];
     const workflowOptions = [
       { value: 0, label: '未指定（运行页自行选择）' },
       ...agentWorkflows.map((w) => ({
@@ -1765,7 +1831,7 @@ export const SettingsPage: React.FC = () => {
                 name="agentDefaultModel"
                 rules={[{ required: true, message: '请选择默认模型' }]}
               >
-                <Select options={AGENT_MODEL_OPTIONS} />
+                <Select options={agentModelOptions} />
               </Form.Item>
             </Col>
           </Row>

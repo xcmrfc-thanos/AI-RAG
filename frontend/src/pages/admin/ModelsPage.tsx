@@ -85,7 +85,7 @@ export const ModelsPage: React.FC = () => {
     setLoading(true);
     try {
       const resp = await modelService.page({ current: page, size: 10, keyword: kw || undefined });
-      setProviders(resp.records ?? resp.list ?? []);
+      setProviders((resp as { records?: ModelProvider[] }).records ?? resp.list ?? []);
       setTotal(resp.total ?? 0);
       setCurrent(page);
     } catch {
