@@ -173,6 +173,16 @@ WHERE NOT EXISTS (
   SELECT 1 FROM kb_permission WHERE permission_code = 'system:agents' AND deleted = 0
 );
 
+-- 第8阶段：模型管理（挂系统设置菜单下）
+INSERT INTO kb_permission (
+  id, parent_id, permission_name, permission_code, permission_type, menu_url, api_url, method, icon, sort, status
+)
+SELECT 3000000000000000060, 3000000000000000027, '模型管理', 'config:models', 2, '/admin/models', '/api/config/models/**', NULL, NULL, 8, 1
+FROM DUAL
+WHERE NOT EXISTS (
+  SELECT 1 FROM kb_permission WHERE permission_code = 'config:models' AND deleted = 0
+);
+
 -- 权限管理菜单下的真实权限点
 INSERT INTO kb_permission (
   id, parent_id, permission_name, permission_code, permission_type, menu_url, api_url, method, icon, sort, status
@@ -226,7 +236,8 @@ FROM kb_permission p, (SELECT @rn := 0) r
 WHERE p.deleted = 0
   AND p.permission_code IN (
     'document:version',
-    'system:team', 'system:statistics', 'system:review', 'system:settings', 'system:agents'
+    'system:team', 'system:statistics', 'system:review', 'system:settings', 'system:agents',
+    'config:models'
   )
   AND NOT EXISTS (
     SELECT 1 FROM kb_role_permission rp

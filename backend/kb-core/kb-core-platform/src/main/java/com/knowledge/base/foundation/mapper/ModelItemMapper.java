@@ -38,4 +38,14 @@ public interface ModelItemMapper extends BaseMapper<ModelItem> {
             ORDER BY m.id LIMIT 1
             """)
     ModelItem selectDefaultByType(@Param("modelType") String modelType);
+
+    /**
+     * 查询某提供方下启用中的模型（不校验提供方状态，供管理侧读取）。
+     */
+    @Select("""
+            SELECT * FROM kb_model
+            WHERE provider_id = #{providerId} AND status = 1
+            ORDER BY model_type, id
+            """)
+    List<ModelItem> selectEnabledByProvider(@Param("providerId") Long providerId);
 }
