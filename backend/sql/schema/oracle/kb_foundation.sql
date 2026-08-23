@@ -204,4 +204,67 @@ CREATE TABLE kb_foundation.kb_notification_template (
 CREATE INDEX idx_kb_notification_template_idx_notification_type ON kb_foundation.kb_notification_template (notification_type);
 CREATE INDEX idx_kb_notification_template_idx_is_active ON kb_foundation.kb_notification_template (is_active);
 
+-- =====================================================
+-- 7. 模型提供方表（第8阶段模型库）
+-- =====================================================
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE kb_foundation.kb_model_provider CASCADE CONSTRAINTS';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN RAISE; END IF;
+END;
+/
+
+CREATE TABLE kb_foundation.kb_model_provider (
+  id NUMBER(19) NOT NULL,
+  provider_key VARCHAR2(50) NOT NULL,
+  provider_name VARCHAR2(100) NOT NULL,
+  base_url VARCHAR2(500),
+  api_key CLOB,
+  api_key_hint VARCHAR2(20),
+  extra_params CLOB,
+  status NUMBER(3) DEFAULT 1 NOT NULL,
+  created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  create_by NUMBER(19),
+  update_by NUMBER(19),
+  deleted NUMBER(3) DEFAULT 0 NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT uk_provider_key UNIQUE (provider_key, deleted)
+);
+CREATE INDEX idx_kb_model_provider_status ON kb_foundation.kb_model_provider (status);
+
+-- =====================================================
+-- 8. 模型条目表（第8阶段模型库）
+-- =====================================================
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE kb_foundation.kb_model CASCADE CONSTRAINTS';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN RAISE; END IF;
+END;
+/
+
+CREATE TABLE kb_foundation.kb_model (
+  id NUMBER(19) NOT NULL,
+  provider_id NUMBER(19) NOT NULL,
+  model_key VARCHAR2(100) NOT NULL,
+  model_type VARCHAR2(20) NOT NULL,
+  display_name VARCHAR2(100),
+  is_default NUMBER(3) DEFAULT 0 NOT NULL,
+  dimension NUMBER(10),
+  model_config CLOB,
+  status NUMBER(3) DEFAULT 1 NOT NULL,
+  created_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  updated_at TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  create_by NUMBER(19),
+  update_by NUMBER(19),
+  deleted NUMBER(3) DEFAULT 0 NOT NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT uk_model_key_type UNIQUE (model_key, model_type, deleted)
+);
+CREATE INDEX idx_kb_model_provider_id ON kb_foundation.kb_model (provider_id);
+CREATE INDEX idx_kb_model_type ON kb_foundation.kb_model (model_type);
+CREATE INDEX idx_kb_model_default ON kb_foundation.kb_model (model_type, is_default);
+
 SELECT 'kb_foundation 数据库表创建完成！' AS message FROM dual;

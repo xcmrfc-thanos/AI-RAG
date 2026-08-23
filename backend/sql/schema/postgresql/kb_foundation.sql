@@ -169,4 +169,55 @@ CREATE TABLE kb_notification_template (
 CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_notification_type ON kb_notification_template (notification_type);
 CREATE INDEX IF NOT EXISTS idx_kb_notification_template_idx_is_active ON kb_notification_template (is_active);
 
+-- =====================================================
+-- 7. 模型提供方表（第8阶段模型库）
+-- =====================================================
+DROP TABLE IF EXISTS kb_model_provider CASCADE;
+
+CREATE TABLE kb_model_provider (
+  id BIGINT NOT NULL,
+  provider_key VARCHAR(50) NOT NULL,
+  provider_name VARCHAR(100) NOT NULL,
+  base_url VARCHAR(500) DEFAULT NULL,
+  api_key TEXT DEFAULT NULL,
+  api_key_hint VARCHAR(20) DEFAULT NULL,
+  extra_params JSONB DEFAULT NULL,
+  status SMALLINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  deleted SMALLINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  CONSTRAINT uk_provider_key UNIQUE (provider_key, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_kb_model_provider_status ON kb_model_provider (status);
+
+-- =====================================================
+-- 8. 模型条目表（第8阶段模型库）
+-- =====================================================
+DROP TABLE IF EXISTS kb_model CASCADE;
+
+CREATE TABLE kb_model (
+  id BIGINT NOT NULL,
+  provider_id BIGINT NOT NULL,
+  model_key VARCHAR(100) NOT NULL,
+  model_type VARCHAR(20) NOT NULL,
+  display_name VARCHAR(100) DEFAULT NULL,
+  is_default SMALLINT NOT NULL DEFAULT 0,
+  dimension INT DEFAULT NULL,
+  model_config JSONB DEFAULT NULL,
+  status SMALLINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  create_by BIGINT DEFAULT NULL,
+  update_by BIGINT DEFAULT NULL,
+  deleted SMALLINT NOT NULL DEFAULT 0,
+  PRIMARY KEY (id),
+  CONSTRAINT uk_model_key_type UNIQUE (model_key, model_type, deleted)
+);
+CREATE INDEX IF NOT EXISTS idx_kb_model_provider_id ON kb_model (provider_id);
+CREATE INDEX IF NOT EXISTS idx_kb_model_type ON kb_model (model_type);
+CREATE INDEX IF NOT EXISTS idx_kb_model_default ON kb_model (model_type, is_default);
+
 SELECT 'kb_foundation 数据库表创建完成！' AS message;
