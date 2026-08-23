@@ -53,6 +53,14 @@ public interface ModelProviderService {
     void delete(Long id);
 
     /**
+     * 密钥轮换：用当前加密密钥重加密全部存量密文（配合更换
+     * {@code kb.security.encrypt-key} 后调用）。
+     *
+     * @return 重加密成功的提供方数量（解密失败的条目跳过并告警）
+     */
+    int rotateKey();
+
+    /**
      * 连通性测试（临时解密调用 /chat/completions 或 /embeddings）。
      *
      * @return 测试结果消息（成功/失败原因）

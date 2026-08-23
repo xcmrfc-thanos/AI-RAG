@@ -106,4 +106,15 @@ public class ModelProviderController {
     public Result<String> test(@Valid @RequestBody ModelTestDTO dto) {
         return Result.success(modelProviderService.testConnection(dto));
     }
+
+    /**
+     * 密钥轮换：用当前加密密钥重加密存量密文（更换 kb.security.encrypt-key 后调用）。
+     */
+    @PostMapping("/rotate-key")
+    @PreAuthorize("hasAuthority('system:settings')")
+    @Operation(summary = "密钥轮换", description = "用当前密钥重加密全部存量凭证；解密失败的条目跳过并告警")
+    public Result<Integer> rotateKey() {
+        int rotated = modelProviderService.rotateKey();
+        return Result.success("密钥轮换完成，重加密 " + rotated + " 个提供方", rotated);
+    }
 }

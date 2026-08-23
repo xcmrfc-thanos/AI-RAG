@@ -169,6 +169,31 @@ public class ModelProviderServiceImpl implements ModelProviderService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int rotateKey() {
+        List<ModelProvider> providers = modelProviderMapper.selectList(null);
+        int rotated = 0;
+        for (ModelProvider provider : providers) {
+            if (!StringUtils.hasText(provider.getApiKey())) {
+                continue;
+            }
+            try {
+                String plain = modelCrypto.decrypt(provider.getApiKey());
+                provider.setApiKey(modelCrypto.encrypt(plain));
+                provider.setApiKeyHint(ModelCrypto.mask(plain));
+                modelProviderMapper.updateById(provider);
+                rotated++;
+            } catch (Exception e) {
+                log.warn("密钥轮换跳过 provider={}（解密失败，可能旧密钥已丢失）：{}",
+                        provider.getProviderKey(), e.getMessage());
+            }
+        }
+        refreshModelCache();
+        log.info("模型凭证密钥轮换完成：成功 {} 个提供方", rotated);
+        return rotated;
+    }
+
+    @Override
     public String testConnection(ModelTestDTO dto) {
         String endpoint = ModelLibraryClient.TYPE_EMBEDDING.equals(dto.getModelType())
                 ? "/embeddings" : "/chat/completions";
