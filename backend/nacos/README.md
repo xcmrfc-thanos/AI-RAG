@@ -3,7 +3,8 @@
 > Namespace: `knowledge` · Group: `KNOWLEDGE_BASE`  
 > **本地 Docker**：Nacos 已关闭鉴权（无需 username/password）；HTTP **20848**，gRPC **21848**。  
 > **配置准源（任务 59）**：本目录 `*-dev.yaml.template` → 导入 Nacos 后为运行时准源；各服务 `application.yml` **仅同值兜底**。  
-> **模型默认**：`kb-intelligence-dev` / 模块兜底 / Agent 模板统一 `ai.default-model=qwen`（DeepSeek 可选）。
+> **模型默认**：`kb-intelligence-dev` / 模块兜底 / Agent 模板统一 `ai.default-model=qwen`（DeepSeek 可选）。  
+> **模型库（第8阶段）**：`kb.security.encrypt-key`（公共 `application-dev.yaml`，环境变量 `KB_SECURITY_ENCRYPT_KEY` 兜底）为模型凭证 AES-GCM 加密密钥，模型库未配置时各模型仍回退 `qwen.*` / `siliconflow.*` 旧配置，双轨兜底不删除。
 
 ## 配置分层
 
