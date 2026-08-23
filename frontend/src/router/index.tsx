@@ -52,6 +52,7 @@ const TeamsPage = lazy(() => import('@/pages/admin/TeamsPage'));
 const ReviewPage = lazy(() => import('@/pages/admin/ReviewPage'));
 const StatisticsPage = lazy(() => import('@/pages/admin/StatisticsPage'));
 const SettingsPage = lazy(() => import('@/pages/admin/SettingsPage'));
+const ModelsPage = lazy(() => import('@/pages/admin/ModelsPage'));
 
 // 基础服务管理页面
 const SystemConfigPage = lazy(() => import('@/pages/admin/SystemConfigPage'));
@@ -522,6 +523,16 @@ export const appRoutes: RouteObject[] = [
               <ProtectedRoute requiredPermissions={[PERMISSIONS.systemSettings]}>
                 <Suspense fallback={<LoadingFallback />}>
                   <SettingsPage />
+                </Suspense>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'models',
+            element: (
+              <ProtectedRoute requiredPermissions={[PERMISSIONS.systemSettings]}>
+                <Suspense fallback={<LoadingFallback />}>
+                  <ModelsPage />
                 </Suspense>
               </ProtectedRoute>
             ),

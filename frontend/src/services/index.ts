@@ -21,6 +21,7 @@ export { commentService } from './comment.service';
 export { settingsService } from './settings.service';
 export { graphService } from './graph.service';
 export { foundationService } from './foundation.service';
+export { modelService } from './model.service';
 export { favoriteService } from './favorite.service';
 export { accessService } from './access.service';
 export { webSocketService } from './websocket.service';

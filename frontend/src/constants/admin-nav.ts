@@ -115,6 +115,12 @@ export const ADMIN_NAV_GROUPS: AdminNavGroupConfig[] = [
         permissions: [PERMISSIONS.systemSettings],
       },
       {
+        key: 'models',
+        label: '模型管理',
+        path: '/admin/models',
+        permissions: [PERMISSIONS.systemSettings],
+      },
+      {
         key: 'system-config',
         label: '系统配置',
         path: '/admin/system-config',
