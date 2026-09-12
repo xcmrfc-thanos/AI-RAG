@@ -19,6 +19,7 @@
 - [⚙ 环境变量](#-环境变量)
 - [🎯 核心能力详解](#-核心能力详解)
 - [🧪 联调冒烟](#-联调冒烟)
+- [🧭 当前状态与已知限制](#-当前状态与已知限制)
 - [📚 文档地图](#-文档地图)
 - [🛠 开发约定](#-开发约定)
 
@@ -78,10 +79,7 @@
 
 ## 🏗 总体架构
 
-<picture>
-  <source type="image/png" srcset="docs/assets/architecture.png">
-  <img src="docs/assets/architecture.svg" width="100%" alt="AI-RAG 总体架构：前端层 → 网关 → 微服务 → 中间件 → 大模型"/>
-</picture>
+![AI-RAG 总体架构：前端层 → 网关 → 微服务 → 中间件 → 大模型](docs/assets/architecture.png)
 
 <details>
 <summary>文本版架构（终端友好）</summary>
@@ -107,10 +105,7 @@ kb-gateway (:18080)            统一入口 · JWT 校验 · 注入可信用户�
 
 ## ⚡ RAG 主链路
 
-<picture>
-  <source type="image/png" srcset="docs/assets/rag-pipeline.png">
-  <img src="docs/assets/rag-pipeline.svg" width="100%" alt="RAG 主链路：入库链路（上传 → 解析 → 切片 → 向量化 → 索引）与查询链路（检索 → 融合 → 重排 → 带引用生成）"/>
-</picture>
+![RAG 主链路：入库链路（上传 → 解析 → 切片 → 向量化 → 索引）与查询链路（检索 → 融合 → 重排 → 带引用生成）](docs/assets/rag-pipeline.png)
 
 入库与问答两条主链路的关键边界：
 
@@ -210,10 +205,7 @@ cd deploy
 
 ## 🔌 端口规划
 
-<picture>
-  <source type="image/png" srcset="docs/assets/deploy-topology.png">
-  <img src="docs/assets/deploy-topology.svg" width="100%" alt="部署拓扑：本机开发与全栈 Docker 两种形态的端口规划"/>
-</picture>
+![部署拓扑：本机开发与全栈 Docker 两种形态的端口规划](docs/assets/deploy-topology.png)
 
 ### 应用服务
 
@@ -241,6 +233,7 @@ cd deploy
 | RustFS (S3) | **20090** / 控制台 **20091** | rustfsadmin / rustfsadmin |
 | Neo4j（可选） | **20474** / Bolt **20687** | neo4j；图谱可重建 |
 | Qdrant（可选） | HTTP **26333** / gRPC **26334** | 默认不随 setup 强制启动 |
+| SkyWalking（可选 APM） | OAP **11800** / HTTP **12800** · UI **38080** | 链路追踪；启用方式见[核心能力详解](#-核心能力详解) |
 
 > 完整端口、账号与全栈 Docker 说明见 [deploy/README.md](deploy/README.md)。
 
@@ -255,6 +248,7 @@ cd deploy
 | `RAG_RERANK_ENABLED` | 是否用 LLM 重排（内网可关） |
 | `AI_DEV_STUB` | `true` 时本地 Stub Chat + 确定性 Embedding |
 | `RAG_QDRANT_ENABLED` | `true` 时开启 Qdrant 双写（需先 `up -d qdrant`） |
+| `SW_OAP_PORT` / `SW_OAP_HTTP_PORT` / `SW_UI_PORT` | SkyWalking OAP gRPC / HTTP / UI 宿主机端口 |
 
 密钥文件勿提交；模板见 [deploy/env.example](deploy/env.example)。
 
@@ -273,6 +267,14 @@ cd deploy
   - 样例：`deploy/profiles/public.env.example`、`intranet.env.example`；换向量后须重建索引
   - 设计：[docs/superpowers/specs/2026-07-20-ai-dual-env-design.md](docs/superpowers/specs/2026-07-20-ai-dual-env-design.md)
 - **Agent**：工作流编排、试跑与发布
+- **可选 APM（SkyWalking）**：后端镜像内置 Agent（`ai-rag/skywalking-base`），OAP/UI 一键随 Compose 启动。启用三步：
+  ```powershell
+  # 1. 构建 Agent 基础镜像（Agent 取自官方 apache/skywalking-java-agent 镜像）
+  docker build -f deploy/docker/Dockerfile.skywalking-base -t ai-rag/skywalking-base:local .
+  # 2. 启动 OAP + UI（存储复用 ES）
+  cd deploy; docker compose --env-file .env up -d skywalking-oap skywalking-ui
+  # 3. 用 Dockerfile.backend 重建业务镜像并重启服务，UI 访问 http://127.0.0.1:38080
+  ```
 - **可选**：Qdrant 旁路双写 + ES BM25 混合检索（见 [deploy/README.md](deploy/README.md)）
 
 ## 🧪 联调冒烟
@@ -286,6 +288,20 @@ cd deploy\scripts
 
 上传/秒传抽查：`.\verify-upload-resume.ps1`
 真实 LLM 抽验：`.\verify-rag-llm-spotcheck.ps1 -WriteJudgementSheet`
+
+## 🧭 当前状态与已知限制
+
+| 模块 | 状态 | 说明 |
+|------|------|------|
+| 第 7 阶段（地基治理与 Agent 演进） | ✅ 已完成 | 156 项任务全部验收，见[计划文档](docs/第7阶段-地基治理与Agent演进计划.md) |
+| 第 8 阶段（模型统一管理与加密配置） | ✅ 已完成 | 任务 76–86 全部实施：模型库两张表、AES-256-GCM 密钥加密、各场景接入与密钥轮换接口 |
+| 模型管理 tts / stt / image 配置 UI | 🕒 预留 | 第 8 阶段明确不做，待语音 / 图像场景接入时启用下拉 |
+| 前端 foundation.store（通知中心等） | 🕒 脚手架 | 接口为 mock 桩（28 处 TODO），暂无页面消费，不影响现有功能 |
+| kb-file 文件引用检查 / 上传者名回显 | 🕒 TODO | 删除前的引用校验待实现；列表上传者名暂为空 |
+| kb-statistics 系统健康度 | 🕒 TODO | 当前为固定值 98.0，待对接健康检查端点动态计算 |
+| 秒传 / 分片续传会话 | ⚠ MVP 限制 | 会话存 kb-file JVM 内存，进程重启后不可续传 |
+
+> 各阶段任务清单与验收口径见[文档地图](#-文档地图)。
 
 ## 📚 文档地图
 
