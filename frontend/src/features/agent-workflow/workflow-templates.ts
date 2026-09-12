@@ -154,5 +154,5 @@ function llmNode(id: string, prompt: string): WorkflowNodeV1 {
  */
 function nodeKind(node?: WorkflowNodeV1): string {
   if (!node) return 'end';
-  return node.type === 'llm' ? 'llm' : node.tool;
+  return node.type === 'llm' ? 'llm' : (node as { tool?: string }).tool ?? 'end';
 }

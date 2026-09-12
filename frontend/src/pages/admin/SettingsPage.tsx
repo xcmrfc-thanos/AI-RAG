@@ -272,21 +272,16 @@ export const SettingsPage: React.FC = () => {
           vectorStoreType: (data.ai as any).vectorStoreType || 'elasticsearch',
         });
       }
+      const exportDefaults = {
+        pdfWatermarkEnabled: false,
+        pdfWatermarkType: 'user',
+        pdfWatermarkText: '内部资料',
+        pdfWatermarkOpacity: 0.15,
+      };
       if (data.export) {
-        exportForm.setFieldsValue({
-          pdfWatermarkEnabled: false,
-          pdfWatermarkType: 'user',
-          pdfWatermarkText: '内部资料',
-          pdfWatermarkOpacity: 0.15,
-          ...data.export,
-        });
+        exportForm.setFieldsValue({ ...exportDefaults, ...data.export });
       } else {
-        exportForm.setFieldsValue({
-          pdfWatermarkEnabled: false,
-          pdfWatermarkType: 'user',
-          pdfWatermarkText: '内部资料',
-          pdfWatermarkOpacity: 0.15,
-        });
+        exportForm.setFieldsValue(exportDefaults);
       }
       if (data.rag) {
         const rag = data.rag as any;
@@ -328,85 +323,57 @@ export const SettingsPage: React.FC = () => {
           ragVectorStoreType: (data.ai as any)?.vectorStoreType || 'elasticsearch',
         });
       }
+      const graphDefaults = {
+        kagEnabled: true,
+        kagAutoExtract: true,
+        kagExtractionModel: 'qwen',
+        kagMaxEntitiesPerChunk: 10,
+        kagMaxHops: 2,
+        kagClearBeforeBuild: true,
+      };
       if (data.graph) {
-        graphForm.setFieldsValue({
-          kagEnabled: true,
-          kagAutoExtract: true,
-          kagExtractionModel: 'qwen',
-          kagMaxEntitiesPerChunk: 10,
-          kagMaxHops: 2,
-          kagClearBeforeBuild: true,
-          ...data.graph,
-        });
+        graphForm.setFieldsValue({ ...graphDefaults, ...data.graph });
       } else {
-        graphForm.setFieldsValue({
-          kagEnabled: true,
-          kagAutoExtract: true,
-          kagExtractionModel: 'qwen',
-          kagMaxEntitiesPerChunk: 10,
-          kagMaxHops: 2,
-          kagClearBeforeBuild: true,
-        });
+        graphForm.setFieldsValue(graphDefaults);
       }
+      const agentDefaults = {
+        agentDefaultWorkflowId: 0,
+        agentDefaultModel: 'qwen',
+        agentRunTimeoutSeconds: 90,
+        agentLlmTimeoutSeconds: 60,
+        agentToolTimeoutSeconds: 5,
+        agentToolHybridSearch: true,
+        agentToolGraphSearch: true,
+        agentToolGetDocument: true,
+        agentRunRetentionDays: 30,
+      };
       if (data.agent) {
-        agentForm.setFieldsValue({
-          agentDefaultWorkflowId: 0,
-          agentDefaultModel: 'qwen',
-          agentRunTimeoutSeconds: 90,
-          agentLlmTimeoutSeconds: 60,
-          agentToolTimeoutSeconds: 5,
-          agentToolHybridSearch: true,
-          agentToolGraphSearch: true,
-          agentToolGetDocument: true,
-          agentRunRetentionDays: 30,
-          ...data.agent,
-        });
+        agentForm.setFieldsValue({ ...agentDefaults, ...data.agent });
       } else {
-        agentForm.setFieldsValue({
-          agentDefaultWorkflowId: 0,
-          agentDefaultModel: 'qwen',
-          agentRunTimeoutSeconds: 90,
-          agentLlmTimeoutSeconds: 60,
-          agentToolTimeoutSeconds: 5,
-          agentToolHybridSearch: true,
-          agentToolGraphSearch: true,
-          agentToolGetDocument: true,
-          agentRunRetentionDays: 30,
-        });
+        agentForm.setFieldsValue(agentDefaults);
       }
+      const complianceDefaults = {
+        operationLogRetentionDays: 90,
+        confirmSensitiveExport: true,
+        confirmSensitiveReindex: true,
+        confirmSensitiveGraphOps: true,
+        confirmSensitiveDelete: true,
+      };
       if (data.compliance) {
-        complianceForm.setFieldsValue({
-          operationLogRetentionDays: 90,
-          confirmSensitiveExport: true,
-          confirmSensitiveReindex: true,
-          confirmSensitiveGraphOps: true,
-          confirmSensitiveDelete: true,
-          ...data.compliance,
-        });
+        complianceForm.setFieldsValue({ ...complianceDefaults, ...data.compliance });
       } else {
-        complianceForm.setFieldsValue({
-          operationLogRetentionDays: 90,
-          confirmSensitiveExport: true,
-          confirmSensitiveReindex: true,
-          confirmSensitiveGraphOps: true,
-          confirmSensitiveDelete: true,
-        });
+        complianceForm.setFieldsValue(complianceDefaults);
       }
+      const integrationDefaults = {
+        storageProvider: 'rustfs',
+        storageRegion: 'us-east-1',
+        integrationNeo4jUri: 'bolt://localhost:7687',
+        integrationEsHosts: 'http://localhost:9200',
+      };
       if (data.integration) {
-        integrationForm.setFieldsValue({
-          storageProvider: 'rustfs',
-          storageRegion: 'us-east-1',
-          integrationNeo4jUri: 'bolt://localhost:7687',
-          integrationEsHosts: 'http://localhost:9200',
-          ...data.integration,
-        });
+        integrationForm.setFieldsValue({ ...integrationDefaults, ...data.integration });
       } else {
-        integrationForm.setFieldsValue({
-          storageProvider: 'rustfs',
-          storageRegion: 'us-east-1',
-          integrationNeo4jUri: 'bolt://localhost:7687',
-          integrationEsHosts: 'http://localhost:9200',
-        });
+        integrationForm.setFieldsValue(integrationDefaults);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '加载设置失败';
@@ -1931,7 +1898,7 @@ export const SettingsPage: React.FC = () => {
               </Button>
             </Col>
           </Row>
-          <Divider orientation="left" plain>敏感操作二次确认</Divider>
+          <Divider titlePlacement="left" plain>敏感操作二次确认</Divider>
           <Row gutter={[24, 0]}>
             <Col span={12}>
               <Form.Item
@@ -2050,7 +2017,7 @@ export const SettingsPage: React.FC = () => {
           </Col>
         </Row>
 
-        <Divider orientation="left" plain>集成标识（可保存）</Divider>
+        <Divider titlePlacement="left" plain>集成标识（可保存）</Divider>
         <Form
           form={integrationForm}
           layout="vertical"

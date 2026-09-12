@@ -32,5 +32,5 @@ describe('workflow-templates', () => {
 });
 
 function nodeLabel(node: ReturnType<typeof createWorkflowTemplate>['nodes'][number]): string {
-  return node.type === 'llm' ? 'llm' : node.tool;
+  return node.type === 'llm' ? 'llm' : (node as { tool?: string }).tool ?? 'end';
 }
