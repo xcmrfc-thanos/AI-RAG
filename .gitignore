@@ -1,11 +1,8 @@
 # ==================== AI-RAG 根仓库过滤 ====================
-# 根仓跟踪：readme.md / docs / deploy / backend / frontend（构建产物与密钥除外）
+# 根仓跟踪：README.md / docs / deploy / backend / frontend（构建产物与密钥除外）
 # 本地可另有嵌套 .git，不影响根仓推送
 
 # ---------- 密钥与本地环境 ----------
-.cursor/
-.claude/
-.cursorrules/
 .mcp.json
 .env
 .env.*
@@ -20,6 +17,7 @@
 *.p12
 *.jks
 docs/lingclaw/
+
 # ---------- deploy：本地运行产物与密钥（勿提交） ----------
 /deploy/.env
 /deploy/.env.*
@@ -36,6 +34,12 @@ docs/lingclaw/
 /deploy/**/.DS_Store
 /deploy/scripts/_archive/**
 !/deploy/scripts/_archive/README.md
+
+# ---------- SkyWalking：本地下载的 Agent 包与解压产物（勿提交，配置文件除外） ----------
+/deploy/skywalking/apache-skywalking-apm-*.tar.gz
+/deploy/skywalking/apache-skywalking-apm-*/
+/deploy/skywalking/agent/
+!/deploy/skywalking/application.yml
 
 # ---------- 网关切流历史脚本（本地归档，勿提交） ----------
 /backend/kb-gateway/scripts/_archive/**
@@ -59,7 +63,6 @@ docs/lingclaw/
 /docs/eval/~$*
 
 # ---------- 本地开发变更记录（仅本机保留，勿提交） ----------
-/readme_plan.md
 readme_plan.md
 
 # ---------- 构建与依赖 ----------
@@ -74,6 +77,15 @@ readme_plan.md
 *.war
 *.ear
 !**/maven-wrapper.jar
+
+# ---------- Python 本地产物（评测 / 工具脚本） ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
 
 # ---------- 日志与临时文件 ----------
 logs/
@@ -108,17 +120,25 @@ Thumbs.db
 Desktop.ini
 ehthumbs.db
 
-# ---------- Cursor / 本地工具 ----------
+# ---------- AI 工具 / 本地助手 ----------
 .cursor/
 .cursorrules
 .claude/
 CLAUDE.md
 AGENTS.md
 .reasonix/
+.windsurf/
+.trae/
+.qoder/
+.iflow/
+.gemini/
+.codex/
 **/agent-transcripts/
+
+# ---------- 本地安全扫描 / 知识图谱缓存（勿提交） ----------
+.mimosa/
+# Added by code-review-graph
+.code-review-graph/
 
 # ---------- 本地嵌套仓备份（不入库） ----------
 /.git-nested-backup/
-
-# Added by code-review-graph
-.code-review-graph/

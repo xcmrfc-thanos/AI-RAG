@@ -1,24 +1,39 @@
 # AI-RAG 企业知识库
 
-4 BC 微服务 + Gateway + Agent + React 前端。覆盖文档管理、全文/语义检索、RAG 对话、知识图谱、文件存储与 Admin 后台。
+> 4 BC 微服务 + Gateway + Agent + React 前端的一体化企业知识库：文档管理、全文/语义混合检索、RAG 带引用问答、知识图谱、文件存储、Agent 工作流与 Admin 后台，支持公网/内网换模型与 Docker 交付。
+
+![JDK](https://img.shields.io/badge/JDK-21-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Nacos](https://img.shields.io/badge/Nacos-注册--配置中心-green) ![Docker](https://img.shields.io/badge/Docker-Compose-blue)
 
 仓库：[Gitee · xcmrfc-thanos/AI-RAG](https://gitee.com/xcmrfc-thanos/AI-RAG)
 
-## 核心卖点
+## 📖 目录导航
+
+- [✨ 项目亮点](#-项目亮点)
+- [🧠 核心技术](#-核心技术)
+- [🏗 总体架构](#-总体架构)
+- [🧩 服务矩阵](#-服务矩阵)
+- [📁 仓库结构](#-仓库结构)
+- [🚀 快速开始](#-快速开始)
+- [🔌 端口规划](#-端口规划)
+- [⚙ 环境变量](#-环境变量)
+- [🎯 核心能力详解](#-核心能力详解)
+- [🧪 联调冒烟](#-联调冒烟)
+- [📚 文档地图](#-文档地图)
+- [🛠 开发约定](#-开发约定)
+
+## ✨ 项目亮点
 
 不是「调个大模型聊天页」，而是可落地的**企业知识库 + RAG**：文档入库、权限可控、检索可混合、回答可带依据，并支持公网/内网换模型与 Docker 交付。
 
-| 卖点 | 说明 |
-|------|------|
-| **完整 RAG 链路** | 文档切片 → 向量/关键词索引 → 检索 →（可选）重排 → 带引用问答 |
-| **混合检索** | ES BM25 + 语义向量；可选 Qdrant / Milvus 等部署形态 |
-| **公网 / 内网双环境** | 公网通义/DeepSeek；内网 Ollama；换向量须重建索引 |
-| **产品入口分明** | 搜索 / AI 助手 / AI 写作 / Agent 各司其职，非万能单框 |
-| **企业文档能力** | ACL、审核、团队空间、草稿发布，建在真实业务上 |
-| **可交付工程** | 微服务拆分、Nacos、全栈 Compose、冒烟与 Golden 评测 |
-| **Agent 工作流** | 节点编排、试跑与发布（进阶能力） |
+- 🔗 **完整 RAG 链路**：文档切片 → 向量/关键词索引 → 检索 →（可选）重排 → 带引用问答
+- 🔀 **混合检索**：ES BM25 + 语义向量；可选 Qdrant / Milvus 等部署形态
+- 🌐 **公网 / 内网双环境**：公网通义/DeepSeek；内网 Ollama；换向量须重建索引
+- 🧭 **产品入口分明**：搜索 / AI 助手 / AI 写作 / Agent 各司其职，非万能单框
+- 🏢 **企业文档能力**：ACL、审核、团队空间、草稿发布，建在真实业务上
+- 📦 **可交付工程**：微服务拆分、Nacos、全栈 Compose、冒烟与 Golden 评测
+- 🤖 **Agent 工作流**：节点编排、试跑与发布（进阶能力）
 
-## 核心技术
+## 🧠 核心技术
 
 设计与大模型调用、检索链路、配置边界、工程底座中落地较扎实的部分：
 
@@ -60,7 +75,26 @@
 | **统计投影** | 事件经 RabbitMQ 投影到 statistics 宽表，避免跨库直连 |
 | **前端 SSE** | `fetch` + ReadableStream 消费对话 / 写作 / 摘要流式接口 |
 
-## 架构一览
+## 🏗 总体架构
+
+```
+前端 React + Vite (:3002)      搜索 · AI 助手 · AI 写作 · Agent · Admin
+        │  HTTP / SSE（JWT）
+        ▼
+kb-gateway (:18080)            统一入口 · JWT 校验 · 注入可信用户头 / 剥离伪造信任头
+        │
+        ├─► kb-core        (:8090)  鉴权 / 文档 / 文件元数据 / ACL
+        ├─► kb-intelligence(:8091)  检索 / RAG / 知识图谱（→ kb-core 走白名单 + HMAC 时间窗签名）
+        ├─► kb-file        (:8084)  对象存储 RustFS(S3) · 秒传 / 分片续传
+        ├─► kb-statistics  (:8085)  统计投影（RabbitMQ 事件 → 宽表）
+        └─► kb-agent       (:8092)  Agent 工作流（用户身份必须经网关）
+
+中间件（Docker）：MySQL · Redis · Elasticsearch · RabbitMQ · MongoDB
+                · Nacos · RustFS；可选 Qdrant / Neo4j
+大模型：公网（通义 / DeepSeek）｜ 内网（Ollama 兼容端点）｜ AI_DEV_STUB 无 Key 联调
+```
+
+## 🧩 服务矩阵
 
 | 进程 | 端口 | 职责 |
 |------|------|------|
@@ -70,15 +104,14 @@
 | kb-file | 8084 | 对象存储（RustFS/S3）、秒传与分片续传 |
 | kb-statistics | 8085 | 统计投影 |
 | kb-agent | 8092 | Agent 工作流 |
+| kb-mcp（可选） | 8095 | 只读 MCP Server，独立进程，经 Gateway + 终端用户 JWT |
 | 前端 Vite | 3002 | React + TypeScript |
 
-中间件（Docker）：MySQL、Redis、ES、RabbitMQ、RustFS、Nacos、MongoDB；可选 Qdrant、Neo4j。端口见 [deploy/README.md](deploy/README.md)。
-
-## 仓库结构
+## 📁 仓库结构
 
 ```
 AI-RAG/
-├── backend/          # Maven 多模块（4 BC + gateway + agent）
+├── backend/          # Maven 多模块（4 BC + gateway + agent + mcp）
 ├── frontend/         # React 前端
 ├── deploy/           # Docker Compose、启停与冒烟脚本
 ├── docs/             # 架构 / 运维 / 评测 / 实现计划
@@ -88,7 +121,18 @@ AI-RAG/
 
 > **`readme_plan.md`**：仅本地保留，已加入 `.gitignore`，**不要提交**。克隆仓库后如需历史变更记录，请使用本机备份或从内部文档同步。
 
-## 快速启动
+## 🚀 快速开始
+
+### 环境要求
+
+| 依赖 | 版本 | 说明 |
+|------|------|------|
+| JDK | **21** | 后端编译与运行 |
+| Node.js | 20+ | 前端 Vite 开发服务器 |
+| Docker + Compose | 稳定版 | 中间件（MySQL / Redis / ES / RabbitMQ 等） |
+| PowerShell | 5.1+ | deploy 启停 / 冒烟脚本（Windows） |
+
+### 最小启动路径（本机开发）
 
 ```powershell
 # 0. JDK 21（示例路径，按本机修改）
@@ -109,14 +153,14 @@ npm install
 npm run dev
 ```
 
+### 入口与验证
+
 | 入口 | 地址 |
 |------|------|
 | 网关 | http://127.0.0.1:18080 |
 | 前端 | http://127.0.0.1:3002 |
 | Nacos | http://127.0.0.1:20848 |
 | 默认账号 | admin / admin123 |
-
-**全栈 Docker**（演示/交付，无需本机 JDK/Node）：见 [deploy/README.md](deploy/README.md) 与 `docker-compose.full.yml`。
 
 ### 停止（不关 Docker 中间件）
 
@@ -136,24 +180,42 @@ cd deploy
 # 需要时再启 gateway / intelligence 等
 ```
 
-## 主要能力
+### 全栈 Docker（可选，演示/交付）
 
-- **文档**：上传解析、草稿、权限 ACL、检索与 RAG 问答
-- **文件管理**：列表 / 预览 / 下载；上传真实进度（axios `onUploadProgress`）
-- **秒传 + 分片续传**（文件管理 / 大文件导入）  
-  - 客户端 SHA-256 预检 → `GET /api/file/files/upload/check-hash`  
-  - ≥20MB 分片（默认片 5MB，上限约 500MB）→ init / chunk / status / merge  
-  - 合并后登记文件管理元数据；导入页可 `from-file` 再解析  
-  - 会话存 kb-file JVM 内存：进程重启后不可续传（MVP）
-- **AI 双环境（公网 / 内网）**  
-  - 公网：对话 `qwen3-max` + 可选 DeepSeek；向量默认 `text-embedding-v3`，可选硅基 `BAAI/bge-m3`  
-  - 内网：Ollama `qwen2.5:7b/14b` + `bge-m3`（维度仍 1024）  
-  - 样例：`deploy/profiles/public.env.example`、`intranet.env.example`；换向量后须重建索引  
-  - 设计：[docs/superpowers/specs/2026-07-20-ai-dual-env-design.md](docs/superpowers/specs/2026-07-20-ai-dual-env-design.md)
-- **Agent**：工作流编排、试跑与发布
-- **可选**：Qdrant 旁路双写 + ES BM25 混合检索（见 deploy README）
+无需本机 JDK/Node：见 [deploy/README.md](deploy/README.md) 与 `docker-compose.full.yml`。
 
-## 环境变量（`deploy/.env`）
+## 🔌 端口规划
+
+### 应用服务
+
+| 服务 | 宿主机端口 | 备注 |
+|------|-----------|------|
+| 前端 Vite | **3002** | React 开发服务器 |
+| kb-gateway | **18080** | 统一 API 入口 |
+| kb-core | 8090 | 鉴权 / 文档 |
+| kb-intelligence | 8091 | RAG / 检索 / 图谱 |
+| kb-file | 8084 | 对象存储 |
+| kb-statistics | 8085 | 统计投影 |
+| kb-agent | 8092 | Agent 工作流 |
+| kb-mcp（可选） | 8095 | 只读 MCP Server |
+| Nacos 控制台 | **20848** / gRPC **21848** | 本地开发已关闭鉴权 |
+
+### 中间件（Docker 映射）
+
+| 中间件 | 宿主机端口 | 备注 |
+|--------|-----------|------|
+| MySQL | **20006** | root / 123456 |
+| Redis | **20079** | susan123 |
+| Elasticsearch | **20920** | elastic / susan123 |
+| RabbitMQ | **20572** / 控制台 **20156** | admin / susan123 |
+| MongoDB | **20017** | mongodb / susan123 |
+| RustFS (S3) | **20090** / 控制台 **20091** | rustfsadmin / rustfsadmin |
+| Neo4j（可选） | **20474** / Bolt **20687** | neo4j；图谱可重建 |
+| Qdrant（可选） | HTTP **26333** / gRPC **26334** | 默认不随 setup 强制启动 |
+
+> 完整端口、账号与全栈 Docker 说明见 [deploy/README.md](deploy/README.md)。
+
+## ⚙ 环境变量（`deploy/.env`）
 
 | 变量 | 说明 |
 |------|------|
@@ -165,9 +227,26 @@ cd deploy
 | `AI_DEV_STUB` | `true` 时本地 Stub Chat + 确定性 Embedding |
 | `RAG_QDRANT_ENABLED` | `true` 时开启 Qdrant 双写（需先 `up -d qdrant`） |
 
-密钥文件勿提交；模板见 `deploy/env.example`。
+密钥文件勿提交；模板见 [deploy/env.example](deploy/env.example)。
 
-## 联调冒烟
+## 🎯 核心能力详解
+
+- **文档**：上传解析、草稿、权限 ACL、检索与 RAG 问答
+- **文件管理**：列表 / 预览 / 下载；上传真实进度（axios `onUploadProgress`）
+- **秒传 + 分片续传**（文件管理 / 大文件导入）
+  - 客户端 SHA-256 预检 → `GET /api/file/files/upload/check-hash`
+  - ≥20MB 分片（默认片 5MB，上限约 500MB）→ init / chunk / status / merge
+  - 合并后登记文件管理元数据；导入页可 `from-file` 再解析
+  - 会话存 kb-file JVM 内存：进程重启后不可续传（MVP）
+- **AI 双环境（公网 / 内网）**
+  - 公网：对话 `qwen3-max` + 可选 DeepSeek；向量默认 `text-embedding-v3`，可选硅基 `BAAI/bge-m3`
+  - 内网：Ollama `qwen2.5:7b/14b` + `bge-m3`（维度仍 1024）
+  - 样例：`deploy/profiles/public.env.example`、`intranet.env.example`；换向量后须重建索引
+  - 设计：[docs/superpowers/specs/2026-07-20-ai-dual-env-design.md](docs/superpowers/specs/2026-07-20-ai-dual-env-design.md)
+- **Agent**：工作流编排、试跑与发布
+- **可选**：Qdrant 旁路双写 + ES BM25 混合检索（见 [deploy/README.md](deploy/README.md)）
+
+## 🧪 联调冒烟
 
 ```powershell
 cd deploy\scripts
@@ -176,10 +255,10 @@ cd deploy\scripts
 
 覆盖：中间件探活 → API → 鉴权/AI 安全 → LLM 配置 → Admin UI → 定向单测 → 前端 build。
 
-上传/秒传抽查：`.\verify-upload-resume.ps1`  
+上传/秒传抽查：`.\verify-upload-resume.ps1`
 真实 LLM 抽验：`.\verify-rag-llm-spotcheck.ps1 -WriteJudgementSheet`
 
-## 文档索引
+## 📚 文档地图
 
 | 文档 | 说明 |
 |------|------|
@@ -193,7 +272,7 @@ cd deploy\scripts
 | [docs/superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md](docs/superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md) | AI 公网/内网双环境实现计划 |
 | [docs/superpowers/specs/2026-07-20-ai-dual-env-design.md](docs/superpowers/specs/2026-07-20-ai-dual-env-design.md) | AI 双环境设计 |
 
-## 开发约定（摘要）
+## 🛠 开发约定
 
 - JDK **21**；后端配置准源为 Nacos 模板 `backend/nacos/*-dev.yaml.template`
 - 前端文件夹/页面：小写串行；后端包与 Controller Mapping 遵循现有模块规范
