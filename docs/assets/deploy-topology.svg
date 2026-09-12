@@ -1,127 +1,157 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 830" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
-  <rect x="0" y="0" width="1360" height="830" fill="#FFFFFF"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1122"/>
+      <stop offset="1" stop-color="#0E1B36"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7DD3FC"/>
+      <stop offset="0.55" stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glowCyan" cx="0.15" cy="0.05" r="0.6">
+      <stop offset="0" stop-color="rgba(34,211,238,0.10)"/>
+      <stop offset="1" stop-color="rgba(34,211,238,0)"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
 
-  <text x="680" y="46" text-anchor="middle" font-size="30" font-weight="700" fill="#0F172A">部署拓扑 · 端口规划</text>
-  <text x="680" y="74" text-anchor="middle" font-size="14" fill="#64748B">本机开发（PowerShell 脚本 + Docker 中间件）｜ 全栈 Docker（docker-compose.full.yml，免本机 JDK / Node）</text>
+  <rect width="1360" height="830" fill="url(#bg)"/>
+  <rect width="1360" height="830" fill="url(#grid)"/>
+  <rect width="1360" height="830" fill="url(#glowCyan)"/>
+  <path d="M 20 20 h 28 M 20 20 v 28" stroke="rgba(103,232,249,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 1340 20 h -28 M 1340 20 v 28" stroke="rgba(103,232,249,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 20 810 h 28 M 20 810 v -28" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 1340 810 h -28 M 1340 810 v -28" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none"/>
+  <text x="1336" y="44" text-anchor="end" font-family="Consolas, monospace" font-size="13" fill="rgba(103,232,249,0.45)">SYS://AI-RAG · DEPLOY-TOPOLOGY</text>
+
+  <text x="680" y="46" text-anchor="middle" font-size="30" font-weight="800" fill="url(#titleGrad)" filter="url(#glow)">部署拓扑 · 端口规划</text>
+  <text x="680" y="74" text-anchor="middle" font-size="14" fill="#7C8DB0">本机开发（PowerShell 脚本 + Docker 中间件）｜ 全栈 Docker（docker-compose.full.yml，免本机 JDK / Node）</text>
 
   <!-- ======== Panel A 本机开发 ======== -->
-  <rect x="60" y="100" width="600" height="650" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="126" r="4" fill="#7C3AED"/>
-  <text x="100" y="131" font-size="13" font-weight="700" fill="#475569">本机开发 · setup.ps1 + start-services.ps1</text>
+  <rect x="60" y="100" width="600" height="650" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="126" r="4" fill="#A78BFA"/>
+  <text x="100" y="131" font-size="13" font-weight="700" fill="#9AB0CC">本机开发 DEV · setup.ps1 + start-services.ps1</text>
 
-  <text x="84" y="162" font-size="12" font-weight="700" fill="#64748B">主机进程（JDK 21 / Node 20+）</text>
+  <text x="84" y="162" font-size="12" font-weight="700" fill="#8CA0BF">主机进程（JDK 21 / Node 20+）</text>
   <g>
-    <rect x="84"  y="174" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="98"  y="201" font-size="12.5" font-weight="700" fill="#5B21B6">前端 Vite</text>
-    <text x="342" y="201" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:3002</text>
-    <rect x="372" y="174" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="386" y="201" font-size="12.5" font-weight="700" fill="#5B21B6">kb-gateway</text>
-    <text x="630" y="201" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:18080</text>
-    <rect x="84"  y="226" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="98"  y="253" font-size="12.5" font-weight="700" fill="#5B21B6">kb-core</text>
-    <text x="342" y="253" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8090</text>
-    <rect x="372" y="226" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="386" y="253" font-size="12.5" font-weight="700" fill="#5B21B6">kb-intelligence</text>
-    <text x="630" y="253" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8091</text>
-    <rect x="84"  y="278" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="98"  y="305" font-size="12.5" font-weight="700" fill="#5B21B6">kb-file</text>
-    <text x="342" y="305" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8084</text>
-    <rect x="372" y="278" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="386" y="305" font-size="12.5" font-weight="700" fill="#5B21B6">kb-statistics</text>
-    <text x="630" y="305" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8085</text>
-    <rect x="84"  y="330" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="98"  y="357" font-size="12.5" font-weight="700" fill="#5B21B6">kb-agent</text>
-    <text x="342" y="357" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8092</text>
-    <rect x="372" y="330" width="272" height="44" rx="8" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="386" y="357" font-size="12.5" font-weight="700" fill="#5B21B6">kb-mcp（可选）</text>
-    <text x="630" y="357" font-size="12" font-weight="700" fill="#7C3AED" text-anchor="end">:8095</text>
+    <rect x="84"  y="174" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="201" font-size="12.5" font-weight="700" fill="#C4B5FD">前端 Vite</text>
+    <text x="342" y="201" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:3002</text>
+    <rect x="372" y="174" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="201" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-gateway</text>
+    <text x="630" y="201" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:18080</text>
+    <rect x="84"  y="226" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="253" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-core</text>
+    <text x="342" y="253" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8090</text>
+    <rect x="372" y="226" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="253" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-intelligence</text>
+    <text x="630" y="253" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8091</text>
+    <rect x="84"  y="278" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="305" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-file</text>
+    <text x="342" y="305" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8084</text>
+    <rect x="372" y="278" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="305" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-statistics</text>
+    <text x="630" y="305" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8085</text>
+    <rect x="84"  y="330" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="357" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-agent</text>
+    <text x="342" y="357" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8092</text>
+    <rect x="372" y="330" width="272" height="44" rx="8" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="386" y="357" font-size="12.5" font-weight="700" fill="#C4B5FD">kb-mcp（可选）</text>
+    <text x="630" y="357" font-size="12" font-weight="700" fill="#7DD3FC" text-anchor="end">:8095</text>
   </g>
 
-  <text x="84" y="414" font-size="12" font-weight="700" fill="#64748B">Docker 中间件（deploy/docker-compose.yml）</text>
+  <text x="84" y="414" font-size="12" font-weight="700" fill="#8CA0BF">Docker 中间件（deploy/docker-compose.yml）</text>
   <g>
-    <rect x="84"  y="426" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="98"  y="453" font-size="12.5" font-weight="700" fill="#166534">MySQL</text>
-    <text x="342" y="453" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20006</text>
-    <rect x="372" y="426" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="386" y="453" font-size="12.5" font-weight="700" fill="#166534">Redis</text>
-    <text x="630" y="453" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20079</text>
-    <rect x="84"  y="478" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="98"  y="505" font-size="12.5" font-weight="700" fill="#166534">Elasticsearch</text>
-    <text x="342" y="505" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20920</text>
-    <rect x="372" y="478" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="386" y="505" font-size="12.5" font-weight="700" fill="#166534">RabbitMQ</text>
-    <text x="630" y="505" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20572 / :20156</text>
-    <rect x="84"  y="530" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="98"  y="557" font-size="12.5" font-weight="700" fill="#166534">MongoDB</text>
-    <text x="342" y="557" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20017</text>
-    <rect x="372" y="530" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="386" y="557" font-size="12.5" font-weight="700" fill="#166534">Nacos</text>
-    <text x="630" y="557" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20848 / :21848</text>
-    <rect x="84"  y="582" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="98"  y="609" font-size="12.5" font-weight="700" fill="#166534">RustFS (S3)</text>
-    <text x="342" y="609" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20090 / :20091</text>
+    <rect x="84"  y="426" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="453" font-size="12.5" font-weight="700" fill="#6EE7B7">MySQL</text>
+    <text x="342" y="453" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20006</text>
+    <rect x="372" y="426" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="453" font-size="12.5" font-weight="700" fill="#6EE7B7">Redis</text>
+    <text x="630" y="453" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20079</text>
+    <rect x="84"  y="478" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="505" font-size="12.5" font-weight="700" fill="#6EE7B7">Elasticsearch</text>
+    <text x="342" y="505" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20920</text>
+    <rect x="372" y="478" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="505" font-size="12.5" font-weight="700" fill="#6EE7B7">RabbitMQ</text>
+    <text x="630" y="505" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20572 / :20156</text>
+    <rect x="84"  y="530" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="557" font-size="12.5" font-weight="700" fill="#6EE7B7">MongoDB</text>
+    <text x="342" y="557" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20017</text>
+    <rect x="372" y="530" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="386" y="557" font-size="12.5" font-weight="700" fill="#6EE7B7">Nacos</text>
+    <text x="630" y="557" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20848 / :21848</text>
+    <rect x="84"  y="582" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="98"  y="609" font-size="12.5" font-weight="700" fill="#6EE7B7">RustFS (S3)</text>
+    <text x="342" y="609" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20090 / :20091</text>
   </g>
 
-  <text x="84" y="666" font-size="12" font-weight="700" fill="#64748B">可选组件</text>
+  <text x="84" y="666" font-size="12" font-weight="700" fill="#8CA0BF">可选组件</text>
   <g>
-    <rect x="84"  y="678" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="98"  y="705" font-size="12.5" font-weight="700" fill="#166534">Qdrant</text>
-    <text x="342" y="705" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:26333 / :26334</text>
-    <rect x="372" y="678" width="272" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="386" y="705" font-size="12.5" font-weight="700" fill="#166534">Neo4j</text>
-    <text x="630" y="705" font-size="12" font-weight="700" fill="#15803D" text-anchor="end">:20474 / :20687</text>
+    <rect x="84"  y="678" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="98"  y="705" font-size="12.5" font-weight="700" fill="#6EE7B7">Qdrant</text>
+    <text x="342" y="705" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:26333 / :26334</text>
+    <rect x="372" y="678" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="386" y="705" font-size="12.5" font-weight="700" fill="#6EE7B7">Neo4j</text>
+    <text x="630" y="705" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20474 / :20687</text>
   </g>
-  <text x="360" y="742" text-anchor="middle" font-size="11" fill="#94A3B8">冒烟验证：.\scripts\verify-all.ps1</text>
+  <text x="360" y="742" text-anchor="middle" font-size="11" fill="#64748B">冒烟验证：.\scripts\verify-all.ps1</text>
 
   <!-- ======== Panel B 全栈 Docker ======== -->
-  <rect x="700" y="100" width="600" height="650" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="728" cy="126" r="4" fill="#2563EB"/>
-  <text x="740" y="131" font-size="13" font-weight="700" fill="#475569">全栈 Docker · docker-compose.full.yml</text>
+  <rect x="700" y="100" width="600" height="650" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="728" cy="126" r="4" fill="#22D3EE"/>
+  <text x="740" y="131" font-size="13" font-weight="700" fill="#9AB0CC">全栈 Docker FULL-STACK · docker-compose.full.yml</text>
 
-  <rect x="724" y="146" width="552" height="386" rx="10" fill="#EFF6FF" stroke="#93C5FD"/>
-  <text x="744" y="170" font-size="11.5" font-weight="700" fill="#1D4ED8">Docker 网络 · 容器名互访（服务发现经 Nacos）</text>
+  <rect x="724" y="146" width="552" height="386" rx="10" fill="rgba(34,211,238,0.05)" stroke="rgba(34,211,238,0.35)"/>
+  <text x="744" y="170" font-size="11.5" font-weight="700" fill="#67E8F9">Docker 网络 · 容器名互访（服务发现经 Nacos）</text>
   <g>
-    <rect x="744" y="186" width="512" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="758" y="206" font-size="12" font-weight="700" fill="#1E40AF">kb-init（一次性）</text>
-    <text x="758" y="222" font-size="10.5" fill="#64748B">展开 .env Key 进 Nacos · 导入样例 SQL / ES 索引 / RustFS 桶</text>
-    <rect x="744" y="244" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="758" y="271" font-size="12" font-weight="700" fill="#1E40AF">kb-gateway</text>
-    <text x="978" y="271" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :18080</text>
-    <rect x="1008" y="244" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="1022" y="271" font-size="12" font-weight="700" fill="#1E40AF">kb-web（nginx 前端）</text>
-    <text x="1242" y="271" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">:80→宿主 :3002</text>
-    <rect x="744" y="300" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="758" y="327" font-size="12" font-weight="700" fill="#1E40AF">kb-core</text>
-    <text x="978" y="327" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :8090</text>
-    <rect x="1008" y="300" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="1022" y="327" font-size="12" font-weight="700" fill="#1E40AF">kb-intelligence</text>
-    <text x="1242" y="327" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :8091</text>
-    <rect x="744" y="356" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="758" y="383" font-size="12" font-weight="700" fill="#1E40AF">kb-file</text>
-    <text x="978" y="383" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :8084</text>
-    <rect x="1008" y="356" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="1022" y="383" font-size="12" font-weight="700" fill="#1E40AF">kb-statistics</text>
-    <text x="1242" y="383" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :8085</text>
-    <rect x="744" y="412" width="248" height="44" rx="8" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.5"/>
-    <text x="758" y="439" font-size="12" font-weight="700" fill="#1E40AF">kb-agent</text>
-    <text x="978" y="439" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="end">→宿主 :8092</text>
-    <rect x="744" y="468" width="512" height="44" rx="8" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="758" y="495" font-size="11.5" font-weight="700" fill="#166534">中间件容器组</text>
-    <text x="1242" y="495" font-size="11" fill="#15803D" text-anchor="end">MySQL · Redis · ES · RabbitMQ · MongoDB · Nacos · RustFS</text>
+    <rect x="744" y="186" width="512" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text x="758" y="206" font-size="12" font-weight="700" fill="#7DD3FC">kb-init（一次性）</text>
+    <text x="758" y="222" font-size="10.5" fill="#8CA0BF">展开 .env Key 进 Nacos · 导入样例 SQL / ES 索引 / RustFS 桶</text>
+    <rect x="744" y="244" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="758" y="271" font-size="12" font-weight="700" fill="#7DD3FC">kb-gateway</text>
+    <text x="978" y="271" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :18080</text>
+    <rect x="1008" y="244" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="1022" y="271" font-size="12" font-weight="700" fill="#7DD3FC">kb-web（nginx 前端）</text>
+    <text x="1242" y="271" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">:80→宿主 :3002</text>
+    <rect x="744" y="300" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="758" y="327" font-size="12" font-weight="700" fill="#7DD3FC">kb-core</text>
+    <text x="978" y="327" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :8090</text>
+    <rect x="1008" y="300" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="1022" y="327" font-size="12" font-weight="700" fill="#7DD3FC">kb-intelligence</text>
+    <text x="1242" y="327" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :8091</text>
+    <rect x="744" y="356" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="758" y="383" font-size="12" font-weight="700" fill="#7DD3FC">kb-file</text>
+    <text x="978" y="383" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :8084</text>
+    <rect x="1008" y="356" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="1022" y="383" font-size="12" font-weight="700" fill="#7DD3FC">kb-statistics</text>
+    <text x="1242" y="383" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :8085</text>
+    <rect x="744" y="412" width="248" height="44" rx="8" fill="#101C36" stroke="rgba(34,211,238,0.45)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="758" y="439" font-size="12" font-weight="700" fill="#7DD3FC">kb-agent</text>
+    <text x="978" y="439" font-size="11.5" font-weight="700" fill="#FCD34D" text-anchor="end">→宿主 :8092</text>
+    <rect x="744" y="468" width="512" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="758" y="495" font-size="11.5" font-weight="700" fill="#6EE7B7">中间件容器组</text>
+    <text x="1242" y="495" font-size="11" fill="#A7F3D0" text-anchor="end">MySQL · Redis · ES · RabbitMQ · MongoDB · Nacos · RustFS</text>
   </g>
-  <text x="724" y="556" font-size="11" fill="#64748B">数据卷持久化（named volumes），重建容器不丢数据</text>
-  <text x="724" y="584" font-size="11.5" fill="#475569">改 Key 后：FORCE_NACOS_IMPORT=true 重跑 kb-init</text>
-  <text x="724" y="604" font-size="11.5" fill="#475569">或 Nacos 控制台改完后重启 kb-intelligence / kb-agent</text>
-  <text x="724" y="624" font-size="11.5" fill="#475569">镜像定义：deploy/docker/Dockerfile.*（backend / frontend / init）</text>
+  <text x="724" y="556" font-size="11" fill="#8CA0BF">数据卷持久化（named volumes），重建容器不丢数据</text>
+  <text x="724" y="584" font-size="11.5" fill="#8CA0BF">改 Key 后：FORCE_NACOS_IMPORT=true 重跑 kb-init</text>
+  <text x="724" y="604" font-size="11.5" fill="#8CA0BF">或 Nacos 控制台改完后重启 kb-intelligence / kb-agent</text>
+  <text x="724" y="624" font-size="11.5" fill="#8CA0BF">镜像定义：deploy/docker/Dockerfile.*（backend / frontend / init）</text>
   <g>
-    <rect x="724" y="644" width="266" height="44" rx="8" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5"/>
-    <text x="738" y="671" font-size="12" font-weight="700" fill="#92400E">浏览器入口</text>
-    <text x="976" y="671" font-size="12" font-weight="700" fill="#B45309" text-anchor="end">:3002（kb-web）</text>
-    <rect x="1010" y="644" width="266" height="44" rx="8" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5"/>
-    <text x="1024" y="671" font-size="12" font-weight="700" fill="#92400E">API 入口</text>
-    <text x="1262" y="671" font-size="12" font-weight="700" fill="#B45309" text-anchor="end">:18080（kb-gateway）</text>
+    <rect x="724" y="644" width="266" height="44" rx="8" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="738" y="671" font-size="12" font-weight="700" fill="#FCD34D">浏览器入口</text>
+    <text x="976" y="671" font-size="12" font-weight="700" fill="#FDE68A" text-anchor="end">:3002（kb-web）</text>
+    <rect x="1010" y="644" width="266" height="44" rx="8" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="1024" y="671" font-size="12" font-weight="700" fill="#FCD34D">API 入口</text>
+    <text x="1262" y="671" font-size="12" font-weight="700" fill="#FDE68A" text-anchor="end">:18080（kb-gateway）</text>
   </g>
-  <text x="1000" y="722" text-anchor="middle" font-size="11" fill="#94A3B8">默认账号 admin / admin123</text>
+  <text x="1000" y="722" text-anchor="middle" font-size="11" fill="#64748B">默认账号 admin / admin123</text>
 
-  <text x="680" y="792" text-anchor="middle" font-size="12" fill="#64748B">两种形态共用 deploy/env.example → .env 配置；完整端口与账号说明见 deploy/README.md</text>
+  <text x="680" y="792" text-anchor="middle" font-size="12" fill="#8CA0BF">两种形态共用 deploy/env.example → .env 配置；完整端口与账号说明见 deploy/README.md</text>
 </svg>

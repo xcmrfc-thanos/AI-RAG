@@ -1,152 +1,179 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 1000" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
   <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1122"/>
+      <stop offset="1" stop-color="#0E1B36"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7DD3FC"/>
+      <stop offset="0.55" stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.06)" stroke-width="1"/>
+    </pattern>
+    <radialGradient id="glowCyan" cx="0.15" cy="0.05" r="0.6">
+      <stop offset="0" stop-color="rgba(34,211,238,0.10)"/>
+      <stop offset="1" stop-color="rgba(34,211,238,0)"/>
+    </radialGradient>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
     <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748B"/>
     </marker>
     <marker id="arrv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8B5CF6"/>
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#A78BFA"/>
     </marker>
   </defs>
 
-  <rect x="0" y="0" width="1360" height="1000" fill="#FFFFFF"/>
+  <rect width="1360" height="1000" fill="url(#bg)"/>
+  <rect width="1360" height="1000" fill="url(#grid)"/>
+  <rect width="1360" height="1000" fill="url(#glowCyan)"/>
+  <path d="M 20 20 h 28 M 20 20 v 28" stroke="rgba(103,232,249,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 1340 20 h -28 M 1340 20 v 28" stroke="rgba(103,232,249,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 20 980 h 28 M 20 980 v -28" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none"/>
+  <path d="M 1340 980 h -28 M 1340 980 v -28" stroke="rgba(167,139,250,0.5)" stroke-width="2" fill="none"/>
+  <text x="1336" y="44" text-anchor="end" font-family="Consolas, monospace" font-size="13" fill="rgba(103,232,249,0.45)">SYS://AI-RAG · ARCH-TOPOLOGY</text>
 
-  <text x="680" y="46" text-anchor="middle" font-size="30" font-weight="700" fill="#0F172A">AI-RAG 企业知识库 · 总体架构</text>
-  <text x="680" y="74" text-anchor="middle" font-size="14" fill="#64748B">React 前端 · API 网关 · 4 BC 微服务 · Docker 中间件 · 公网/内网大模型</text>
+  <text x="680" y="46" text-anchor="middle" font-size="30" font-weight="800" fill="url(#titleGrad)" filter="url(#glow)">AI-RAG 企业知识库 · 总体架构</text>
+  <text x="680" y="74" text-anchor="middle" font-size="14" fill="#7C8DB0">React 前端 · API 网关 · 4 BC 微服务 · Docker 中间件 · 公网/内网大模型</text>
 
   <!-- ======== L1 前端层 ======== -->
-  <rect x="60" y="100" width="1240" height="120" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="126" r="4" fill="#0EA5E9"/>
-  <text x="100" y="131" font-size="13" font-weight="700" fill="#475569">前端层 · React 19 + Vite（:3002）</text>
-  <g font-size="14" font-weight="700" fill="#0369A1" text-anchor="middle">
-    <rect x="84"  y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+  <rect x="60" y="100" width="1240" height="120" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="126" r="4" fill="#22D3EE"/>
+  <text x="100" y="131" font-size="13" font-weight="700" fill="#9AB0CC">前端层 FRONTEND · React 19 + Vite（:3002）</text>
+  <g font-size="14" font-weight="700" fill="#7DD3FC" text-anchor="middle">
+    <rect x="84"  y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="175" y="170">全文 / 语义检索</text>
-    <text x="175" y="188" font-size="11" font-weight="400" fill="#64748B">混合召回</text>
-    <rect x="286" y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="175" y="188" font-size="11" font-weight="400" fill="#8CA0BF">混合召回</text>
+    <rect x="286" y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="377" y="170">AI 助手</text>
-    <text x="377" y="188" font-size="11" font-weight="400" fill="#64748B">带引用 · SSE 流式</text>
-    <rect x="488" y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="377" y="188" font-size="11" font-weight="400" fill="#8CA0BF">带引用 · SSE 流式</text>
+    <rect x="488" y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="579" y="170">AI 写作</text>
-    <text x="579" y="188" font-size="11" font-weight="400" fill="#64748B">生成文稿 · SSE</text>
-    <rect x="690" y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="579" y="188" font-size="11" font-weight="400" fill="#8CA0BF">生成文稿 · SSE</text>
+    <rect x="690" y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="781" y="170">Agent 工作台</text>
-    <text x="781" y="188" font-size="11" font-weight="400" fill="#64748B">编排 · 试跑 · 发布</text>
-    <rect x="892" y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="781" y="188" font-size="11" font-weight="400" fill="#8CA0BF">编排 · 试跑 · 发布</text>
+    <rect x="892" y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="983" y="170">文档 / 文件管理</text>
-    <text x="983" y="188" font-size="11" font-weight="400" fill="#64748B">ACL · 预览 · 秒传</text>
-    <rect x="1094" y="148" width="182" height="52" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="983" y="188" font-size="11" font-weight="400" fill="#8CA0BF">ACL · 预览 · 秒传</text>
+    <rect x="1094" y="148" width="182" height="52" rx="10" fill="rgba(34,211,238,0.07)" stroke="rgba(34,211,238,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="1185" y="170">Admin 后台</text>
-    <text x="1185" y="188" font-size="11" font-weight="400" fill="#64748B">统计 · LLM 配置</text>
+    <text x="1185" y="188" font-size="11" font-weight="400" fill="#8CA0BF">统计 · LLM 配置</text>
   </g>
 
-  <line x1="680" y1="220" x2="680" y2="248" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="700" y="240" font-size="12" fill="#64748B">HTTP / SSE（JWT 登录态）</text>
+  <line x1="680" y1="220" x2="680" y2="248" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="240" font-size="12" fill="#8CA0BF">HTTP / SSE（JWT 登录态）</text>
 
   <!-- ======== L2 接入层 ======== -->
-  <rect x="60" y="248" width="1240" height="112" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="274" r="4" fill="#D97706"/>
-  <text x="100" y="279" font-size="13" font-weight="700" fill="#475569">接入层 · API 网关（统一入口边界）</text>
-  <rect x="84" y="288" width="660" height="54" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5"/>
-  <text x="104" y="310" font-size="14" font-weight="700" fill="#92400E">kb-gateway :18080</text>
-  <text x="104" y="328" font-size="11" fill="#A16207">JWT 校验 · 注入可信用户头 · 剥离外部伪造的内部信任头</text>
-  <rect x="764" y="288" width="512" height="54" rx="10" fill="#FFFBEB" stroke="#FCD34D" stroke-width="1.5"/>
-  <text x="784" y="310" font-size="14" font-weight="700" fill="#92400E">路由边界（非万能单框）</text>
-  <text x="784" y="328" font-size="11" fill="#A16207">/search 检索 · /ai 问答 · /ai-writing 写作 · /agent 已发布流程</text>
+  <rect x="60" y="248" width="1240" height="112" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="274" r="4" fill="#F59E0B"/>
+  <text x="100" y="279" font-size="13" font-weight="700" fill="#9AB0CC">接入层 GATEWAY · API 网关（统一入口边界）</text>
+  <rect x="84" y="288" width="660" height="54" rx="10" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="104" y="310" font-size="14" font-weight="700" fill="#FCD34D">kb-gateway :18080</text>
+  <text x="104" y="328" font-size="11" fill="#8CA0BF">JWT 校验 · 注入可信用户头 · 剥离外部伪造的内部信任头</text>
+  <rect x="764" y="288" width="512" height="54" rx="10" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+  <text x="784" y="310" font-size="14" font-weight="700" fill="#FCD34D">路由边界（非万能单框）</text>
+  <text x="784" y="328" font-size="11" fill="#8CA0BF">/search 检索 · /ai 问答 · /ai-writing 写作 · /agent 已发布流程</text>
 
-  <line x1="680" y1="360" x2="680" y2="388" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="700" y="380" font-size="12" fill="#64748B">注入可信用户头 X-User-*</text>
+  <line x1="680" y1="360" x2="680" y2="388" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="380" font-size="12" fill="#8CA0BF">注入可信用户头 X-User-*</text>
 
   <!-- ======== L3 服务层 ======== -->
-  <rect x="60" y="388" width="1240" height="152" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="414" r="4" fill="#7C3AED"/>
-  <text x="100" y="419" font-size="13" font-weight="700" fill="#475569">服务层 · Spring Boot 微服务（Maven 多模块）</text>
+  <rect x="60" y="388" width="1240" height="152" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="414" r="4" fill="#A78BFA"/>
+  <text x="100" y="419" font-size="13" font-weight="700" fill="#9AB0CC">服务层 SERVICES · Spring Boot 微服务（Maven 多模块）</text>
   <g text-anchor="middle">
-    <rect x="84"  y="430" width="182" height="68" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="175" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-core</text>
-    <text x="175" y="470" font-size="11" fill="#64748B">鉴权 · 文档 · ACL</text>
-    <text x="175" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8090</text>
-    <rect x="286" y="430" width="182" height="68" rx="10" fill="#EDE9FE" stroke="#8B5CF6" stroke-width="2"/>
-    <text x="377" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-intelligence</text>
-    <text x="377" y="470" font-size="11" fill="#64748B">检索 · RAG · 图谱</text>
-    <text x="377" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8091</text>
-    <rect x="488" y="430" width="182" height="68" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="579" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-file</text>
-    <text x="579" y="470" font-size="11" fill="#64748B">对象存储 · 秒传/分片</text>
-    <text x="579" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8084</text>
-    <rect x="690" y="430" width="182" height="68" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="781" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-statistics</text>
-    <text x="781" y="470" font-size="11" fill="#64748B">统计投影（宽表）</text>
-    <text x="781" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8085</text>
-    <rect x="892" y="430" width="182" height="68" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
-    <text x="983" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-agent</text>
-    <text x="983" y="470" font-size="11" fill="#64748B">Agent 工作流</text>
-    <text x="983" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8092</text>
-    <rect x="1094" y="430" width="182" height="68" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="1185" y="452" font-size="14" font-weight="700" fill="#5B21B6">kb-mcp</text>
-    <text x="1185" y="470" font-size="11" fill="#64748B">只读 MCP（可选）</text>
-    <text x="1185" y="486" font-size="11" font-weight="600" fill="#7C3AED">:8095</text>
+    <rect x="84"  y="430" width="182" height="68" rx="10" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="175" y="452" font-size="14" font-weight="700" fill="#C4B5FD">kb-core</text>
+    <text x="175" y="470" font-size="11" fill="#8CA0BF">鉴权 · 文档 · ACL</text>
+    <text x="175" y="486" font-size="11" font-weight="600" fill="#7DD3FC">:8090</text>
+    <rect x="286" y="430" width="182" height="68" rx="10" fill="rgba(99,102,241,0.18)" stroke="#C7D2FE" stroke-width="2.5" filter="url(#glow)"/>
+    <text x="377" y="452" font-size="14" font-weight="700" fill="#E0E7FF">kb-intelligence</text>
+    <text x="377" y="470" font-size="11" fill="#A5B4CE">检索 · RAG · 图谱</text>
+    <text x="377" y="486" font-size="11" font-weight="600" fill="#93C5FD">:8091</text>
+    <rect x="488" y="430" width="182" height="68" rx="10" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="579" y="452" font-size="14" font-weight="700" fill="#C4B5FD">kb-file</text>
+    <text x="579" y="470" font-size="11" fill="#8CA0BF">对象存储 · 秒传/分片</text>
+    <text x="579" y="486" font-size="11" font-weight="600" fill="#7DD3FC">:8084</text>
+    <rect x="690" y="430" width="182" height="68" rx="10" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="781" y="452" font-size="14" font-weight="700" fill="#C4B5FD">kb-statistics</text>
+    <text x="781" y="470" font-size="11" fill="#8CA0BF">统计投影（宽表）</text>
+    <text x="781" y="486" font-size="11" font-weight="600" fill="#7DD3FC">:8085</text>
+    <rect x="892" y="430" width="182" height="68" rx="10" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="983" y="452" font-size="14" font-weight="700" fill="#C4B5FD">kb-agent</text>
+    <text x="983" y="470" font-size="11" fill="#8CA0BF">Agent 工作流</text>
+    <text x="983" y="486" font-size="11" font-weight="600" fill="#7DD3FC">:8092</text>
+    <rect x="1094" y="430" width="182" height="68" rx="10" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="1185" y="452" font-size="14" font-weight="700" fill="#C4B5FD">kb-mcp</text>
+    <text x="1185" y="470" font-size="11" fill="#8CA0BF">只读 MCP（可选）</text>
+    <text x="1185" y="486" font-size="11" font-weight="600" fill="#7DD3FC">:8095</text>
   </g>
-  <path d="M 377 498 L 377 514 L 175 514 L 175 502" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrv)"/>
-  <text x="276" y="530" text-anchor="middle" font-size="11" fill="#7C3AED">白名单 + HMAC 时间窗签名</text>
+  <path d="M 377 498 L 377 514 L 175 514 L 175 502" fill="none" stroke="#A78BFA" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrv)"/>
+  <text x="276" y="530" text-anchor="middle" font-size="11" fill="#A78BFA">白名单 + HMAC 时间窗签名</text>
 
-  <line x1="680" y1="540" x2="680" y2="568" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="700" y="560" font-size="12" fill="#64748B">数据访问 / 消息</text>
+  <line x1="680" y1="540" x2="680" y2="568" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="560" font-size="12" fill="#8CA0BF">数据访问 / 消息</text>
 
   <!-- ======== L4 中间件层 ======== -->
-  <rect x="60" y="568" width="1240" height="180" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="594" r="4" fill="#16A34A"/>
-  <text x="100" y="599" font-size="13" font-weight="700" fill="#475569">中间件层 · Docker Compose</text>
+  <rect x="60" y="568" width="1240" height="180" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="594" r="4" fill="#34D399"/>
+  <text x="100" y="599" font-size="13" font-weight="700" fill="#9AB0CC">中间件层 MIDDLEWARE · Docker Compose</text>
   <g text-anchor="middle">
-    <rect x="84"  y="608" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="195" y="630" font-size="14" font-weight="700" fill="#166534">MySQL</text>
-    <text x="195" y="648" font-size="11" fill="#64748B">三库分离 · :20006</text>
-    <rect x="326" y="608" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="437" y="630" font-size="14" font-weight="700" fill="#166534">Redis</text>
-    <text x="437" y="648" font-size="11" fill="#64748B">缓存 / 向量缓存 · :20079</text>
-    <rect x="568" y="608" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="679" y="630" font-size="14" font-weight="700" fill="#166534">Elasticsearch</text>
-    <text x="679" y="648" font-size="11" fill="#64748B">BM25 / 索引 · :20920</text>
-    <rect x="810" y="608" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="921" y="630" font-size="14" font-weight="700" fill="#166534">RabbitMQ</text>
-    <text x="921" y="648" font-size="11" fill="#64748B">事件投影 · :20572 / :20156</text>
-    <rect x="1052" y="608" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="1163" y="630" font-size="14" font-weight="700" fill="#166534">MongoDB</text>
-    <text x="1163" y="648" font-size="11" fill="#64748B">业务数据 · :20017</text>
-    <rect x="84"  y="676" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="195" y="698" font-size="14" font-weight="700" fill="#166534">Nacos</text>
-    <text x="195" y="716" font-size="11" fill="#64748B">配置 / 注册 · :20848 / :21848</text>
-    <rect x="326" y="676" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5"/>
-    <text x="437" y="698" font-size="14" font-weight="700" fill="#166534">RustFS (S3)</text>
-    <text x="437" y="716" font-size="11" fill="#64748B">对象存储 · :20090 / :20091</text>
-    <rect x="568" y="676" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="679" y="698" font-size="14" font-weight="700" fill="#166534">Qdrant（可选）</text>
-    <text x="679" y="716" font-size="11" fill="#64748B">Dense 向量 · :26333</text>
-    <rect x="810" y="676" width="222" height="56" rx="10" fill="#F0FDF4" stroke="#86EFAC" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="921" y="698" font-size="14" font-weight="700" fill="#166534">Neo4j（可选）</text>
-    <text x="921" y="716" font-size="11" fill="#64748B">知识图谱 · :20474 / :20687</text>
+    <rect x="84"  y="608" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="195" y="630" font-size="14" font-weight="700" fill="#6EE7B7">MySQL</text>
+    <text x="195" y="648" font-size="11" fill="#8CA0BF">三库分离 · :20006</text>
+    <rect x="326" y="608" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="437" y="630" font-size="14" font-weight="700" fill="#6EE7B7">Redis</text>
+    <text x="437" y="648" font-size="11" fill="#8CA0BF">缓存 / 向量缓存 · :20079</text>
+    <rect x="568" y="608" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="679" y="630" font-size="14" font-weight="700" fill="#6EE7B7">Elasticsearch</text>
+    <text x="679" y="648" font-size="11" fill="#8CA0BF">BM25 / 索引 · :20920</text>
+    <rect x="810" y="608" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="921" y="630" font-size="14" font-weight="700" fill="#6EE7B7">RabbitMQ</text>
+    <text x="921" y="648" font-size="11" fill="#8CA0BF">事件投影 · :20572 / :20156</text>
+    <rect x="1052" y="608" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="1163" y="630" font-size="14" font-weight="700" fill="#6EE7B7">MongoDB</text>
+    <text x="1163" y="648" font-size="11" fill="#8CA0BF">业务数据 · :20017</text>
+    <rect x="84"  y="676" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="195" y="698" font-size="14" font-weight="700" fill="#6EE7B7">Nacos</text>
+    <text x="195" y="716" font-size="11" fill="#8CA0BF">配置 / 注册 · :20848 / :21848</text>
+    <rect x="326" y="676" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="437" y="698" font-size="14" font-weight="700" fill="#6EE7B7">RustFS (S3)</text>
+    <text x="437" y="716" font-size="11" fill="#8CA0BF">对象存储 · :20090 / :20091</text>
+    <rect x="568" y="676" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="679" y="698" font-size="14" font-weight="700" fill="#6EE7B7">Qdrant（可选）</text>
+    <text x="679" y="716" font-size="11" fill="#8CA0BF">Dense 向量 · :26333</text>
+    <rect x="810" y="676" width="222" height="56" rx="10" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="921" y="698" font-size="14" font-weight="700" fill="#6EE7B7">Neo4j（可选）</text>
+    <text x="921" y="716" font-size="11" fill="#8CA0BF">知识图谱 · :20474 / :20687</text>
   </g>
 
-  <line x1="680" y1="748" x2="680" y2="776" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="700" y="768" font-size="12" fill="#64748B">OpenAI 兼容 / Ollama 兼容端点</text>
+  <line x1="680" y1="748" x2="680" y2="776" stroke="#64748B" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="700" y="768" font-size="12" fill="#8CA0BF">OpenAI 兼容 / Ollama 兼容端点</text>
 
   <!-- ======== L5 大模型层 ======== -->
-  <rect x="60" y="776" width="1240" height="128" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
-  <circle cx="88" cy="802" r="4" fill="#DB2777"/>
-  <text x="100" y="807" font-size="13" font-weight="700" fill="#475569">大模型层 · 公网 / 内网双环境</text>
+  <rect x="60" y="776" width="1240" height="128" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <circle cx="88" cy="802" r="4" fill="#F472B6"/>
+  <text x="100" y="807" font-size="13" font-weight="700" fill="#9AB0CC">大模型层 LLM · 公网 / 内网双环境</text>
   <g text-anchor="middle">
-    <rect x="84"  y="816" width="283" height="56" rx="10" fill="#FDF2F8" stroke="#F9A8D4" stroke-width="1.5"/>
-    <text x="225" y="838" font-size="14" font-weight="700" fill="#9D174D">通义（公网）</text>
-    <text x="225" y="856" font-size="11" fill="#64748B">qwen3-max · text-embedding-v3</text>
-    <rect x="387" y="816" width="283" height="56" rx="10" fill="#FDF2F8" stroke="#F9A8D4" stroke-width="1.5"/>
-    <text x="528" y="838" font-size="14" font-weight="700" fill="#9D174D">DeepSeek（公网 · 可选）</text>
-    <text x="528" y="856" font-size="11" fill="#64748B">第二对话模型</text>
-    <rect x="690" y="816" width="283" height="56" rx="10" fill="#FDF2F8" stroke="#F9A8D4" stroke-width="1.5"/>
-    <text x="831" y="838" font-size="14" font-weight="700" fill="#9D174D">Ollama（内网）</text>
-    <text x="831" y="856" font-size="11" fill="#64748B">qwen2.5:7b/14b · bge-m3</text>
-    <rect x="993" y="816" width="283" height="56" rx="10" fill="#FDF2F8" stroke="#F9A8D4" stroke-width="1.5" stroke-dasharray="6 4"/>
-    <text x="1134" y="838" font-size="14" font-weight="700" fill="#9D174D">Dev Stub（无 Key 联调）</text>
-    <text x="1134" y="856" font-size="11" fill="#64748B">AI_DEV_STUB=true</text>
+    <rect x="84"  y="816" width="283" height="56" rx="10" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="225" y="838" font-size="14" font-weight="700" fill="#F9A8D4">通义（公网）</text>
+    <text x="225" y="856" font-size="11" fill="#8CA0BF">qwen3-max · text-embedding-v3</text>
+    <rect x="387" y="816" width="283" height="56" rx="10" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="528" y="838" font-size="14" font-weight="700" fill="#F9A8D4">DeepSeek（公网 · 可选）</text>
+    <text x="528" y="856" font-size="11" fill="#8CA0BF">第二对话模型</text>
+    <rect x="690" y="816" width="283" height="56" rx="10" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <text x="831" y="838" font-size="14" font-weight="700" fill="#F9A8D4">Ollama（内网）</text>
+    <text x="831" y="856" font-size="11" fill="#8CA0BF">qwen2.5:7b/14b · bge-m3</text>
+    <rect x="993" y="816" width="283" height="56" rx="10" fill="rgba(244,114,182,0.07)" stroke="rgba(244,114,182,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="1134" y="838" font-size="14" font-weight="700" fill="#F9A8D4">Dev Stub（无 Key 联调）</text>
+    <text x="1134" y="856" font-size="11" fill="#8CA0BF">AI_DEV_STUB=true</text>
   </g>
 
-  <text x="680" y="938" text-anchor="middle" font-size="12" fill="#64748B">由 kb-intelligence / kb-agent 直连调用（LangChain4j · OpenAI 兼容）</text>
-  <text x="680" y="960" text-anchor="middle" font-size="11" fill="#94A3B8">换 Embedding Provider / 维度须重建索引 ｜ 检索形态白名单：es-es · es-qdrant · qdrant-qdrant · es-milvus · milvus-milvus</text>
+  <text x="680" y="938" text-anchor="middle" font-size="12" fill="#8CA0BF">由 kb-intelligence / kb-agent 直连调用（LangChain4j · OpenAI 兼容）</text>
+  <text x="680" y="960" text-anchor="middle" font-size="11" fill="#64748B">换 Embedding Provider / 维度须重建索引 ｜ 检索形态白名单：es-es · es-qdrant · qdrant-qdrant · es-milvus · milvus-milvus</text>
 </svg>

@@ -1,10 +1,15 @@
 # AI-RAG 企业知识库
 
-> 4 BC 微服务 + Gateway + Agent + React 前端的一体化企业知识库：文档管理、全文/语义混合检索、RAG 带引用问答、知识图谱、文件存储、Agent 工作流与 Admin 后台，支持公网/内网换模型与 Docker 交付。
+![AI-RAG 企业知识库](docs/assets/banner-main.png)
 
-![JDK](https://img.shields.io/badge/JDK-21-blue) ![React](https://img.shields.io/badge/React-19-61dafb) ![Nacos](https://img.shields.io/badge/Nacos-注册--配置中心-green) ![Docker](https://img.shields.io/badge/Docker-Compose-blue)
+> **4 BC 微服务 + Gateway + Agent + React 前端**的一体化企业知识库：文档管理、全文/语义混合检索、RAG 带引用问答、知识图谱、文件存储、Agent 工作流与 Admin 后台，支持公网/内网换模型与 Docker 交付。
 
-仓库：[Gitee · xcmrfc-thanos/AI-RAG](https://gitee.com/xcmrfc-thanos/AI-RAG)
+[![JDK](https://img.shields.io/badge/JDK-21-4479A1?style=for-the-badge&logo=openjdk&logoColor=white)](https://openjdk.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![License](https://img.shields.io/badge/License-Apache_2.0-4CAF50?style=for-the-badge&logo=apache&logoColor=white)](LICENSE)
+
+仓库：[Gitee · xcmrfc-thanos/AI-RAG](https://gitee.com/xcmrfc-thanos/AI-RAG) ｜ GitHub · [xcmrfc-thanos/AI-RAG](https://github.com/xcmrfc-thanos/AI-RAG)
 
 ## 📖 目录导航
 
@@ -22,6 +27,7 @@
 - [🧭 当前状态与已知限制](#-当前状态与已知限制)
 - [📚 文档地图](#-文档地图)
 - [🛠 开发约定](#-开发约定)
+- [📄 许可证](#-许可证)
 
 ## ✨ 项目亮点
 
@@ -322,3 +328,7 @@ cd deploy\scripts
 - JDK **21**；后端配置准源为 Nacos 模板 `backend/nacos/*-dev.yaml.template`
 - 前端文件夹/页面：小写串行；后端包与 Controller Mapping 遵循现有模块规范
 - 本地变更流水账写在 **`readme_plan.md`（仅本机）**；对外说明以本 `readme.md` 与 `docs/` 为准
+
+## 📄 许可证
+
+[Apache-2.0](LICENSE)

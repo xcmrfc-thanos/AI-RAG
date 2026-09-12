@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 340" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0A1122"/>
+      <stop offset="0.55" stop-color="#0B1526"/>
+      <stop offset="1" stop-color="#0E1B36"/>
+    </linearGradient>
+    <linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7DD3FC"/>
+      <stop offset="0.55" stop-color="#818CF8"/>
+      <stop offset="1" stop-color="#C084FC"/>
+    </linearGradient>
+    <radialGradient id="glowCyan" cx="0.18" cy="0.1" r="0.7">
+      <stop offset="0" stop-color="rgba(34,211,238,0.16)"/>
+      <stop offset="1" stop-color="rgba(34,211,238,0)"/>
+    </radialGradient>
+    <radialGradient id="glowViolet" cx="0.85" cy="0.95" r="0.75">
+      <stop offset="0" stop-color="rgba(167,139,250,0.18)"/>
+      <stop offset="1" stop-color="rgba(167,139,250,0)"/>
+    </radialGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(148,163,184,0.07)" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1360" height="340" fill="url(#bg)"/>
+  <rect width="1360" height="340" fill="url(#grid)"/>
+  <rect width="1360" height="340" fill="url(#glowCyan)"/>
+  <rect width="1360" height="340" fill="url(#glowViolet)"/>
+
+  <!-- HUD 边角 -->
+  <path d="M 24 24 h 34 M 24 24 v 34" stroke="rgba(103,232,249,0.55)" stroke-width="2" fill="none"/>
+  <path d="M 1336 24 h -34 M 1336 24 v 34" stroke="rgba(103,232,249,0.55)" stroke-width="2" fill="none"/>
+  <path d="M 24 316 h 34 M 24 316 v -34" stroke="rgba(167,139,250,0.55)" stroke-width="2" fill="none"/>
+  <path d="M 1336 316 h -34 M 1336 316 v -34" stroke="rgba(167,139,250,0.55)" stroke-width="2" fill="none"/>
+  <line x1="90" y1="272" x2="760" y2="272" stroke="rgba(148,163,184,0.22)" stroke-width="1"/>
+  <text x="1272" y="46" text-anchor="end" font-family="Consolas, monospace" font-size="13" fill="rgba(103,232,249,0.5)">SYS://AI-RAG · v7.0</text>
+
+  <!-- 左侧标题区 -->
+  <text x="90" y="86" font-family="Consolas, monospace" font-size="15" letter-spacing="4" fill="#67E8F9">// ENTERPRISE KNOWLEDGE · RAG PLATFORM</text>
+  <text x="86" y="172" font-size="86" font-weight="800" fill="url(#titleGrad)" filter="url(#glow)">AI-RAG</text>
+  <text x="416" y="170" font-size="46" font-weight="700" fill="#E2E8F0">企业知识库</text>
+  <text x="90" y="216" font-size="17" fill="#94A3B8">文档管理 · 混合检索 · 带引用 RAG 问答 · 知识图谱 · Agent 工作流</text>
+
+  <!-- 特性胶囊 -->
+  <g font-size="13" fill="#A5F3FC">
+    <rect x="90"  y="238" width="158" height="30" rx="15" fill="rgba(34,211,238,0.08)" stroke="rgba(34,211,238,0.45)" stroke-width="1"/>
+    <text x="169" y="258" text-anchor="middle">Spring Cloud 微服务</text>
+    <rect x="260" y="238" width="150" height="30" rx="15" fill="rgba(167,139,250,0.08)" stroke="rgba(167,139,250,0.45)" stroke-width="1"/>
+    <text x="335" y="258" text-anchor="middle" fill="#DDD6FE">BM25 + Dense 混检</text>
+    <rect x="422" y="238" width="152" height="30" rx="15" fill="rgba(52,211,153,0.08)" stroke="rgba(52,211,153,0.45)" stroke-width="1"/>
+    <text x="498" y="258" text-anchor="middle" fill="#A7F3D0">公网 / 内网双环境</text>
+    <rect x="586" y="238" width="142" height="30" rx="15" fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.45)" stroke-width="1"/>
+    <text x="657" y="258" text-anchor="middle" fill="#FDE68A">Docker 一键交付</text>
+  </g>
+
+  <!-- 右侧知识图谱 -->
+  <g filter="url(#glow)">
+    <line x1="1050" y1="88"  x2="1150" y2="140" stroke="rgba(103,232,249,0.35)" stroke-width="1.5"/>
+    <line x1="1150" y1="140" x2="1258" y2="96"  stroke="rgba(103,232,249,0.35)" stroke-width="1.5"/>
+    <line x1="1150" y1="140" x2="1064" y2="212" stroke="rgba(167,139,250,0.4)"  stroke-width="1.5"/>
+    <line x1="1150" y1="140" x2="1246" y2="216" stroke="rgba(167,139,250,0.4)"  stroke-width="1.5"/>
+    <line x1="1150" y1="140" x2="1152" y2="252" stroke="rgba(52,211,153,0.4)"   stroke-width="1.5"/>
+    <line x1="1064" y1="212" x2="1152" y2="252" stroke="rgba(148,163,184,0.25)" stroke-width="1.5"/>
+    <line x1="1246" y1="216" x2="1152" y2="252" stroke="rgba(148,163,184,0.25)" stroke-width="1.5"/>
+    <line x1="1050" y1="88"  x2="964"  y2="150" stroke="rgba(148,163,184,0.25)" stroke-width="1.5"/>
+    <line x1="964"  y1="150" x2="1064" y2="212" stroke="rgba(148,163,184,0.25)" stroke-width="1.5"/>
+    <circle cx="1050" cy="88"  r="7"  fill="#22D3EE"/>
+    <circle cx="1258" cy="96"  r="6"  fill="#38BDF8"/>
+    <circle cx="1150" cy="140" r="13" fill="#0E7490" stroke="#67E8F9" stroke-width="2.5"/>
+    <circle cx="964"  cy="150" r="6"  fill="#38BDF8"/>
+    <circle cx="1064" cy="212" r="8"  fill="#8B5CF6"/>
+    <circle cx="1246" cy="216" r="8"  fill="#8B5CF6"/>
+    <circle cx="1152" cy="252" r="9"  fill="#10B981"/>
+  </g>
+  <text x="1150" y="145" text-anchor="middle" font-size="11" font-weight="700" fill="#CFFAFE">RAG</text>
+
+  <!-- 底部扫描线 -->
+  <rect x="0" y="330" width="1360" height="2" fill="url(#titleGrad)" opacity="0.55"/>
+  <rect x="0" y="328" width="420" height="4" fill="#22D3EE" opacity="0.8"/>
+</svg>
