@@ -1,5 +1,6 @@
 # 构建上下文：仓库根目录
 # 用法: docker build -f deploy/docker/Dockerfile.backend --build-arg MODULE_PATH=kb-gateway --build-arg JAR_FILE=kb-gateway-1.0.0-SNAPSHOT.jar -t ai-rag/kb-gateway:local .
+# 依赖基础镜像: ai-rag/skywalking-base:latest (包含 JRE 21 + SkyWalking Agent 9.7.0)
 
 FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /src
@@ -15,11 +16,18 @@ COPY backend/kb-intelligence backend/kb-intelligence
 ARG MODULE_PATH=kb-gateway
 RUN mvn -f backend/pom.xml -pl ${MODULE_PATH} -am package -DskipTests -q
 
-FROM eclipse-temurin:21-jre-jammy
+# 使用 SkyWalking 基础镜像（包含 JRE 21 + Agent）
+FROM ai-rag/skywalking-base:local
 WORKDIR /app
 ARG JAR_FILE=kb-gateway-1.0.0-SNAPSHOT.jar
 ARG MODULE_PATH=kb-gateway
 COPY --from=build /src/backend/${MODULE_PATH}/target/${JAR_FILE} /app/app.jar
-ENV JAVA_OPTS="-Xms256m -Xmx512m"
-EXPOSE 8080
-ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]
+
+# SkyWalking Agent 配置
+ENV SW_AGENT_COLLECTOR_BACKEND_SERVICES=${SW_OAP_HOST:-skywalking-oap}:11800 \
+    SW_AGENT_SERVICE_NAME=${SERVICE_NAME:-kb-service} \
+    SW_AGENT_TRACE_IGNORE_PATH=/actuator/**,/health/**,/error \
+    JAVA_OPTS="-Xms256m -Xmx512m"
+
+# 启动时启用 SkyWalking Agent
+ENTRYPOINT ["sh", "-c", "exec java -javaagent:/opt/skywalking/agent/skywalking-agent.jar $JAVA_OPTS -jar /app/app.jar"]

@@ -215,6 +215,60 @@ services:
     mem_limit: 640m
     cpus: 0.5
 
+  # =============================================
+  # SkyWalking APM
+  # =============================================
+  skywalking-oap:
+    image: apache/skywalking-oap-server:9.7.0
+    container_name: kb-skywalking-oap
+    restart: "no"
+    ports:
+      - "${SW_OAP_PORT:-11800}:11800"   # gRPC: Agent 接入
+      - "${SW_OAP_HTTP_PORT:-12800}:12800"  # REST: UI API
+    environment:
+      SW_STORAGE: elasticsearch
+      SW_STORAGE_ES_CLUSTER_NAME: docker-cluster
+      SW_STORAGE_ES_HOSTS: kb-elasticsearch:9200
+      SW_STORAGE_ES_PROTOCOL: http
+      SW_STORAGE_ES_USER: elastic
+      SW_STORAGE_ES_PASSWORD: ${ELASTIC_PASSWORD:-susan123}
+      SW_CORE_RECORD_DATA_TTL: 7
+      SW_CORE_TRACE_INDICES_NUMBER: 7
+      SW_LOGIN_MAX_RECORDING_DURATION_SECONDS: 3600
+    volumes:
+      - skywalking_oap_data:/skywalking
+      - ./skywalking/application.yml:/skywalking/config/application.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -o /dev/null http://localhost:12800/graphql -w '%{http_code}' | grep -qE '^[1-5][0-9][0-9]$' || exit 1"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    mem_limit: 1g
+    cpus: 1.0
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  skywalking-ui:
+    image: apache/skywalking-ui:9.7.0
+    container_name: kb-skywalking-ui
+    restart: "no"
+    ports:
+      - "${SW_UI_PORT:-38080}:8080"
+    environment:
+      SW_SERVER_BASE_URL: http://skywalking-oap:12800
+      SW_UI_SERVICE_MAX_SLEEP_TIME_AWAY: 30
+    depends_on:
+      skywalking-oap:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    mem_limit: 256m
+    cpus: 0.25
+
 volumes:
   mysql_data:
   redis_data:
@@ -225,3 +279,4 @@ volumes:
   rustfs_data:
   nacos_data:
   qdrant_data:
+  skywalking_oap_data:
