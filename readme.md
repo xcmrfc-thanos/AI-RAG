@@ -11,6 +11,7 @@
 - [✨ 项目亮点](#-项目亮点)
 - [🧠 核心技术](#-核心技术)
 - [🏗 总体架构](#-总体架构)
+- [⚡ RAG 主链路](#-rag-主链路)
 - [🧩 服务矩阵](#-服务矩阵)
 - [📁 仓库结构](#-仓库结构)
 - [🚀 快速开始](#-快速开始)
@@ -77,7 +78,15 @@
 
 ## 🏗 总体架构
 
-```
+<picture>
+  <source type="image/png" srcset="docs/assets/architecture.png">
+  <img src="docs/assets/architecture.svg" width="100%" alt="AI-RAG 总体架构：前端层 → 网关 → 微服务 → 中间件 → 大模型"/>
+</picture>
+
+<details>
+<summary>文本版架构（终端友好）</summary>
+
+```text
 前端 React + Vite (:3002)      搜索 · AI 助手 · AI 写作 · Agent · Admin
         │  HTTP / SSE（JWT）
         ▼
@@ -93,6 +102,21 @@ kb-gateway (:18080)            统一入口 · JWT 校验 · 注入可信用户�
                 · Nacos · RustFS；可选 Qdrant / Neo4j
 大模型：公网（通义 / DeepSeek）｜ 内网（Ollama 兼容端点）｜ AI_DEV_STUB 无 Key 联调
 ```
+
+</details>
+
+## ⚡ RAG 主链路
+
+<picture>
+  <source type="image/png" srcset="docs/assets/rag-pipeline.png">
+  <img src="docs/assets/rag-pipeline.svg" width="100%" alt="RAG 主链路：入库链路（上传 → 解析 → 切片 → 向量化 → 索引）与查询链路（检索 → 融合 → 重排 → 带引用生成）"/>
+</picture>
+
+入库与问答两条主链路的关键边界：
+
+- **入库**：切片带最近标题上下文；Embedding 结果按文本哈希缓存（Redis，TTL 24h）
+- **查询**：BM25 与 Dense 并行召回后 RRF 融合；重排可整体关闭（内网常见）
+- **换 Embedding Provider / 维度须重建索引**；检索形态受白名单约束
 
 ## 🧩 服务矩阵
 
@@ -185,6 +209,11 @@ cd deploy
 无需本机 JDK/Node：见 [deploy/README.md](deploy/README.md) 与 `docker-compose.full.yml`。
 
 ## 🔌 端口规划
+
+<picture>
+  <source type="image/png" srcset="docs/assets/deploy-topology.png">
+  <img src="docs/assets/deploy-topology.svg" width="100%" alt="部署拓扑：本机开发与全栈 Docker 两种形态的端口规划"/>
+</picture>
 
 ### 应用服务
 
