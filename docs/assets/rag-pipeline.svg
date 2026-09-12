@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1360 680" font-family="Segoe UI, Microsoft YaHei, PingFang SC, sans-serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#94A3B8"/>
+    </marker>
+    <marker id="arrv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#8B5CF6"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="1360" height="680" fill="#FFFFFF"/>
+
+  <text x="680" y="46" text-anchor="middle" font-size="30" font-weight="700" fill="#0F172A">RAG 主链路 · 入库与检索问答</text>
+  <text x="680" y="74" text-anchor="middle" font-size="14" fill="#64748B">段落感知切片 · Redis 向量缓存 · BM25 + Dense 并行召回 · RRF 融合 · 可选重排 · 带引用流式回答</text>
+
+  <!-- ======== ① 入库链路 ======== -->
+  <rect x="60" y="100" width="1240" height="190" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <circle cx="88" cy="126" r="4" fill="#7C3AED"/>
+  <text x="100" y="131" font-size="13" font-weight="700" fill="#475569">① 入库链路 · kb-file → kb-intelligence</text>
+  <g text-anchor="middle">
+    <rect x="84"  y="142" width="222" height="92" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+    <text x="195" y="166" font-size="13.5" font-weight="700" fill="#5B21B6">文档上传</text>
+    <text x="195" y="186" font-size="11" fill="#64748B">kb-file 秒传 / 分片续传</text>
+    <text x="195" y="202" font-size="11" fill="#64748B">SHA-256 预检 check-hash</text>
+    <text x="195" y="218" font-size="11" fill="#64748B">≥20MB 分片 · 上限约 500MB</text>
+    <rect x="326" y="142" width="222" height="92" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+    <text x="437" y="166" font-size="13.5" font-weight="700" fill="#5B21B6">解析</text>
+    <text x="437" y="186" font-size="11" fill="#64748B">Markdown / Office / PDF</text>
+    <text x="437" y="202" font-size="11" fill="#64748B">提取结构化文本</text>
+    <rect x="568" y="142" width="222" height="92" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+    <text x="679" y="166" font-size="13.5" font-weight="700" fill="#5B21B6">段落感知切片</text>
+    <text x="679" y="186" font-size="11" fill="#64748B">标题分章 → 分段</text>
+    <text x="679" y="202" font-size="11" fill="#64748B">token 合并 / 重叠</text>
+    <text x="679" y="218" font-size="11" fill="#64748B">块带最近标题上下文</text>
+    <rect x="810" y="142" width="222" height="92" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+    <text x="921" y="166" font-size="13.5" font-weight="700" fill="#5B21B6">向量化</text>
+    <text x="921" y="186" font-size="11" fill="#64748B">OpenAI 兼容 Embedding</text>
+    <text x="921" y="202" font-size="11" fill="#64748B">Redis 哈希缓存 · TTL 24h</text>
+    <text x="921" y="218" font-size="11" fill="#64748B">公网 / 内网 / local</text>
+    <rect x="1052" y="142" width="222" height="92" rx="10" fill="#F5F3FF" stroke="#C4B5FD" stroke-width="1.5"/>
+    <text x="1163" y="166" font-size="13.5" font-weight="700" fill="#5B21B6">索引写入</text>
+    <text x="1163" y="186" font-size="11" fill="#64748B">ES BM25 倒排</text>
+    <text x="1163" y="202" font-size="11" fill="#64748B">Dense：Qdrant / Milvus</text>
+    <text x="1163" y="218" font-size="11" fill="#64748B">双写可选（白名单形态）</text>
+  </g>
+  <line x1="306" y1="188" x2="326" y2="188" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="548" y1="188" x2="568" y2="188" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="790" y1="188" x2="810" y2="188" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="1032" y1="188" x2="1052" y2="188" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+
+  <path d="M 1163 290 L 1163 318 L 437 318 L 437 342" fill="none" stroke="#8B5CF6" stroke-width="1.5" stroke-dasharray="6 4" marker-end="url(#arrv)"/>
+  <text x="800" y="312" text-anchor="middle" font-size="11" fill="#7C3AED">写入索引 ▸ 供检索召回</text>
+
+  <!-- ======== ② 查询链路 ======== -->
+  <rect x="60" y="346" width="1240" height="190" rx="12" fill="#F8FAFC" stroke="#E2E8F0"/>
+  <circle cx="88" cy="372" r="4" fill="#0EA5E9"/>
+  <text x="100" y="377" font-size="13" font-weight="700" fill="#475569">② 查询链路 · kb-intelligence（/ai · 网关 JWT · 回答 SSE 流式）</text>
+  <g text-anchor="middle">
+    <rect x="84"  y="388" width="222" height="92" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="195" y="412" font-size="13.5" font-weight="700" fill="#0369A1">用户提问</text>
+    <text x="195" y="432" font-size="11" fill="#64748B">前端 / API 经网关</text>
+    <text x="195" y="448" font-size="11" fill="#64748B">JWT → 可信用户头</text>
+    <rect x="326" y="388" width="222" height="92" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="437" y="412" font-size="13.5" font-weight="700" fill="#0369A1">混合检索</text>
+    <text x="437" y="432" font-size="11" fill="#64748B">BM25 ∥ Dense 并行召回</text>
+    <text x="437" y="448" font-size="11" fill="#64748B">TopK 可配（热读）</text>
+    <rect x="568" y="388" width="222" height="92" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="679" y="412" font-size="13.5" font-weight="700" fill="#0369A1">融合</text>
+    <text x="679" y="432" font-size="11" fill="#64748B">默认 RRF</text>
+    <text x="679" y="448" font-size="11" fill="#64748B">可选加权 RAG_HYBRID_*</text>
+    <rect x="810" y="388" width="222" height="92" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5" stroke-dasharray="6 4"/>
+    <text x="921" y="412" font-size="13.5" font-weight="700" fill="#0369A1">重排（可选）</text>
+    <text x="921" y="432" font-size="11" fill="#64748B">api：专用 Rerank HTTP</text>
+    <text x="921" y="448" font-size="11" fill="#64748B">llm：对话模型精排</text>
+    <text x="921" y="464" font-size="11" fill="#64748B">auto / 通义 / 硅基 · 内网可关</text>
+    <rect x="1052" y="388" width="222" height="92" rx="10" fill="#F0F9FF" stroke="#7DD3FC" stroke-width="1.5"/>
+    <text x="1163" y="412" font-size="13.5" font-weight="700" fill="#0369A1">生成回答</text>
+    <text x="1163" y="432" font-size="11" fill="#64748B">对话模型流式输出（SSE）</text>
+    <text x="1163" y="448" font-size="11" fill="#64748B">Citation：文档 ID / 标题</text>
+    <text x="1163" y="464" font-size="11" fill="#64748B">片段摘要 · 相关度</text>
+  </g>
+  <line x1="306" y1="434" x2="326" y2="434" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="548" y1="434" x2="568" y2="434" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="790" y1="434" x2="810" y2="434" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+  <line x1="1032" y1="434" x2="1052" y2="434" stroke="#94A3B8" stroke-width="2" marker-end="url(#arr)"/>
+
+  <!-- ======== 要点 ======== -->
+  <g text-anchor="middle">
+    <rect x="84"  y="576" width="384" height="64" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="276" y="598" font-size="12.5" font-weight="700" fill="#475569">形态白名单</text>
+    <text x="276" y="616" font-size="11" fill="#64748B">es-es · es-qdrant · qdrant-qdrant</text>
+    <text x="276" y="632" font-size="11" fill="#64748B">es-milvus · milvus-milvus</text>
+    <rect x="488" y="576" width="384" height="64" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="680" y="598" font-size="12.5" font-weight="700" fill="#475569">参数双通道（不同步）</text>
+    <text x="680" y="616" font-size="11" fill="#64748B">TopK / 重排开关：写库 + Redis 热读</text>
+    <text x="680" y="632" font-size="11" fill="#64748B">连接地址 / Key：.env / Nacos</text>
+    <rect x="892" y="576" width="384" height="64" rx="10" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="1084" y="598" font-size="12.5" font-weight="700" fill="#475569">索引一致性</text>
+    <text x="1084" y="616" font-size="11" fill="#64748B">换 Embedding Provider / 维度</text>
+    <text x="1084" y="632" font-size="11" fill="#64748B">须重建索引后重新检索</text>
+  </g>
+</svg>
