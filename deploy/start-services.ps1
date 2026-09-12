@@ -3,10 +3,10 @@
 .SYNOPSIS
   Start 4 BC services + gateway. Intelligence default JVM 512m/1g, others 256m/512m.
 .PARAMETER Only
-  Start one service only: file|core|intelligence|statistics|agent|gateway|all
+  Start one service only: file|core|intelligence|statistics|agent|gateway|mcp|all
 #>
 param(
-    [ValidateSet("file", "core", "intelligence", "statistics", "agent", "gateway", "all")]
+    [ValidateSet("file", "core", "intelligence", "statistics", "agent", "gateway", "mcp", "all")]
     [string]$Only = "all",
     [string]$JvmXms = "",
     [string]$JvmXmx = "",
@@ -14,7 +14,8 @@ param(
     [string]$IntelligenceJvmXmx = "",
     [int]$WaitPortSec = 120,
     [switch]$ValidateJavaOnly,
-    [switch]$ImportNacos
+    [switch]$ImportNacos,
+    [switch]$IncludeMcp
 )
 
 $ErrorActionPreference = "Stop"
@@ -96,6 +97,8 @@ $services = @(
     @{ Id = "statistics";   Name = "kb-statistics";   Module = "kb-statistics";                    Pom = "kb-statistics/pom.xml";                    Port = 8085; Xms = $JvmXms; Xmx = $JvmXmx }
     @{ Id = "agent";        Name = "kb-agent";        Module = "kb-agent";                         Pom = "kb-agent/pom.xml";                         Port = 8092; Xms = $JvmXms; Xmx = $JvmXmx }
     @{ Id = "gateway";      Name = "kb-gateway";      Module = "kb-gateway";                       Pom = "kb-gateway/pom.xml";                       Port = 18080; Xms = $JvmXms; Xmx = $JvmXmx }
+    # kb-mcp 为可选独立进程（只读 MCP Server，8095），默认不随 all 启动：-IncludeMcp 或 -Only mcp 时启动
+    @{ Id = "mcp";          Name = "kb-mcp";          Module = "kb-mcp";                           Pom = "kb-mcp/pom.xml";                           Port = 8095; Xms = $JvmXms; Xmx = $JvmXmx; Optional = $true }
 )
 
 function Test-PortOpen {
@@ -175,11 +178,12 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "`nBUILD mvn compile + install parent..." -ForegroundColor Yellow
 Set-Location $BackendDir
 & mvn install -N -DskipTests -q
-& mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-app,kb-file,kb-statistics,kb-agent -am -q
+& mvn compile -pl kb-gateway,kb-core/kb-core-app,kb-intelligence/kb-intelligence-app,kb-file,kb-statistics,kb-agent,kb-mcp -am -q
 if ($LASTEXITCODE -ne 0) { throw "mvn compile failed" }
 
 foreach ($svc in $services) {
     if ($Only -ne "all" -and $Only -ne $svc.Id) { continue }
+    if ($svc.Optional -and $Only -eq "all" -and -not $IncludeMcp) { continue }
     Start-KbService -Svc $svc
 }
 

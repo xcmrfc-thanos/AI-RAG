@@ -111,8 +111,10 @@ Intelligence → Core 的系统 HMAC（任务 56）**仅**用于索引/后台文
 
 ## 8. 实现检查清单（65+）
 
-- [ ] Gateway 路由 `/api/agent/**` 无白名单豁免  
-- [ ] 工具 HTTP 客户端 base URL = Gateway  
-- [ ] 权限码入 SQL / 方法级授权  
-- [ ] ACL FAIL 时初始化仅管理员 view/run  
-- [ ] 审计字段符合本节第 4、5 条  
+> 2026-09-13 代码级核验：① `gateway.white-list` 无 `/api/agent/**`；② `agent.gateway-base-url` 指向网关 18080；③ `init_agent_permission.sql` 权限码 + `@PreAuthorize(AgentPermissionConstants)` 方法级授权；④ SQL 初始化仅管理员授予 view/run（普户仅 view），工具下游 403 → `FORBIDDEN`；⑤ `tool_audit` 结构化日志（tool/runId/stepId/status/durationMs，无正文）。
+
+- [x] Gateway 路由 `/api/agent/**` 无白名单豁免  
+- [x] 工具 HTTP 客户端 base URL = Gateway  
+- [x] 权限码入 SQL / 方法级授权  
+- [x] ACL FAIL 时初始化仅管理员 view/run  
+- [x] 审计字段符合本节第 4、5 条  

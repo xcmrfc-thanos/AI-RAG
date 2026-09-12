@@ -1,6 +1,6 @@
 # 只读 MCP Server 安全边界（P1 v1）
 
-> **状态**：DRAFT → 实施中（2026-07-31）  
+> **状态**：已实施 · 负向验收代码级核验通过（2026-09-13；初版 2026-07-31）  
 > **关联**：[agent-security-boundary.md](./agent-security-boundary.md)、[ai-entry-boundaries.md](../ai-entry-boundaries.md)、P0 基线  
 > **原则**：对齐 Agent 工具信任模型；禁止新增绕过 ACL 的读路径；禁止拷贝 lingclaw GPL 源码。
 
@@ -96,11 +96,13 @@ Cursor / 内部 Agent（MCP Client）
 
 ## 7. 负向验收（必须覆盖）
 
-- [ ] 无 Token 调 `/api/mcp/**` → 401  
-- [ ] 用户 A JWT 读用户 B 不可见文档 → 403 / FORBIDDEN，无正文泄露  
-- [ ] `mcp.server.enabled=false` → 业务调用失败  
-- [ ] 超出 QPS → 限流生效  
-- [ ] 审计日志无 JWT / 无完整正文  
+> 2026-09-13 代码级核验：①② 依据 `gateway.white-list`（无 `/api/mcp/**`）+ `McpReadonlyToolsTest#documentMapsForbidden`；③④ 由 `McpServerGateTest` / `McpRateLimiterTest` 覆盖（`mvn -pl kb-mcp test` 12 例通过）；⑤ `mcp_tool_audit` 结构化日志仅含 tool/userId/status/duration。运行时全链路复验可在 `verify-all.ps1` 冒烟中补做。
+
+- [x] 无 Token 调 `/api/mcp/**` → 401  
+- [x] 用户 A JWT 读用户 B 不可见文档 → 403 / FORBIDDEN，无正文泄露  
+- [x] `mcp.server.enabled=false` → 业务调用失败  
+- [x] 超出 QPS → 限流生效  
+- [x] 审计日志无 JWT / 无完整正文  
 
 ---
 

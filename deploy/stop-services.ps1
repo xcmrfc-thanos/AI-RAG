@@ -16,7 +16,8 @@
 #>
 param(
     [switch]$IncludeFrontend,
-    [switch]$IncludeDocker
+    [switch]$IncludeDocker,
+    [switch]$IncludeMcp
 )
 
 $ErrorActionPreference = "Continue"
@@ -25,6 +26,9 @@ $DeployDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ports = @(18080, 8084, 8090, 8091, 8085, 8092)
 if ($IncludeFrontend) {
     $ports += 3002
+}
+if ($IncludeMcp) {
+    $ports += 8095
 }
 
 Write-Host "========================================" -ForegroundColor Cyan
