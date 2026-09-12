@@ -93,6 +93,12 @@ public class FileInfo {
     private Long uploaderId;
 
     /**
+     * 上传用户名称（上传时从网关可信头 X-User-Name 冗余落库）
+     */
+    @Schema(description = "上传用户名称")
+    private String uploaderName;
+
+    /**
      * 访问级别：0-私有，1-团队可见，2-公开
      */
     @Schema(description = "访问级别")

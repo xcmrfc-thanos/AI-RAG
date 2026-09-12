@@ -9,8 +9,10 @@ import com.knowledge.base.common.result.Result;
 import com.knowledge.base.common.utils.SnowflakeIdGenerator;
 import com.knowledge.base.document.dto.FileUploadResponse;
 import com.knowledge.base.document.dto.RegisterStoredDTO;
+import com.knowledge.base.document.entity.Document;
 import com.knowledge.base.document.entity.FileMetadata;
 import com.knowledge.base.document.feign.FileServiceFeignClient;
+import com.knowledge.base.document.mapper.DocumentMapper;
 import com.knowledge.base.document.mapper.FileMetadataMapper;
 import com.knowledge.base.document.service.FileManagementService;
 import com.knowledge.base.document.service.FileUploadService;
@@ -65,6 +67,9 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
 
     @Resource
     private FileMetadataMapper fileMetadataMapper;
+
+    @Resource
+    private DocumentMapper documentMapper;
 
     @Resource
     private FileUploadService fileUploadService;
@@ -392,10 +397,38 @@ public class FileManagementServiceImpl extends ServiceImpl<FileMetadataMapper, F
             throw new BusinessException("无权限操作该文件");
         }
 
+        // 引用检查：文件已被文档引用时禁止删除
+        long refCount = countDocumentReferences(metadata);
+        if (refCount > 0) {
+            throw new BusinessException("文件已被 " + refCount + " 篇文档引用，请先解除引用后再删除");
+        }
+
         // 逻辑删除
         int result = fileMetadataMapper.deleteById(fileId);
         log.info("删除文件完成：result={}", result);
         return result > 0;
+    }
+
+    /**
+     * 统计引用该文件的文档数量
+     *
+     * <p>kb_document.file_path 记录的是导入时的文件地址，
+     * 与登记元数据的 accessUrl / storagePath 任一匹配即视为被引用。</p>
+     */
+    private long countDocumentReferences(FileMetadata metadata) {
+        List<String> paths = new ArrayList<>();
+        if (StringUtils.hasText(metadata.getAccessUrl())) {
+            paths.add(metadata.getAccessUrl());
+        }
+        if (StringUtils.hasText(metadata.getStoragePath())) {
+            paths.add(metadata.getStoragePath());
+        }
+        if (paths.isEmpty()) {
+            return 0;
+        }
+        Long count = documentMapper.selectCount(
+                new LambdaQueryWrapper<Document>().in(Document::getFilePath, paths));
+        return count != null ? count : 0;
     }
 
     /**

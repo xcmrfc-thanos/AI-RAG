@@ -1,5 +1,6 @@
 package com.knowledge.base.statistics.service.impl;
 
+import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
@@ -33,10 +34,13 @@ import com.knowledge.base.statistics.vo.TrendVO;
 import com.knowledge.base.statistics.vo.UserActivityVO;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.connection.Connection;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -107,6 +111,12 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+
+    @Resource
+    private JdbcTemplate jdbcTemplate;
+
+    @Resource
+    private ConnectionFactory rabbitConnectionFactory;
 
     @Resource(name = "caffeineCacheManager")
     private CacheManager caffeineCacheManager;
@@ -782,9 +792,66 @@ public class StatisticsServiceImpl implements StatisticsService {
         vo.setTotalTeams(countActiveTeams());
         vo.setAiSearchCount(nullSafe(aiStatisticsMapper.countConversations()));
         vo.setAiQaCount(nullSafe(aiStatisticsMapper.countUserMessages()));
-        vo.setSystemHealth(98.0); // TODO: 对接健康检查端点动态计算
+        vo.setSystemHealth(computeSystemHealth());
 
         return vo;
+    }
+
+    /**
+     * 计算系统健康度（0-100）：数据库 / Redis / RabbitMQ 三项关键依赖各占 1/3，
+     * 任一探测失败记 0 分，全部正常为 100。
+     */
+    private double computeSystemHealth() {
+        int healthy = 0;
+        healthy += isDatabaseHealthy() ? 1 : 0;
+        healthy += isRedisHealthy() ? 1 : 0;
+        healthy += isRabbitMqHealthy() ? 1 : 0;
+        return Math.round(healthy * 1000.0 / 3) / 10.0;
+    }
+
+    /**
+     * 数据库连通探测（Oracle 需要 FROM DUAL，其余方言直接 SELECT 1）
+     */
+    private boolean isDatabaseHealthy() {
+        try {
+            String probeSql = sqlDialectHelper.getDbType() == DbType.ORACLE
+                    ? "SELECT 1 FROM DUAL"
+                    : "SELECT 1";
+            Integer probe = jdbcTemplate.queryForObject(probeSql, Integer.class);
+            return probe != null;
+        } catch (Exception e) {
+            log.warn("健康检查：数据库探测失败：{}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Redis 连通探测
+     */
+    private boolean isRedisHealthy() {
+        try {
+            Boolean pong = redisTemplate.execute(
+                    (org.springframework.data.redis.core.RedisCallback<Boolean>) connection -> {
+                        connection.ping();
+                        return true;
+                    });
+            return Boolean.TRUE.equals(pong);
+        } catch (Exception e) {
+            log.warn("健康检查：Redis 探测失败：{}", e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * RabbitMQ 连通探测
+     */
+    private boolean isRabbitMqHealthy() {
+        try (Connection connection = rabbitConnectionFactory.createConnection()) {
+            return connection != null && connection.isOpen();
+        } catch (Exception e) {
+            log.warn("健康检查：RabbitMQ 探测失败：{}", e.getMessage());
+            return false;
+        }
     }
 
     // ======================== 仪表盘数据 ========================

@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 public class AuthGlobalFilter implements GlobalFilter, Ordered {
 
     private static final String HEADER_USER_ID = "X-User-Id";
+    private static final String HEADER_USER_NAME = "X-User-Name";
     private static final String HEADER_INTERNAL_SERVICE = "X-Internal-Service";
     private static final String HEADER_INTERNAL_TIMESTAMP = "X-Internal-Timestamp";
     private static final String HEADER_INTERNAL_SIGNATURE = "X-Internal-Signature";
@@ -81,9 +82,13 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
                 cleanedExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return cleanedExchange.getResponse().setComplete();
             }
-            ServerHttpRequest authenticated = cleanedRequest.mutate()
-                    .header(HEADER_USER_ID, String.valueOf(userId))
-                    .build();
+            ServerHttpRequest.Builder requestBuilder = cleanedRequest.mutate()
+                    .header(HEADER_USER_ID, String.valueOf(userId));
+            String username = jwtTokenUtil.getUsernameFromToken(token);
+            if (StringUtils.hasText(username)) {
+                requestBuilder.header(HEADER_USER_NAME, username);
+            }
+            ServerHttpRequest authenticated = requestBuilder.build();
             log.debug("AuthGlobalFilter: token parsed OK, userId={}, path={}", userId, path);
             return chain.filter(cleanedExchange.mutate().request(authenticated).build());
         } catch (Exception e) {
@@ -99,6 +104,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
     private ServerHttpRequest stripTrustHeaders(ServerHttpRequest request) {
         return request.mutate().headers(headers -> {
             headers.remove(HEADER_USER_ID);
+            headers.remove(HEADER_USER_NAME);
             headers.remove(HEADER_INTERNAL_SERVICE);
             headers.remove(HEADER_INTERNAL_TIMESTAMP);
             headers.remove(HEADER_INTERNAL_SIGNATURE);

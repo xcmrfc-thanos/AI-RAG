@@ -39,6 +39,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
@@ -321,8 +323,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
             throw new BusinessException("文件不存在");
         }
 
-        // 检查文件是否被其他文档引用（业务层校验）
-        // TODO: 实现文件引用检查逻辑
+        // 文档引用检查由 kb-core 删除链路负责（kb_document 与本服务分库，无法直查）；
+        // 文件管理页统一走 kb-core /file-management/delete，会先校验 kb_document.file_path 引用
 
         // 软删除文件信息
         fileInfo.setStatus(0);
@@ -1030,6 +1032,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
     }
 
     /**
+     * 从网关注入的可信头中取当前用户名（无鉴权上下文时返回 null）
+     */
+    private String currentUsername() {
+        if (RequestContextHolder.getRequestAttributes() instanceof ServletRequestAttributes attributes) {
+            return attributes.getRequest().getHeader("X-User-Name");
+        }
+        return null;
+    }
+
+    /**
      * 构建文件信息实体
      */
     private FileInfo buildFileInfo(MultipartFile file, String fileHash, String relativePath,
@@ -1045,6 +1057,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
         fileInfo.setFileHash(fileHash);
         fileInfo.setStorageType(storageFactory.getStorageType().toUpperCase());
         fileInfo.setUploaderId(dto.getUploaderId() != null ? dto.getUploaderId() : 1L);
+        fileInfo.setUploaderName(currentUsername());
         fileInfo.setAccessLevel(dto.getAccessLevel() != null ? dto.getAccessLevel() : 0);
         fileInfo.setDownloadCount(0);
         fileInfo.setStatus(1);
@@ -1119,7 +1132,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
                 .fileUrl(objectDirectUrl)
                 .previewUrl(objectDirectUrl)
                 .uploaderId(fileInfo.getUploaderId())
-                .uploaderName(null) // TODO: 查询用户名称
+                .uploaderName(StringUtils.hasText(fileInfo.getUploaderName())
+                        ? fileInfo.getUploaderName()
+                        : (fileInfo.getUploaderId() != null ? "用户#" + fileInfo.getUploaderId() : null))
                 .accessLevel(fileInfo.getAccessLevel())
                 .downloadCount(fileInfo.getDownloadCount())
                 .storageType(fileInfo.getStorageType())
@@ -1274,6 +1289,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, FileInfo> implement
         fileInfo.setFileHash(fileHash);
         fileInfo.setStorageType(storageFactory.getStorageType().toUpperCase());
         fileInfo.setUploaderId(dto.getUploaderId() != null ? dto.getUploaderId() : 1L);
+        fileInfo.setUploaderName(currentUsername());
         fileInfo.setAccessLevel(dto.getAccessLevel() != null ? dto.getAccessLevel() : 0);
         fileInfo.setDownloadCount(0);
         fileInfo.setStatus(1);

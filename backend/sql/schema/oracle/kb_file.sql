@@ -29,6 +29,7 @@ CREATE TABLE kb_file.kb_file (
   storage_type VARCHAR2(20) DEFAULT 'S3' NOT NULL,
   bucket_name VARCHAR2(100),
   uploader_id NUMBER(19) NOT NULL,
+  uploader_name VARCHAR2(50),
   access_level NUMBER(3) DEFAULT 0 NOT NULL,
   download_count NUMBER(10) DEFAULT 0 NOT NULL,
   status NUMBER(3) DEFAULT 1 NOT NULL,

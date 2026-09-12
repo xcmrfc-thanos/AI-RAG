@@ -20,6 +20,7 @@ CREATE TABLE `kb_file` (
   `storage_type` VARCHAR(20) NOT NULL DEFAULT 'S3' COMMENT '存储类型',
   `bucket_name` VARCHAR(100) DEFAULT NULL COMMENT '存储桶名称',
   `uploader_id` BIGINT NOT NULL COMMENT '上传者ID',
+  `uploader_name` VARCHAR(50) DEFAULT NULL COMMENT '上传用户名称',
   `access_level` TINYINT NOT NULL DEFAULT 0 COMMENT '访问级别：0私有 1团队 2公开',
   `download_count` INT NOT NULL DEFAULT 0 COMMENT '下载次数',
   `status` TINYINT NOT NULL DEFAULT 1 COMMENT '状态：0删除 1正常',
