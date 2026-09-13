@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Oracle schema smoke: try Docker gvenzl/oracle-xe; if image unavailable SKIP (doc gate) exit 0.
 # Authoritative DDL remains backend/sql/schema/mysql/.
 

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   上传秒传/分片冒烟：登录 → check-hash miss → 可选小文件上传后秒传命中。

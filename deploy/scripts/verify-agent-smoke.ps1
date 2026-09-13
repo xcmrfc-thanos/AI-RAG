@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Agent 冒烟（任务 71）：管理员草稿→Draft Run→校验→发布→Run；负向 401/403；ACL FAIL 时管理员限定模式。

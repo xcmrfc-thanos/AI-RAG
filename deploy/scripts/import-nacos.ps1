@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # Import backend/nacos/*.template into Nacos (namespace: knowledge)
 # 导入前加载 deploy/.env，展开 ${VAR:default}，避免手填 QWEN/SILICONFLOW 等 API Key
 $ErrorActionPreference = "Stop"

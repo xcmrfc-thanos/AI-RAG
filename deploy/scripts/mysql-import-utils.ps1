@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # MySQL 文件导入工具：通过 docker cp 导入，避免 PowerShell 管道破坏 UTF-8 中文
 
 <#

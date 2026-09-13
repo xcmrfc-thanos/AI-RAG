@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   P1 只读 MCP Server 冒烟：静态契约 + 可选 Live（Gateway）。

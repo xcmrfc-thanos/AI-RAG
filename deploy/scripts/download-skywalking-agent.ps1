@@ -1,4 +1,4 @@
-# download-skywalking-agent.ps1
+﻿# download-skywalking-agent.ps1
 # 下载 SkyWalking Agent 用于 Docker 镜像构建
 # 放到 deploy/ 目录并运行
 

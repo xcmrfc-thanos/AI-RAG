@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 用临时 Docker PostgreSQL 冒烟验证 schema/postgresql 翻译稿。
 # 依赖 Docker；权威 DDL 仍为 backend/sql/schema/mysql/。
 

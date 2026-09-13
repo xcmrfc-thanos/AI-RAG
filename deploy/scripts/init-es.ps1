@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 创建 ES 索引（无 IK 插件时使用 standard 分词；生产请安装 IK 后重建）
 $ErrorActionPreference = "Stop"
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

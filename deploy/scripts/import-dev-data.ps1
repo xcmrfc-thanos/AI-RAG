@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 导入 backend/sql/data 样例数据（DDL 已由 MySQL 容器 init 完成）
 $ErrorActionPreference = "Stop"
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)

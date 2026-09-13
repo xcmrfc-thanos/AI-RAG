@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Phase 7 integration gates: Golden offline, Search ACL, enableAgent checklist.

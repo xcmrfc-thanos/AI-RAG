@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Run integration acceptance suite (integration + api + llm + admin-ui static + build).
@@ -46,6 +46,7 @@ Set-Location $scriptDir
 Invoke-VerifyStep "verify-integration.ps1" { .\verify-integration.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-api.ps1" { .\verify-api.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-phase7-gates.ps1" { .\verify-phase7-gates.ps1 -GatewayUrl $GatewayUrl }
+Invoke-VerifyStep "verify-security-401.ps1" { .\verify-security-401.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-llm-config.ps1" { .\verify-llm-config.ps1 -GatewayUrl $GatewayUrl }
 Invoke-VerifyStep "verify-admin-ui.ps1" { .\verify-admin-ui.ps1 }
 Invoke-VerifyStep "verify-ai-workflow-trigger.ps1" { .\verify-ai-workflow-trigger.ps1 -SkipNpmTest }
@@ -58,8 +59,8 @@ Invoke-VerifyStep "backend targeted unit tests (56/57/66-70)" {
     }
     Push-Location $backendDir
     try {
-        mvn -pl kb-gateway,kb-core/kb-core-app,kb-core/kb-core-document,kb-agent -am test `
-            "-Dtest=AuthGlobalFilterTest,InternalServiceAuthFilterTest,InternalServiceHmacUtilTest,DocumentIndexingTriggerServiceImplTest,AgentToolRegistryTest,LinearWorkflowEngineTest,AgentRunServiceTest,AgentPermissionConstantsTest,AgentRunRetentionCleanerTest,OpenAiCompatibleAgentModelClientTest" `
+        mvn -pl kb-gateway,kb-core/kb-core-app,kb-core/kb-core-document,kb-agent,kb-mcp -am test `
+            "-Dtest=AuthGlobalFilterTest,InternalServiceAuthFilterTest,InternalServiceHmacUtilTest,DocumentIndexingTriggerServiceImplTest,AgentToolRegistryTest,LinearWorkflowEngineTest,AgentRunServiceTest,AgentPermissionConstantsTest,AgentRunRetentionCleanerTest,OpenAiCompatibleAgentModelClientTest,McpJsonRpcServiceTest,McpRateLimiterTest,McpServerGateTest,McpReadonlyToolsTest" `
             "-Dsurefire.failIfNoSpecifiedTests=false"
     }
     finally {

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   鉴权与 AI 安全冒烟（任务 58）：缺 Token/非法 Token/伪造内部头 → HTTP 401；登录后受保护 API 200。

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   生产暴露面检查记录（任务 56-Ops）：确认仅 Gateway 应对公网开放。

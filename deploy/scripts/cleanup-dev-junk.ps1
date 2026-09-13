@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   清理本地联调/冒烟产生的垃圾数据（保留 seed 样例与人工业务数据）

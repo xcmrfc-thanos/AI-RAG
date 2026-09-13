@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   重建 Elasticsearch 双索引（kb_document + kb_chunk）并可选触发业务侧全量回填。

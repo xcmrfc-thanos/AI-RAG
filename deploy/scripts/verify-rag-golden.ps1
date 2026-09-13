@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   RAG Golden v0：校验题集并（可选）对 Search API 计算 Hit@5 / MRR。

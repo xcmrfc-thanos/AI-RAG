@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Real LLM spotcheck: RAG chat citations / fromKnowledgeBase / refuse structure.

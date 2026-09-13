@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   触发已发布文档的 Neo4j/KAG 全量图谱重建，并轮询节点规模。

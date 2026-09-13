@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 方言 JVM 最小冒烟：kb-statistics 可选 IT（PG / Oracle upsert）。
 # 无 SMOKE_*_JDBC_URL 时测试 Assumptions 跳过，本脚本仍 exit 0（文档门禁）。
 # 不强制常驻 compose；库由调用方自备（可先跑 verify-pg-schema / verify-oracle-schema）。

@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
   Intelligence 搜索 + RAG 混合压测，用于 JVM 调优验收（任务 35）。

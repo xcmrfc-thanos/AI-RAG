@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 创建 RustFS bucket（S3 兼容，使用 mc 客户端）
 $ErrorActionPreference = "Stop"
 $Bucket = if ($env:RUSTFS_BUCKET) { $env:RUSTFS_BUCKET } else { "kb-files" }

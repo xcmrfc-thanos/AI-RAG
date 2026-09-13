@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 # 重新导入 backend/sql/schema/mysql 全部 DDL（库已存在时补表/重建）
 $ErrorActionPreference = "Stop"
 $DeployDir = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
