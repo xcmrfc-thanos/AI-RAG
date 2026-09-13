@@ -238,6 +238,7 @@ docker compose --profile observability --env-file .env up -d
 | Neo4j（可选） | **20474** / Bolt **20687** | neo4j；图谱可重建 |
 | Qdrant（可选） | HTTP **26333** / gRPC **26334** | 默认不随 setup 强制启动 |
 | SkyWalking（可选 APM） | OAP **11800** / HTTP **12800** · UI **38080** | 链路追踪；启用方式见[核心能力详解](#-核心能力详解) |
+| Prometheus / Grafana（observability） | **29090** / **23000**（Loki 无宿主端口） | 指标、仪表盘与告警；Alloy 采集容器日志入 Loki |
 
 > 完整端口、账号与全栈 Docker 说明见 [deploy/README.md](deploy/README.md)。
 
@@ -279,6 +280,7 @@ docker compose --profile observability --env-file .env up -d
   cd deploy; docker compose --env-file .env up -d skywalking-oap skywalking-ui
   # 3. 用 Dockerfile.backend 重建业务镜像并重启服务，UI 访问 http://127.0.0.1:38080
   ```
+- **可选监控**：observability profile 一键启用 Prometheus + Grafana（指标 / 仪表盘 / 邮件告警）与 Loki + Alloy（容器日志聚合），见[第9阶段计划](docs/第9阶段-可观测性与交付收口计划.md)
 - **可选**：Qdrant 旁路双写 + ES BM25 混合检索（见 [deploy/README.md](deploy/README.md)）
 
 ## 🧪 联调冒烟

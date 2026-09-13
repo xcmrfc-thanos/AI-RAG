@@ -35,7 +35,7 @@
   <text x="680" y="74" text-anchor="middle" font-size="14" fill="#7C8DB0">本机开发（PowerShell 脚本 + Docker 中间件）｜ 全栈 Docker（docker-compose.full.yml，免本机 JDK / Node）</text>
 
   <!-- ======== Panel A 本机开发 ======== -->
-  <rect x="60" y="100" width="600" height="650" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
+  <rect x="60" y="100" width="600" height="680" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
   <circle cx="88" cy="126" r="4" fill="#A78BFA"/>
   <text x="100" y="131" font-size="13" font-weight="700" fill="#9AB0CC">本机开发 DEV · setup.ps1 + start-services.ps1</text>
 
@@ -100,8 +100,13 @@
     <rect x="372" y="678" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
     <text x="386" y="705" font-size="12.5" font-weight="700" fill="#6EE7B7">Neo4j</text>
     <text x="630" y="705" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:20474 / :20687</text>
+    <rect x="84"  y="730" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="98"  y="757" font-size="12.5" font-weight="700" fill="#6EE7B7">SkyWalking OAP / UI</text>
+    <text x="342" y="757" font-size="12" font-weight="700" fill="#A7F3D0" text-anchor="end">:11800 / :38080</text>
+    <rect x="372" y="730" width="272" height="44" rx="8" fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" stroke-dasharray="6 4" filter="url(#glow)"/>
+    <text x="386" y="747" font-size="12.5" font-weight="700" fill="#6EE7B7">Prometheus / Grafana / Loki</text>
+    <text x="630" y="763" font-size="11" font-weight="700" fill="#A7F3D0" text-anchor="end">:29090 / :23000</text>
   </g>
-  <text x="360" y="742" text-anchor="middle" font-size="11" fill="#64748B">冒烟验证：.\scripts\verify-all.ps1</text>
 
   <!-- ======== Panel B 全栈 Docker ======== -->
   <rect x="700" y="100" width="600" height="650" rx="12" fill="#141F3A" fill-opacity="0.55" stroke="rgba(148,163,184,0.22)"/>
@@ -143,15 +148,16 @@
   <text x="724" y="584" font-size="11.5" fill="#8CA0BF">改 Key 后：FORCE_NACOS_IMPORT=true 重跑 kb-init</text>
   <text x="724" y="604" font-size="11.5" fill="#8CA0BF">或 Nacos 控制台改完后重启 kb-intelligence / kb-agent</text>
   <text x="724" y="624" font-size="11.5" fill="#8CA0BF">镜像定义：deploy/docker/Dockerfile.*（backend / frontend / init）</text>
+  <text x="724" y="706" font-size="11.5" fill="#8CA0BF">可观测（observability profile）：Prometheus :29090 · Grafana :23000 · Loki</text>
   <g>
-    <rect x="724" y="644" width="266" height="44" rx="8" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
+    <rect x="724" y="644" width="266" height="44" rx="8" fill="rgba(245,158,11,0.08)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="738" y="671" font-size="12" font-weight="700" fill="#FCD34D">浏览器入口</text>
     <text x="976" y="671" font-size="12" font-weight="700" fill="#FDE68A" text-anchor="end">:3002（kb-web）</text>
     <rect x="1010" y="644" width="266" height="44" rx="8" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.55)" stroke-width="1.5" filter="url(#glow)"/>
     <text x="1024" y="671" font-size="12" font-weight="700" fill="#FCD34D">API 入口</text>
     <text x="1262" y="671" font-size="12" font-weight="700" fill="#FDE68A" text-anchor="end">:18080（kb-gateway）</text>
   </g>
-  <text x="1000" y="722" text-anchor="middle" font-size="11" fill="#64748B">默认账号 admin / admin123</text>
+  <text x="1000" y="736" text-anchor="middle" font-size="11" fill="#64748B">默认账号 admin / admin123</text>
 
-  <text x="680" y="792" text-anchor="middle" font-size="12" fill="#8CA0BF">两种形态共用 deploy/env.example → .env 配置；完整端口与账号说明见 deploy/README.md</text>
+  <text x="680" y="792" text-anchor="middle" font-size="12" fill="#8CA0BF">两种形态共用 deploy/env.example → .env 配置；完整端口与账号说明见 deploy/README.md ｜ 冒烟：.\scripts\verify-all.ps1</text>
 </svg>
