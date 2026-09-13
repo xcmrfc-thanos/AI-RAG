@@ -17,6 +17,15 @@
     <description>文件服务</description>
 
     <dependencies>
+        <!-- 可观测性：Actuator 健康端点 + Prometheus 指标暴露 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <!-- 公共模块 -->
         <dependency>
             <groupId>com.knowledge.base</groupId>

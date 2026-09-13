@@ -17,6 +17,11 @@
     <description>只读 MCP Server（P1；独立进程，经 Gateway + 终端用户 JWT）</description>
 
     <dependencies>
+        <!-- 可观测性：Prometheus 指标暴露（actuator 已有） -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.knowledge.base</groupId>
             <artifactId>kb-common</artifactId>

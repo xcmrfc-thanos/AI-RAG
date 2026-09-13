@@ -17,6 +17,11 @@
     <description>独立 Agent 工作流服务（任务 65；不并入 Intelligence JVM）</description>
 
     <dependencies>
+        <!-- 可观测性：Prometheus 指标暴露（actuator 已有） -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.knowledge.base</groupId>
             <artifactId>kb-common</artifactId>

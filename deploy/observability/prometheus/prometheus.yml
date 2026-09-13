@@ -1,0 +1,21 @@
+# Prometheus 抓取配置（AI-RAG）
+# 业务服务（dev=宿主机 JVM / full=容器映射端口）均通过宿主机端口暴露 actuator，
+# 因此统一抓 host.docker.internal（compose 已配 host-gateway）。
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: ai-rag-services
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - host.docker.internal:18080 # kb-gateway
+          - host.docker.internal:8090  # kb-core
+          - host.docker.internal:8091  # kb-intelligence
+          - host.docker.internal:8084  # kb-file
+          - host.docker.internal:8085  # kb-statistics
+          - host.docker.internal:8092  # kb-agent
+          - host.docker.internal:8095  # kb-mcp（可选，未启动即 down，不影响其余目标）
+        labels:
+          stack: ai-rag
