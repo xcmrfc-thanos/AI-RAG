@@ -6,8 +6,8 @@ contactPoints:
   - orgId: 1
     name: ai-rag-email
     receivers:
-      - type: email
+      - uid: ai-rag-email-receiver
+        type: email
         isDefault: false
         settings:
-          addresses:
-            - alert@ai-rag.local
+          addresses: alert@ai-rag.local

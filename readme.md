@@ -195,6 +195,18 @@ cd deploy
 
 无需本机 JDK/Node：见 [deploy/README.md](deploy/README.md) 与 `docker-compose.full.yml`。
 
+### 可观测性（可选）
+
+```powershell
+cd deploy
+# SkyWalking 链路：UI http://127.0.0.1:38080
+docker compose --env-file .env up -d skywalking-oap skywalking-ui
+# 指标 + 日志 + 仪表盘/告警：Grafana http://127.0.0.1:23000（admin/admin123）
+docker compose --profile observability --env-file .env up -d
+# MySQL 备份（保留 14 天，内附定时任务注册示例）
+.\scripts\backup.ps1
+```
+
 ## 🔌 端口规划
 
 ![部署拓扑：本机开发与全栈 Docker 两种形态的端口规划](docs/assets/deploy-topology.png)
@@ -292,6 +304,8 @@ cd deploy\scripts
 | kb-file 文件引用检查 / 上传者名回显 | ✅ 已实现 | 删除前校验 `kb_document.file_path` 引用；上传者名称随可信头落库 |
 | kb-statistics 系统健康度 | ✅ 已实现 | DB / Redis / RabbitMQ 三项探测动态计算，替换固定值 98.0 |
 | kb-mcp / Agent 安全边界验收 | ✅ 已核验 | 负向验收 10 项完成代码级核验（单元测试 + 配置审读），见 `docs/agent/` |
+| 可观测性（SkyWalking / 指标 / 日志 / 告警） | ✅ 初步建成 | observability profile：Prometheus + Grafana + Loki/Alloy + 邮件告警，见[第9阶段计划](docs/第9阶段-可观测性与交付收口计划.md) |
+| CI / 备份 | ✅ 初步建成 | GitHub Actions 最小流水线；`backup.ps1` MySQL 定时备份（保留 14 天） |
 | 秒传 / 分片续传会话 | ⚠ MVP 限制 | 会话存 kb-file JVM 内存，进程重启后不可续传 |
 
 > 各阶段任务清单与验收口径见[文档地图](#-文档地图)。
@@ -305,6 +319,9 @@ cd deploy\scripts
 | [backend/README.md](backend/README.md) | 后端模块、编译、库表 |
 | [frontend/README.md](frontend/README.md) | 前端技术栈与开发说明 |
 | [docs/第7阶段-地基治理与Agent演进计划.md](docs/第7阶段-地基治理与Agent演进计划.md) | 第 7 阶段计划与验收 |
+| [docs/第8阶段-大模型统一管理与加密配置计划.md](docs/第8阶段-大模型统一管理与加密配置计划.md) | 第 8 阶段计划与实施记录 |
+| [docs/第9阶段-可观测性与交付收口计划.md](docs/第9阶段-可观测性与交付收口计划.md) | 监控/日志/告警/CI/备份 收口与裁剪决策记录 |
+| [docs/superpowers/plans/README.md](docs/superpowers/plans/README.md) | 历史实施计划归档索引 |
 | [docs/eval/rag-llm-spotcheck.md](docs/eval/rag-llm-spotcheck.md) | LLM 质量抽验清单 |
 | [docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md](docs/superpowers/plans/2026-07-18-upload-progress-resume-fast.md) | 真进度 / 分片 / 秒传实现计划 |
 | [docs/superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md](docs/superpowers/plans/2026-07-20-ai-dual-env-public-intranet.md) | AI 公网/内网双环境实现计划 |
